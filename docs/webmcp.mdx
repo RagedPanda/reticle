@@ -1,0 +1,76 @@
+---
+title: WebMCP compatibility
+sidebarTitle: WebMCP
+description: Discover website tools, invoke them through Reticle, and verify their observable consequences.
+icon: globe
+---
+
+Reticle's experimental WebMCP adapter consumes tools registered by the website. Open the site using the existing drive or lease workflow; Reticle's injected reader supplies observation without requiring the site to install a Reticle package.
+
+<Warning>
+  Native browser compatibility is not yet qualified. Unit and MCP transport tests exercise the
+  adapter. A successful native qualification run is required before claiming a supported browser
+  configuration.
+</Warning>
+
+## Discover, select, verify
+
+Call `reticle_look`:
+
+```json
+{ "action": "webmcp" }
+```
+
+The response reports `status`, `secureContext`, and paginated tool summaries. Use `nextOffset` as `offset` for the next page. Request details with the returned `toolId`:
+
+```json
+{ "action": "webmcp", "toolId": "<returned id>" }
+```
+
+Read `inputSchemaJson` before constructing parameters. Then call `reticle_act_and_wait`; this illustrative tool name and expected text must match the website you are testing:
+
+```json
+{
+  "action": "webmcp",
+  "args": { "tool": "addToCart", "params": { "sku": "sample-sku" } },
+  "until": { "kind": "text", "contains": "sample-sku added to cart" }
+}
+```
+
+Prefer the discovered `toolId` when names repeat across frames. Omit element `ref` and `target`. A `tool` name must be unique. The full MCP surface exposes discovery as `reticle_webmcp`; `reticle_run { tool: "reticle_webmcp", args: {} }` also reaches it.
+
+## What is checked
+
+Reticle validates the parameter object against the discovered input schema before dispatch. The current validator supports a draft-07 subset and refuses unsupported keywords, formats, dialects, and remote references. Destructive names and `consequentialHint` require `args.confirmDangerous: true`.
+
+`inputMode: "webmcp"` identifies a tool invocation. `toolResult` is bounded, sanitized website output with a self-report warning. An `{ ok: true }` returned by the website never establishes a Reticle pass. The existing verifier evaluates the independent `until` predicate, including observation gaps and unknown outcomes. Choose evidence appropriate to the claim: cart text can establish a UI update, while persistence needs a subsequent read of the stored data.
+
+IDs expire across documents, origin-scope changes, and registry revisions. Rediscover after navigation or a stale-id refusal. Do not save IDs for persistent flow replay. Website names, descriptions, annotations, and results remain untrusted content.
+
+## Browser configuration
+
+Reticle targets `document.modelContext.getTools` and `executeTool`. A navigator-hosted implementation is accepted only when it exposes the same consumer interface. An API that only registers tools cannot be consumed through this adapter.
+
+Before starting the daemon, configure `RETICLE_WEBMCP_EXECUTABLE` with a Chrome executable path and `RETICLE_WEBMCP_BROWSER_ARGS` with a JSON array of switches appropriate to that exact build. These settings apply to drive and lease launches, and their browser preflight checks the selected executable. External CDP browsers must be configured separately. No WebMCP flags are assumed by default.
+
+Object input is the default. Set `args.inputEncoding: "json"` explicitly for a qualified browser profile requiring JSON text. The adapter never retries another format after dispatch. `args.timeoutMs` bounds browser discovery plus execution (5000 ms by default, 8000 ms maximum). An abort or error may occur after a side effect; inspect before retrying.
+
+Discovery is same-origin by default. Explicit `fromOrigins` entries must be HTTPS origins; the browser still enforces permissions. `available` reports readable API shape, while `unavailable`, `unsupported`, and `denied` report runtime limitations. It is not a browser certification.
+
+## Native qualification
+
+From the repository, run `pnpm test:webmcp:native` with the browser configuration above. The fixture contains no Reticle SDK. The command injects the production reader, invokes native imperative and declarative tools through MCP, checks an observed effect, and requires a negative control to fail verification. Missing native APIs fail the command.
+
+Use `RETICLE_WEBMCP_HEADED=1` for a headed run, `RETICLE_WEBMCP_INPUT_ENCODING=json` for an older input format, and `RETICLE_WEBMCP_PORT` to override the fixture's bridge port 4419. Save the exact browser version and command output for each profile. The harness also covers cached reads, a backend rejection, registration/removal, and a cookie-authenticated website through the public lease workflow. Cross-origin permissions, navigation during execution, and external CDP operation need additional native qualification.
+
+The API is evolving. See the [WebMCP draft](https://webmachinelearning.github.io/webmcp/), [Chrome imperative API](https://developer.chrome.com/docs/ai/webmcp/imperative-api), and [Chrome declarative API](https://developer.chrome.com/docs/ai/webmcp/declarative-api) for the browser-side contracts.
+
+The manual **WebMCP native qualification** GitHub Actions workflow runs the lockfile-selected Chromium in separate headed and headless jobs. Supply the exact browser switches and input encoding to test. Each job fails if native APIs or required effects are unavailable; its artifact contains the log and a JSON report with the browser version, phase, completed checks, and result. `RETICLE_WEBMCP_REPORT` selects the JSON report path for a local run. A failed or incomplete report is not support evidence.
+
+| Profile                                     | Qualification status                            |
+| ------------------------------------------- | ----------------------------------------------- |
+| Native document API, object input, headed   | Pending native execution                        |
+| Native document API, object input, headless | Pending native execution                        |
+| Explicit JSON input profile                 | Pending native execution                        |
+| Navigator-hosted consumer API               | Adapter tests only; no native profile qualified |
+| Site-provided polyfill                      | No pinned version qualified                     |

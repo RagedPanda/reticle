@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <meta charset="utf-8" />
+  <title>Native WebMCP qualification</title>
+  <h1>Cart</h1>
+  <output id="cart-count">0</output>
+  <form
+    toolname="addWithForm"
+    tooldescription="Add the selected SKU to the fixture cart"
+    toolautosubmit
+  >
+    <label>SKU <input name="sku" required /></label>
+    <button>Add</button>
+  </form>
+  <script type="module">
+    // This site has no Reticle dependency and never replaces the browser's modelContext.
+    const context = document.modelContext;
+    window.fixtureReady = (async () => {
+      if (!context?.registerTool || !context?.getTools || !context?.executeTool) {
+        throw new Error('The native document.modelContext consumer API is unavailable');
+      }
+      async function add({ sku }) {
+        const response = await fetch('/cart', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ sku }),
+        });
+        const value = await response.json();
+        document.querySelector('#cart-count').textContent = String(value.count);
+        return value;
+      }
+      const schema = {
+        type: 'object',
+        properties: { sku: { type: 'string' } },
+        required: ['sku'],
+        additionalProperties: false,
+      };
+      await context.registerTool({
+        name: 'addToCart',
+        description: 'Add a SKU to the fixture cart',
+        inputSchema: schema,
+        execute: add,
+      });
+      await context.registerTool({
+        name: 'pretendToAdd',
+        description: 'Negative control that changes nothing',
+        inputSchema: schema,
+        execute: () => ({ ok: true }),
+      });
+      await context.registerTool({
+        name: 'readCart',
+        description: 'Read the cached cart count',
+        inputSchema: { type: 'object', additionalProperties: false },
+        execute: () => ({ count: Number(document.querySelector('#cart-count').textContent) }),
+      });
+      await context.registerTool({
+        name: 'rejectCart',
+        description: 'Negative control whose backend rejects the change',
+        inputSchema: schema,
+        execute: async () => {
+          await fetch('/reject-cart', { method: 'POST' });
+          return { ok: true };
+        },
+      });
+      document.querySelector('form').addEventListener('submit', (event) => {
+        event.preventDefault();
+        const result = add({ sku: new FormData(event.target).get('sku') });
+        if (event.agentInvoked) event.respondWith(result);
+      });
+      return true;
+    })();
+    window.fixtureReady.catch(() => {});
+  </script>
+</html>
