@@ -215,6 +215,7 @@ export const EXTENDED_TOOL_NAMES: ReadonlySet<string> = new Set([
   // orientation replaces exploratory snapshots, and an unproven entry is the one that gives way.
   // Still one `reticle_run` hop from any agent that wants it.
   ReticleTool.CAPABILITIES,
+  ReticleTool.WEBMCP,
   ReticleTool.FLOW_SAVE,
   ReticleTool.FLOW_REPLAY,
   // Unproven, so it does not take a default-surface slot under the cap. Same terms as the

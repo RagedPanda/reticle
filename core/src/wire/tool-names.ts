@@ -57,6 +57,7 @@ export const ReticleTool = {
   STATE: 'reticle_state',
   STORAGE: 'reticle_storage',
   CAPABILITIES: 'reticle_capabilities',
+  WEBMCP: 'reticle_webmcp',
   CONTRACT_SAVE: 'reticle_contract_save',
   DOMAIN: 'reticle_domain',
   FLOW_SAVE: 'reticle_flow_save',

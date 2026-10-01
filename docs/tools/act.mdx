@@ -93,3 +93,9 @@ This is where `act` earns its place even though it proves nothing.
   response carries a `warning` when the tab is throttled. Pass `refuseWhenThrottled: true` to make
   Reticle throw instead of pretending it acted.
 </Warning>
+
+## WebMCP actions
+
+Discover site tools with `reticle_look { action: "webmcp" }`, then request a tool's `inputSchemaJson` using its `toolId`. Invoke `action: "webmcp"` with `args: { toolId, params }` and **omit `ref` and `target`**. A unique `tool` name also works. Reticle validates parameters before dispatch.
+
+`inputMode: "webmcp"` means the website's tool was invoked. `toolResult` and its self-report warning describe what the website returned; they do not establish a verdict. Use `reticle_act_and_wait` with an independent `until` predicate to check the consequence. See [WebMCP compatibility](/webmcp) for configuration, limits, and current qualification status.

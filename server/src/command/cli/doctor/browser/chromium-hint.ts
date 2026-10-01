@@ -23,6 +23,7 @@
 
 import { existsSync, readdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
+import { chromiumExecutablePath, WEBMCP_BROWSER_ENV } from '@/chromium-launch-options.js';
 
 /** What the check found, gathered by the caller so this stays pure and testable. */
 export interface ChromiumProbe {
@@ -30,6 +31,8 @@ export interface ChromiumProbe {
   executablePath?: string | undefined;
   /** Whether that path exists on disk. */
   exists: boolean;
+  /** The operator selected this path instead of the bundled Chromium. */
+  configuredExecutable?: boolean;
   /** Version of the playwright the DAEMON bundles — not whatever `npx` would fetch. */
   playwrightVersion?: string | undefined;
   /** The revision that path names, e.g. `chromium-1223`. Undefined if the path has no revision in it. */
@@ -128,14 +131,18 @@ function installedRevisions(root: string): string[] {
  * `executablePath()` resolves the revision the daemon will actually launch AND the root it will look
  * in, which is why the probe never reads `PLAYWRIGHT_BROWSERS_PATH` itself.
  */
-export async function probeChromium(): Promise<ChromiumProbe> {
+export async function probeChromium(
+  env: Readonly<Record<string, string | undefined>> = process.env,
+): Promise<ChromiumProbe> {
+  const configured = chromiumExecutablePath(env);
   const searched = playwrightResolutionRoots();
   try {
     const { chromium } = await import('playwright');
-    const executablePath = chromium.executablePath();
+    const executablePath = configured ?? chromium.executablePath();
     const parsed = parseChromiumRevision(executablePath);
     return {
       executablePath,
+      ...(configured === undefined ? {} : { configuredExecutable: true }),
       exists: existsSync(executablePath),
       playwrightVersion: bundledPlaywrightVersion(),
       ...(null === parsed
@@ -195,6 +202,11 @@ export function bundledPlaywrightVersion(): string | undefined {
 
 /** The doctor line for the Chromium check — verdict, what was probed, and how to satisfy it. */
 export function chromiumHint(probe: ChromiumProbe): string {
+  if (true === probe.configuredExecutable) {
+    return probe.exists
+      ? `✓ installed (configured browser: ${probe.executablePath ?? ''})`
+      : `✗ configured browser missing — looked for ${probe.executablePath ?? ''}; correct ${WEBMCP_BROWSER_ENV.EXECUTABLE} or install that browser at the selected path`;
+  }
   if (probe.exists) {
     // Naming the revision on the happy line too: it is the number the mismatch line talks about, and
     // a reader comparing two machines has nothing to compare without it.

@@ -172,7 +172,10 @@ describe('tool allowlists are complete', () => {
      * `verificationOf` still requires a verdict shape this action does not return. It saves flows;
      * the replay of those flows is what produces a verdict, and that is counted where it happens.
      */
-    const PINNED_RAW_TOOL_COUNT = 64;
+    // WebMCP discovery reads the current page: SESSION_BOUND, CAPTURED, and EXTENDED.
+    // It does not dispatch, mint DOM refs, use CDP, or produce a verdict; other sets exclude it.
+    // The merged LOOK surface remains its advertised entry point.
+    const PINNED_RAW_TOOL_COUNT = 65;
 
     expect(
       RAW_TOOLS.length,

@@ -419,7 +419,7 @@ A `state` assertion is graded as a **consequence** (a wrong element or stale ren
 | `scrollIntoView` | n/a |  |
 | `upload` | `{ name, content?, type? }` | sets a file on `<input type=file>` |
 | `drag` | `{ toRef }` | pointer-based drag (dnd-kit / rbd) + HTML5 DnD |
-| `webmcp` | `{ tool, params }` | calls a `navigator.modelContext` tool if the site exposes one |
+| `webmcp` | `{ toolId, params }` (or unique `tool` name) | runs a tool the site registered with WebMCP (`document.modelContext`); `toolResult` is the site's own report, not proof; pair it with `act_and_wait { until }` |
 
 ---
 
@@ -1089,3 +1089,27 @@ That's it. Reticle correlates the CDP page to your SDK session by URL; pointer a
 > **Watching the agent (presenter).** With `present: true` the activity border now glows once while the agent is busy and fades when idle (no per-action strobe); the HUD sits **bottom-center**, shows a **READING** vs **ACTING** chip so you can tell observation from action at a glance, and `reticle_session {action:"narrate"}` lines are **queued** with a minimum on-screen dwell so none flash by unread.
 
 > **Limitation: un-scriptable tabs.** Reticle observes/drives a tab through the in-page SDK + (optionally) CDP; it **cannot bring to front or recover a browser tab the OS won't let it script** (e.g. a backgrounded or non-default-browser tab reporting `hidden:true`/`throttled:true`). When that happens, `reticle_session { action: "list" }` and every act/assert result carry a `session.recommendation` saying so and pointing to `reticle drive <url>` for a guaranteed scriptable context. Refocus the tab, or use `reticle drive`.
+
+## WebMCP websites (experimental)
+
+Open the site through the existing `reticle drive <url>` or lease workflow. The zero-install reader can discover tools already registered by the website; the website needs no Reticle dependency. Browser support for the consumer API is required.
+
+1. Call `reticle_look { action: "webmcp" }` for availability and paginated summaries.
+2. Call `reticle_look { action: "webmcp", toolId: "<returned id>" }` for `inputSchemaJson`. Use `nextOffset` as the next request's `offset` when paging.
+3. Call `reticle_act_and_wait` with `action: "webmcp"`, `args: { toolId, params }`, and an independent `until` predicate. Omit `ref` and `target`.
+
+The full surface also offers `reticle_webmcp`; the default surface can reach it with `reticle_run { tool: "reticle_webmcp", args: {} }`. Site tool names and schemas are data, so registering a site tool does not add a new MCP tool to Reticle's advertised surface.
+
+Parameters must be an object matching the discovered JSON Schema (draft-07 subset; unsupported keywords, formats, dialects, and remote references are refused). Missing parameters default to `{}`; malformed parameters are refused. Destructive names or `consequentialHint` require `args.confirmDangerous: true`. `readOnlyHint` does not bypass that check. Website descriptions, hints, and results are untrusted site content.
+
+IDs belong to one document, frame, origin scope, and registry revision. Rediscover after navigation, registration changes, or a stale-id refusal. Names must be unique within the selected scope. `fromOrigins` accepts explicit HTTPS origins and relies on the browser's permission policy; it never grants access itself. Persistent flow replay with saved tool IDs is not supported.
+
+Execution defaults to object input. Select `args.inputEncoding: "json"` only for a browser profile that requires JSON text. Reticle never retries with another encoding after an execution error. `args.timeoutMs` bounds browser discovery plus execution (default 5000, maximum 8000); cancellation requests an abort, but effects may already have occurred. Inspect the app before retrying. `toolResult` is sanitized, bounded, and labeled self-reported; `inputMode: "webmcp"` distinguishes it from UI input. A returned `{ ok: true }` does not establish a Reticle pass. Choose a predicate for the actual consequence: a request being sent alone does not prove persistence.
+
+For experimental browser builds, set `RETICLE_WEBMCP_EXECUTABLE` to the Chrome executable and `RETICLE_WEBMCP_BROWSER_ARGS` to a JSON array of the switches required by that build before starting the daemon. Both the lease and drive launch paths read this configuration. Reticle does not choose WebMCP flags automatically. An already-running external CDP browser must be configured separately.
+
+The native `document.modelContext.getTools` / `executeTool` consumer interface is targeted. `navigator.modelContext` is accepted only when it provides the same consumer shape; a registration-only API is insufficient. `available` means the API and registry were readable at discovery time, not that the browser profile has passed qualification. `unavailable`, `unsupported`, and `denied` include diagnostics; ordinary UI actions remain usable.
+
+**Native compatibility is not yet qualified.** Mock and MCP transport tests exercise the adapter, but do not prove native imperative tools, declarative forms, headed/headless support, cross-origin frames, or authentication. From a source checkout, run `pnpm test:webmcp:native` with an explicitly configured browser. It builds Reticle, injects the real reader into a vanilla website, invokes imperative and declarative tools through MCP, and requires an independent positive verdict plus a negative control. Missing native APIs fail the command. Set `RETICLE_WEBMCP_HEADED=1` to qualify a headed profile, `RETICLE_WEBMCP_INPUT_ENCODING=json` for a legacy profile, or `RETICLE_WEBMCP_PORT` if the fixture's default bridge port 4419 is occupied. Each profile needs its own recorded passing run before it can be called supported.
+
+The browser preflight uses `RETICLE_WEBMCP_EXECUTABLE` when configured, so a missing bundled Chromium does not reject the selected browser. To retain qualification evidence, set `RETICLE_WEBMCP_REPORT` to a JSON file path. The native harness covers registration/removal, cached reads, backend rejection, and an authenticated zero-install lease in addition to imperative/declarative effects. The manual **WebMCP native qualification** workflow runs headed and headless profiles separately and uploads reports for both successes and failures. No profile is currently certified by those unexecuted native checks.

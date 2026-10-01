@@ -163,7 +163,7 @@
               },
               {
                 "group": "Grammar",
-                "pages": ["predicates", "actions", "recipes"]
+                "pages": ["predicates", "actions", "webmcp", "recipes"]
               },
               {
                 "group": "Long form",

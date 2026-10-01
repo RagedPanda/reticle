@@ -47,6 +47,12 @@ export default defineConfig({
   // Every package shares one bound; see vitest.shared.ts for the gate this kept red.
   test: { ...sharedTestOptions },
   resolve: {
-    alias: [{ find: /^@reticlehq\/core$/, replacement: CORE_SRC }],
+    alias: [
+      {
+        find: /^@reticlehq\/core\/webmcp$/,
+        replacement: fileURLToPath(new URL('../core/src/wire/webmcp.ts', import.meta.url)),
+      },
+      { find: /^@reticlehq\/core$/, replacement: CORE_SRC },
+    ],
   },
 });

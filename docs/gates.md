@@ -47,12 +47,21 @@ The Windows and Rust jobs are still **not** run here: they are CI-only. They are
 
 ---
 
+## Quick product check
+
+Run `pnpm test:smoke` after `pnpm install --frozen-lockfile`. Install Chromium once with `pnpm exec playwright install chromium` (Linux CI uses `--with-deps`). The command builds the server and its dependencies, starts an isolated fixture and daemon, connects over stdio MCP, and drives a real Chromium session. It needs no scaffold generator, registry, API key, or running app. It checks a true assertion, a click with both DOM and HTTP consequences, a false assertion, and a deliberately broken button. Unknown or inconclusive results fail. A separate counter in the fixture server verifies that exactly one write happened.
+
+Evidence is written to `artifacts/smoke/`: `result.json`, `calls.json`, daemon output, and MCP stderr. The browser phase has a 120-second watchdog; duration is recorded, not used as a performance assertion. This is a quick check of the default MCP surface and zero-install reader. It does not replace framework installation, state/source mapping, desktop, or full E2E coverage. Its runtime is not yet qualified on CI; local verification in the restricted workspace cannot bind loopback ports.
+
+The `smoke` CI job is included in `gate` and preserves the first failure without retrying it. The longer E2E battery remains required independently. The npm publish workflow also requires this smoke before publishing, including on a manual dispatch.
+
 ## 1. The routing table
 
 Find the row that matches what you changed. Run its commands. That is the whole rule.
 
 | You changed | Run | Cost |
 | --- | --- | --- |
+| Quick product feedback | `pnpm test:smoke` | recorded in `artifacts/smoke/result.json`; CI timing pending |
 | **Anything at all** | `pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:unit` | ~2 min |
 | The tool surface, the wire contract (`core`), or an observer | ↑ **and** `pnpm test:e2e` | +~8 min |
 | `reticle init`, `@reticlehq/vite-plugin`, `@reticlehq/next`, `@reticlehq/babel-plugin`, anything a user runs before their first session | ↑ **and** `pnpm gate:install` | +~15 min |
@@ -72,16 +81,22 @@ Which means a gate skipped locally can also be skipped in CI, if what you change
 | --- | --- |
 | `verify` (lint, docs lint, types) and `unit-tests` (the unit suite), in parallel; `format-check` is its own job | always |
 | `macos` | always, but only a narrow platform-sensitive slice of the tests |
-| `windows` | the merge queue, main, nightly and on demand; not on each pull-request push. Same narrow slice as `macos` |
+| `windows` | the merge queue, main, nightly and on demand; full build, typecheck, unit suite, and daemon runtime checks |
+| `smoke` | product changes on PRs; always in the queue and on main, nightly, and manual runs |
 | `e2e` | a pull request that touches a package or app the battery boots; always in the merge queue and on main. Split into three parallel shards (`E2E_SHARD=k/3`); the integration suite and the soak run in shard 1 |
-| `rust` (Linux) | always. It is the only job in CI that compiles `adapters/realm/tauri` at all, so a skip would be a real hole |
-| `rust-macos` | only when the Rust crate changed. A second opinion on the same crate, on a runner that bills at ten times the rate |
-| `install-gate` | only when something a user runs before their first session changed. A pull request runs three Linux scaffolds (vite-react, next-app-router, monorepo-subdir) and one Windows scaffold (vite-react); the merge queue runs all ten on Linux; nightly runs all ten on Linux and Windows |
-| the install gate's self-test | only when the gate's own machinery changed, or on a push to main. It proves the gate can still fail, and that only changes when the gate changes |
+| `rust` (Linux) and `rust-macos` | changes to the standalone Cargo tree or CI workflow; full runs nightly and on demand |
+| `install-packages` and `install-gate` | installation paths, CLI setup, build adapters, browser SDK, dependency graph, or gate machinery. A PR runs three Linux scaffolds and vite-react on Windows; the queue runs all eleven on Linux; nightly/manual runs all eleven on both OSes. One prepack produces the same tarballs for all cells |
+| the install gate's self-test | gate machinery changes, nightly, and manual runs. `--with-self-test` shares one registry publish across the control and positive phases |
 | `desktop-e2e` | only when desktop code changed |
 | `bench` | after merge: on a push to main when something that could move the numbers changed, nightly, and on demand. It is ~19 minutes, a contributor cannot act on a token regression, and a red main run names the commit before any release |
 
 ---
+
+The install control blocks Reticle WebSockets in the browser, leaving the daemon alive. Every requested scaffold must fail **only** its session check and must have attempted the blocked socket. Registry errors, crashes, inconclusive transport, missing results, and an unexpectedly passing control fail qualification. There are no scaffold waivers. The positive phase additionally calls real MCP assertions and a DOM action through the installed SDK; `hasCapabilities` alone cannot pass it. `pnpm gate:install --only vite-react --with-self-test` exercises both phases locally.
+
+CI's `install-packages` job runs the real prepacks once and uploads tarballs plus a manifest. Each cell validates the commit, package inventory, versions, and SHA-256 digests before restoring emitted code and publishing those tarballs to its private Verdaccio. Init still performs a real dependency install. The Windows cells consume the Linux-built packages, as consumers of a Linux-built release do; Windows compilation remains covered by the Windows job. An ordinary local `pnpm gate:install` still runs prepack itself. `INSTALL_GATE_PACKAGES=<directory>` explicitly selects a prepared artifact; `node scripts/pack-install-gate.mjs <empty-directory>` produces one.
+
+This removes repeated package compilation, not framework coverage. Generator downloads still use the upstream scaffold versions declared in the gate, including floating `latest` references; npm's content cache reduces downloads but does not make those dependency resolutions reproducible. Before claiming a latency or flake-rate improvement, compare completed PR and merge-group runs on GitHub, including first-attempt failures and time waiting for runners. That qualification is pending.
 
 ## 2. Every gate, and what each one can actually see
 

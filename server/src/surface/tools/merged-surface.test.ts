@@ -101,7 +101,7 @@ describe('the merged surface trims names, never capabilities', () => {
     expect(actions).toBeDefined();
     const plan = SURFACE_MERGE_PLANS.find((p) => p.name === ReticleTool.LOOK);
     expect(Object.keys(plan?.members ?? {}).sort()).toEqual(
-      ['element', 'find', 'page', 'state'].sort(),
+      ['element', 'find', 'page', 'state', 'webmcp'].sort(),
     );
     // Every member still exists as a real tool with a real handler — a merge must not invent one.
     for (const member of Object.values(plan?.members ?? {})) {

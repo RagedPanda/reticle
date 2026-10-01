@@ -23,6 +23,8 @@
     "bench:corpus-verify": "node bench/false-green-corpus/verify-rows.mjs",
     "bench:recoverability": "node bench/diagnosis/recoverability.mjs",
     "test:coverage": "turbo run test:coverage",
+    "test:webmcp:native": "pnpm build && node server/scripts/webmcp-native.mjs",
+    "test:smoke": "pnpm exec turbo run build --filter=@reticlehq/server... && node apps/e2e/smoke.mjs",
     "test:e2e": "bash apps/e2e/run-ci.sh",
     "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:unit",
     "format": "prettier --write .",

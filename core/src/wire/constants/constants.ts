@@ -636,6 +636,7 @@ export type PerfMetric = (typeof PerfMetric)[keyof typeof PerfMetric];
 export const InputMode = {
   REAL: 'real',
   SYNTHETIC: 'synthetic',
+  WEBMCP: 'webmcp',
 } as const;
 export type InputMode = (typeof InputMode)[keyof typeof InputMode];
 
@@ -685,6 +686,13 @@ export const ActionWarning = {
    */
   GLOBAL_PRESS:
     'press landed on the focused element or document — no named target was given, so this effect does not claim one',
+  /**
+   * A WebMCP tool's return value is the site describing its own tool call, through the same channel
+   * that performed it. The spec itself says a tool's declared intent may not match its behaviour, so
+   * the result is never evidence: prove the consequence independently.
+   */
+  WEBMCP_SELF_REPORTED:
+    "toolResult is the site's own report, not evidence — prove it with reticle_act_and_wait { until }",
 } as const;
 export type ActionWarning = (typeof ActionWarning)[keyof typeof ActionWarning];
 
@@ -843,6 +851,7 @@ export const ReticleCommand = {
   NARRATE: 'narrate',
   CLOCK: 'clock',
   CAPABILITIES: 'capabilities',
+  WEBMCP: 'webmcp',
   STATE_READ: 'state_read',
   /** Read localStorage / sessionStorage / readable cookies (sensitive keys redacted). */
   STORAGE_READ: 'storage_read',

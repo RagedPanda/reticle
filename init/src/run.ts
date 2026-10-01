@@ -41,6 +41,8 @@ import { formatGeneratedSource } from './patch/format-generated.js';
 
 /** CRA's bundled entry, in the order create-react-app itself generates them. */
 const CRA_ENTRY_CANDIDATES = ['src/index.tsx', 'src/index.jsx', 'src/index.ts', 'src/index.js'];
+/** Preview snippets must not mint a real machine credential or imply this token is usable. */
+const DRY_RUN_PAIRING_TOKEN = 'DRY_RUN_TOKEN_NOT_FOR_USE';
 
 function craEntryOf(io: InitIo): { path: string; source: string } | null {
   for (const path of CRA_ENTRY_CANDIDATES) {
@@ -411,7 +413,7 @@ function gatherPlanInput(options: InitOptions, io: InitIo, pkg: unknown): PlanIn
     tanstackStartRoot: TANSTACK_START_ROOT_CANDIDATES.find((file) => io.exists(file)),
     craEntry: craEntryOf(io),
     craEnv: io.readFile(CRA_ENV_PATH),
-    pairingToken: io.host.pairingToken(),
+    pairingToken: options.dryRun ? DRY_RUN_PAIRING_TOKEN : io.host.pairingToken(),
     installSource: io.host.installSource(),
     reticleConfigExists: io.exists(RETICLE_CONFIG_FILE),
     // The CONTENT, so a config that exists can be checked rather than trusted — a `"port"` set to
@@ -766,7 +768,8 @@ function runInitSteps(options: InitOptions, io: InitIo): InitResult {
         'framework, the dev script and the package manager from it, and will not guess at any of ' +
         'them from a file it cannot read.',
     );
-    io.host.reportOutcome({ ok: false, reason: InitFailure.MALFORMED_PACKAGE_JSON });
+    if (!options.dryRun)
+      io.host.reportOutcome({ ok: false, reason: InitFailure.MALFORMED_PACKAGE_JSON });
     return { ok: false, applied: 0, manual: 0 };
   }
   const pkgRaw = manifest.pkg;
@@ -816,7 +819,9 @@ function runInitSteps(options: InitOptions, io: InitIo): InitResult {
     //
     // Written only when absent. A config a user or an earlier run already placed here is theirs.
     const nonJsProjectId = deriveProjectId(undefined, io.cwd());
-    if (!io.exists(RETICLE_CONFIG_FILE)) {
+    if (options.dryRun) {
+      io.print('Dry run: no files written; the snippet uses a placeholder pairing token.');
+    } else if (!io.exists(RETICLE_CONFIG_FILE)) {
       io.writeFile(
         RETICLE_CONFIG_FILE,
         reticleConfigContent(Framework.HTML, options.port, nonJsProjectId, io.host.installSource()),
@@ -824,7 +829,11 @@ function runInitSteps(options: InitOptions, io: InitIo): InitResult {
       rememberProjectOnDisk(io, nonJsProjectId, io.cwd(), Date.now());
       io.print(`Wrote ${RETICLE_CONFIG_FILE} (project "${nonJsProjectId}").`);
     }
-    const connect = connectArgWithToken(options.port, nonJsProjectId, io.host.pairingToken());
+    const connect = connectArgWithToken(
+      options.port,
+      nonJsProjectId,
+      options.dryRun ? DRY_RUN_PAIRING_TOKEN : io.host.pairingToken(),
+    );
     io.print(
       streamlit
         ? streamlitPageSnippet(connect)
@@ -834,7 +843,7 @@ function runInitSteps(options: InitOptions, io: InitIo): InitResult {
     );
     // The onboarding funnel had NO instrumentation, so a setup that died here was indistinguishable
     // from someone who never ran the command — the two failure modes with the most different fixes.
-    io.host.reportOutcome({ ok: false, reason: InitFailure.NO_PACKAGE_JSON });
+    if (!options.dryRun) io.host.reportOutcome({ ok: false, reason: InitFailure.NO_PACKAGE_JSON });
     return { ok: false, applied: 0, manual: 0 };
   }
 
@@ -858,6 +867,7 @@ function runInitSteps(options: InitOptions, io: InitIo): InitResult {
   });
   if (resolved.refusal !== undefined) {
     io.print(resolved.refusal);
+    if (!options.dryRun) io.host.reportOutcome({ ok: false, reason: InitFailure.PREFLIGHT });
     return { ok: false, applied: 0, manual: 1 };
   }
   // The prefix that can actually run it on THIS machine — `pnpm`, or `corepack pnpm` where preflight

@@ -1,5 +1,12 @@
 # e2e — the test runner, not an app
 
+For a quick product check, run **`pnpm test:smoke`** from the repository root. It builds the required
+packages and drives an isolated real browser through stdio MCP, including positive and negative
+verdicts. Install Chromium once with `pnpm exec playwright install chromium`. Evidence is saved in
+`artifacts/smoke/`; no external app, registry, or model is needed. See [the gate guide](../../docs/gates.md)
+for coverage limits and the full install/E2E commands.
+
+
 **Job: support infrastructure.** This is the battery itself. It lives under `apps/` for historical
 reasons; nothing here is an application under test.
 

@@ -1,5 +1,5 @@
 // Tier 1: install Reticle into apps that have never seen it, and check a session actually appears
-// AND can answer a state question (`hasCapabilities`). Connected is not verifiable.
+// AND answers true/false assertions and an action over MCP. A HELLO is not a working install.
 //
 // Every gate in this repo is blind to the install. `apps/bench-app`, `apps/next-smoke` and the rest
 // are ALREADY instrumented, so re-running `init` over one reports `·` (already wired) for every step
@@ -24,7 +24,11 @@
 //   pnpm gate:install                 # all scaffolds
 //   node apps/e2e/install-gate.mjs --only next-pages-router [--keep]
 //   pnpm gate:install:self-test       # negative control: every scaffold must go RED
-import { execFileSync, spawn } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
+import { promisify } from 'node:util';
+import { evaluateInstallControl, SESSION_CHECK } from './install-control.mjs';
+import { requireAssertion, requireVerdict } from './smoke-checks.mjs';
+import { restoreInstallPackages } from './install-packages.mjs';
 
 // ── Never phone home from the gate ───────────────────────────────────────────────────────────────
 //
@@ -125,25 +129,13 @@ function pm(cmd, args = []) {
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const CLI = join(ROOT, 'server/dist/command/cli.js');
-/** Private ports, so this never fights the battery or a developer's own daemon. */
-/**
- * Separate port ranges for the self-test, which runs FIRST in CI and in the same job.
- *
- * The self-test deliberately points each scaffold's init one port off its daemon, so its own init
- * daemons land on exactly the ports the real run is about to use. On Windows, where a process's
- * teardown outlives the kill, the real run's monorepo init then found its port taken, moved up one,
- * and registered this run's projectId on a port the harness was not watching. Discovery did the
- * right thing with the wrong daemon and the gate reported "no session ever appeared".
- *
- * Ranges that cannot overlap are cheaper than reasoning about how long a Windows handle lives.
- */
+const PACKAGE_DIRECTORY = process.env.INSTALL_GATE_PACKAGES;
+// Validation/restoration precedes any live registry, so a corrupt artifact cannot be tested.
+const PREBUILT_PACKAGES = PACKAGE_DIRECTORY === undefined ? undefined : restoreInstallPackages(PACKAGE_DIRECTORY, ROOT);
+/** Separate ranges keep a control's teardown out of the positive run. */
 const SELF_TEST_PORT_OFFSET = 60;
-const BRIDGE_PORT_BASE =
-  Number(process.env.INSTALL_GATE_PORT ?? '4788') +
-  (process.argv.includes('--self-test') ? SELF_TEST_PORT_OFFSET : 0);
-const APP_PORT_BASE =
-  Number(process.env.INSTALL_GATE_APP_PORT ?? '4820') +
-  (process.argv.includes('--self-test') ? SELF_TEST_PORT_OFFSET : 0);
+const BRIDGE_PORT_BASE = Number(process.env.INSTALL_GATE_PORT ?? '4788');
+const APP_PORT_BASE = Number(process.env.INSTALL_GATE_APP_PORT ?? '4820');
 /** Generous: a cold Next build is slow, and a timeout here reads as an install failure. */
 const BOOT_TIMEOUT_MS = 180_000;
 const CONNECT_TIMEOUT_MS = 45_000;
@@ -161,16 +153,11 @@ const KEEP = process.argv.includes('--keep');
  */
 const INSTALL_PROBE_TESTID = 'reticle-install-probe';
 const INSTALL_PROBE_FILE = 'reticle-install-probe.ts';
-/**
- * Negative control: wire the app to a port the daemon is NOT on, so no session can appear, and
- * require the gate to FAIL.
- *
- * `check-boundaries.mjs --self-test` and `check-lossy-transforms.mjs --self-test` already run this
- * way in CI, for the reason this repo keeps rediscovering: a guard that has never failed is not a
- * guard. The session check (connected AND verifiable) is the assertion that proves the install
- * WORKS, so it is the one that most needs to be shown capable of going red.
- */
-const SELF_TEST = process.argv.includes('--self-test');
+/** Block the real SDK socket and require exactly the session check to fail. */
+const CONTROL_ONLY = process.argv.includes('--self-test');
+const WITH_CONTROL = process.argv.includes('--with-self-test');
+let SELF_TEST = CONTROL_ONLY;
+if (CONTROL_ONLY && WITH_CONTROL) throw new Error('choose --self-test or --with-self-test');
 /** Re-record the baseline instead of asserting against it. The diff is then reviewed in the PR. */
 const UPDATE_BASELINE = process.argv.includes('--update-baseline');
 /**
@@ -232,28 +219,12 @@ const VERDACCIO_BIN = join(ROOT, 'apps/e2e/node_modules/verdaccio/bin/verdaccio'
 
 async function startLocalRegistry() {
   await freePortSafely(REGISTRY_PORT);
-  // The paths scripts/verdaccio.yaml actually uses. Resetting BOTH matters: leave the htpasswd file
-  // behind and the second run's user-create returns no token (the user already exists), which
-  // presents as "no token from verdaccio" and looks like a registry fault rather than stale state.
-  const storage = join(tmpdir(), 'reticle-verdaccio-storage');
-  const htpasswd = join(tmpdir(), 'reticle-verdaccio-htpasswd');
-  // `force` swallows ENOENT and nothing else. Windows raises EPERM/EBUSY while any handle on the
-  // tree is still open — a verdaccio from a previous run being torn down is exactly that — and an
-  // unretried delete there fails the gate before it has started, with an errno instead of a reason.
-  const winSafe = { recursive: true, force: true, maxRetries: 8, retryDelay: 250 };
-  rmSync(storage, winSafe);
-  rmSync(htpasswd, winSafe);
-  // The checked-in config names POSIX paths, and `/tmp` on Windows resolves to whatever the current
-  // drive happens to be. Rather than keep a second Windows copy that drifts from the first, the one
-  // config is read and its two paths repointed at this machine's real temp directory.
+  // Storage and htpasswd are relative to the config. A fresh config directory isolates both
+  // without deleting state another registry may own. Override listen explicitly: the checked-in
+  // default must not silently ignore INSTALL_GATE_REGISTRY_PORT.
   const config = join(mkdtempSync(join(tmpdir(), 'reticle-gate-verdaccio-')), 'verdaccio.yaml');
-  writeFileSync(
-    config,
-    readFileSync(join(ROOT, 'scripts/verdaccio.yaml'), 'utf8')
-      .replace('/tmp/reticle-verdaccio-storage', storage.split('\\').join('/'))
-      .replace('/tmp/reticle-verdaccio-htpasswd', htpasswd.split('\\').join('/')),
-  );
-  const proc = spawn(process.execPath, [VERDACCIO_BIN, '--config', config], {
+  writeFileSync(config, readFileSync(join(ROOT, 'scripts/verdaccio.yaml'), 'utf8'));
+  const proc = spawn(process.execPath, [VERDACCIO_BIN, '--config', config, '--listen', `0.0.0.0:${REGISTRY_PORT}`], {
     cwd: ROOT,
     detached: !WIN,
     stdio: ['ignore', 'pipe', 'pipe'],
@@ -349,13 +320,13 @@ async function publishInto(proc) {
     `registry=${REGISTRY}\n//localhost:${String(REGISTRY_PORT)}/:_authToken=${token}\n`,
   );
   const auth = { npm_config_userconfig: npmrc, NPM_CONFIG_USERCONFIG: npmrc };
-  run(
-    'pnpm',
-    ['-r', 'publish', '--registry', REGISTRY, '--no-git-checks'],
-    ROOT,
-    auth,
-    PUBLISH_TIMEOUT_MS,
-  );
+  if (PREBUILT_PACKAGES !== undefined) {
+    for (const tarball of PREBUILT_PACKAGES) {
+      await run('npm', ['publish', tarball, '--registry', REGISTRY, '--ignore-scripts', '--provenance=false'], ROOT, auth);
+    }
+  } else {
+    await run('pnpm', ['-r', 'publish', '--registry', REGISTRY, '--no-git-checks'], ROOT, auth, PUBLISH_TIMEOUT_MS);
+  }
   return { proc, auth, stop: () => killTree(proc.pid) };
 }
 
@@ -749,16 +720,21 @@ function dumpEvidence(consoleLines, bridgePort, failedResponses = [], wsAttempts
   }
 }
 
-const run = (cmd, args, cwd, extraEnv = {}, timeoutMs = 600_000) => {
+const execFileAsync = promisify(execFile);
+// Keep consuming the registry/dev-server pipes while npm runs. A synchronous child blocks
+// those readers, eventually backing up a noisy registry and hanging its own npm install.
+const run = async (cmd, args, cwd, extraEnv = {}, timeoutMs = 600_000) => {
   const it = pm(cmd, args);
-  return execFileSync(it.cmd, it.args, {
+  const { stdout } = await execFileAsync(it.cmd, it.args, {
     cwd,
+    maxBuffer: 16 * 1024 * 1024,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
     env: { ...process.env, ...extraEnv },
     timeout: timeoutMs,
     ...it.shellOpts,
   });
+  return stdout;
 };
 
 /**
@@ -928,8 +904,9 @@ async function driveScaffold(scaffold, index) {
 
   // A port pair per scaffold. Sequential runs would be fine sharing one, but a scaffold that leaves
   // a dev server behind must not be able to make the NEXT scaffold look broken.
-  const bridgePort = BRIDGE_PORT_BASE + index * 2;
-  const appPort = APP_PORT_BASE + index * 2;
+  const offset = SELF_TEST ? SELF_TEST_PORT_OFFSET : 0;
+  const bridgePort = BRIDGE_PORT_BASE + offset + index * 2;
+  const appPort = APP_PORT_BASE + offset + index * 2;
 
   console.log(`\n──────── ${scaffold.id} ────────`);
   note(scaffold.what);
@@ -955,6 +932,9 @@ async function driveScaffold(scaffold, index) {
   const initFrom = scaffold.initFrom === undefined ? app : join(workdir, scaffold.initFrom);
   let daemon;
   let dev;
+  let browser;
+  let transport;
+  let client;
   /**
    * Ports init said it was using, captured where `report` is in scope.
    *
@@ -967,7 +947,7 @@ async function driveScaffold(scaffold, index) {
   try {
     // ── 1. a surface that has never seen Reticle ──────────────────────────────────────────────
     note('scaffolding…');
-    if (scaffold.create !== undefined) run(scaffold.create[0], scaffold.create[1], workdir);
+    if (scaffold.create !== undefined) await run(scaffold.create[0], scaffold.create[1], workdir);
     // Files that ARE the scaffold, for a framework with no generator left to run (see CRA_FILES).
     // Before the probe stamp, which needs the app directory to exist.
     for (const [rel, content] of Object.entries(scaffold.files ?? {})) {
@@ -1001,7 +981,7 @@ async function driveScaffold(scaffold, index) {
     // until a moment ago — matches nothing, so npm silently falls through to the public registry and
     // the gate would measure the published SDK while reporting on local changes.
     writeFileSync(join(app, '.npmrc'), `@reticlehq:registry=${REGISTRY}\n`);
-    run('npm', ['install', '--no-audit', '--no-fund'], app);
+    await run('npm', ['install', '--no-audit', '--no-fund'], app);
     // The lockfile npm just wrote is the reason the inherited-lockfile trap was unreachable here.
     // `resolveLockfiles` returns the moment it sees a LOCAL lockfile — "local is authoritative" — so
     // an ancestor `pnpm-lock.yaml` is never consulted and a scaffold that seeds one passes whether
@@ -1029,9 +1009,9 @@ async function driveScaffold(scaffold, index) {
     let report = '';
     let initExit = 0;
     try {
-      report = run(
+      report = await run(
         'node',
-        [CLI, 'init', '--port', String(SELF_TEST ? bridgePort + 1 : bridgePort), '--no-mcp'],
+        [CLI, 'init', '--port', String(bridgePort), '--no-mcp'],
         initFrom,
         {
           npm_config_registry: REGISTRY,
@@ -1066,7 +1046,7 @@ async function driveScaffold(scaffold, index) {
     // there is: which bridge port init was told to use, which ports its report mentions, and which
     // daemon claims which project.
     if (0 !== initExit) {
-      note(`init was told to use bridge port ${String(SELF_TEST ? bridgePort + 1 : bridgePort)}`);
+      note(`init was told to use bridge port ${String(bridgePort)}`);
       note(`init's report mentions ports: ${handedOverPorts.join(', ') || '(none)'}`);
       dumpEvidence([], bridgePort);
     }
@@ -1217,7 +1197,7 @@ async function driveScaffold(scaffold, index) {
     // that, and `daemonCwd` below is asserted empty after the drive.
     mkdirSync(daemonCwd, { recursive: true });
     daemon = await startOwnedDaemon(bridgePort, { cliPath: CLI, cwd: daemonCwd });
-    const transport = watchTransport(bridgePort);
+    transport = watchTransport(bridgePort);
 
     // ── 6. boot, and open it in a real browser ──────────────────────────────────────────────────
     const [devCmd, devArgs] = scaffold.dev(appPort);
@@ -1259,8 +1239,18 @@ async function driveScaffold(scaffold, index) {
     );
 
     const { chromium } = await import('playwright');
-    const browser = await chromium.launch();
+    browser = await chromium.launch();
     const page = await browser.newPage();
+    // Block only Reticle's socket. Port mis-wiring can be repaired by project discovery, which
+    // made the monorepo control pass and required a waiver. Intercepting the actual connection
+    // proves the failure detector without changing init's input or breaking framework HMR.
+    let blockedConnections = 0;
+    if (SELF_TEST) {
+      await page.routeWebSocket((url) => url.pathname === '/reticle', async (route) => {
+        blockedConnections += 1;
+        await route.close();
+      });
+    }
     const consoleLines = [];
     page.on('console', (m) => consoleLines.push(`${m.type()}: ${m.text()}`));
     // WHAT was refused, not just that something was. A console line reading "Failed to load
@@ -1328,11 +1318,11 @@ async function driveScaffold(scaffold, index) {
       // Neither a pass nor a clean fail. A scaffold that never had a bridge was never tested, and
       // reporting that as an install failure is how a correct SvelteKit install became a bug report.
       console.log(`   ⚠️  INCONCLUSIVE — ${verdict.because}`);
-      fail += 1;
+      chk('transport stayed available', false, verdict.because);
     } else {
       const passed = verdict.outcome === Attribution.PASS;
       chk(
-        'a session appears and can answer a state question',
+        SESSION_CHECK,
         passed,
         passed
           ? (sessions[0]?.url ?? '')
@@ -1344,6 +1334,45 @@ async function driveScaffold(scaffold, index) {
       // something went wrong and not enough to know what. A `403 (Forbidden)` on Windows cost a
       // whole CI round trip for exactly this reason: it named a status and not an origin.
       if (!passed) dumpEvidence(consoleLines, bridgePort, failedResponses, wsAttempts);
+    }
+
+    // HELLO's hasCapabilities is a declaration, not proof that any command answers. Exercise
+    // the installed SDK through stdio MCP, without injecting or reconnecting a replacement SDK.
+    if (!SELF_TEST && verdict.outcome === Attribution.PASS) {
+      const { McpStdioClient } = await import('../../bench/harness/mcp-client.mjs');
+      client = new McpStdioClient('node', [CLI, 'mcp', '--port', String(bridgePort)],
+        { RETICLE_PORT: String(bridgePort), RETICLE_TELEMETRY: '0' }, { cwd: app });
+      await client.start();
+      const sessionId = sessions.find((session) => session.hasCapabilities)?.sessionId;
+      if (typeof sessionId !== 'string') throw new Error('connected session has no id');
+      await page.evaluate((testid) => {
+        const button = document.createElement('button');
+        button.dataset.testid = testid;
+        button.textContent = 'Reticle install probe ready';
+        button.addEventListener('click', () => { button.textContent = 'Reticle install probe clicked'; });
+        document.body.append(button);
+      }, INSTALL_PROBE_TESTID);
+      const call = async (name, args) => {
+        const raw = await client.request('tools/call', { name, arguments: args }, 15_000);
+        if (raw?.isError === true) throw new Error(JSON.stringify(raw));
+        return JSON.parse((raw?.content ?? []).filter((item) => item.type === 'text').map((item) => item.text).join('\n'));
+      };
+      requireAssertion(await call('reticle_assert', {
+        sessionId, predicate: { kind: 'element', query: { by: 'testid', value: INSTALL_PROBE_TESTID } },
+        timeout_ms: 5000,
+      }), true);
+      chk('the installed SDK answers a true assertion over MCP', true);
+      requireVerdict(await call('reticle_act_and_wait', {
+        sessionId, action: 'click', target: { testid: INSTALL_PROBE_TESTID },
+        until: { kind: 'text', contains: 'Reticle install probe clicked' }, timeout_ms: 5000,
+      }), true);
+      chk('an MCP action changes the installed page',
+        await page.getByTestId(INSTALL_PROBE_TESTID).textContent() === 'Reticle install probe clicked');
+      requireAssertion(await call('reticle_assert', {
+        sessionId, predicate: { kind: 'element', query: { by: 'testid', value: `${INSTALL_PROBE_TESTID}-absent` } },
+        timeout_ms: 250,
+      }), false);
+      chk('the installed SDK refuses a false assertion', true);
     }
 
     // ── 9. Reticle wrote nothing into the directory it was merely STARTED in ────────────────────
@@ -1362,10 +1391,13 @@ async function driveScaffold(scaffold, index) {
       strays.length === 0 ? '' : `left behind: ${strays.join(', ')}`,
     );
 
-    await browser.close();
+    if (SELF_TEST) chk('the negative control intercepted a Reticle socket', blockedConnections > 0);
   } catch (err) {
     chk('the scaffold ran to completion', false, String(err).slice(0, 300));
   } finally {
+    transport?.stop();
+    await client?.stop();
+    await browser?.close();
     if (dev !== undefined) killTree(dev.pid);
     if (daemon !== undefined) await daemon.stop();
     await freePortSafely(appPort);
@@ -1404,11 +1436,11 @@ async function driveScaffold(scaffold, index) {
   // scaffold seconds later.
   const which = 0 === failedChecks.length ? '' : ` (${failedChecks.join('; ')})`;
   console.log(`   ${fail === 0 ? '✓' : '✗'} ${scaffold.id}: ${pass} passed, ${fail} failed${which}`);
-  return { id: scaffold.id, pass, fail };
+  return { id: scaffold.id, pass, fail, failedChecks };
 }
 
 console.log('\n=== INSTALL GATE: pristine apps, installed into, opened, and asked to connect ===');
-if (SELF_TEST) console.log('   (self-test: every scaffold is mis-wired and MUST fail)');
+if (SELF_TEST) console.log('   (self-test: Reticle sockets are blocked; only the session check MUST fail)');
 await sweepBatteryOrphans([], { onNote: (n) => console.log(`   · ${n}`) });
 
 // Free ports used by either the real run or a preceding self-test (which runs first in CI in the
@@ -1436,6 +1468,7 @@ if (chosen.length === 0) {
 
 let registry;
 const results = [];
+const controlResults = [];
 try {
   console.log('   · publishing @reticlehq/* to a local registry…');
   registry = await startLocalRegistry();
@@ -1446,6 +1479,12 @@ try {
     // then an EBUSY on a temp directory ended the run and four scaffolds were never attempted.
     // A crash is that scaffold's failure to report, not a reason to stop asking the question.
     try {
+      if (WITH_CONTROL) {
+        SELF_TEST = true;
+        console.log('   · negative control');
+        controlResults.push(await driveScaffold(scaffold, index));
+        SELF_TEST = false;
+      }
       results.push(await driveScaffold(scaffold, index));
     } catch (err) {
       console.log(`   ✗ ${scaffold.id} crashed: ${String(err).slice(0, 300)}`);
@@ -1453,7 +1492,7 @@ try {
     }
   }
 } catch (err) {
-  // The reason, not the banner. execFileSync's message begins with the command and then its STDOUT,
+  // The reason, not the banner. execFile's message begins with the command and then its STDOUT,
   // so a truncation of it shows npm's package listing and never the error — which is precisely how
   // this failure arrived from CI unreadable.
   const detail = [err?.stderr, err?.stdout, String(err)]
@@ -1477,63 +1516,15 @@ for (const r of results) {
   console.log(`   ${r.fail === 0 ? '✅' : '❌'} ${r.id.padEnd(20)} ${r.pass} passed, ${r.fail} failed`);
 }
 
-/**
- * Scaffolds whose negative control is KNOWN not to fail, and the honest reason.
- *
- * A waiver here does NOT excuse the scaffold's real run — that still has to pass every assertion
- * like any other. It excuses only the CONTROL: the claim that mis-wiring this scaffold would be
- * detected. For anything listed, that claim is currently unproven, and the install-gate green for
- * it means "nothing failed", not "a failure would have been caught".
- *
- * The reason is recorded as what is actually known, not as a theory. Four explanations for
- * `monorepo-subdir` were offered and all four were disproved, so the entry says so rather than
- * repeating the most recent guess. What IS observed: `init` is told bridgePort + 1 and the
- * generated connect bakes that port, yet the app's session appears on bridgePort. Reproduce with
- * `--self-test --only monorepo-subdir --keep` and print `sessionsOn(bridgePort)` alongside
- * `sessionsOn(bridgePort + 1)` at the assertion. Corrupting `projectId` in `.reticle.json` after
- * `init` does NOT restore the control — tried, and reverted.
- */
-const CONTROL_CANNOT_FAIL = new Map([
-  [
-    'monorepo-subdir',
-    'mis-wiring the bridge port is not detected here; the override path is unidentified',
-  ],
-]);
-
-if (SELF_TEST) {
-  // Inverted, and per scaffold. A green here would mean the session check passes regardless of
-  // reality, which is the only way this whole script could be worthless while looking fine.
-  const undetected = results.filter((r) => r.fail === 0).map((r) => r.id);
-  const waived = undetected.filter((id) => CONTROL_CANNOT_FAIL.has(id));
-  const unexpected = undetected.filter((id) => !CONTROL_CANNOT_FAIL.has(id));
-
-  // A waiver that has outlived its reason is worse than no waiver: it hides a control that started
-  // working again, and nobody re-reads a line that never speaks. So a waived scaffold that WAS
-  // detected says so, loudly, and names itself for deletion.
-  const stale = results
-    .filter((r) => r.fail > 0 && CONTROL_CANNOT_FAIL.has(r.id))
-    .map((r) => r.id);
-  for (const id of stale) {
-    console.log(
-      `\n   ⚠️  ${id} IS now detected — its entry in CONTROL_CANNOT_FAIL is stale and should be deleted.`,
-    );
-  }
-  for (const id of waived) {
-    console.log(`\n   ⚠️  ${id} went undetected, WAIVED — ${String(CONTROL_CANNOT_FAIL.get(id))}`);
-    console.log(`       its real run still has to pass; what is unproven is that a break would be caught.`);
-  }
-
-  const ok = unexpected.length === 0;
-  console.log(
-    `\n${ok ? '✅ SELF-TEST PASSED' : '❌ SELF-TEST FAILED'} — ` +
-      (ok
-        ? `every mis-wired install was correctly reported as a failure` +
-          (waived.length > 0
-            ? ` (${String(waived.length)} waived: ${waived.join(', ')} — control unproven there)`
-            : '')
-        : `these went UNDETECTED and so prove nothing: ${unexpected.join(', ')}`),
-  );
-  process.exit(ok ? 0 : 1);
+let controlPassed = true;
+if (CONTROL_ONLY || WITH_CONTROL) {
+  const { ok, problems } = evaluateInstallControl(
+    CONTROL_ONLY ? results : controlResults, chosen.map((s) => s.id));
+  controlPassed = ok;
+  for (const problem of problems) console.error(`   ✗ ${problem}`);
+  console.log(`\n${ok ? '✅ SELF-TEST PASSED' : '❌ SELF-TEST FAILED'} — ` +
+    'each scaffold must fail only its session check; setup errors and missing evidence fail the control');
+  if (CONTROL_ONLY) process.exit(ok ? 0 : 1);
 }
 
 const failed = results.filter((r) => r.fail > 0);
@@ -1541,4 +1532,4 @@ console.log(
   `\n${failed.length === 0 ? '✅ INSTALL GATE PASSED' : '❌ INSTALL GATE FAILED'} ` +
     `(${String(results.length - failed.length)}/${String(results.length)} scaffolds)`,
 );
-process.exit(failed.length === 0 ? 0 : 1);
+process.exit(failed.length === 0 && controlPassed ? 0 : 1);

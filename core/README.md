@@ -10,6 +10,8 @@ Most people never install this directly. Install the package for your audience i
 
 See the [main README](https://github.com/reticlehq/reticle) and [MIGRATION.md](https://github.com/reticlehq/reticle/blob/main/MIGRATION.md).
 
+The experimental WebMCP schemas and types are exported from `@reticlehq/core/webmcp`. This separate entry keeps them out of the browser SDK's initial download; the SDK loads its WebMCP adapter when discovery or execution is requested.
+
 ## The wire contract as JSON Schema
 
 `@reticlehq/core` ships machine-readable [JSON Schema](https://json-schema.org) for the wire contract under `dist/schema/`, generated from the zod schemas so the two can never drift (a parity test enforces it). This is the **conformance target for non-TypeScript SDKs**: a Python, Go, or Rust SDK validates its messages against these schemas without importing the TypeScript library.

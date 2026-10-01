@@ -1,7 +1,6 @@
 import {
   ActionType,
   ComponentStateReason,
-  DANGEROUS_ACTION_CONFIRM_ARG,
   ElementQuerySchema,
   ReticleCommand,
   SnapshotMode,
@@ -15,12 +14,8 @@ import {
 import { buildSnapshot } from '@/dom/snapshot.js';
 import { paintContextOf } from '@/dom/paint-context.js';
 import { matchQuery, runQuery } from '@/dom/query.js';
-import {
-  executeAction,
-  executeSequence,
-  dispatchWebMcp,
-  type ActionStep,
-} from '@/actions/actions.js';
+import { executeAction, executeSequence, type ActionStep } from '@/actions/actions.js';
+import type { WebMcpRegistry } from '@/actions/webmcp.js';
 import { describe } from '@/dom/a11y.js';
 import { documentHasSourceStamps, sourceFor, formatSource } from '@/dom/addressing/source.js';
 import { themeReport } from '@/dom/theme.js';
@@ -310,6 +305,12 @@ export function resolveNavigationUrl(rawUrl: string, baseUrl: string): string | 
 /** Map browser command names to handlers. Used by the transport on each COMMAND. */
 export function createCommandRegistry(): Map<string, CommandHandler> {
   const reg = new Map<string, CommandHandler>();
+  let webmcp: Promise<WebMcpRegistry> | undefined;
+  const loadWebMcp = (): Promise<WebMcpRegistry> =>
+    (webmcp ??= import('@/actions/webmcp.js').then(({ WebMcpRegistry }) => new WebMcpRegistry()));
+  reg.set(ReticleCommand.WEBMCP, (args) =>
+    loadWebMcp().then((registry) => registry.discover(args)),
+  );
   reg.set(ReticleCommand.SNAPSHOT, (args) =>
     buildSnapshot({
       scope: str(args['scope']),
@@ -332,12 +333,7 @@ export function createCommandRegistry(): Map<string, CommandHandler> {
   reg.set(ReticleCommand.ACT, (args) => {
     const action = str(args['action']) ?? '';
     if (action === ActionType.WEBMCP) {
-      const inner = record(args['args']);
-      return dispatchWebMcp(
-        str(inner['tool']) ?? '',
-        record(inner['params']),
-        true === inner[DANGEROUS_ACTION_CONFIRM_ARG],
-      );
+      return loadWebMcp().then((registry) => registry.execute(args['args'] ?? {}));
     }
     return executeAction(str(args['ref']) ?? '', action, record(args['args']));
   });

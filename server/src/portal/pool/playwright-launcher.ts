@@ -8,7 +8,7 @@
 
 import type { Browser } from 'playwright';
 import { BrowserLaunchKind } from '@reticlehq/core/telemetry';
-import { chromiumLaunchOptions } from '@/chromium-launch-options.js';
+import { chromiumLaunchOptions, WEBMCP_BROWSER_ENV } from '@/chromium-launch-options.js';
 import { getSessionMetrics } from '@/telemetry/session-metrics.js';
 import { classifyConnectFailure } from '@/telemetry/connect-failure.js';
 import {
@@ -144,11 +144,17 @@ export function playwrightLauncher(opts: { headless?: boolean } = {}): Launcher 
  * not a missing-browser failure. Shared by the pooled and the drive launch, so `reticle verify` on
  * a fresh machine gets the same advice as a lease.
  */
-export function chromiumLaunchHint(msg: string): string | undefined {
+export function chromiumLaunchHint(
+  msg: string,
+  env: Readonly<Record<string, string | undefined>> = process.env,
+): string | undefined {
   // Checked FIRST: Playwright's host-requirement validation error also contains
   // "browserType.launch", so the generic check below would otherwise misdiagnose it as a
   // missing binary and send the user through a fix that changes nothing.
   if (/host system is missing dependencies/i.test(msg)) return CHROMIUM_MISSING_DEPS_HINT;
+  // A selected browser can fail for its own path, flags, or runtime. Installing the bundled
+  // Chromium would change none of those; retain Playwright's original diagnostic instead.
+  if (env[WEBMCP_BROWSER_ENV.EXECUTABLE] !== undefined) return undefined;
   if (/executable doesn.?t exist|playwright install|browsertype\.launch/i.test(msg)) {
     return CHROMIUM_MISSING_HINT;
   }

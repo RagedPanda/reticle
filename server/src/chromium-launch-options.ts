@@ -26,12 +26,43 @@ export const CHROMIUM_ANTI_THROTTLING_ARGS = [
 interface ChromiumLaunchOptions {
   headless: boolean;
   args: string[];
+  executablePath?: string;
 }
 
-/**
- * Build the launch options for a headless or headed Chromium. Pure; returns a fresh mutable array
- * each call so no caller can mutate the constant behind everyone else's back.
- */
-export function chromiumLaunchOptions(headless: boolean): ChromiumLaunchOptions {
-  return { headless, args: [...CHROMIUM_ANTI_THROTTLING_ARGS] };
+export const WEBMCP_BROWSER_ENV = {
+  EXECUTABLE: 'RETICLE_WEBMCP_EXECUTABLE',
+  ARGS: 'RETICLE_WEBMCP_BROWSER_ARGS',
+} as const;
+
+/** Shared by launch and preflight so a selected browser cannot be rejected for a missing bundle. */
+export function chromiumExecutablePath(
+  env: Readonly<Record<string, string | undefined>> = process.env,
+): string | undefined {
+  const path = env[WEBMCP_BROWSER_ENV.EXECUTABLE];
+  if (path !== undefined && 0 === path.trim().length) {
+    throw new Error(`${WEBMCP_BROWSER_ENV.EXECUTABLE} must name a browser executable`);
+  }
+  return path;
+}
+
+/** Explicit experimental configuration; no browser flag or input format is guessed. */
+export function chromiumLaunchOptions(
+  headless: boolean,
+  env: Readonly<Record<string, string | undefined>> = process.env,
+): ChromiumLaunchOptions {
+  const raw = env[WEBMCP_BROWSER_ENV.ARGS];
+  const extra: unknown = raw === undefined ? [] : JSON.parse(raw);
+  if (
+    !Array.isArray(extra) ||
+    extra.length > 20 ||
+    !extra.every((v: unknown) => 'string' === typeof v && v.startsWith('--') && v.length <= 2048)
+  ) {
+    throw new Error(`${WEBMCP_BROWSER_ENV.ARGS} must be a JSON array of browser switches`);
+  }
+  const executablePath = chromiumExecutablePath(env);
+  return {
+    headless,
+    args: [...CHROMIUM_ANTI_THROTTLING_ARGS, ...(extra as string[])],
+    ...(executablePath === undefined ? {} : { executablePath }),
+  };
 }

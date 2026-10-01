@@ -7,7 +7,7 @@
  * dispatch out of the file that opens the window would have weakened a real invariant to satisfy a
  * line count. This resolves a TARGET and dispatches only QUERY, so that guard is untouched.
  */
-import { ReticleCommand, isGlobalPressCall } from '@reticlehq/core';
+import { ActionType, ReticleCommand, isGlobalPressCall } from '@reticlehq/core';
 import type { Session } from '@/portal/session/session.js';
 import { normalizeQueryArgs } from '@/surface/tools/read/query-shape.js';
 import { resolveTargetRef, type TargetResolution } from './resolve-target.js';
@@ -56,6 +56,15 @@ export async function resolveActTarget(
    */
   appearanceMs?: number,
 ): Promise<TargetResolution> {
+  if (args['action'] === ActionType.WEBMCP) {
+    if (args['ref'] !== undefined || args['target'] !== undefined) {
+      return {
+        kind: 'error',
+        message: 'WebMCP selects a toolId or tool name in args, not an element ref or target',
+      };
+    }
+    return { kind: 'global', ref: '' };
+  }
   const ref = asString(args['ref']);
   if (ref !== undefined && ref.length > 0) return { kind: 'ref', ref };
   const target = args['target'];

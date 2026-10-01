@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { EventType } from '@reticlehq/core';
+import { ActionWarning, EventType } from '@reticlehq/core';
 import { createCommandRegistry } from '@/commands/commands.js';
 import { executeAction } from './actions.js';
 import { installScroll } from '@/observers/scroll.js';
@@ -125,38 +125,86 @@ describe('scroll observer', () => {
 });
 
 describe('webmcp passthrough', () => {
+  // The shape the WebMCP explainer defines: tools are discovered with getTools() and invoked by
+  // handing the DISCOVERED tool object back to executeTool(). There is no call-by-name method.
+  function installModelContext(
+    host: 'document' | 'navigator',
+    tools: { name: string }[],
+    executeTool = vi.fn((tool: { name: string }) =>
+      Promise.resolve({ content: [{ type: 'text', text: `ran ${tool.name}` }] }),
+    ),
+  ) {
+    const mc = { getTools: vi.fn(() => Promise.resolve(tools)), executeTool };
+    const target = ('document' === host ? document : navigator) as unknown as Record<
+      string,
+      unknown
+    >;
+    target['modelContext'] = mc;
+    return mc;
+  }
+
+  function actHandler() {
+    const handler = createCommandRegistry().get('act');
+    if (handler === undefined) throw new Error('no act handler');
+    return handler;
+  }
+
   afterEach(() => {
+    delete (document as unknown as Record<string, unknown>)['modelContext'];
     delete (navigator as unknown as Record<string, unknown>)['modelContext'];
   });
 
-  it('calls a navigator.modelContext tool via the act command', async () => {
-    const callTool = vi.fn((name: string) => Promise.resolve({ called: name }));
-    (navigator as unknown as Record<string, unknown>)['modelContext'] = { callTool };
-    const reg = createCommandRegistry();
-    const handler = reg.get('act');
-    if (handler === undefined) throw new Error('no act handler');
-    const result = await handler({
+  it('invokes the discovered tool on document.modelContext and labels its result self-reported', async () => {
+    const search = { name: 'search' };
+    const mc = installModelContext('document', [{ name: 'other' }, search]);
+    const result = await actHandler()({
       action: 'webmcp',
       args: { tool: 'search', params: { q: 'x' } },
     });
-    expect(callTool).toHaveBeenCalledWith('search', { q: 'x' });
-    expect(result).toEqual({ called: 'search' });
+    expect(mc.executeTool).toHaveBeenCalledWith(
+      search,
+      { q: 'x' },
+      { signal: expect.any(AbortSignal) as unknown },
+    );
+    expect(result).toMatchObject({
+      ok: true,
+      action: 'webmcp',
+      dispatched: true,
+      toolResult: { content: [{ type: 'text', text: 'ran search' }] },
+      warning: ActionWarning.WEBMCP_SELF_REPORTED,
+    });
+  });
+
+  it('falls back to the deprecated navigator.modelContext alias', async () => {
+    const mc = installModelContext('navigator', [{ name: 'search' }]);
+    await actHandler()({ action: 'webmcp', args: { tool: 'search', params: {} } });
+    expect(mc.executeTool).toHaveBeenCalledOnce();
+  });
+
+  it('names the registered tools when the requested one does not exist', async () => {
+    const mc = installModelContext('document', [{ name: 'addTodo' }, { name: 'search' }]);
+    await expect(
+      actHandler()({ action: 'webmcp', args: { tool: 'serach', params: {} } }),
+    ).rejects.toThrow(/serach.*addTodo, search/);
+    expect(mc.executeTool).not.toHaveBeenCalled();
+  });
+
+  it('refuses when the page exposes no WebMCP surface', async () => {
+    await expect(
+      actHandler()({ action: 'webmcp', args: { tool: 'search', params: {} } }),
+    ).rejects.toThrow(/document\.modelContext/);
   });
 
   it('blocks dangerous tools without explicit confirmation', async () => {
-    const callTool = vi.fn(() => Promise.resolve({ ok: true }));
-    (navigator as unknown as Record<string, unknown>)['modelContext'] = { callTool };
-    const reg = createCommandRegistry();
-    const handler = reg.get('act');
-    if (handler === undefined) throw new Error('no act handler');
+    const mc = installModelContext('document', [{ name: 'delete_account' }]);
     await expect(
-      handler({ action: 'webmcp', args: { tool: 'delete_account', params: {} } }),
+      actHandler()({ action: 'webmcp', args: { tool: 'delete_account', params: {} } }),
     ).rejects.toThrow(/confirmDangerous/);
-    await handler({
+    await actHandler()({
       action: 'webmcp',
       args: { tool: 'delete_account', params: {}, confirmDangerous: true },
     });
-    expect(callTool).toHaveBeenCalledOnce();
+    expect(mc.executeTool).toHaveBeenCalledOnce();
   });
 });
 

@@ -48,6 +48,7 @@ import { ReticleTool } from '@reticlehq/core';
 export const CAPTURED_TOOLS: ReadonlySet<string> = new Set([
   ReticleTool.CONTEXT,
   ReticleTool.SNAPSHOT,
+  ReticleTool.WEBMCP,
   ReticleTool.QUERY,
   ReticleTool.INSPECT,
   ReticleTool.STATE,
