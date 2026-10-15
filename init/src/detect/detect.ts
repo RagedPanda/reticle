@@ -490,10 +490,7 @@ function detectUiLibrary(pkg: PackageJsonLike): UiLibrary {
   return UiLibrary.UNKNOWN;
 }
 
-/** The file that makes a project TypeScript to its tooling, Next and Vite included. */
-export const TSCONFIG_FILE = 'tsconfig.json';
-
-const TS_CONFIGS = [TSCONFIG_FILE];
+const TS_CONFIGS = ['tsconfig.json'];
 
 export function detect(input: DetectInput): Detection {
   const reactMajor = parseMajor(depVersion(input.pkg, 'react'));
