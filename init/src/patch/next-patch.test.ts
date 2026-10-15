@@ -4,6 +4,7 @@ import {
   patchNextConfig,
   patchRootLayout,
   patchPagesApp,
+  nextUsesTypeScript,
   reticleDevLocation,
 } from './next-patch.js';
 import { PatchKind } from './patch-kind.js';
@@ -213,6 +214,32 @@ export default function App({ Component, pageProps }: AppProps) {
  * takes its require-hook down with it and the dev server never starts at all. Both were shipped by
  * one line choosing a hardcoded path.
  */
+/**
+ * Next decides "TypeScript project" from a `tsconfig.json` or a TypeScript source file, never from a
+ * `typescript` dependency (#1527). Reading the dependency wrote `.tsx` into a jsconfig app, and Next
+ * then generated a `tsconfig.json` that made it ignore the jsconfig's `@/` paths.
+ */
+describe('nextUsesTypeScript', () => {
+  it('a tsconfig.json makes it TypeScript, whatever the mount file is', () => {
+    expect(nextUsesTypeScript('app/layout.js', true)).toBe(true);
+    expect(nextUsesTypeScript(null, true)).toBe(true);
+  });
+
+  it('a .ts or .tsx mount file makes it TypeScript', () => {
+    expect(nextUsesTypeScript('app/layout.tsx', false)).toBe(true);
+    expect(nextUsesTypeScript('src/pages/_app.ts', false)).toBe(true);
+  });
+
+  it('a .js or .jsx mount file with no tsconfig is JavaScript', () => {
+    expect(nextUsesTypeScript('app/layout.js', false)).toBe(false);
+    expect(nextUsesTypeScript('pages/_app.jsx', false)).toBe(false);
+  });
+
+  it('no mount file and no tsconfig is JavaScript', () => {
+    expect(nextUsesTypeScript(null, false)).toBe(false);
+  });
+});
+
 describe('reticleDevLocation', () => {
   it('keeps the component OUT of the pages route directory', () => {
     const loc = reticleDevLocation('pages/_app.js', false);

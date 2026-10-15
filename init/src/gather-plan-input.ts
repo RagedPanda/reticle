@@ -16,6 +16,7 @@ import {
   detect,
   FORGE_RENDERER_CONFIGS,
   Framework,
+  TSCONFIG_FILE,
   type DetectInput,
 } from './detect/detect.js';
 import { ANGULAR_PROXY_PATH, angularEntry } from './patch/angular.js';
@@ -38,7 +39,7 @@ import { tanstackStartConnectPath } from './patch/tanstack-start.js';
 import { installedViteMajor } from './patch/vite-owning-config.js';
 import { RETICLE_CONFIG_FILE, type PlanInput } from './plan/plan.js';
 import { claudeAvailableProbe, claudeHasReticle, codexAvailableProbe } from './register/mcp.js';
-import { reticleDevLocation } from './patch/next-patch.js';
+import { nextUsesTypeScript, reticleDevLocation } from './patch/next-patch.js';
 import { scanTestids, storeHints, scanStores } from './detect/capabilities.js';
 import { CLAUDE_PROJECT_CONFIG, CURSOR_PROJECT_MARKER, McpClient } from './register/mcp-clients.js';
 import { deriveProjectId, packageName } from './project/project-id.js';
@@ -312,7 +313,12 @@ export function gatherPlanInput(options: InitOptions, io: InitIo, pkg: unknown):
   const layoutSource = null === layoutPath ? null : io.readFile(layoutPath);
   // Where the component goes depends on WHICH router mounts it: `pages/` routes on presence, so a
   // component there becomes a broken route; `app/` routes on filename, so a sibling is inert.
-  const devLocation = reticleDevLocation(layoutPath ?? 'app/layout.tsx', detection.typescript);
+  // And which LANGUAGE it is written in follows Next's rule, not `detection.typescript`: a
+  // `typescript` devDependency in a jsconfig app is not a TypeScript project to Next (#1527).
+  const devLocation = reticleDevLocation(
+    layoutPath ?? 'app/layout.tsx',
+    nextUsesTypeScript(layoutPath, rootFiles.has(TSCONFIG_FILE)),
+  );
   // Read once: both the testid scan and the store scan want the same bounded set of files.
   const sourceFiles = readSourceFiles(io);
   const agentRoot = agentRootOf(options);

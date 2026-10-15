@@ -42,6 +42,24 @@ interface ReticleDevLocation {
  *   TypeScript on the next `next dev` — and on Next 13 that takes its require-hook down with it, so
  *   the dev server never starts. The install then looks like it broke the app, because it did.
  */
+/** A TypeScript source file, as Next counts one. */
+const TS_SOURCE = /\.tsx?$/;
+
+/**
+ * Whether Next treats the project as TypeScript: Next's own rule, not the package list (#1527).
+ *
+ * Next reads a `tsconfig.json`, and a `.ts`/`.tsx` source file. It does not read a `typescript`
+ * dependency, which a JavaScript app often has for editor types or ESLint. Choosing `.tsx` from that
+ * dependency wrote a TypeScript file into a `jsconfig.json` app. On the next `next dev`, Next then
+ * generated a `tsconfig.json`, ignored the `jsconfig.json` from then on, and every `@/` import broke.
+ *
+ * `mountPath` is the layout or `_app` file the component is mounted from, or `null` when none was
+ * found. Its extension is the project's own answer for the directory being written into.
+ */
+export function nextUsesTypeScript(mountPath: string | null, hasTsconfig: boolean): boolean {
+  return hasTsconfig || (null !== mountPath && TS_SOURCE.test(mountPath));
+}
+
 export function reticleDevLocation(mountPath: string, typescript: boolean): ReticleDevLocation {
   const ext = typescript ? '.tsx' : '.jsx';
   const slash = mountPath.lastIndexOf('/');

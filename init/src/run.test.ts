@@ -634,6 +634,28 @@ describe('runInit', () => {
     expect(io.written['src/index.js']).toContain("import './reticle-dev'");
   });
 
+  /**
+   * #1527: `typescript` in devDependencies (for editor types or ESLint) is not a TypeScript project
+   * to Next. A `.tsx` file made `next dev` generate a `tsconfig.json`, which makes Next ignore the
+   * project's `jsconfig.json`, so every `@/` import stopped resolving and the app did not compile.
+   */
+  it('writes .jsx into a jsconfig Next app that only has typescript as a devDependency', () => {
+    const io = memoryIo({
+      'package.json': JSON.stringify({
+        dependencies: { next: '15', react: '^19' },
+        devDependencies: { typescript: '^5' },
+      }),
+      'next.config.mjs': 'export default {};\n',
+      'jsconfig.json': '{ "compilerOptions": { "paths": { "@/*": ["./*"] } } }',
+      'app/layout.js':
+        'export default function RootLayout({ children }) {\n  return (\n    <html>\n      <body>{children}</body>\n    </html>\n  );\n}\n',
+    });
+    runInit(OPTS, io);
+    expect(io.written['app/reticle-dev.jsx']).toContain('ReticleDev');
+    expect(io.written['app/reticle-dev.tsx']).toBeUndefined();
+    expect(io.written['tsconfig.json']).toBeUndefined();
+  });
+
   it('uses .tsx once the project has a tsconfig', () => {
     const io = memoryIo({
       'package.json': JSON.stringify({ dependencies: { next: '15', react: '^19' } }),
@@ -966,7 +988,9 @@ describe('runInit — a Next app whose root layouts live in route groups', () =>
     });
     expect(io.written['app/(site)/layout.tsx']).toContain('<ReticleDev />');
     expect(io.written['app/(site)/layout.tsx']).toContain("from './reticle-dev'");
-    expect(io.written['app/(site)/reticle-dev.jsx']).toBeDefined();
+    // The layout is .tsx, so Next already treats the app as TypeScript and the component matches it
+    // (#1527: the language follows Next's rule, the mount file or a tsconfig).
+    expect(io.written['app/(site)/reticle-dev.tsx']).toBeDefined();
     expect(io.lines.join('\n')).toContain('app/(site)/layout.tsx');
     expect(io.lines.join('\n')).not.toContain('no root layout');
   });
