@@ -363,12 +363,23 @@ async function answerDrive(
  */
 export function fixRequest(result: Record<string, unknown>): string | undefined {
   const failed = asRecord(result['checks'])['failed'];
-  if ('number' !== typeof failed || failed < 1) return undefined;
-  return (
-    `The Harness found a defect: ${String(failed)} check${1 === failed ? '' : 's'} failed. Read ` +
-    `\`summary\` and \`goals\` for what failed. Fix the code, then start the same drive again ` +
-    `(the same persona or planId) to verify the fix. Do not report it fixed before that drive passes.`
-  );
+  if ('number' === typeof failed && failed >= 1)
+    return (
+      `The Harness found a defect: ${String(failed)} check${1 === failed ? '' : 's'} failed. Read ` +
+      `\`summary\` and \`goals\` for what failed. Fix the code, then start the same drive again ` +
+      `(the same persona or planId) to verify the fix. Do not report it fixed before that drive passes.`
+    );
+  // A drive that ran to its end and still missed its goal is not a pass either: on the broken
+  // checkout every check held while the order went out at full price. It is a lead, not a verdict,
+  // so the agent is asked to find out which, not told there is a defect.
+  if (StopReason.FINISHED === result['stopReason'] && false === result['goalMet'])
+    return (
+      'The Harness drive did not reach its goal, so nothing is proved. Read `summary` and check the ' +
+      'outcome the goal names (for example the request body with reticle_observe). If it shows a ' +
+      'defect, fix the code, then start the same drive again (the same persona or planId) to verify ' +
+      'the fix. Do not report it fixed before that drive passes.'
+    );
+  return undefined;
 }
 
 /** A run this machine no longer holds, from the platform it synced to. */

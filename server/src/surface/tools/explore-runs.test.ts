@@ -137,6 +137,23 @@ describe('a Harness drive, started then polled', () => {
     expect(out['instruction']).toContain('start the same drive again');
   });
 
+  // From the final headless run: the broken checkout's drive held 2 checks, failed none, and ended
+  // "NOT PROVED … the goal was not reached". The agent got no instruction to fix and re-run.
+  it('asks for a look, a fix and a re-run when the drive finished without reaching its goal', async () => {
+    const d = held();
+    const pending = answerExplore(deps(), { wait: 30 }, undefined, d.drive);
+    await d.started();
+    d.end({
+      stopReason: 'finished',
+      goalMet: false,
+      summary: 'NOT PROVED',
+      checks: { held: 2, failed: 0, undecided: 0 },
+    });
+    const out = record(await pending);
+    expect(out['instruction']).toContain('did not reach its goal');
+    expect(out['instruction']).toContain('start the same drive again');
+  });
+
   it('adds no fix request when every check held', async () => {
     const d = held();
     const pending = answerExplore(deps(), { wait: 30 }, undefined, d.drive);
