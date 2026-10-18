@@ -7,6 +7,7 @@ import {
   MSG_ALREADY_DRIVING,
   answerExplore,
   exploreReport,
+  fixRequest,
   type ExploreDrive,
 } from './explore-tools.js';
 import {
@@ -295,6 +296,31 @@ describe('the answer of a drive that ran the platform plan', () => {
       journeys: [{ title: 'Team', status: 'failed' }],
     } as never);
     expect(out['note']).toBeUndefined();
+  });
+
+  /*
+   * The platform's run summary from a live drive of the broken SAVE20 checkout, verbatim. The
+   * dashboard showed "totalCents 16700, the claim says 13360"; the agent's answer said only
+   * "NOT PROVED", because a plan run's driver account is left out of the answer.
+   */
+  const PLATFORM_VERDICT =
+    'Drove 7 actions and saved 2 flow(s): harness-on-checkout--checkout, harness-on-checkout--home. ' +
+    'No end-state check: the journey names no text the page should show when it is done, so nothing ' +
+    'checked where it ended. Learned 1 thing(s) about this app for the next drive. Not proved: ' +
+    'claim-outcome-unmet: POST /api/orders sent promoCode missing, the claim says SAVE20; totalCents ' +
+    '16700, the claim says 13360.';
+  const FINDING =
+    'claim-outcome-unmet: POST /api/orders sent promoCode missing, the claim says SAVE20; totalCents 16700, the claim says 13360.';
+
+  it("carries the platform's failed check verbatim, in the answer and in the fix request", () => {
+    const out = exploreReport({
+      ...base,
+      drive: { ...drive, summary: PLATFORM_VERDICT, goalMet: false },
+      journeys: [{ title: 'On /checkout', status: 'failed' }],
+    } as never);
+    expect(out['findings']).toEqual([FINDING]);
+    expect(String(out['summary'])).toContain(FINDING);
+    expect(fixRequest(out)).toContain(FINDING);
   });
 
   it('keeps the local plan and the driver account when nothing else planned it', () => {
