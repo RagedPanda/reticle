@@ -320,6 +320,11 @@ export const ReticleDir = {
   PLANS_SUBDIR: 'plans',
   /** durable causal journal —.reticle/sessions/<id>/{events,actions}.jsonl (the substrate). */
   SESSIONS_SUBDIR: 'sessions',
+  /**
+   * Every tool call an agent made, in full, with what it did to the page —
+   * .reticle/episodes/<connection>.jsonl. Local evidence: never committed, never sent.
+   */
+  EPISODES_SUBDIR: 'episodes',
   /** append-only event ledger inside a session dir (one ReticleEvent per line). */
   JOURNAL_EVENTS_FILE: 'events.jsonl',
   /** append-only action ledger inside a session dir (one JournalAction per line). */

@@ -55,6 +55,11 @@ export function noteAgentAttached(attachId: string, name: string): void {
   changed();
 }
 
+/** The name connection `attachId` gave in its handshake, while it is attached. */
+export function agentNameOf(attachId: string | undefined): string | undefined {
+  return attachId === undefined ? undefined : byAttach.get(attachId);
+}
+
 /** That connection closed. */
 export function noteAgentDetached(attachId: string): void {
   if (byAttach.delete(attachId)) changed();

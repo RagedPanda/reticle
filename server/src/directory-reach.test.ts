@@ -768,6 +768,9 @@ const REACHES_FOR: Record<string, readonly string[]> = {
   // the goal check next door and is handed its tools, so like `script` it reaches nothing else.
   explore: ['harness'],
   tools: [
+    // The episode log: every call, its result and its effect, written at the one dispatch point.
+    // `journal` imports nothing from `tools`, so this adds no mutual pair.
+    'journal',
     // What an agent's own call is shaped into on the way out (compact envelope, notices). A leaf:
     // `agent` imports nothing back, so this adds no mutual pair.
     'agent',
