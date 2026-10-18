@@ -7,7 +7,13 @@
  */
 import { describe, expect, it } from 'vitest';
 import { ReticleTool, Verified } from '@reticlehq/core';
-import { runHarness, StopReason, type HarnessToolset, type ModelDriver } from './harness.js';
+import {
+  FINISH_TOOL,
+  runHarness,
+  StopReason,
+  type HarnessToolset,
+  type ModelDriver,
+} from './harness.js';
 
 const END = 'Generated script for';
 
@@ -42,19 +48,61 @@ function page(showsEnd: () => boolean, verdict: string): HarnessToolset {
 
 const endsAt = { text: END, own: [`Press Generate and read "${END}".`] };
 
+/**
+ * A model that drives until the drive tells it the end is reached, then finishes with the verdict
+ * its platform gives: on the broken checkout the platform holds the finish, asserts the order body
+ * and answers `goalMet: false`. Before, the drive stopped here first and that check never ran.
+ */
+function finishesWhenTold(goalMet: boolean): ModelDriver {
+  return {
+    turn: ({ history }) => {
+      const told = history.some((h) => 'user' === h.role && h.text.includes('Call `finish`'));
+      return told
+        ? Promise.resolve({
+            text: '',
+            calls: [{ id: 'f', name: FINISH_TOOL.name, args: { summary: 'done', goalMet } }],
+          })
+        : relentless.turn({ system: '', tools: [], history: [] });
+    },
+  };
+}
+
 describe('a drive whose goal quotes its end', () => {
-  it('stops at the end once a check held, and says the goal was met', async () => {
-    const drive = await runHarness(
-      relentless,
+  it('hands the finish to the model once the end shows, and keeps the verdict it gives', async () => {
+    const broken = await runHarness(
+      finishesWhenTold(false),
       page(() => true, Verified.YES),
       {
         maxSteps: 10,
         endsAt,
       },
     );
+    expect(broken.stopReason).toBe(StopReason.FINISHED);
+    expect(broken.goalMet).toBe(false);
+    expect(broken.steps).toBe(2);
+    const fixed = await runHarness(
+      finishesWhenTold(true),
+      page(() => true, Verified.YES),
+      {
+        maxSteps: 10,
+        endsAt,
+      },
+    );
+    expect(fixed.goalMet).toBe(true);
+  });
+
+  it('never calls the goal met on its own when the model does not finish after the end', async () => {
+    const drive = await runHarness(
+      relentless,
+      page(() => true, Verified.YES),
+      {
+        maxSteps: 20,
+        endsAt,
+      },
+    );
     expect(drive.stopReason).toBe(StopReason.FINISHED);
-    expect(drive.goalMet).toBe(true);
-    expect(drive.steps).toBe(1);
+    expect(drive.goalMet).toBe(false);
+    expect(drive.steps).toBeLessThan(20);
   });
 
   it('keeps going while the end is not shown, and never stops on a check that failed', async () => {

@@ -283,9 +283,21 @@ export interface HarnessOptions {
   endsAt?: { readonly text: string; readonly own: readonly string[] };
 }
 
-/** Why a drive ended before the model said so. */
-const msgReachedEnd = (end: string): string =>
-  `Reached the end the goal names ("${end}") after a check held, so the drive stopped there.`;
+/**
+ * Said to the model once the page shows the end the goal quotes. The drive used to stop right here,
+ * before the model's `finish`, and that skipped the platform's last check: it holds the finish and
+ * asserts the claim's values on the drive's own writes. On the broken checkout the page showed
+ * "charged $133.60" while the order went out at 16700, and the drive stopped as goal met.
+ */
+const msgEndReached = (end: string): string =>
+  `The page shows the end the goal names ("${end}") and a check held. Do not drive further. Call \`finish\` now.`;
+
+/** Turns the model has after the end shows to finish: the platform may read and assert first. */
+const END_HANDOFF_TURNS = 6;
+
+/** Why a drive ended without the finish it was asked for. */
+const msgNoFinishAfterEnd = (end: string): string =>
+  `Reached the end the goal names ("${end}"), but the drive did not finish after it, so the goal is not confirmed.`;
 
 /** A check in this turn that came back yes: the moment worth looking for the end. */
 const heldCheck = (outcome: ToolOutcome): boolean =>
@@ -400,6 +412,8 @@ async function driveToEnd(
   const usage: TokenUsage = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 };
   const proved = (): boolean => toolCalls.some(isProof);
   let askedToProve = false;
+  // Set once the page shows the goal's end: turns left for the model to finish.
+  let handoffLeft: number | undefined;
   // Actions that just changed nothing; forgotten as soon as any action moves the page.
   const inert = new Set<string>();
 
@@ -534,20 +548,26 @@ async function driveToEnd(
     toolCalls.push(...outcomes);
     history.push({ role: 'tool', outcomes });
     const end = options.endsAt;
-    if (
+    if (handoffLeft !== undefined) {
+      handoffLeft -= 1;
+      if (0 === handoffLeft && end !== undefined)
+        return {
+          stopReason: StopReason.FINISHED,
+          summary: msgNoFinishAfterEnd(end.text),
+          steps: step + 1,
+          toolCalls,
+          usage,
+          proved: proved(),
+          goalMet: false,
+        };
+    } else if (
       end !== undefined &&
       outcomes.some(heldCheck) &&
       (await lookFor((name, args) => toolset.invoke(name, args), end.text, end.own))
     ) {
-      return {
-        stopReason: StopReason.FINISHED,
-        summary: msgReachedEnd(end.text),
-        steps: step + 1,
-        toolCalls,
-        usage,
-        proved: proved(),
-        goalMet: true,
-      };
+      // The verdict is the finish's, never the page's: hand it back to the model's next turn.
+      history.push({ role: 'user', text: msgEndReached(end.text) });
+      handoffLeft = END_HANDOFF_TURNS;
     }
   }
 
