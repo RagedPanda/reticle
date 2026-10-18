@@ -75,3 +75,39 @@ describe('cloud-cli api() JSON parse guard', () => {
     expect(stderrBuf).toContain('Login Required');
   });
 });
+
+/*
+ * The Harness is off until the user switches it on, because every drive spends the workspace's
+ * credits. The refusal used to point at two screens; it now names one command, and this is it.
+ */
+describe('reticle config --harness on|off', () => {
+  const origFetch = globalThis.fetch;
+  afterEach(() => {
+    globalThis.fetch = origFetch;
+    delete process.env['RETICLE_API_KEY'];
+    delete process.env['RETICLE_CLOUD_URL'];
+  });
+
+  it('writes the switch to the platform with the project key', async () => {
+    process.env['RETICLE_API_KEY'] = 'rk_live_test';
+    process.env['RETICLE_CLOUD_URL'] = 'http://localhost:9999';
+    const sent: { url: string; method: string; body: string }[] = [];
+    globalThis.fetch = ((url: string, init: { method: string; body: string }) => {
+      sent.push({ url, method: init.method, body: init.body });
+      return Promise.resolve({ ok: true, status: 200 });
+    }) as unknown as typeof fetch;
+    expect(await runCloudCommand(['config', '--harness', 'on'])).toBe(0);
+    expect(sent).toEqual([
+      {
+        url: 'http://localhost:9999/v1/model/config',
+        method: 'PUT',
+        body: JSON.stringify({ harnessEnabled: true }),
+      },
+    ]);
+  });
+
+  it('the Harness-off refusal names that command', async () => {
+    const { MSG_HARNESS_DISABLED } = await import('@/features/harness/platform/refusal.js');
+    expect(MSG_HARNESS_DISABLED).toContain('npx @reticlehq/server config --harness on');
+  });
+});

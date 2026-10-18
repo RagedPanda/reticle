@@ -91,6 +91,30 @@ describe('the Harness coverage gate', () => {
   });
 });
 
+/*
+ * From a headless run: the page's SDK and the daemon were different builds. Two paid drives ran,
+ * and every step came back "unknown", reported as "NOT PROVED — 1 undecided". The skew was known at
+ * the handshake; a drive under it can only answer undecided.
+ */
+describe('version skew refuses a drive before it spends anything', () => {
+  it('names the skew and its fix instead of starting', async () => {
+    const tab = {
+      id: 's1',
+      url: 'http://localhost:5173/',
+      channels: ABOVE,
+      sourceMapping: true,
+      versionSkew: 'version skew: the page is on 3.4.0; this daemon is 3.7.0. Install 3.7.0.',
+    };
+    const skewed = {
+      linkedCloud: () => Promise.resolve({ apiKey: 'rk_live_x', url: 'https://app.reticle.test' }),
+      sessions: { get: () => tab, resolve: () => tab },
+    } as unknown as ToolDeps;
+    const refusal = (await harnessLockRefusal(skewed, 's1', {})) ?? '';
+    expect(refusal).toMatch(/^The page's Reticle SDK and this daemon are different builds/);
+    expect(refusal).toContain('Install 3.7.0.');
+  });
+});
+
 /**
  * The daemon refused (or the platform locked mid-drive) at 75% while `/v1/model/config` said 87.5%
  * unlocked in the same minute. A linked project's platform verdict is the one the lock obeys.

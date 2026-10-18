@@ -204,7 +204,8 @@ const COMMANDS: readonly CommandDoc[] = [
   },
   {
     name: 'config',
-    synopsis: 'config [--runs on|off] [--memory on|off] [--flows on|off] [--verify local|server]',
+    synopsis:
+      'config [--runs on|off] [--memory on|off] [--flows on|off] [--verify local|server] [--harness on|off]',
     summary: 'What this project sends to the dashboard',
     group: HelpGroup.MORE,
   },

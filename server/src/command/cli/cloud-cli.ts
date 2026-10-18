@@ -7,7 +7,8 @@
  */
 import { CreatedProjectSchema } from './project-name.js';
 import { keyRefusalAtLastSync } from '@/memory/project/sync-status.js';
-import { apiKeyFrom } from '@reticlehq/core';
+import { ReticleEnv, apiKeyFrom } from '@reticlehq/core';
+import { writeHarnessSwitch } from '@/memory/cloud/harness-switch.js';
 import { PlatformLinkVia } from '@reticlehq/core/telemetry';
 import { existsSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
@@ -313,6 +314,25 @@ const cmdConnect = async (given: readonly string[]): Promise<number> => {
 /** `reticle config [--runs on|off] [--memory on|off] [--flows on|off] [--verify local|server]`. */
 const cmdConfig = async (argv: readonly string[]): Promise<number> => {
   const f = flags(argv);
+  // The Harness switch lives on the platform, not in cloud.json: every drive spends the workspace's
+  // credits, so it is the user's to turn on, with the project's own key.
+  if (f['harness'] !== undefined) {
+    const enabled = 'on' === f['harness'] ? true : 'off' === f['harness'] ? false : undefined;
+    if (enabled === undefined) {
+      err('--harness must be on|off');
+      return 2;
+    }
+    const { url, apiKey } = await repoCloud();
+    const env = { [ReticleEnv.API_KEY]: apiKey, [ReticleEnv.CLOUD_URL]: url };
+    if (!(await writeHarnessSwitch(env, enabled))) {
+      err(
+        `the platform did not switch the Harness ${f['harness']} (locked, no access, or offline)`,
+      );
+      return 1;
+    }
+    emit({ harness: f['harness'] });
+    return 0;
+  }
   const linkPath = join(linkedRoot(), CLOUD_LINK_FILE);
   const raw = await readJson(linkPath);
   if (null === raw || typeof raw !== 'object') {

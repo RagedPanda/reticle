@@ -286,3 +286,18 @@ describe('the answer of a drive that ran the platform plan', () => {
     expect(out['driverAccount']).toBe(drive.summary);
   });
 });
+
+/*
+ * From a headless run: asked to "verify this with the Reticle Harness", the agent loaded
+ * reticle_verify, read a description that opened on "What is proved" and named the Harness only
+ * deep inside, for "a project with NO saved flows", and drove the app itself.
+ */
+describe('the Harness is findable by its name', () => {
+  it('reticle_verify names the Reticle Harness and its action in its first sentence', async () => {
+    const { MERGED_TOOLS } = await import('./tools.js');
+    const verify = MERGED_TOOLS.find((tool) => 'reticle_verify' === tool.name);
+    const first = (verify?.description ?? '').split('. ')[0] ?? '';
+    expect(first).toContain('Reticle Harness');
+    expect(first).toContain('"explore"');
+  });
+});

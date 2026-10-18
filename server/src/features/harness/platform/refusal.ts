@@ -66,9 +66,9 @@ export function refusalSentence(
  * not say it is on is not a yes to spend credits on.
  */
 export const MSG_HARNESS_DISABLED =
-  "The Reticle Harness is off for this project. The user can switch it on in the HUD's Settings " +
-  'or the Reticle dashboard (Settings → Projects → Reticle Harness on <project>); until then, drive the app yourself ' +
-  'through the MCP tools.';
+  "The Reticle Harness is off for this project. Each drive spends the workspace's credits, so the " +
+  'user switches it on: ask them to run `npx @reticlehq/server config --harness on` in the project. ' +
+  'Until then, drive the app yourself through the MCP tools.';
 
 /**
  * The other reason a drive can be refused, and it is NOT the same reason.

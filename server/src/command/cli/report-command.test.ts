@@ -85,6 +85,29 @@ describe('reportFor — the session gap, read from disk with no daemon', () => {
     ]);
   });
 
+  // From a headless run: the agent proved 3 claims, but before `reticle init` its journal lived in
+  // ~/.reticle/unmatched, and the hook said "No claim was checked this session".
+  it('as a hook: counts a session the daemon filed under ~/.reticle/unmatched', async () => {
+    const cwd = project({}, NOW);
+    const home = project({}, NOW);
+    const filed = join(home, '.reticle', 'unmatched', 'origin-abc', 'sessions', 'lease-1');
+    mkdirSync(filed, { recursive: true });
+    const line = JSON.stringify({
+      v: JOURNAL_FILE_VERSION,
+      actionId: 'c0',
+      tool: 'reticle_act_and_wait',
+      args: {},
+      effect: { claim: 'order carries the promo', verified: Verified.YES },
+      tRange: { from: 0, to: 1 },
+      at: 0,
+    });
+    writeFileSync(join(filed, 'actions.jsonl'), `${line}\n`);
+    const at = (NOW - 1000) / 1000;
+    utimesSync(join(filed, 'actions.jsonl'), at, at);
+    const out = await reportFor({ cwd, home, now: NOW, treeChanged: true, hook: true });
+    expect(out.lines).toEqual([]);
+  });
+
   it('says there is nothing to report in a project with no sessions', async () => {
     const cwd = project({}, NOW);
     expect((await reportFor({ cwd, now: NOW, treeChanged: true })).lines).toEqual([

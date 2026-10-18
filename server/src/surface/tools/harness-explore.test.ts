@@ -69,8 +69,8 @@ function finishing(summary: string): ModelDriver {
  */
 /** The refusal pointed at a "Verification model" setting no settings page has. */
 describe('the Harness-off refusal', () => {
-  it('names where the switch really is', () => {
-    expect(MSG_HARNESS_DISABLED).toContain('Settings → Projects → Reticle Harness on <project>');
+  it('names the one command that switches it on', () => {
+    expect(MSG_HARNESS_DISABLED).toContain('npx @reticlehq/server config --harness on');
     expect(MSG_HARNESS_DISABLED).not.toContain('Verification model');
   });
 });

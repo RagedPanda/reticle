@@ -120,6 +120,11 @@ function tabRoot(deps: ToolDeps, tab: { sessionId: string | undefined }): string
   }
 }
 
+/** Opens a refusal for version skew: the one thing to fix before a drive can decide anything. */
+export const MSG_SKEW_LEAD =
+  "The page's Reticle SDK and this daemon are different builds, so a Harness drive could only " +
+  'answer "unknown" on every step. It did not start. Fix the versions first:';
+
 /** Introduces the prompt under a coverage refusal, so the agent knows it is for itself. */
 export const MSG_GATE_PROMPT_LEAD = 'To unlock it, do this (or hand it to your coding agent):';
 
@@ -195,6 +200,10 @@ export async function harnessLockRefusal(
 ): Promise<string | undefined> {
   // What the app's pages carry decides, not what an act happened to reach: ask them first.
   const app = appTabsOf(deps, sessionId);
+  // A page and daemon from different builds answer every step `unknown`: a drive spends its credits
+  // and proves nothing. The handshake already knows, so say it before anything is spent.
+  const skew = app?.tab.versionSkew;
+  if (skew !== undefined && 0 < skew.length) return `${MSG_SKEW_LEAD} ${skew}`;
   // Learned something: the platform hears it before it is asked, or it refuses on its old score.
   if (app !== undefined && (await probeMarkers([app.tab, ...app.siblings])))
     await reportAppsNow().catch(() => undefined);
