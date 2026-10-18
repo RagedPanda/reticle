@@ -91,18 +91,20 @@ describe('a drive whose goal quotes its end', () => {
     expect(fixed.goalMet).toBe(true);
   });
 
+  // From the live proof: a six-turn cap after the end cut the platform off while it held the
+  // finish to assert the order body, and the drive ended before that check ran.
   it('never calls the goal met on its own when the model does not finish after the end', async () => {
     const drive = await runHarness(
       relentless,
       page(() => true, Verified.YES),
       {
-        maxSteps: 20,
+        maxSteps: 12,
         endsAt,
       },
     );
-    expect(drive.stopReason).toBe(StopReason.FINISHED);
-    expect(drive.goalMet).toBe(false);
-    expect(drive.steps).toBeLessThan(20);
+    expect(drive.stopReason).toBe(StopReason.BUDGET);
+    expect(drive.goalMet).not.toBe(true);
+    expect(drive.steps).toBe(12);
   });
 
   it('keeps going while the end is not shown, and never stops on a check that failed', async () => {

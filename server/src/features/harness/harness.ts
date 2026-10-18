@@ -292,13 +292,6 @@ export interface HarnessOptions {
 const msgEndReached = (end: string): string =>
   `The page shows the end the goal names ("${end}") and a check held. Do not drive further. Call \`finish\` now.`;
 
-/** Turns the model has after the end shows to finish: the platform may read and assert first. */
-const END_HANDOFF_TURNS = 6;
-
-/** Why a drive ended without the finish it was asked for. */
-const msgNoFinishAfterEnd = (end: string): string =>
-  `Reached the end the goal names ("${end}"), but the drive did not finish after it, so the goal is not confirmed.`;
-
 /** A check in this turn that came back yes: the moment worth looking for the end. */
 const heldCheck = (outcome: ToolOutcome): boolean =>
   isProof(outcome) && Verified.YES === asRecord(outcome.result)['verified'];
@@ -412,8 +405,8 @@ async function driveToEnd(
   const usage: TokenUsage = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 };
   const proved = (): boolean => toolCalls.some(isProof);
   let askedToProve = false;
-  // Set once the page shows the goal's end: turns left for the model to finish.
-  let handoffLeft: number | undefined;
+  // Set once the page showed the goal's end and the model was told to finish.
+  let endTold = false;
   // Actions that just changed nothing; forgotten as soon as any action moves the page.
   const inert = new Set<string>();
 
@@ -548,26 +541,16 @@ async function driveToEnd(
     toolCalls.push(...outcomes);
     history.push({ role: 'tool', outcomes });
     const end = options.endsAt;
-    if (handoffLeft !== undefined) {
-      handoffLeft -= 1;
-      if (0 === handoffLeft && end !== undefined)
-        return {
-          stopReason: StopReason.FINISHED,
-          summary: msgNoFinishAfterEnd(end.text),
-          steps: step + 1,
-          toolCalls,
-          usage,
-          proved: proved(),
-          goalMet: false,
-        };
-    } else if (
+    if (
+      !endTold &&
       end !== undefined &&
       outcomes.some(heldCheck) &&
       (await lookFor((name, args) => toolset.invoke(name, args), end.text, end.own))
     ) {
-      // The verdict is the finish's, never the page's: hand it back to the model's next turn.
+      // The verdict is the finish's, never the page's: tell the model, and let its finish (which
+      // the platform may hold to read and assert first) end the drive. The step budget bounds it.
       history.push({ role: 'user', text: msgEndReached(end.text) });
-      handoffLeft = END_HANDOFF_TURNS;
+      endTold = true;
     }
   }
 
