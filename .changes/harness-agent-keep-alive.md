@@ -1,0 +1,3 @@
+### Changed
+
+- **`@reticlehq/server` — an agent no longer walks away from a Harness drive it started, and a defect the drive finds is handed to it as work.** The Stop hook that `reticle init --hooks` installs (`reticle report --hook`) now blocks the stop while a drive the agent started is still running, for at most 30 minutes from the start. Its reason tells the agent the exact poll call. Before, an agent could end its turn mid-drive and never hear the result or the failure. Claude Code and Codex read the same `{"decision":"block","reason"}` answer. A finished `reticle_verify { action: "explore" }` answer with a failed check now carries an `instruction`: fix the code, then start the same drive again, and do not report it fixed before that drive passes.

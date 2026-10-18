@@ -123,6 +123,28 @@ describe('a Harness drive, started then polled', () => {
     expect(out).toMatchObject({ status: DriveStatus.DONE, summary: 'drove checkout' });
   });
 
+  it('asks the agent to fix and re-verify when the drive found a failed check', async () => {
+    const d = held();
+    const pending = answerExplore(deps(), { wait: 30 }, undefined, d.drive);
+    await d.started();
+    d.end({
+      summary: 'order sent without the promo',
+      checks: { held: 1, failed: 1, undecided: 0 },
+    });
+    const out = record(await pending);
+    expect(out['instruction']).toContain('1 check failed');
+    expect(out['instruction']).toContain('Fix the code');
+    expect(out['instruction']).toContain('start the same drive again');
+  });
+
+  it('adds no fix request when every check held', async () => {
+    const d = held();
+    const pending = answerExplore(deps(), { wait: 30 }, undefined, d.drive);
+    await d.started();
+    d.end({ summary: 'ok', checks: { held: 2, failed: 0, undecided: 0 } });
+    expect(record(await pending)['instruction']).toBeUndefined();
+  });
+
   it('never pays for a second drive while one is running: a second start returns the first', async () => {
     const d = held();
     const first = record(await answerExplore(deps(), { wait: 0 }, undefined, d.drive));

@@ -93,3 +93,56 @@ describe('reportFor — the session gap, read from disk with no daemon', () => {
     ]);
   });
 });
+
+/** A project with one Harness drive record in `.reticle/runs/`, as the daemon writes it. */
+function withDrive(record: Record<string, unknown>): string {
+  const cwd = mkdtempSync(join(tmpdir(), 'reticle-report-drive-'));
+  dirs.push(cwd);
+  const dir = join(cwd, '.reticle', 'runs');
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, `${String(record['harnessRun'])}.drive.json`), JSON.stringify(record));
+  return cwd;
+}
+
+const drive = (over: Record<string, unknown>): Record<string, unknown> => ({
+  harnessRun: 'harness-abc',
+  status: 'running',
+  origin: 'agent',
+  startedAt: NOW - 60_000,
+  steps: 3,
+  lastLine: 'step 3',
+  ...over,
+});
+
+describe('reportFor — as a hook, it keeps the agent while its Harness drive runs', () => {
+  it('blocks the stop and names the poll call while the agent’s drive runs', async () => {
+    const cwd = withDrive(drive({}));
+    const out = await reportFor({ cwd, now: NOW, treeChanged: false, hook: true });
+    expect(out.block).toContain('harness-abc');
+    expect(out.block).toContain('reticle_verify {action:"explore", runId:"harness-abc"}');
+  });
+
+  it('lets the agent stop once the drive ended', async () => {
+    const cwd = withDrive(drive({ status: 'done', endedAt: NOW - 1000 }));
+    const out = await reportFor({ cwd, now: NOW, treeChanged: false, hook: true });
+    expect(out.block).toBeUndefined();
+  });
+
+  it('lets the agent stop when the record is older than the bound: its daemon is gone', async () => {
+    const cwd = withDrive(drive({ startedAt: NOW - 2 * HOUR_MS }));
+    const out = await reportFor({ cwd, now: NOW, treeChanged: false, hook: true });
+    expect(out.block).toBeUndefined();
+  });
+
+  it('does not block for a drive a person started from the HUD', async () => {
+    const cwd = withDrive(drive({ origin: 'hud' }));
+    const out = await reportFor({ cwd, now: NOW, treeChanged: false, hook: true });
+    expect(out.block).toBeUndefined();
+  });
+
+  it('never blocks outside the hook', async () => {
+    const cwd = withDrive(drive({}));
+    const out = await reportFor({ cwd, now: NOW, treeChanged: true });
+    expect(out.block).toBeUndefined();
+  });
+});

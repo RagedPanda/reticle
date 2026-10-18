@@ -121,7 +121,7 @@ export const EXPLORE_TOOLS: ToolDef[] = [
       next: z.object({ action: z.string(), runId: z.string() }).optional(),
       /** Seconds since the drive started, while it runs. */
       elapsedS: z.number().optional(),
-      /** While it runs: poll again with the same call; stopping never stops the drive. */
+      /** While it runs: poll again. Once it ended with a failed check: fix the code, then drive again. */
       instruction: z.string().optional(),
       stopReason: z.string().optional(),
       /** Which driver actually drove, so a comparison can never misattribute its own result. */
@@ -344,9 +344,31 @@ async function answerDrive(
       instruction: stillRunning(runId, record.steps, elapsedS),
     };
   }
-  if (record.result !== undefined) return { status: record.status, runId, ...record.result };
+  if (record.result !== undefined) {
+    const fix = fixRequest(record.result);
+    return {
+      status: record.status,
+      runId,
+      ...record.result,
+      ...(fix === undefined ? {} : { instruction: fix }),
+    };
+  }
   if (refuseBroken && record.error !== undefined) throw new Error(record.error);
   return { status: record.status, runId, steps: record.steps, error: record.error ?? 'no result' };
+}
+
+/**
+ * What a finished drive asks of the agent that reads it: a failed check is a defect to fix, and the
+ * fix is proved only when the same drive runs again. Without it the agent read "1 failed" and stopped.
+ */
+export function fixRequest(result: Record<string, unknown>): string | undefined {
+  const failed = asRecord(result['checks'])['failed'];
+  if ('number' !== typeof failed || failed < 1) return undefined;
+  return (
+    `The Harness found a defect: ${String(failed)} check${1 === failed ? '' : 's'} failed. Read ` +
+    `\`summary\` and \`goals\` for what failed. Fix the code, then start the same drive again ` +
+    `(the same persona or planId) to verify the fix. Do not report it fixed before that drive passes.`
+  );
 }
 
 /** A run this machine no longer holds, from the platform it synced to. */

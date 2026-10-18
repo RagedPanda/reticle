@@ -1,9 +1,10 @@
 /**
- * `init --hooks`: the print-only Claude Code Stop hook, merged into `.claude/settings.json`.
+ * `init --hooks`: the Claude Code Stop hook, merged into `.claude/settings.json`.
  *
  * Opt-in, because it writes into a file the user and other tools own. When the agent stops without a
- * single claim having held, the hook prints one line saying so; it never blocks the agent. The line
- * itself is `reticle report --hook`, which reads the session journal on disk.
+ * single claim having held, the hook prints one line saying so and does not block. The line
+ * itself is `reticle report --hook`, which reads the session journal on disk. It blocks the stop in one
+ * case: a Harness drive the agent started still runs, so the agent stays to read its result.
  */
 import { RETICLE_NPM_PACKAGE } from '@/version.js';
 import { StepStatus, type Step } from './plan-types.js';
@@ -63,7 +64,7 @@ export function stopHookStep(path: string, existing: string | null | undefined):
     title: TITLE,
     target: path,
     status: StepStatus.APPLY,
-    detail: 'print one line when the agent stops without a claim that held; never blocks it',
+    detail: 'print one line when the agent stops without a claim that held; blocks only while its Harness drive runs',
     write: { path, content: `${JSON.stringify(merged, null, 2)}\n`, expect: [STOP_HOOK_COMMAND] },
   };
 }

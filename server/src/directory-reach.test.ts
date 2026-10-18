@@ -345,6 +345,11 @@ const REACHES_FOR: Record<string, readonly string[]> = {
     // `reticle report` folds a session's action ledger from disk, with no daemon to ask. The ledger
     // reader lives in `journal`; a second copy of it here would be a second opinion on its format.
     'journal',
+    // `reticle report --hook` keeps the agent while its Harness drive runs: it reads the drive
+    // record the daemon writes (`dir` names the file, `harness` its status, origin and poll call),
+    // so the hook and the daemon cannot disagree about either.
+    'harness',
+    'dir',
     'mcp',
     'outcome',
     'ports',
