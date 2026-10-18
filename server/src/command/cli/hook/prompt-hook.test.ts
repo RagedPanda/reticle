@@ -84,6 +84,16 @@ describe('capturing a prompt', () => {
     expect(history(dir)).toEqual([{ at: 1_000, agent: 'claude-code', request: PROMPT }]);
   });
 
+  it('moves a full history aside and starts a new one', () => {
+    const dir = project();
+    mkdirSync(join(dir, '.reticle'), { recursive: true });
+    const old = `${'x'.repeat(3 * 1024 * 1024)}\n`;
+    writeFileSync(join(dir, '.reticle', 'requests.jsonl'), old);
+    run('claude-code', { prompt: PROMPT, cwd: dir });
+    expect(readFileSync(join(dir, '.reticle', 'requests.1.jsonl'), 'utf8')).toBe(old);
+    expect(history(dir)).toEqual([{ at: 1_000, agent: 'claude-code', request: PROMPT }]);
+  });
+
   it('redacts a secret before anything is written', () => {
     const dir = project();
     run('codex', { prompt: 'deploy with api_key=sk_live_abcdefghijklmnop1234 now', cwd: dir });

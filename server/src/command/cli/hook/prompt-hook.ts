@@ -19,6 +19,7 @@ import {
   closeSync,
   existsSync,
   fstatSync,
+  ftruncateSync,
   mkdirSync,
   openSync,
   readFileSync,
@@ -163,16 +164,17 @@ function keepIn(root: string, agent: string, prompt: string, at: number): boolea
   renameSync(tmp, requestPath);
   const historyPath = join(root, ReticleDir.REQUESTS_LOG_FILE);
   // ponytail: one rotated file; older history is dropped once a second one fills.
-  // The size comes from the open file, not a second look at the path, which can change between.
-  const fd = openSync(historyPath, 'a');
-  let full = false;
+  // Every step goes through one open file, so the path cannot change between a check and a write.
+  const fd = openSync(historyPath, 'a+');
   try {
-    full = MAX_HISTORY_BYTES < fstatSync(fd).size;
+    if (MAX_HISTORY_BYTES < fstatSync(fd).size) {
+      writeFileSync(join(root, HISTORY_ROTATED), readFileSync(fd));
+      ftruncateSync(fd, 0);
+    }
+    appendFileSync(fd, `${JSON.stringify({ at, agent, request: context.request })}\n`);
   } finally {
     closeSync(fd);
   }
-  if (full) renameSync(historyPath, join(root, HISTORY_ROTATED));
-  appendFileSync(historyPath, `${JSON.stringify({ at, agent, request: context.request })}\n`);
   return true;
 }
 
