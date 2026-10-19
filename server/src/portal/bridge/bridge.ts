@@ -29,6 +29,7 @@ import { Session } from '@/portal/session/session.js';
 import { SessionManager } from '@/portal/session/session-manager.js';
 import { SessionNonces } from './session-nonces.js';
 import { admitHello } from '@/portal/production/production-hello.js';
+import { forgetRecordedGaps } from '@/portal/session/recorded-gaps.js';
 import { tokensMatch } from './token-auth.js';
 import { noteWrongPathUpgrades, wrongPathReason } from './wrong-path.js';
 import { harnessRequest, type HarnessRequest } from './harness-request.js';
@@ -52,15 +53,17 @@ import { SERVER_VERSION } from '@/command/version/identity/server-version.js';
 
 /**
  * Take the mutable half of a session's identity from a repeat HELLO; the caller has established the
- * hello belongs to this session. `hasCapabilities` matters most: capabilities register AFTER
- * connect() by design, so without this an app that declared its whole testable surface reported
- * `hasCapabilities: false` forever. A project id that arrives late is taken by `adoptProject`.
+ * hello belongs to this session. Capabilities and stores register AFTER connect() by design, so
+ * `hasCapabilities` and `channels` come again here. A late project id is taken by `adoptProject`.
+ * The page announced itself again, so gaps that earlier verdicts recorded are dropped (#1655).
  */
 function refreshIdentity(session: Session, hello: HelloMessage): void {
   session.url = hello.url;
   session.title = hello.title;
   session.adapters = hello.adapters;
   session.hasCapabilities = hello.hasCapabilities ?? false;
+  session.channels = hello.channels;
+  forgetRecordedGaps(session.id);
 }
 
 /** Run every handler; one that throws is not a reason to drop the session or skip the rest. */
@@ -638,6 +641,8 @@ export class Bridge {
           session.production = admission.production;
           const drive = admission.production;
           if (drive !== undefined) session.onEvent((event) => drive.noteEvent(event));
+          // A reload keeps the session id. Its gaps describe the old page, not this one (#1655).
+          forgetRecordedGaps(session.id);
           // Recorded on ACCEPTANCE, so it is evidence of what this daemon really serves.
           if (parsed.projectId !== undefined) this.#servedProjects.add(parsed.projectId);
           // Attach the durable journal (and anything else registered) before any events stream in.
@@ -718,14 +723,9 @@ export class Bridge {
           // a channel nobody declared, rather than answering it with an empty result that reads
           // exactly like the value not being there.
           session.channels = parsed.channels;
-          // What it will answer, read at dispatch time so a command the page does not serve is
-          // refused instead of waited out.
-          //
-          // `parsed.platform` is deliberately NOT kept. It is a protocol field and it is correct
-          // on the wire, but this daemon already learns the runtime from the health event and has
-          // no decision that needs the answer sooner. Storing it would be a handshake fact nobody
-          // reads, which is the shape this codebase has now produced twice in one week -- see
-          // handshake-facts-are-read.test.ts, which exists because of it.
+          // What it will answer, so a command the page does not serve is refused, not waited out.
+          // `parsed.platform` is NOT kept: the health event names the runtime, and a handshake fact
+          // nobody reads is a defect (see handshake-facts-are-read.test.ts).
           session.commands = parsed.commands;
           if (skew !== undefined) {
             log('version_skew', {
