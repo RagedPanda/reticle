@@ -72,6 +72,7 @@ export const WORKSPACE_TIERS: Readonly<Record<string, WorkspaceTier>> = {
   [ReticleDir.REQUEST_FILE]: localFile,
   // Every prompt the agent hook captured: the same words, so the same rule.
   [ReticleDir.REQUESTS_LOG_FILE]: localFile,
+  [ReticleDir.REQUESTS_LOG_ROTATED_FILE]: localFile,
   // How to target this app, learned from corrected failures: a teammate's agent needs it too.
   [ReticleDir.APP_NOTES_FILE]: sharedFile,
   [ReticleDir.PLATFORM_MOMENTS_FILE]: localFile,

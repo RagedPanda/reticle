@@ -37,6 +37,11 @@ import {
   redactSecrets,
   sharesRequests,
 } from '@/memory/intent/record-request.js';
+import { readTextOrUndefined } from '@/memory/project/fs/fs-port.js';
+import {
+  WORKSPACE_GITIGNORE,
+  workspaceGitignore,
+} from '@/memory/journal/on-disk/workspace-gitignore.js';
 
 /** The agents whose hook calls this. The ids match `PromptHookAgent` in `@reticlehq/init`. */
 const Agent = {
@@ -49,7 +54,6 @@ const Agent = {
 const DUPLICATE_WINDOW_MS = 10_000;
 /** The history moves aside once it passes this size, so `.reticle/` cannot grow without end. */
 const MAX_HISTORY_BYTES = 2 * 1024 * 1024;
-const HISTORY_ROTATED = 'requests.1.jsonl';
 /** A prompt the agent harness wrote for itself (`<task-notification>`, `<command-message>`). */
 const HARNESS_PROMPT = /^<[a-z][\w-]*[\s>]/i;
 const OFF_VALUES: ReadonlySet<string> = new Set(['0', 'false', 'off', 'no']);
@@ -159,6 +163,11 @@ function keepIn(root: string, agent: string, prompt: string, at: number): boolea
   if (repeats(requestPath, request, at)) return false;
   const context = promptContextFor(prompt, [], at, sharesRequests(projectDir, root));
   mkdirSync(root, { recursive: true });
+  // The hook can run before any daemon has written `.reticle/.gitignore`: write it, or add the
+  // prompt files to an older one, before a prompt lands where `git add -A` would take it.
+  const ignorePath = join(root, WORKSPACE_GITIGNORE);
+  const ignore = workspaceGitignore(readTextOrUndefined(ignorePath));
+  if (ignore !== undefined) writeFileSync(ignorePath, ignore);
   const tmp = `${requestPath}.${String(process.pid)}.tmp`;
   writeFileSync(tmp, `${JSON.stringify(context, null, JSON_INDENT)}\n`);
   renameSync(tmp, requestPath);
@@ -168,7 +177,7 @@ function keepIn(root: string, agent: string, prompt: string, at: number): boolea
   const fd = openSync(historyPath, 'a+');
   try {
     if (MAX_HISTORY_BYTES < fstatSync(fd).size) {
-      writeFileSync(join(root, HISTORY_ROTATED), readFileSync(fd));
+      writeFileSync(join(root, ReticleDir.REQUESTS_LOG_ROTATED_FILE), readFileSync(fd));
       ftruncateSync(fd, 0);
     }
     appendFileSync(fd, `${JSON.stringify({ at, agent, request: context.request })}\n`);

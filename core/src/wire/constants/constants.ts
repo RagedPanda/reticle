@@ -331,10 +331,12 @@ export const ReticleDir = {
   COVERAGE_FILE: 'coverage.json',
   /** Human review marks (HUD notes), pending and resolved — see server portal/session/human. */
   NOTES_FILE: 'notes.json',
-  /** The user's latest request, as the agent relayed it. Local: it is the user's own words. */
+  /** The user's latest request: the newest prompt the hook captured, or the one the agent relayed. Local. */
   REQUEST_FILE: 'request.json',
   /** Every prompt the agent hook captured, one JSON line each, oldest first. `request.json` holds the newest. */
   REQUESTS_LOG_FILE: 'requests.jsonl',
+  /** The prompt history moved aside when `requests.jsonl` fills. The same words, so the same rule. */
+  REQUESTS_LOG_ROTATED_FILE: 'requests.1.jsonl',
   APP_NOTES_FILE: 'app-notes.json', // confirmed targeting hints for the next session; never evidence
   PLATFORM_MOMENTS_FILE: 'platform-moments.json', // moments already said, so each is said once
   /**

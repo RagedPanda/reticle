@@ -478,9 +478,11 @@ const REACHES_FOR: Record<string, readonly string[]> = {
   /**
    * `reticle hook prompt`: the agent's prompt hook. It finds the project from the folder the
    * prompt was sent in (`config`), and keeps the prompt with the one recorder `reticle_intent`
-   * uses (`intent`), so the two writers cannot keep the request in two shapes.
+   * uses (`intent`), so the two writers cannot keep the request in two shapes. It writes
+   * `.reticle/.gitignore` with the daemon's own rule (`on-disk`, reading the old file through `fs`),
+   * because the hook can run before any daemon has, and a prompt must never land unignored.
    */
-  hook: ['config', 'intent'],
+  hook: ['config', 'fs', 'intent', 'on-disk'],
   // What a run artifact is FOR once it exists -- stored, compared, and read back as established
   // fact -- as against the rest of `runs`, which produces one. Named `artifact`, singular, and it
   // must stay singular: `core/src/artifacts` is a different package and a different node, and

@@ -35,8 +35,13 @@ const history = (dir: string): unknown[] =>
     .split('\n')
     .map((line) => JSON.parse(line) as unknown);
 
-const run = (agent: string, payload: unknown, cwd = '/nowhere', env: NodeJS.ProcessEnv = {}) =>
-  capturePrompt(agent, JSON.stringify(payload), { cwd, env, now: () => 1_000 });
+const run = (
+  agent: string,
+  payload: unknown,
+  cwd = '/nowhere',
+  env: NodeJS.ProcessEnv = {},
+  at = 1_000,
+) => capturePrompt(agent, JSON.stringify(payload), { cwd, env, now: () => at });
 
 describe('the prompt in each agent payload', () => {
   it('reads the prompt and the folder each agent sends', () => {
@@ -102,6 +107,14 @@ describe('capturing a prompt', () => {
     expect(readFileSync(join(dir, '.reticle', 'requests.jsonl'), 'utf8')).not.toContain(
       'sk_live_abcdefghijklmnop1234',
     );
+  });
+
+  it('keeps the prompts out of git before any daemon has run', () => {
+    const dir = project();
+    run('claude-code', { prompt: PROMPT, cwd: dir });
+    const ignore = readFileSync(join(dir, '.reticle', '.gitignore'), 'utf8').split('\n');
+    for (const name of ['request.json', 'requests.jsonl', 'requests.1.jsonl'])
+      expect(ignore, name).toContain(name);
   });
 
   it('finds the project from a folder inside it', () => {
