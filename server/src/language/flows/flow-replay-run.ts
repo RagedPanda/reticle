@@ -676,9 +676,9 @@ export async function replayNamedFlow(
   // Floor the success oracle at the start of THIS replay so a stale signal from a prior run
   // in the same session can't fake a pass.
   const replayFloor = session.elapsed();
-  // A recorded upload names a path on disk; the browser can only take bytes. Resolved once, before
-  // step 1, through the same helper the live `reticle_act` uses. See resolveFlowUploads.
-  const replayable = await resolveFlowUploads(deps, loaded.value);
+  // An upload path becomes bytes once, before step 1, against the app's project (#1769).
+  const uploadDeps = { fs: deps.fs, reticleRoot: replayRoot };
+  const replayable = await resolveFlowUploads(uploadDeps, loaded.value);
   // Loaded once and used for BOTH the replay and the grading below. A composite asserts through
   // what it runs, and a grader that cannot see the sub-flows reports `unverifiable` on a journey
   // that checks itself thoroughly — right about the file, wrong about the journey.
@@ -758,7 +758,7 @@ export async function replayNamedFlow(
         // replayed, so a composite cannot reach into another app's store for a same-named sub-journey.
         resolveFlow: async (invoked: string) => {
           const sub = await flowsForSession(deps, target).flows.load(invoked, projectId);
-          return sub.ok ? await resolveFlowUploads(deps, sub.value) : undefined;
+          return sub.ok ? await resolveFlowUploads(uploadDeps, sub.value) : undefined;
         },
         // Bug-sweep mode: keep going past a step whose action ran and whose consequence merely did
         // not hold, so one flow reports one verdict per step instead of stopping at the first defect.

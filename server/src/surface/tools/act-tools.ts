@@ -99,6 +99,7 @@ import { asActionType, gradeOf } from './act/act-helpers.js';
 import { resolveActTarget } from './act/act-target.js';
 import { screenRequestFindings, withAdvisories } from './act/screen-request.js';
 import { tryRealInput, rewriteUploadArgs, HOVER_NEEDS_POINTER_MSG } from './real-input-attempt.js';
+import { sessionRoot } from '@/memory/project/session-root.js';
 import { gradeOfPredicate } from './assert/assert-grade.js';
 import { readAlreadyTrue } from './act/already-true.js';
 import { noteSourceSeen } from '@/portal/session/recorded-gaps.js';
@@ -113,9 +114,8 @@ const actionTypeEnum = z.enum(ACTION_TYPE_VALUES as [string, ...string[]]);
 /**
  * Single dispatch point for every ACT and ACT_SEQUENCE command.
  *
- * This is the seam the reviewer asked for: instead of wiring rewriteUploadArgs at three separate
- * call sites (reticle_act, reticle_act_and_wait, reticle_act_sequence) we intercept once here,
- * which also covers flow-replay, crawl, and any future dispatch site that goes through this helper.
+ * reticle_act, act_and_wait and act_sequence rewrite uploads here, once. The path resolves against
+ * the session's project, not the daemon's folder, so a worktree uploads its own fixture (#1769).
  *
  * captureAct is called AFTER this, so the flow-recording captures the pre-rewrite args (the path
  * the agent actually wrote) rather than the base64 blob — replay would otherwise send 750 KiB of
@@ -128,7 +128,7 @@ export async function actCommand(
   timeoutMs?: number,
 ): Promise<import('@reticlehq/core').CommandResult> {
   const rewritten = await rewriteUploadArgs(
-    deps,
+    { fs: deps.fs, reticleRoot: sessionRoot(deps, session.id) },
     'string' === typeof actArgs['action'] ? actArgs['action'] : '',
     asRecord(actArgs['args']),
   );
