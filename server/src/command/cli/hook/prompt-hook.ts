@@ -19,7 +19,6 @@ import {
   closeSync,
   existsSync,
   fstatSync,
-  ftruncateSync,
   mkdirSync,
   openSync,
   readFileSync,
@@ -189,17 +188,19 @@ function keepIn(root: string, agent: string, prompt: string, at: number): boolea
   renameSync(tmp, requestPath);
   const historyPath = join(root, ReticleDir.REQUESTS_LOG_FILE);
   // ponytail: one rotated file; older history is dropped once a second one fills.
-  // Every step goes through one open file, so the path cannot change between a check and a write.
+  // The size check and the copy go through one open file, so the path cannot change between them.
+  const line = `${JSON.stringify({ at, agent, request: context.request })}\n`;
   const fd = openSync(historyPath, 'a+');
+  let full = false;
   try {
-    if (MAX_HISTORY_BYTES < fstatSync(fd).size) {
-      writeFileSync(join(root, ReticleDir.REQUESTS_LOG_ROTATED_FILE), readFileSync(fd));
-      ftruncateSync(fd, 0);
-    }
-    appendFileSync(fd, `${JSON.stringify({ at, agent, request: context.request })}\n`);
+    full = MAX_HISTORY_BYTES < fstatSync(fd).size;
+    if (full) writeFileSync(join(root, ReticleDir.REQUESTS_LOG_ROTATED_FILE), readFileSync(fd));
+    else appendFileSync(fd, line);
   } finally {
     closeSync(fd);
   }
+  // Windows cannot truncate a file that is open to append, so the new history gets its own open.
+  if (full) writeFileSync(historyPath, line);
   return true;
 }
 
