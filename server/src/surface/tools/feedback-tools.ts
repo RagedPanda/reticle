@@ -273,6 +273,9 @@ export const VERDICT_TOOLS: ReadonlySet<string> = new Set([
   // ACT_AND_WAIT has -- and the guard that checks SHAPE rather than tool NAME is what caught it
   // here rather than six months from now in a metric that had quietly read low the whole time.
   ReticleTool.ACT_SEQUENCE,
+  // `reticle_act { steps }` runs the sequence under ACT's name on the default surface (#1770).
+  // A single act carries no `verified`, so `verificationOf` counts only the sequence verdict.
+  ReticleTool.ACT,
   ReticleTool.ASSERT,
   // `reticle_assert { action: "wait" }` lands here, and grades its answer as `assert` does.
   ReticleTool.WAIT_FOR,

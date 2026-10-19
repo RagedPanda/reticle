@@ -211,7 +211,7 @@ function recordVerification(
   durationMs: number,
   brand: BrowserBrand | undefined,
   sessionId: string | undefined,
-): void {
+): boolean {
   const verification = verificationOf(
     toolName,
     result,
@@ -219,7 +219,7 @@ function recordVerification(
     brand,
     currentDrivenBy() !== undefined,
   );
-  if (verification === undefined) return;
+  if (verification === undefined) return false;
   getSessionMetrics().recordVerification();
   void getTelemetry().emit(TelemetryEventKind.VERIFICATION_COMPLETED, {
     actor: TelemetryActor.AGENT,
@@ -238,6 +238,7 @@ function recordVerification(
   noteFirstVerdict();
   // The FIRST_RUN rung: once per machine + project, not once per verdict.
   noteVerdictProduced(durationMs);
+  return true;
 }
 
 /**
@@ -687,11 +688,18 @@ async function dispatchTool<Ext>(
   // experience is fresh and there is something concrete to react to. It is spliced BEFORE the
   // session-bound early return, because two of the four verification tools (flow_verify,
   // verify_change) are session-EXEMPT and would otherwise never carry it.
+  let verdict = false;
   if (isPlainObject(raw)) {
     // The brand comes from the session's own PAGE_HEALTH report, so it is present for the four
     // session-bound verification tools and absent for flow_verify (session-exempt) — which replays
     // into a browser Reticle launched, where `browser` already says what happened.
-    recordVerification(tool.name, raw, Date.now() - startedAt, session?.brand, session?.id);
+    verdict = recordVerification(
+      tool.name,
+      raw,
+      Date.now() - startedAt,
+      session?.brand,
+      session?.id,
+    );
     reportBugsFound(tool.name, raw, session?.id);
   }
   // The other half of the refusal surface. A top-level `error` string IS this codebase's refusal
@@ -730,7 +738,8 @@ async function dispatchTool<Ext>(
   // The feedback family is asked at most once per agent session (agent/notices.ts): gated here, at
   // the take, so a suppressed ask is never counted as one that was made.
   const asked = feedbackAlreadyAsked(currentDrivenBy() === undefined ? deps.attachId : undefined);
-  const prompt = isPlainObject(raw) && !asked ? takeFeedbackPrompt(tool.name) : undefined;
+  // Only a call that produced a verdict asks: `reticle_act` is a verdict tool for its `steps` form.
+  const prompt = verdict && !asked ? takeFeedbackPrompt(tool.name) : undefined;
   // Same one-shot channel as the feedback ask: the agent is mid-task, so anything it would have to go
   // and ASK for is something it will never ask for. Spliced on ANY tool result, not just a
   // verification, because an out-of-date install is worth mentioning whatever the agent is doing.
