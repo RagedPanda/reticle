@@ -160,6 +160,43 @@ describe('capturing a prompt', () => {
     ).toEqual([]);
   });
 
+  it('keeps a prompt that starts with a tag the user wrote', () => {
+    const dir = project();
+    const jsx = '<Button> must be disabled until the form is valid';
+    expect(run('claude-code', { prompt: jsx, cwd: dir }).written).toEqual([join(dir, '.reticle')]);
+    expect(PromptContextSchema.parse(request(dir)).request).toBe(jsx);
+    expect(
+      run('claude-code', { prompt: '<command-name>/clear</command-name>', cwd: dir }, dir, {}, 9e9)
+        .written,
+    ).toEqual([]);
+    expect(
+      run(
+        'claude-code',
+        { prompt: '<system-reminder>\nx</system-reminder>', cwd: dir },
+        dir,
+        {},
+        9e9,
+      ).written,
+    ).toEqual([]);
+  });
+
+  it('keeps every prompt in the history, oldest first', () => {
+    const dir = project();
+    run('claude-code', { prompt: 'first', cwd: dir }, dir, {}, 1_000);
+    run('claude-code', { prompt: 'second', cwd: dir }, dir, {}, 2_000);
+    expect(history(dir)).toEqual([
+      { at: 1_000, agent: 'claude-code', request: 'first' },
+      { at: 2_000, agent: 'claude-code', request: 'second' },
+    ]);
+  });
+
+  it('keeps a prompt sent again after the duplicate window', () => {
+    const dir = project();
+    run('claude-code', { prompt: PROMPT, cwd: dir }, dir, {}, 1_000);
+    run('claude-code', { prompt: PROMPT, cwd: dir }, dir, {}, 1_000 + 10_001);
+    expect(history(dir)).toHaveLength(2);
+  });
+
   it('honours the project setting and the machine switch', () => {
     const off = project({ projectId: 'shop-1', promptCapture: false });
     expect(run('claude-code', { prompt: PROMPT, cwd: off }).written).toEqual([]);

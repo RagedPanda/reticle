@@ -54,8 +54,30 @@ const Agent = {
 const DUPLICATE_WINDOW_MS = 10_000;
 /** The history moves aside once it passes this size, so `.reticle/` cannot grow without end. */
 const MAX_HISTORY_BYTES = 2 * 1024 * 1024;
-/** A prompt the agent harness wrote for itself (`<task-notification>`, `<command-message>`). */
-const HARNESS_PROMPT = /^<[a-z][\w-]*[\s>]/i;
+/**
+ * The tags an agent harness wraps around a prompt it wrote for itself: a background task that
+ * finished, a slash command, a shell escape, a reminder. Only these names. A user prompt that starts
+ * with a tag of their own (`<Button> must be disabled`) is a real request, and is kept.
+ */
+const HARNESS_TAGS: readonly string[] = [
+  'system-reminder',
+  'task-notification',
+  'agent-message',
+  'cross-session-message',
+  'teammate-message',
+  'command-name',
+  'command-message',
+  'command-args',
+  'local-command-stdout',
+  'local-command-stderr',
+  'local-command-caveat',
+  'bash-input',
+  'bash-stdout',
+  'bash-stderr',
+  'persisted-output',
+  'user-prompt-submit-hook',
+];
+const HARNESS_PROMPT = new RegExp(`^<(?:${HARNESS_TAGS.join('|')})[\\s>]`);
 const OFF_VALUES: ReadonlySet<string> = new Set(['0', 'false', 'off', 'no']);
 /** Where each agent names its project when the payload does not. */
 const PROJECT_DIR_ENV = ['CLAUDE_PROJECT_DIR', 'CURSOR_PROJECT_DIR', 'GEMINI_PROJECT_DIR'];
