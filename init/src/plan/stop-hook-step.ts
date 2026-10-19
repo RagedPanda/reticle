@@ -162,8 +162,9 @@ const NOTICE_TARGET = '.reticle/request.json';
 /** The consent line. Names where prompts go and every way to switch it off. */
 export const PROMPT_CAPTURE_NOTICE =
   'Each prompt you send is saved, with secrets removed, to .reticle/ in this project. ' +
-  'While you are signed in and the project is linked, it syncs with its runs to your own workspace. ' +
-  'Turn off: --no-prompt-capture, "promptCapture": false in .reticle.json, or `reticle hook uninstall`. ' +
+  'When the project is linked (reticle connect, or RETICLE_API_KEY in the environment), it goes with its runs to your own workspace. ' +
+  'Keep prompts on this machine: "shareRequests": false in .reticle.json. ' +
+  'Turn off capture: --no-prompt-capture, "promptCapture": false in .reticle.json, RETICLE_PROMPT_CAPTURE=0, or `reticle hook uninstall`. ' +
   'Stop background sync: "backgroundSync": false in .reticle.json, or RETICLE_BACKGROUND_SYNC=0.';
 
 export function promptHookStep(target: PromptHookTarget): Step {

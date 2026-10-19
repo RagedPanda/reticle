@@ -55,6 +55,13 @@ describe('init and the prompt-capture hook', () => {
     expect(io.lines.filter((line) => line.includes(PROMPT_CAPTURE_NOTICE))).toHaveLength(1);
   });
 
+  /** The consent line named only a sign-in. A key in the environment shares too, and it never said how to keep prompts local. */
+  it('names every way a prompt is shared, and the switch that keeps it local', () => {
+    expect(PROMPT_CAPTURE_NOTICE).toContain('RETICLE_API_KEY');
+    expect(PROMPT_CAPTURE_NOTICE).toContain('"shareRequests": false');
+    expect(PROMPT_CAPTURE_NOTICE).toContain('RETICLE_PROMPT_CAPTURE=0');
+  });
+
   it('adds nothing on a second run', () => {
     const io = memoryIo(FILES);
     runInit(OPTS, io);

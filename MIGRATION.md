@@ -7,7 +7,7 @@ Most projects have nothing to do. Check these three changes:
 | If you… | Now |
 | --- | --- |
 | Read `count` from a `reticle_query` result | When the scope did not resolve, `count` is absent and `scopeMissing` is `true`. It used to be `count: 0`, which read as "not on the page" when nothing was searched. Check `scopeMissing` before you read `count`. |
-| Do not want each prompt kept or shared | `reticle init` now installs a prompt hook, and a linked project shares each request with its runs. Turn off capture with `--no-prompt-capture` or `"promptCapture": false`; keep requests on the machine with `"shareRequests": false`. |
+| Do not want each prompt kept or shared | `reticle init` now installs a prompt hook, and a linked project shares each request with its runs. Turn off capture with `--no-prompt-capture` or `"promptCapture": false`; keep requests on the machine with `"shareRequests": false`. See [Prompt capture](docs/prompt-capture.md). |
 | Set up the project before 3.8 and want prompt capture | Run `npx @reticlehq/server hook install`. `init` adds the hook only when it runs. |
 
 ## From 3.5 to 3.6: the Harness drives only on the Reticle platform

@@ -26,6 +26,7 @@ npx @reticlehq/server init [--env KEY=VALUE]... [--app <dir>] [--license <key>] 
 | `--start` | boolean | `false` | With `--app`, also boot the app the way a plain `init` does |
 | `--capture-bodies` | boolean | `false` | Write `captureNetworkBodies: true` into the Vite plugin call, so request and response bodies are captured |
 | `--no-first-run` | boolean | `false` | Connect and stop, without the coverage summary |
+| `--no-prompt-capture` | boolean | `false` (the hook is installed) | Do not install the prompt hook in each agent's project config. See [prompt capture](/prompt-capture) |
 | `--hooks` | boolean | `false` | Also add a print-only Stop hook to `.claude/settings.json`, merged into what is there. When the agent stops without a claim that held, it prints one line; it never blocks. See [`reticle report`](/cli/report) |
 | `--env KEY=VALUE` | string, repeatable | none | What the app needs to reach a usable state: a key from `.env.example`, a mock backend, a variable that skips an auth wall. A value may contain spaces and `=` |
 | `--license <key>` | string | unset | Write an enterprise license key to `.env` and keep `.env` out of git |

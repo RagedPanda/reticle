@@ -63,6 +63,8 @@ Reticle works with none of these set. Each one changes a single behaviour, and m
 | `RETICLE_API_KEY` | CLI, daemon | The API key minted on the platform. |
 | `RETICLE_CLOUD_KEY` | CLI, daemon | The key's earlier name. Still honoured. |
 | `RETICLE_CLOUD_URL`, `RETICLE_URL` | CLI, daemon | The platform host. `RETICLE_CLOUD_URL` wins when both are set. |
+| `RETICLE_PROMPT_CAPTURE` | prompt hook | `0`, `false`, `off` or `no` stops the prompt hook from keeping prompts on this machine. `"promptCapture": false` in `.reticle.json` does the same for one project. See [prompt capture](/prompt-capture). |
+| `RETICLE_BACKGROUND_SYNC` | daemon | `0`, `false`, `off` or `no` stops the daemon's background sync on this machine. `"backgroundSync": false` in `.reticle.json` does the same for one project. `reticle sync` still sends. |
 | `RETICLE_SYNC_INTERVAL_MS` | `reticle sync --watch` | How often the watching sync runs. Every 60 seconds by default. |
 | `RETICLE_HARNESS_MAX_STEPS` | autonomous drive | A hard ceiling on steps in one drive. It bounds cost. The drive itself runs on the platform and needs a linked project; each drive spends credits from the workspace's allowance. |
 | `RETICLE_DRIVE_ID` | autonomous drive | The free drive the platform granted, sent with every Harness call. `reticle try` sets it; you do not need to. |
