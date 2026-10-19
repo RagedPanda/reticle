@@ -35,6 +35,16 @@ import { hashPayload } from './sync-hash.js';
 import { syncScreenshots, type ScreenshotSyncState } from './sync-screenshots.js';
 import { describeTransportError, problemsOf } from './sync-describe.js';
 import { conflictOf, flowBases, versionsIn } from './sync-flow-versions.js';
+import {
+  asJson,
+  flowName,
+  isRecord,
+  numberAt,
+  numbersIn,
+  partResult,
+  type PullResponse,
+  type StatusResponse,
+} from './sync-answer.js';
 
 export { FLOW_CONFLICT_CODE } from './sync-flow-versions.js';
 
@@ -303,79 +313,13 @@ interface SyncDeps {
   ) => Promise<{ status: number; text: string }>;
 }
 
-interface StatusResponse {
-  knownRunIds?: string[];
-  truncated?: boolean;
-  stateHashes?: Record<string, string | null>;
-  /** What this platform reads. Absent on a platform that predates the handshake. */
-  accepts?: unknown;
-}
-
-interface PullResponse {
-  triage?: Array<{
-    fingerprint: string;
-    status: string;
-    flowName?: string | null;
-    title?: string;
-    at: number;
-  }>;
-  cursor?: string;
-  more?: boolean;
-}
-
-const asJson = (text: string): unknown => {
-  try {
-    return JSON.parse(text);
-  } catch {
-    return undefined;
-  }
-};
-
-const isRecord = (v: unknown): v is Record<string, unknown> => 'object' === typeof v && null !== v;
-
-/** A list of numbers, or undefined when the server did not send a list at all. */
-const numbersIn = (v: unknown): number[] | undefined =>
-  Array.isArray(v) ? v.filter((n): n is number => 'number' === typeof n) : undefined;
-
-/** A numeric field of an artifact, or undefined when it has none. */
-const numberAt = (v: unknown, field: string): number | undefined => {
-  const n = isRecord(v) ? v[field] : undefined;
-  return 'number' === typeof n ? n : undefined;
-};
-
-/** The name a person knows a flow by, falling back to its position. */
-const flowName = (flow: unknown, index: number): string => {
-  const name = isRecord(flow) ? flow['name'] : undefined;
-  return 'string' === typeof name && name.length > 0 ? name : `flow #${String(index)}`;
-};
-
 const FLOW_VERSION_FIX = 'update the platform or remove `compare` from the flow';
 const RUN_VERSION_FIX = 'update the platform';
 
-/** The server's per-part answer: accepted count and rejection list, each read defensively. */
 /** A 200 that never confirmed the runs it was sent. Kept queued, and said, rather than dropped. */
 export const MSG_RUNS_UNCONFIRMED =
   'sync 200 without a runs result: the server did not confirm the runs it was sent, so they stay queued';
 
-function partResult(body: Record<string, unknown>, part: string) {
-  const raw = isRecord(body[part]) ? body[part] : {};
-  const accepted = 'number' === typeof raw['accepted'] ? raw['accepted'] : 0;
-  const rejected = (Array.isArray(raw['rejected']) ? raw['rejected'] : [])
-    .filter(isRecord)
-    .map((r) => ({
-      index: 'number' === typeof r['index'] ? r['index'] : -1,
-      reason: 'string' === typeof r['reason'] ? r['reason'] : 'no reason given',
-      code: r['code'],
-      version: r['version'],
-      current: r['current'],
-    }));
-  return { accepted, rejected };
-}
-
-/**
- * Split runs into requests bounded by count and by serialized size. A run bigger than the byte
- * bound on its own still goes, alone: it cannot be split, and holding it back would hide it.
- */
 /** The delivery record, kept only for the runs still on disk — the same bound as `sentRunIds`. */
 function heldHashes(
   runs: ReadonlyArray<{ runId: string }>,
@@ -389,6 +333,10 @@ function heldHashes(
   return out;
 }
 
+/**
+ * Split runs into requests bounded by count and by serialized size. A run bigger than the byte
+ * bound on its own still goes, alone: it cannot be split, and holding it back would hide it.
+ */
 function batchRuns<T extends { payload: unknown }>(runs: readonly T[]): T[][] {
   const batches: T[][] = [];
   let current: T[] = [];
@@ -409,10 +357,6 @@ function batchRuns<T extends { payload: unknown }>(runs: readonly T[]): T[][] {
   return batches;
 }
 
-/**
- * Run one cycle. Never throws: the local record is already safe on disk, and a sync that can take
- * down the thing it is backing up is worse than no sync.
- */
 /** The command that moves a folder's earlier runs to the link it has now. */
 export const MOVE_HISTORY_COMMAND = 'reticle sync --move-history';
 
@@ -435,6 +379,10 @@ function stateForLink(deps: SyncDeps): CloudSyncState {
   return { link, ...(true === deps.moveHistory ? {} : { linkedAt: deps.now() }) };
 }
 
+/**
+ * Run one cycle. Never throws: the local record is already safe on disk, and a sync that can take
+ * down the thing it is backing up is worse than no sync.
+ */
 export async function runSyncCycle(given: SyncDeps): Promise<SyncReport> {
   const deps: SyncDeps = { ...given, state: stateForLink(given) };
   const empty: SyncReport = {

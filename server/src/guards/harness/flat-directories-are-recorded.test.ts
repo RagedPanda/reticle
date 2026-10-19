@@ -372,7 +372,7 @@ const OVER_THE_LINE: Readonly<Record<string, number>> = {
   // `sync-cycle.ts` past the 1000-line cap. Flat for the same reason as `sync-screenshots.ts`.
   // 16: compare-and-set for flows is its own small rule (sync-flow-versions.ts), kept off the
   // sync cycle, which sits at the line cap.
-  'server/src/memory/cloud': 16,
+  'server/src/memory/cloud': 17,
   // 35 since the setup funnel: `onboarding-funnel.ts` (the one emit chokepoint), `onboarding-firsts.ts`
   // (the first look / act / verdict of a run, which only the daemon can witness) and
   // `install-trace.ts` (draining what the installer could not report, because it ran before there
