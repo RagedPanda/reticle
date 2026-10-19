@@ -178,7 +178,11 @@ describe('reticle_flow_replay handler — temp dir, never touches the repo', () 
 
   it('ends with the Reticle result block: one flow replayed, decided as the run is', async () => {
     await saveFlow('drifted', [actStep('chat-send')]);
-    const session = scriptedSession(() => ({ elements: [] }));
+    // A rename (one close survivor) stays drift. A control with no survivor is not reached.
+    const session = scriptedSession(() => ({
+      elements: [],
+      hint: { route: '/', presentTestids: ['chat-submit'], knownEmptyState: false },
+    }));
     const res = asRecord(
       await tool(ReticleTool.FLOW_REPLAY).handler(fakeDeps(fs, root, session), {
         flowName: 'drifted',

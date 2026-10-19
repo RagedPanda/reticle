@@ -520,7 +520,7 @@ export function staleTargetResult(
   steps: readonly FlowStepResult[],
 ): FlowReplayResult | undefined {
   // A target no person could reach is the same kind of answer: nothing about the app was decided.
-  const unreachable = unreachableTargetResult(name, steps);
+  const unreachable = unreachableTargetResult(name, steps) ?? unreachedStepResult(name, steps);
   if (unreachable !== undefined) return unreachable;
   if (steps.some((step) => step.drift !== undefined)) return undefined;
   const failed = steps.filter((step) => !step.ok);
@@ -551,6 +551,51 @@ export function unreachableTargetResult(
     status: ReplayStatus.UNVERIFIABLE,
     steps: [...steps],
     unverifiable: { reason: `step ${String(step.step)}: ${step.drift.reason}` },
+  };
+}
+
+/** Drifts where the step's own control was never resolved, so the step never acted. */
+const ANCHOR_MISSES: ReadonlySet<string> = new Set([
+  DriftReason.TESTID_NOT_FOUND,
+  DriftReason.COMPONENT_NOT_FOUND,
+  DriftReason.ANCHOR_AMBIGUOUS,
+  DriftReason.ANCHOR_DEGRADED,
+]);
+
+/**
+ * The honest answer when a replay stopped before it acted on anything: its first failing step's
+ * control was not on the page, often because the page lacks a state the recording had (a task added
+ * before recording started). Nothing ran, so nothing was proved. Read as drift, the run synced as
+ * FAIL, and the dashboard showed a failure for a journey that was never tested.
+ *
+ * Only when no earlier step ran. A control that is missing after earlier steps acted is on a page
+ * those steps made, so it stays drift, and heal reads it. A step that acted and whose expectation
+ * did not hold is a consequence drift and stays a failure. The failing step keeps its index and
+ * its `drift.reasonKind`, which the synced run carries in `stepResults`.
+ */
+function unreachedStepResult(
+  name: string,
+  steps: readonly FlowStepResult[],
+): FlowReplayResult | undefined {
+  const at = steps.findIndex((s) => !s.ok);
+  const step = steps[at];
+  const drift = step?.drift;
+  if (step === undefined || drift === undefined || !ANCHOR_MISSES.has(drift.reasonKind))
+    return undefined;
+  if (steps.slice(0, at).some((s) => s.ok)) return undefined;
+  // ponytail: one close, unambiguous survivor reads as a rename (heal's case), so it stays drift. A
+  // page with exactly one sibling of the missing control (`toggle-1` for `toggle-3`) reads the same.
+  if (drift.nearest !== null && true !== drift.ambiguous) return undefined;
+  return {
+    name,
+    status: ReplayStatus.UNVERIFIABLE,
+    steps: [...steps],
+    unverifiable: {
+      reason:
+        `did not reach step ${String(step.step + 1)} (${drift.reason}), so nothing was acted ` +
+        `on and nothing was proved. Start the replay from the state this step needs, or record the ` +
+        `steps that make it.`,
+    },
   };
 }
 
