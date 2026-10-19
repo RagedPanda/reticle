@@ -28,6 +28,7 @@ import {
 } from 'node:fs';
 import { dirname, isAbsolute, join, relative } from 'node:path';
 import { ReticleDir, ReticleEnv } from '@reticlehq/core';
+import { PromptHookAgent } from '@reticlehq/init';
 import { PromptContextSchema } from '@reticlehq/core/artifacts';
 import { discoverProjectConfigs } from '@/command/cli/config/config-discovery.js';
 import {
@@ -42,13 +43,6 @@ import {
   WORKSPACE_GITIGNORE,
   workspaceGitignore,
 } from '@/memory/journal/on-disk/workspace-gitignore.js';
-
-/** The agents whose hook calls this. The ids match `PromptHookAgent` in `@reticlehq/init`. */
-const Agent = {
-  CURSOR: 'cursor',
-  GEMINI: 'gemini',
-  WINDSURF: 'windsurf',
-} as const;
 
 /** A hook fired twice for one prompt (VS Code and Copilot CLI read one file) keeps one copy. */
 const DUPLICATE_WINDOW_MS = 10_000;
@@ -105,7 +99,7 @@ export function promptFromPayload(
   const body = isObject(payload) ? payload : {};
   const toolInfo = isObject(body['tool_info']) ? body['tool_info'] : {};
   const prompt =
-    Agent.WINDSURF === agent
+    PromptHookAgent.WINDSURF === agent
       ? (text(toolInfo['user_prompt']) ?? text(body['prompt']))
       : (text(body['prompt']) ?? text(toolInfo['user_prompt']));
   const roots = Array.isArray(body['workspace_roots']) ? body['workspace_roots'] : [];
@@ -119,8 +113,8 @@ export function promptFromPayload(
 
 /** What the hook prints. Cursor and Gemini read stdout as JSON; the rest need nothing. */
 export function hookAck(agent: string): string {
-  if (Agent.CURSOR === agent) return `${JSON.stringify({ continue: true })}\n`;
-  if (Agent.GEMINI === agent) return '{}\n';
+  if (PromptHookAgent.CURSOR === agent) return `${JSON.stringify({ continue: true })}\n`;
+  if (PromptHookAgent.GEMINI === agent) return '{}\n';
   return '';
 }
 

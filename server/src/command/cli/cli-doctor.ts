@@ -343,7 +343,7 @@ export async function handleDoctor(port: number): Promise<void> {
 async function captureAndSyncLines(cwd: string, env: NodeJS.ProcessEnv): Promise<string[]> {
   const home = homedir();
   const projectDir = projectDirOf(cwd);
-  const lines = promptCaptureRows(projectDir, home, env, claudeCliHere()).map((row) =>
+  const lines = promptCaptureRows(projectDir, env, claudeCliHere()).map((row) =>
     doctorRow(DoctorRow.PROMPTS, row),
   );
   const reticleRoot = join(projectDir, ReticleDir.ROOT);

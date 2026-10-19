@@ -6,13 +6,14 @@
  * whether prompts are captured. `prompt` is what the agent hook itself runs.
  */
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import {
+  AGENT_FLAG,
   MCP_FALLBACK_AGENTS,
   PROMPT_CAPTURE_NOTICE,
   PROMPT_HOOK_AGENTS,
+  PromptHookAgent,
   PromptHookStatus,
   claudeAvailableProbe,
   installPromptHook,
@@ -31,9 +32,8 @@ const HookAction = {
   UNINSTALL: 'uninstall',
   STATUS: 'status',
 } as const;
-const AGENT_FLAG = '--agent';
 /** An agent hook that names none is Claude Code's: the stand-in this command replaces was. */
-const DEFAULT_AGENT = 'claude-code';
+const DEFAULT_AGENT = PromptHookAgent.CLAUDE_CODE;
 /** The payload is a few kilobytes. More than this is not a prompt payload, and is not read. */
 const MAX_STDIN_BYTES = 1024 * 1024;
 /** A hook whose agent never closes stdin must still end, and let the prompt through. */
@@ -88,7 +88,6 @@ function readStdin(): Promise<string> {
  */
 export function promptCaptureRows(
   projectDir: string,
-  home: string,
   env: NodeJS.ProcessEnv,
   claudeCli: boolean,
 ): string[] {
@@ -98,7 +97,8 @@ export function promptCaptureRows(
   if (false === projectSetting(projectDir, 'promptCapture')) {
     return ['off in this project ("promptCapture": false in .reticle.json)'];
   }
-  const targets = promptHookTargets(fileIo, projectDir, home, claudeCli, join);
+  // The project only, as `install` reads it: a row says what `install` would do here.
+  const targets = promptHookTargets(fileIo, projectDir, undefined, claudeCli, join);
   const rows = targets.map((t) =>
     promptHookInstalled(t.spec, t.existing)
       ? `✓ ${t.spec.label}: hook installed (${t.path})`
@@ -110,7 +110,8 @@ export function promptCaptureRows(
 
 function install(cwd: string, print: (line: string) => void): number {
   const projectDir = projectDirOf(cwd);
-  const targets = promptHookTargets(fileIo, projectDir, homedir(), claudeCliHere(), join);
+  // The project's own agents only. An agent installed on this machine is not one this repo uses.
+  const targets = promptHookTargets(fileIo, projectDir, undefined, claudeCliHere(), join);
   if (0 === targets.length) {
     print('No agent with a prompt hook is used here. The MCP instructions cover the others.');
     return 0;
@@ -168,7 +169,7 @@ export async function handleHook(
   if (HookAction.INSTALL === action) return install(cwd, print);
   if (HookAction.UNINSTALL === action) return uninstall(cwd, print);
   if (HookAction.STATUS === action) {
-    const rows = promptCaptureRows(projectDirOf(cwd), homedir(), process.env, claudeCliHere());
+    const rows = promptCaptureRows(projectDirOf(cwd), process.env, claudeCliHere());
     for (const row of rows) print(row);
     return 0;
   }

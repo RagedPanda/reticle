@@ -215,11 +215,15 @@ export interface PromptHookTarget {
  * Only those: a `.gemini/settings.json` in the repository of somebody who has never run Gemini is
  * litter, and it makes the next tool's detection wrong too. `claudeCli` counts Claude Code as
  * present, because it keeps its registration behind its CLI rather than in a folder.
+ *
+ * `home` undefined reads the project only. `reticle hook install` passes that: it adds the hook to
+ * a project already set up, and an agent installed on this machine is not one the PROJECT uses.
+ * Reading the home folder there wrote five committed configs into a repository that had `.claude/`.
  */
 export function promptHookTargets(
   io: { exists(path: string): boolean; readFile(path: string): string | null },
   projectDir: string,
-  home: string,
+  home: string | undefined,
   claudeCli: boolean,
   join: (...parts: string[]) => string,
 ): PromptHookTarget[] {
@@ -228,7 +232,7 @@ export function promptHookTargets(
     const used =
       (PromptHookAgent.CLAUDE_CODE === spec.id && claudeCli) ||
       spec.projectMarkers.some((marker) => io.exists(inProject(marker))) ||
-      spec.homeMarkers.some((marker) => io.exists(join(home, marker)));
+      (home !== undefined && spec.homeMarkers.some((marker) => io.exists(join(home, marker))));
     if (!used) return [];
     const path = inProject(promptHookPath(spec, (rel) => io.exists(inProject(rel))));
     return [{ spec, path, existing: io.readFile(path) }];

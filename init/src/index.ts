@@ -106,6 +106,7 @@ export { detectMcpClients, type DetectedClient } from './register/detect-clients
  * same agent table and the same merge `init` uses, so the two cannot disagree about an agent.
  */
 export {
+  AGENT_FLAG,
   MCP_FALLBACK_AGENTS,
   PROMPT_HOOK_AGENTS,
   PromptHookAgent,
