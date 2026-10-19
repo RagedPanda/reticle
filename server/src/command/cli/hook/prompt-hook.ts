@@ -15,15 +15,17 @@
  * Nothing here reaches telemetry: `cli.ts` runs this before it reports the command.
  */
 import {
-  appendFileSync,
   closeSync,
+  constants,
   existsSync,
   fstatSync,
+  ftruncateSync,
   mkdirSync,
   openSync,
   readFileSync,
   renameSync,
   writeFileSync,
+  writeSync,
 } from 'node:fs';
 import { dirname, isAbsolute, join, relative } from 'node:path';
 import { ReticleDir, ReticleEnv } from '@reticlehq/core';
@@ -188,19 +190,21 @@ function keepIn(root: string, agent: string, prompt: string, at: number): boolea
   renameSync(tmp, requestPath);
   const historyPath = join(root, ReticleDir.REQUESTS_LOG_FILE);
   // ponytail: one rotated file; older history is dropped once a second one fills.
-  // The size check and the copy go through one open file, so the path cannot change between them.
-  const line = `${JSON.stringify({ at, agent, request: context.request })}\n`;
-  const fd = openSync(historyPath, 'a+');
-  let full = false;
+  // Every step goes through one open file, so the path cannot change between a check and a write.
+  // It is not opened to append: Windows cannot truncate a file that is open to append. Two hooks
+  // that write in the same instant can lose one line of history.
+  const fd = openSync(historyPath, constants.O_RDWR | constants.O_CREAT);
   try {
-    full = MAX_HISTORY_BYTES < fstatSync(fd).size;
-    if (full) writeFileSync(join(root, ReticleDir.REQUESTS_LOG_ROTATED_FILE), readFileSync(fd));
-    else appendFileSync(fd, line);
+    let end = fstatSync(fd).size;
+    if (MAX_HISTORY_BYTES < end) {
+      writeFileSync(join(root, ReticleDir.REQUESTS_LOG_ROTATED_FILE), readFileSync(fd));
+      ftruncateSync(fd, 0);
+      end = 0;
+    }
+    writeSync(fd, `${JSON.stringify({ at, agent, request: context.request })}\n`, end);
   } finally {
     closeSync(fd);
   }
-  // Windows cannot truncate a file that is open to append, so the new history gets its own open.
-  if (full) writeFileSync(historyPath, line);
   return true;
 }
 
