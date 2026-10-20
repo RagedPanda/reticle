@@ -1,0 +1,3 @@
+### Fixed
+
+- **`@reticlehq/browser`, `@reticlehq/engine` — a check on text that a user cannot read no longer answers `yes`.** A `text` check, or an `element` check that matches by text, read only the words in the DOM. Text in the colour of the background behind it passed. Now, when the contrast between the text colour and the background is below 1.5:1, or the composed opacity is below 0.05, the check answers `unknown`. The reason gives the two colours and the ratio. Low-contrast text that a user can still read is not flagged. Text over a background image or gradient, or with a text shadow or stroke, is not judged. Closes [#1797](https://github.com/reticlehq/reticle/issues/1797).
