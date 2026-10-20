@@ -348,3 +348,29 @@ it('is inconclusive, never a pass, when a framework error dialog covers the matc
   expect(result.pass).toBe(false);
   expect(result.inconclusive).toContain('Next.js error dialog');
 });
+
+/**
+ * Text a person cannot read (#1797). A cart total in the page background colour matched a text
+ * check and passed. The text is in the DOM, but nobody can see it, so the check is never a `yes`.
+ */
+it('is inconclusive, never a pass, when the matched text is unreadable', async () => {
+  const unreadable: PredicateSession = {
+    ...session,
+    command: () =>
+      Promise.resolve({
+        kind: 'command_result',
+        ok: true,
+        id: 'stub',
+        result: {
+          matched: true,
+          count: 1,
+          elements: [{ ref: 'e0', role: 'paragraph', name: '', states: [], visible: true }],
+          unreadable: 'text rgb(255, 255, 255) on rgb(255, 255, 255): contrast 1.00:1',
+        },
+      }),
+  };
+  const result = await evalElement(unreadable, { text: 'Total: $50' }, undefined, false, true);
+  expect(result.pass).toBe(false);
+  expect(result.inconclusive).toContain('contrast 1.00:1');
+  expect(result.assertion).toBe('element.readable');
+});

@@ -152,6 +152,17 @@ function describeCovered(dialog: string): string {
   );
 }
 
+/**
+ * Why a match that a person cannot read proves nothing. The text is in the DOM, but its colour is
+ * almost the colour behind it, or it is almost transparent. A `yes` here was a false green (#1797).
+ */
+function describeUnreadable(why: string): string {
+  return (
+    `the text is on the page, but a user cannot read it (${why}). ` +
+    'Fix the colour or the opacity, then check again'
+  );
+}
+
 async function matchOnce(
   session: PredicateSession,
   query: ElementQuery,
@@ -357,6 +368,18 @@ export async function evalElement(
         observed: `element matching ${subject} is in the DOM under the ${match.coveredBy}`,
         expected: `an element matching ${subject} that a user can see`,
         assertion: 'element.covered',
+        evidence: announced,
+      };
+    }
+    if (match.unreadable !== undefined) {
+      const reason = describeUnreadable(match.unreadable);
+      return {
+        pass: false,
+        failureReason: reason,
+        inconclusive: reason,
+        observed: `element matching ${subject} is in the DOM, and ${match.unreadable}`,
+        expected: `an element matching ${subject} that a user can read`,
+        assertion: 'element.readable',
         evidence: announced,
       };
     }

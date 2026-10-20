@@ -160,6 +160,12 @@ export interface MatchResult {
    */
   coveredBy?: string;
   /**
+   * Present only when a query matched by text and a person cannot read any match: why not. The
+   * text colour is almost the colour behind it, or the composed opacity is almost zero. The text is
+   * in the DOM, but nobody can see it, so a presence check is not a plain pass (#1797).
+   */
+  unreadable?: string;
+  /**
    * Zero-match diagnosis, present only on a miss: what IS on the page. `reticle_query` has always
    * returned this; MATCH (the command every PREDICATE uses) did not, so a failed assertion was a
    * dead end while the same failure through query was one step from fixed.

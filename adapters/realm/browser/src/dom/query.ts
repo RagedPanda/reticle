@@ -38,6 +38,7 @@ import {
   normaliseVisibleText,
   paintedCase,
   textMatches,
+  unreadableMatch,
 } from './text-match.js';
 import { pageRoute } from '@/security/page-location.js';
 
@@ -654,12 +655,14 @@ export function matchQuery(
     return projected === undefined ? base : { ...base, attrs: projected };
   });
   const covered = dialogCovering(filtered);
+  const unreadable = wantedTextOf(query) === undefined ? undefined : unreadableMatch(described);
   return {
     matched: filtered.length > 0,
     count: filtered.length,
     elements: descriptors,
     ...(scopeMissing ? { scopeMissing: true } : {}),
     ...(covered === undefined ? {} : { coveredBy: covered }),
+    ...(unreadable === undefined ? {} : { unreadable }),
     // On a MISS, carry the same diagnosis `runQuery` has always returned. MATCH is the command every
     // PREDICATE uses, so without this a failed assertion was a dead end ("no element matched") while
     // the identical failure through reticle_query listed the testids that ARE present. Computed only
