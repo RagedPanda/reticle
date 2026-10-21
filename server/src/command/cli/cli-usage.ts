@@ -94,9 +94,8 @@ const COMMANDS: readonly CommandDoc[] = [
       '  --project <name|id>    the dashboard project to link\n' +
       '  --workspace <name|id>  the workspace to link in, when you belong to more than one\n' +
       '  --url <origin>         the Reticle platform, when it is not the default\n\n' +
-      'Without a browser (CI, an agent), in two steps:\n' +
-      '  reticle login --email <e> [--org <name>]     emails a 6-digit code\n' +
-      '  reticle login --email <e> --code <123456>    signs in, then links this repo',
+      'Sign-in is with Google or GitHub, in the browser. Without a browser (CI, an agent), set\n' +
+      'RETICLE_API_KEY to a key from Settings > API keys. Email sign-in is gone.',
   },
   {
     name: 'try',
