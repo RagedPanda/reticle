@@ -21,6 +21,11 @@ import {
   type Coverage,
   CoverageCapability,
   type ImpactSnapshot,
+  ENGINE_BLIND_SPOTS_FIELD,
+  computesComparison,
+  engineBlindSpots,
+  type EngineBlindSpot,
+  type Predicate,
 } from '@reticlehq/core';
 
 export interface RecordedGap {
@@ -123,6 +128,13 @@ export function noteActedElement(tab: NotedTab, result: unknown): void {
   if ('object' !== typeof result || null === result) return;
   const acted = result as Record<string, unknown>;
   noteTestidSeen(tab, text(acted['testid']));
+  // An action that ran with a canvas on screen: its pixels go unobserved for this run.
+  const effect = acted['effect'];
+  const canvases =
+    'object' === typeof effect && null !== effect
+      ? (effect as Record<string, unknown>)['canvases']
+      : undefined;
+  if ('number' === typeof canvases && 0 < canvases) canvasSeen.add(tab.id);
   const source = acted['source'];
   if ('object' === typeof source && null !== source) {
     const file = text((source as Record<string, unknown>)['file']);
@@ -192,6 +204,35 @@ export async function probeMarkers(tabs: readonly ProbedTab[]): Promise<boolean>
   return before < sourceSeen.size + testidSeen.size;
 }
 
+/**
+ * Sessions where an action ran with a canvas on screen, and sessions where a verdict ran a computed
+ * comparison. Facts about a RUN, so a reload (a new HELLO under the same id) does not clear them.
+ */
+const canvasSeen = new Set<string>();
+const comparedSeen = new Set<string>();
+
+/**
+ * The `engineBlindSpots` field for a verdict result: what this engine could not observe in the
+ * session so far. Notes this verdict's own comparison first, so a `compare` clears the arithmetic
+ * spot on the result that ran it. `claims`: the inline intent, then the run's declared intents.
+ */
+export function engineBlindSpotsField(
+  sessionId: string,
+  predicate: Predicate | undefined,
+  intent: unknown,
+  declared: readonly { statement: string }[],
+): { [ENGINE_BLIND_SPOTS_FIELD]: EngineBlindSpot[] } {
+  if (computesComparison(predicate)) comparedSeen.add(sessionId);
+  const claims = [text(intent), ...declared.map((each) => each.statement)];
+  return {
+    [ENGINE_BLIND_SPOTS_FIELD]: engineBlindSpots({
+      canvasSeen: canvasSeen.has(sessionId),
+      compared: comparedSeen.has(sessionId),
+      claims,
+    }),
+  };
+}
+
 /** What this session's verdicts recorded, newest first. */
 export function recordedGaps(sessionId: string): readonly RecordedGap[] {
   return bySession.get(sessionId) ?? [];
@@ -210,6 +251,8 @@ export function forgetAllRecordedGaps(): void {
   sourceSeen.clear();
   testidSeen.clear();
   sourceNotApplicable.clear();
+  canvasSeen.clear();
+  comparedSeen.clear();
 }
 
 /** What instrumentation coverage reads off a connected tab. */
