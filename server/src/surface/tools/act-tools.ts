@@ -284,7 +284,7 @@ export const ACT_TOOLS: ToolDef[] = [
         // Keep what only this call measured, so the observe that judges this window can ask whether
         // anything happened INSIDE the target — the one fact that separates a dead control from a
         // page that was merely busy with something else.
-        session.lastAct.markActed(since, action, mutatedWithin(r), asString(args['ref']));
+        session.lastAct.markActed(since, action, mutatedWithin(r), targetRef.ref);
         return withControl(session, {
           since,
           inputMode: InputMode.SYNTHETIC,
@@ -566,7 +566,7 @@ export const ACT_TOOLS: ToolDef[] = [
             since,
             asString(args['action']),
             mutatedWithin(asRecord(actResult.result)),
-            asString(args['ref']),
+            resolved.ref,
           );
         }
 
