@@ -125,6 +125,16 @@ export const ProductionTicketRequestSchema = z.object({
   /** The daemon's bridge port. The service puts it in the page's bootstrap and its CSP. */
   bridgePort: z.number().int().min(1).max(65535),
   scope: z.nativeEnum(HelloScope),
+  /**
+   * The site origin the lease opens: the ticket's `origin`. Optional only so an older daemon still
+   * gets a ticket; a service that is told it binds the ticket to it rather than guessing.
+   */
+  origin: z.string().url().max(2048).optional(),
+  /**
+   * The bridge the page must dial (`ws://127.0.0.1:<port>/reticle` for the daemon's own): the
+   * ticket's `bridge`. Optional for the same reason; absent, the service builds it from `bridgePort`.
+   */
+  bridge: z.string().url().max(2048).optional(),
 });
 export type ProductionTicketRequest = z.infer<typeof ProductionTicketRequestSchema>;
 

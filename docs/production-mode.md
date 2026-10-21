@@ -53,8 +53,9 @@ One `reticle_lease` call does it:
 The daemon then does three things:
 
 1. It mints a single-use session nonce for the site's origin. The nonce expires after 60 minutes.
-2. It asks the service for a ticket with the linked API key: `{ workspaceId, nonce, bridgePort, scope }`. The service decides who may activate, and signs the ticket.
-3. It opens `https://app.example.com/?reticle_activate=<ticket>` in a leased browser.
+2. It asks the service for a ticket with the linked API key: `{ workspaceId, nonce, bridgePort, scope, origin, bridge }`. `origin` is the site's origin and `bridge` is the bridge the page dials (`ws://127.0.0.1:<port>/reticle`). The service signs the ticket for exactly those two values. It also decides who may activate.
+
+A host that embeds the engine and runs its own bridge passes its cloud link as `ToolDeps.linkedCloud` and its bridge as `bridgePort` and `nonces`. It needs no `cloud.json`. Such a host must not inject the SDK into a production lease's browser context. An injected copy connects first, as a development session, and the loader's `connect` then does nothing. 3. It opens `https://app.example.com/?reticle_activate=<ticket>` in a leased browser.
 
 If no page connects, the lease answers `ready: false`. The usual cause is a signed-out browser: the service refused the ticket, and the page loaded without an activation. Release the lease, then acquire again with your session cookies in `seedStorage`.
 
