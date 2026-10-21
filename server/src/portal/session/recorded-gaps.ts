@@ -16,8 +16,7 @@ import {
   ReticleCommand,
   agentPromptFor,
   coverageOf,
-  harnessGateOf,
-  harnessUnlockPrompt,
+  coveragePercent,
   type Coverage,
   CoverageCapability,
   type ImpactSnapshot,
@@ -304,23 +303,16 @@ export function notApplicableOf(tab: NotedTab): CoverageCapability[] {
     : [];
 }
 
-/** Whether the Harness may drive this tab's app (see core's `instrumentation-coverage.ts`), as pushed. */
-export interface TabHarnessGate {
-  percent: number;
-  unlocked: boolean;
-  reason?: string;
-}
-
 /**
- * This tab's coverage and its Harness gate, with the coding-agent prompt when its verdicts recorded
- * any gap or the gate is shut: below the gate the prompt names every unseen capability, so there is
- * always something to hand the agent.
+ * This tab's coverage and its setup score (see core's `instrumentation-coverage.ts`), with the
+ * coding-agent prompt when its verdicts recorded any gap. The score is information: it never gates
+ * the Harness.
  */
 export function instrumentationOf(
   tab: InstrumentedTab,
   /** The app's other tabs: what any of them has seen or recorded counts, as on the platform. */
   siblings: readonly InstrumentedTab[] = [],
-): Coverage & { prompt?: string; harnessGate: TabHarnessGate } {
+): Coverage & { prompt?: string; setupScore: number } {
   const tabs = [tab, ...siblings];
   const gaps = [
     ...new Map(
@@ -332,21 +324,10 @@ export function instrumentationOf(
   const url = tab.url ?? '';
   const appName = appNameOf(url);
   const notApplicable = notApplicableOf(tab);
-  const gate = harnessGateOf(coverage, notApplicable);
-  const harnessGate = {
-    percent: gate.percent,
-    unlocked: gate.unlocked,
-    ...(gate.reason === undefined ? {} : { reason: gate.reason }),
-  };
-  if (!gate.unlocked)
-    return {
-      ...coverage,
-      harnessGate,
-      prompt: harnessUnlockPrompt({ coverage, gaps, appName, url, notApplicable }),
-    };
+  const setupScore = coveragePercent(coverage, notApplicable);
   return 0 === gaps.length
-    ? { ...coverage, harnessGate }
-    : { ...coverage, harnessGate, prompt: agentPromptFor({ gaps, appName, url }) };
+    ? { ...coverage, setupScore }
+    : { ...coverage, setupScore, prompt: agentPromptFor({ gaps, appName, url }) };
 }
 
 /**
