@@ -117,8 +117,6 @@ export const productionRefusal = (rule: ProductionRule): string =>
 
 /** The service route that issues an activation ticket, authenticated with the person's API key. */
 export const PRODUCTION_TICKET_PATH = '/v1/production-mode/tickets';
-/** The query parameter the lease opens the site with. The service strips it after redeeming. */
-export const PRODUCTION_ACTIVATE_PARAM = 'reticle_activate';
 
 export const ProductionTicketRequestSchema = z.object({
   workspaceId: z.string().min(1).max(128),
@@ -131,7 +129,7 @@ export const ProductionTicketRequestSchema = z.object({
 export type ProductionTicketRequest = z.infer<typeof ProductionTicketRequestSchema>;
 
 export const ProductionTicketResponseSchema = z.object({
-  /** Opaque and signed by the service. The lease opens `<url>?reticle_activate=<ticket>`. */
+  /** Signed by the service (format: `activation-ticket.ts`). The lease opens `<url>?reticle_activate=<ticket>`. */
   ticket: z.string().min(1).max(4096),
   /** When the ticket must be redeemed by (ISO 8601). Informational. */
   expiresAt: z.string().max(64).optional(),

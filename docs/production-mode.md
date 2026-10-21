@@ -10,20 +10,28 @@ Production mode lets an agent drive a live site, not only a development build. I
 
 - A Reticle service that issues activation tickets (`POST /v1/production-mode/tickets`). A service without this route answers 404, and the lease says "the server does not offer production mode".
 - This project linked to that service: `reticle connect`, or `RETICLE_API_KEY`.
-- A site whose server redeems the ticket. The service signs the ticket, and only that service can check it. Today the Reticle dashboard is the only site that does this. Another site cannot start production mode yet.
-- A browser that is signed in to the site, as the person whose API key asks for the ticket. The service redeems a ticket only for that person, in that workspace. A leased browser starts signed out, so give the lease your session cookies in `seedStorage` (see below).
-- The site loads `@reticlehq/browser` lazily, only when an activation is present, and calls:
+- The loader in your site's staging and production builds (below). It checks the ticket in the page, with the service's public key.
+- A browser that is signed in to the site, as the person whose API key asks for the ticket. The service issues a ticket only for that person, in that workspace. A leased browser starts signed out, so give the lease your session cookies in `seedStorage` (see below).
 
-  ```ts
-  reticle.connect({
-    port, // from the activation
-    token: nonce, // the session nonce, never the pairing token
-    allowInProduction: true,
-    allowNonLocalhost: true,
-    env: 'production',
-    scope, // "observe" or "act"
-  });
-  ```
+## Install the loader on staging and production
+
+Call `activate` once, at startup, with the public key that the dashboard shows you:
+
+```ts
+import { activate } from '@reticlehq/browser/activate';
+
+void activate({ publicKey: '<the public key from the dashboard>' });
+```
+
+In Vite, put it in `main.ts`. In Next.js, put it in a client component that the root layout renders, inside a `useEffect`.
+
+A visitor's page load reads one query parameter and stops. It loads no SDK, opens no socket, and writes no storage and no DOM. Only a URL with a valid `reticle_activate` ticket loads the SDK. The loader then removes the parameter from the address bar and connects with the ticket's nonce, bridge and scope. The loader refuses a ticket that has a bad signature, that expired, that is for another origin, or whose bridge is not `wss://` (`ws://` only on a loopback host). A refused ticket loads nothing and writes one `console.warn` line.
+
+The session reads as an installed SDK, not an injected one.
+
+### The ticket
+
+The ticket is `<payload>.<signature>`, both base64url. The payload is JSON: `{ v: 1, nonce, origin, bridge, scope, exp }`, where `exp` is epoch ms. The signature is Ed25519 over the ASCII bytes of the payload part. A service mints tickets with `signActivationTicket(privateKey, payload)` from `@reticlehq/core`. The page checks them with `verifyActivationTicket`.
 
 ## Activate a drive
 
