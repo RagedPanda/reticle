@@ -97,7 +97,11 @@ describe('the layout audit', () => {
     const pane = document.getElementById('pane') as Element;
     document.elementFromPoint = () => pane;
     expect(auditLayout()).toEqual([]);
+    // The chip drawn everywhere: the node is clipped away entirely, so nothing a person sees overlaps.
     document.elementFromPoint = () => chip;
+    expect(auditLayout()).toEqual([]);
+    // Each seen somewhere (the chip over the node's middle, the node at its corners): a real overlap.
+    document.elementFromPoint = (x, y) => (40 === x && 15 === y ? chip : node);
     expect(auditLayout().map((f) => f.kind)).toEqual([LayoutDefect.OVERLAP]);
     Reflect.deleteProperty(document, 'elementFromPoint');
   });

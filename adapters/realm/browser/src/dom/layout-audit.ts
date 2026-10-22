@@ -178,6 +178,17 @@ const seenAt = (x: number, y: number, ...els: Element[]): boolean => {
   return null !== top && els.some((el) => el === top || el.contains(top));
 };
 
+/** Seen anywhere: at its centre or just inside a corner, so a control half under another still counts. */
+const INSET_PX = 2;
+const visible = (el: Element, r: DOMRect): boolean =>
+  [
+    [r.left + r.width / 2, r.top + r.height / 2],
+    [r.left + INSET_PX, r.top + INSET_PX],
+    [r.right - INSET_PX, r.top + INSET_PX],
+    [r.left + INSET_PX, r.bottom - INSET_PX],
+    [r.right - INSET_PX, r.bottom - INSET_PX],
+  ].some(([x = 0, y = 0]) => seenAt(x, y, el));
+
 const share = (a: DOMRect, b: DOMRect): number => {
   const w = Math.min(a.right, b.right) - Math.max(a.left, b.left);
   const h = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
@@ -224,10 +235,8 @@ export function auditLayout(root: Element = document.body): LayoutFinding[] {
       if (found.length >= MAX_FINDINGS) return found;
       if (a.el.contains(b.el) || b.el.contains(a.el)) continue;
       const covered = share(a.rect, b.rect);
-      // Where they meet, one of the two has to be what is drawn: else both are hidden there.
-      const x = (Math.max(a.rect.left, b.rect.left) + Math.min(a.rect.right, b.rect.right)) / 2;
-      const y = (Math.max(a.rect.top, b.rect.top) + Math.min(a.rect.bottom, b.rect.bottom)) / 2;
-      if (covered >= OVERLAP_SHARE && seenAt(x, y, a.el, b.el))
+      // Both have to be seen somewhere: a node its canvas clips away is under nothing a person sees.
+      if (covered >= OVERLAP_SHARE && visible(a.el, a.rect) && visible(b.el, b.rect))
         add(LayoutDefect.OVERLAP, a.el, {
           detail: `drawn over "${whatOf(b.el)}" (${refs.refFor(b.el)})`,
           value: Math.round(covered * 100) / 100,
