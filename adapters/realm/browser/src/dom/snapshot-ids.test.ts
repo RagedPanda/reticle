@@ -8,6 +8,7 @@
 
 import { afterEach, describe, expect, it } from 'vitest';
 import { buildSnapshot } from './snapshot.js';
+import { registerAdapter } from '@/registry/stores/adapters.js';
 
 afterEach(() => {
   document.body.innerHTML = '';
@@ -31,5 +32,20 @@ describe('a snapshot that names each control by its test id', () => {
     expect(plain).not.toContain('testid=');
     const withIds = buildSnapshot({ mode: 'interactive', ids: true }).tree;
     expect(withIds.replace(/ \[testid=[^\]]+\]/g, '')).toBe(plain);
+  });
+
+  it('names the component of a control with no test id, so it keeps one identity across renders', () => {
+    registerAdapter({
+      name: 'ids-fake',
+      identify: (el: Element) => {
+        const name = el.closest('[data-component]')?.getAttribute('data-component');
+        return null === name || name === undefined ? null : { componentStack: [name] };
+      },
+    });
+    document.body.innerHTML =
+      '<div data-component="PageCard"><button>/runs, 0 flows</button></div><button data-testid="x">X</button>';
+    const tree = buildSnapshot({ mode: 'interactive', ids: true }).tree;
+    expect(tree).toMatch(/- button "\/runs, 0 flows" \(ref=e\d+\) \[component=PageCard\]/);
+    expect(tree).toMatch(/- button "X" \(ref=e\d+\) \[testid=x\]$/m);
   });
 });
