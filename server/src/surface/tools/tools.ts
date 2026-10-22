@@ -207,6 +207,12 @@ export const RAW_TOOLS: ToolDef[] = withCompactEnvelope([
         .describe(
           'Return only what changed since your last snapshot of the same scope/mode (mode:delta|unchanged). First call (or after a route change) still returns the full tree.',
         ),
+      ids: z
+        .boolean()
+        .optional()
+        .describe(
+          'Add [testid=…] to each control that carries one: a stable identity for a harness mapping the app. Off by default; it costs tokens.',
+        ),
       ...sessionIdShape,
     },
     outputSchema: {
@@ -297,6 +303,7 @@ export const RAW_TOOLS: ToolDef[] = withCompactEnvelope([
       return commandOrThrow(deps, resolved.id, ReticleCommand.SNAPSHOT, {
         scope: args['scope'],
         mode,
+        ...(true === args['ids'] ? { ids: true } : {}),
       }).then((raw) =>
         withSizeCost(
           noteUnmountedRoot(

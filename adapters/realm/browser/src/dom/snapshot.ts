@@ -3,6 +3,7 @@ import { capturedRootOf } from './shadow-registry.js';
 import { isElement, isFrame } from './realm.js';
 import { getAccessibleName, getRole, getStates, getValue, isVisible } from './a11y.js';
 import { refs } from './addressing/refs.js';
+import { readTestId } from './addressing/testid-attr.js';
 import { pageRoute } from '@/security/page-location.js';
 import { isIgnored, isReticleOverlay } from './dom-ignore.js';
 
@@ -186,6 +187,13 @@ interface SnapshotOptions {
    * is re-reading is exactly the node the truncated walk stopped before emitting.
    */
   includeRoot?: boolean | undefined;
+  /**
+   * Add `[testid=…]` to the line of each control that carries one. Off by default, where it stays: a
+   * test id cost +15% on the most-called read (see `formatLine`). A harness building a map of the app
+   * asks for it, because a visible name is not an identity ("Open 2" is "Open 3" after the next issue)
+   * and a test id is. It annotates lines that are already there; it never adds one.
+   */
+  ids?: boolean | undefined;
 }
 
 /**
@@ -238,6 +246,8 @@ function formatLine(
   layout: string,
   /** The element's OWN text, when it has no accessible name to carry it. */
   ownText = '',
+  /** Name the element's test id on its line (`SnapshotOptions.ids`). */
+  withTestId = false,
 ): string {
   const indent = '  '.repeat(depth);
   const value = getValue(el);
@@ -261,7 +271,9 @@ function formatLine(
   // ACCESSIBLE NAME, and two of them on one line would be unreadable. This is the element's own
   // text and never a descendant's, so a reader can tell whose it is — which is the whole complaint.
   const textPart = ownText.length > 0 ? ` [text="${ownText}"]` : '';
-  return `${indent}- ${role}${namePart}${refPart}${valuePart}${textPart}${layoutPart}${stateSuffix(el)}`;
+  const testid = withTestId ? readTestId(el) : null;
+  const idPart = null === testid ? '' : ` [testid=${testid}]`;
+  return `${indent}- ${role}${namePart}${refPart}${valuePart}${textPart}${layoutPart}${stateSuffix(el)}${idPart}`;
 }
 
 /** A generic container's own text content, with no ref (kept lean — text isn't actionable). */
@@ -302,6 +314,8 @@ interface WalkCtx {
   unreadOverflow: boolean;
   /** Walk into subtrees an overlay library stamped aria-hidden (see `overlayStamped`). */
   throughOverlay?: boolean;
+  /** Annotate each control's line with its test id (`SnapshotOptions.ids`). */
+  ids?: boolean;
 }
 
 /** `aria-hidden` an overlay library (Radix's `aria-hidden` package) stamped, beside `data-aria-hidden`. */
@@ -440,7 +454,7 @@ function visit(child: Element, depth: number, ctx: WalkCtx, inLive: boolean): vo
       // away what kind of element it was, which is half of what a snapshot is for.
       'generic' === role && text.length > 0 && 0 === layout.length
         ? formatTextLine(depth, text)
-        : formatLine(child, depth, role, name, layout, text),
+        : formatLine(child, depth, role, name, layout, text, true === ctx.ids),
     );
     walk(child, depth + 1, ctx, announce);
   } else {
@@ -602,6 +616,7 @@ export function buildSnapshot(options: SnapshotOptions = {}): SnapshotResult {
     maxDepth: options.maxDepth ?? 20,
     unread: [],
     unreadOverflow: false,
+    ...(true === options.ids ? { ids: true } : {}),
   };
   if (true === options.includeRoot) visit(root, 0, ctx, false);
   else walk(root, 0, ctx);

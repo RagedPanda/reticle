@@ -1,0 +1,35 @@
+/**
+ * A harness building a map of the app needs every control's stable identity, and the visible name is
+ * not one: "Open 2" becomes "Open 3" with the next issue, and a row is named by its own data. The test
+ * id is. It stays out of the default tree on purpose (it cost +15% on the most-called read), so a
+ * caller that wants it asks: `ids: true` adds `[testid=…]` to the lines of controls that carry one,
+ * and changes nothing else.
+ */
+
+import { afterEach, describe, expect, it } from 'vitest';
+import { buildSnapshot } from './snapshot.js';
+
+afterEach(() => {
+  document.body.innerHTML = '';
+});
+
+const PAGE =
+  '<button data-testid="issues-open">Open 2</button><button>Fixed 0</button><a href="/runs" data-testid="nav-runs">Runs</a>';
+
+describe('a snapshot that names each control by its test id', () => {
+  it('adds the test id to the line of every control that carries one', () => {
+    document.body.innerHTML = PAGE;
+    const tree = buildSnapshot({ mode: 'interactive', ids: true }).tree;
+    expect(tree).toMatch(/- button "Open 2" \(ref=e\d+\) \[testid=issues-open\]/);
+    expect(tree).toMatch(/- link "Runs" \(ref=e\d+\) \[testid=nav-runs\]/);
+    expect(tree).toMatch(/- button "Fixed 0" \(ref=e\d+\)$/m);
+  });
+
+  it('leaves the default tree exactly as it was', () => {
+    document.body.innerHTML = PAGE;
+    const plain = buildSnapshot({ mode: 'interactive' }).tree;
+    expect(plain).not.toContain('testid=');
+    const withIds = buildSnapshot({ mode: 'interactive', ids: true }).tree;
+    expect(withIds.replace(/ \[testid=[^\]]+\]/g, '')).toBe(plain);
+  });
+});
