@@ -1,4 +1,5 @@
 import { setPresenterViewer, setPresenterVisible } from './dom/dom-ignore.js';
+import { trackBusy } from './busy.js';
 import { declareRoutes } from './observers/route.js';
 import { setOutwardPolicy } from './actions/danger-context.js';
 import { coverageMarkers, notApplicableFor } from './dom/addressing/coverage-markers.js';
@@ -677,16 +678,20 @@ export class Reticle {
   }
 
   /** Surface an arbitrary app-domain observation the DOM can't express. */
-  /**
-   * Declare the app's route patterns (`/personas/:personaId`, `*` for the rest), so each route change
-   * names the screen it reached and not only its address. Call once; a later call replaces it.
-   */
+  /** Declare the app's route patterns (`/runs/:id`, `*` for the rest): each route change names its screen. */
   routes(patterns: readonly string[]): void {
     declareRoutes(patterns);
   }
 
   signal(name: string, data: Record<string, unknown> = {}): void {
     this.#emit(EventType.SIGNAL, { name, data });
+  }
+
+  /** Work only the app can see (a debounced save, a worker): a settle waits for it. Returns `work`. */
+  busy<T>(work: Promise<T>): Promise<T> {
+    return trackBusy(work, (name, data) => {
+      this.signal(name, data);
+    });
   }
 
   /** Report a framework/store state change the agent can observe and assert on. */

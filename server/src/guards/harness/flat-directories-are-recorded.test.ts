@@ -59,7 +59,9 @@ const OVER_THE_LINE: Readonly<Record<string, number>> = {
   // registry imports it lazily, so a page downloads the renderer only when a picture is first drawn.
   // +1: stable-selector.ts, split out of query.ts when that file crossed the 1000-line cap (#1147).
   // +1: text-match.ts, the text rules split out of query.ts at the 1000-line cap (#1782).
-  'adapters/realm/browser/src/dom': 15,
+  // +1: layout-audit.ts, the snapshot's opt-in audit. Not `dom/audit/`: it reads dom's a11y and refs
+  // and snapshot reads it, so a subdirectory would be two directories that need each other.
+  'adapters/realm/browser/src/dom': 16,
   // +1: error-repeats.ts, the limiter every uncaught-error path in console.ts goes through (#986).
   'adapters/realm/browser/src/observers': 25,
   // 17 since the HUD's position primitives left `presenter-drag.ts` for their own leaf: the drag

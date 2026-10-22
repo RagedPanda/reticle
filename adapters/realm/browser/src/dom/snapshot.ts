@@ -5,6 +5,7 @@ import { getAccessibleName, getRole, getStates, getValue, isVisible } from './a1
 import { refs } from './addressing/refs.js';
 import { readTestId } from './addressing/testid-attr.js';
 import { identifyComponent } from '@/registry/stores/adapters.js';
+import { auditLayout, type LayoutFinding } from './layout-audit.js';
 import { pageRoute } from '@/security/page-location.js';
 import { isIgnored, isReticleOverlay } from './dom-ignore.js';
 
@@ -124,6 +125,8 @@ interface SnapshotResult {
    * must not receive the entire page as if it were the modal.
    */
   scopeMissing?: boolean;
+  /** Visible layout defects under the scope, when `audit` asked for them. */
+  audit?: LayoutFinding[];
   /**
    * How many MEANINGFUL nodes the lean walk passed over, present only in a lean mode and only when
    * non-zero. This is what stops an empty `interactive` tree reading as an empty page — the mode is
@@ -195,6 +198,8 @@ interface SnapshotOptions {
    * and a test id is. It annotates lines that are already there; it never adds one.
    */
   ids?: boolean | undefined;
+  /** Also measure the page for visible layout defects (`layout-audit.ts`). Off by default: it forces layout. */
+  audit?: boolean | undefined;
 }
 
 /**
@@ -651,5 +656,6 @@ export function buildSnapshot(options: SnapshotOptions = {}): SnapshotResult {
     ...(ctx.hiddenSkipped > 0 ? { hiddenSkipped: ctx.hiddenSkipped } : {}),
     ...(ctx.unread.length > 0 ? { unread: ctx.unread } : {}),
     ...(ctx.unreadOverflow ? { unreadOverflow: true as const } : {}),
+    ...(true === options.audit ? { audit: auditLayout(root) } : {}),
   };
 }

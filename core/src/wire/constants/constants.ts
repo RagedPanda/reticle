@@ -509,6 +509,12 @@ export type PhenomenonType = (typeof PhenomenonType)[keyof typeof PhenomenonType
 export const RETICLE_HYDRATION_SIGNAL = 'reticle:hydration-complete';
 
 /**
+ * Work the app declared it is doing (`reticle.busy(work)`): `{ delta: 1 }` when it starts and
+ * `{ delta: -1 }` when it ends. `settled` counts it as in flight, like a request. Shared browser↔server.
+ */
+export const RETICLE_BUSY_SIGNAL = 'reticle:busy';
+
+/**
  * The registered-store name the React adapter uses for render stats, read via reticle_state. It crosses
  * the wire as a store id AND the browser SDK special-cases it as reticle-owned (so it isn't flagged as
  * an unregistered store), so the name is one fact in core — a rename in the adapter must not silently

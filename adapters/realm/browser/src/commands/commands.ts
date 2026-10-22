@@ -329,6 +329,8 @@ export function createCommandRegistry(): Map<string, CommandHandler> {
       includeRoot: true === args['includeRoot'],
       // A harness building a map of the app asks for each control's test id (`SnapshotOptions.ids`).
       ids: true === args['ids'],
+      // And a harness looking for what a person would see broken asks for the layout audit.
+      audit: true === args['audit'],
     }),
   );
   reg.set(ReticleCommand.QUERY, (args) => {

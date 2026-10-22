@@ -213,6 +213,12 @@ export const RAW_TOOLS: ToolDef[] = withCompactEnvelope([
         .describe(
           'Add [testid=…] to each control that carries one: a stable identity for a harness mapping the app. Off by default; it costs tokens.',
         ),
+      audit: z
+        .boolean()
+        .optional()
+        .describe(
+          'Also measure the page for what a person would see broken: text cut off with no ellipsis, controls drawn over each other, text under WCAG contrast. Returns `audit: [{ kind, ref, what, detail }]`. Off by default; it forces layout.',
+        ),
       ...sessionIdShape,
     },
     outputSchema: {
@@ -304,6 +310,7 @@ export const RAW_TOOLS: ToolDef[] = withCompactEnvelope([
         scope: args['scope'],
         mode,
         ...(true === args['ids'] ? { ids: true } : {}),
+        ...(true === args['audit'] ? { audit: true } : {}),
       }).then((raw) =>
         withSizeCost(
           noteUnmountedRoot(
