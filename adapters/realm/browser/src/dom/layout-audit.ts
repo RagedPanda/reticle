@@ -49,6 +49,8 @@ const BOLD_WEIGHT = 700;
 const CONTROLS =
   'button, a[href], input:not([type="hidden"]), select, textarea, [role="button"], [role="link"], [role="tab"], [role="menuitem"]';
 
+/** A clip that leaves nothing: `rect(0 0 0 0)` in either spelling, or a zero inset. */
+const CLIPPED_AWAY = /rect\(\s*0(px)?[\s,]+0(px)?[\s,]+0(px)?[\s,]+0(px)?\s*\)|inset\(\s*50%/;
 /** Smaller than this is not meant to be seen: screen-reader-only text is clipped to a 1px box. */
 const MIN_BOX_PX = 4;
 
@@ -58,6 +60,8 @@ const shown = (el: Element): DOMRect | null => {
   const style = getComputedStyle(el);
   if ('hidden' === style.visibility || 'none' === style.display || '0' === style.opacity)
     return null;
+  // Clipped away on purpose (`sr-only`: a skip link until it is focused), however big its box is.
+  if (CLIPPED_AWAY.test(style.clip) || CLIPPED_AWAY.test(style.clipPath)) return null;
   return rect;
 };
 
@@ -163,6 +167,17 @@ const contrastOf = (el: Element): { ratio: number; min: number } | null => {
   return { ratio: (hi + 0.05) / (lo + 0.05), min: large ? MIN_CONTRAST_LARGE : MIN_CONTRAST };
 };
 
+/**
+ * Whether a person sees one of `els` at (x, y): the topmost element there is one of them or inside
+ * one. A box an ancestor clips away (a canvas panned past its edge) still has a rect, and only the
+ * hit test knows nobody can see it. Off the viewport is not seen; no hit testing at all is.
+ */
+const seenAt = (x: number, y: number, ...els: Element[]): boolean => {
+  if ('function' !== typeof document.elementFromPoint) return true;
+  const top = document.elementFromPoint(x, y);
+  return null !== top && els.some((el) => el === top || el.contains(top));
+};
+
 const share = (a: DOMRect, b: DOMRect): number => {
   const w = Math.min(a.right, b.right) - Math.max(a.left, b.left);
   const h = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
@@ -183,7 +198,10 @@ export function auditLayout(root: Element = document.body): LayoutFinding[] {
   };
   for (const el of root.querySelectorAll('*')) {
     if (found.length >= MAX_FINDINGS) break;
-    if (isIgnored(el) || '' === ownText(el) || null === shown(el)) continue;
+    if (isIgnored(el) || '' === ownText(el)) continue;
+    const rect = shown(el);
+    if (null === rect || !seenAt(rect.left + rect.width / 2, rect.top + rect.height / 2, el))
+      continue;
     const cut = clipped(el);
     if (null !== cut) add(LayoutDefect.CLIPPED, el, cut);
     const contrast = contrastOf(el);
@@ -206,7 +224,10 @@ export function auditLayout(root: Element = document.body): LayoutFinding[] {
       if (found.length >= MAX_FINDINGS) return found;
       if (a.el.contains(b.el) || b.el.contains(a.el)) continue;
       const covered = share(a.rect, b.rect);
-      if (covered >= OVERLAP_SHARE)
+      // Where they meet, one of the two has to be what is drawn: else both are hidden there.
+      const x = (Math.max(a.rect.left, b.rect.left) + Math.min(a.rect.right, b.rect.right)) / 2;
+      const y = (Math.max(a.rect.top, b.rect.top) + Math.min(a.rect.bottom, b.rect.bottom)) / 2;
+      if (covered >= OVERLAP_SHARE && seenAt(x, y, a.el, b.el))
         add(LayoutDefect.OVERLAP, a.el, {
           detail: `drawn over "${whatOf(b.el)}" (${refs.refFor(b.el)})`,
           value: Math.round(covered * 100) / 100,

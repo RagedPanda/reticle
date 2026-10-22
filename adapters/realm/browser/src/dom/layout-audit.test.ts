@@ -78,6 +78,30 @@ describe('the layout audit', () => {
     expect(auditLayout().map((f) => [f.what, f.value, f.bound])).toEqual([['Cut', 240, 100]]);
   });
 
+  it('passes over a skip link hidden by clip, whatever its padding makes its box', () => {
+    document.body.innerHTML =
+      '<a id="skip" href="#main" style="overflow-x:hidden;clip:rect(0px, 0px, 0px, 0px)">Skip to content</a>';
+    const skip = document.getElementById('skip') as Element;
+    box(skip, 0, 0, 25, 17);
+    size(skip, 117, 24);
+    expect(auditLayout()).toEqual([]);
+  });
+
+  it('passes over an overlap nobody sees: where they meet, something else is drawn', () => {
+    document.body.innerHTML =
+      '<div id="pane" style="overflow:hidden"><button id="node">A node</button></div><button id="chip">Flows</button>';
+    const node = document.getElementById('node') as Element;
+    const chip = document.getElementById('chip') as Element;
+    box(node, 0, 0, 80, 30);
+    box(chip, 0, 0, 80, 30);
+    const pane = document.getElementById('pane') as Element;
+    document.elementFromPoint = () => pane;
+    expect(auditLayout()).toEqual([]);
+    document.elementFromPoint = () => chip;
+    expect(auditLayout().map((f) => f.kind)).toEqual([LayoutDefect.OVERLAP]);
+    Reflect.deleteProperty(document, 'elementFromPoint');
+  });
+
   it('rides on a snapshot only when asked', () => {
     document.body.innerHTML = '<button>Go</button>';
     expect(buildSnapshot({ mode: 'interactive' }).audit).toBeUndefined();
