@@ -1,4 +1,5 @@
 import { setPresenterViewer, setPresenterVisible } from './dom/dom-ignore.js';
+import { declareRoutes } from './observers/route.js';
 import { setOutwardPolicy } from './actions/danger-context.js';
 import { coverageMarkers, notApplicableFor } from './dom/addressing/coverage-markers.js';
 import {
@@ -676,6 +677,14 @@ export class Reticle {
   }
 
   /** Surface an arbitrary app-domain observation the DOM can't express. */
+  /**
+   * Declare the app's route patterns (`/personas/:personaId`, `*` for the rest), so each route change
+   * names the screen it reached and not only its address. Call once; a later call replaces it.
+   */
+  routes(patterns: readonly string[]): void {
+    declareRoutes(patterns);
+  }
+
   signal(name: string, data: Record<string, unknown> = {}): void {
     this.#emit(EventType.SIGNAL, { name, data });
   }
