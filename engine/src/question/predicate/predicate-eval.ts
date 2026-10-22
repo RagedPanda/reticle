@@ -679,6 +679,9 @@ const SETTLE_ACTIVITY: ReadonlySet<EventType> = new Set([
   EventType.DOM_ATTR,
 ]);
 
+/** An app-scoped settle: the default's activity, and every framework render commit. */
+const APP_ACTIVITY: ReadonlySet<EventType> = new Set([...SETTLE_ACTIVITY, EventType.RENDER_COMMIT]);
+
 /** The quiet window of a network-scoped settle: a completed request is the only activity. */
 const NETWORK_ACTIVITY: ReadonlySet<EventType> = new Set([EventType.NET_REQUEST]);
 
@@ -883,7 +886,12 @@ export function evalSettled(
 
   // A network-scoped settle reads only completed requests for the quiet window; the in-flight checks
   // above already ran for every scope.
-  const activity = SettledChannel.NETWORK === p.channel ? NETWORK_ACTIVITY : SETTLE_ACTIVITY;
+  const activity =
+    SettledChannel.NETWORK === p.channel
+      ? NETWORK_ACTIVITY
+      : SettledChannel.APP === p.channel
+        ? APP_ACTIVITY
+        : SETTLE_ACTIVITY;
   let lastT = -1;
   let lastType: EventType | undefined;
   for (const e of events) {
