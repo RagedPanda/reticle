@@ -278,15 +278,18 @@ function formatLine(
   // text and never a descendant's, so a reader can tell whose it is — which is the whole complaint.
   const textPart = ownText.length > 0 ? ` [text="${ownText}"]` : '';
   const testid = withTestId ? readTestId(el) : null;
-  // Without a test id, the component it renders in is the next most stable identity a map can key on.
-  const component =
-    withTestId && null === testid ? identifyComponent(el)?.componentStack[0] : undefined;
-  const idPart =
+  // Without a test id, the component it renders in is the next most stable identity a map can key on;
+  // and where it is written, so a finding on it names the file to open.
+  const info = withTestId ? identifyComponent(el) : null;
+  const component = null === testid ? info?.componentStack[0] : undefined;
+  const where = info?.source;
+  const idPart = `${
     null !== testid
       ? ` [testid=${testid}]`
       : component === undefined
         ? ''
-        : ` [component=${component}]`;
+        : ` [component=${component}]`
+  }${where === undefined ? '' : ` [src=${where.file}:${String(where.line)}]`}`;
   return `${indent}- ${role}${namePart}${refPart}${valuePart}${textPart}${layoutPart}${stateSuffix(el)}${idPart}`;
 }
 

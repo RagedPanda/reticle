@@ -48,4 +48,24 @@ describe('a snapshot that names each control by its test id', () => {
     expect(tree).toMatch(/- button "\/runs, 0 flows" \(ref=e\d+\) \[component=PageCard\]/);
     expect(tree).toMatch(/- button "X" \(ref=e\d+\) \[testid=x\]$/m);
   });
+
+  it('names where a control is written, when the framework says, test id or not', () => {
+    registerAdapter({
+      name: 'ids-src',
+      identify: (el: Element) => {
+        const at = el.closest('[data-src]')?.getAttribute('data-src');
+        if (null === at || at === undefined) return null;
+        const [file = '', line = '0'] = at.split(':');
+        return { componentStack: ['Card'], source: { file, line: Number(line) } };
+      },
+    });
+    document.body.innerHTML =
+      '<div data-src="src/card.tsx:12"><button data-testid="open">Open</button><button>Close</button></div>';
+    const tree = buildSnapshot({ mode: 'interactive', ids: true }).tree;
+    expect(tree).toMatch(/- button "Open" \(ref=e\d+\) \[testid=open\] \[src=src\/card\.tsx:12\]/);
+    expect(tree).toMatch(
+      /- button "Close" \(ref=e\d+\) \[component=Card\] \[src=src\/card\.tsx:12\]/,
+    );
+    expect(buildSnapshot({ mode: 'interactive' }).tree).not.toContain('src=');
+  });
 });
