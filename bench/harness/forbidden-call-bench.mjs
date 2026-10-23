@@ -33,6 +33,8 @@ const parse = (t) => {
 async function replayOnce(a) {
   const rep = await a.c.callTool('reticle_flow_replay', { flowName: FLOW });
   const obj = parse(rep.text);
+  if ('ok' !== obj.status)
+    process.stderr.write(`REPLAY-DEBUG ${String(rep.text).slice(0, 3000)}\n`);
   const successRow = Array.isArray(obj.steps)
     ? obj.steps.find((s) => s && 'success' === s.tool)
     : undefined;
