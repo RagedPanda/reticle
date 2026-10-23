@@ -1,0 +1,62 @@
+{
+  "src/disagreement/contradiction-evidence.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/disagreement/contradictions.ts": {
+    "no-nested-ternary": {
+      "count": 2
+    }
+  },
+  "src/disagreement/unit-mismatch.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/evidence/baseline.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/evidence/blind-spots.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/evidence/instrumentation-gaps.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/question/predicate-not-evidence.test.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/question/predicate/predicate-eval.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/question/predicate/predicate-parse.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/question/predicate/predicate-route.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/question/predicate/predicate-schema.ts": {
+    "no-nested-ternary": {
+      "count": 3
+    }
+  },
+  "src/question/predicate/split-text-miss.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  }
+}

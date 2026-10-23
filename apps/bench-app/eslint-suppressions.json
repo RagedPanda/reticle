@@ -1,0 +1,12 @@
+{
+  "src/views/Compose.tsx": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/views/Diagnostics.tsx": {
+    "no-nested-ternary": {
+      "count": 2
+    }
+  }
+}

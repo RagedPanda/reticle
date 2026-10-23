@@ -1,0 +1,332 @@
+{
+  "src/command/cli/answers/status-next-action.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/command/cli/auth/device-flow.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/command/cli/cli-doctor.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/command/cli/cli-flow-commands.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/command/cli/cloud-cli-verbs.test.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/command/cli/cloud-cli.ts": {
+    "no-nested-ternary": {
+      "count": 2
+    }
+  },
+  "src/command/cli/config/config-discovery.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/command/cli/lifecycle/daemon-lifecycle.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/command/cli/open-navigate.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/command/cli/status/status-lines.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/command/cli/try-command.ts": {
+    "no-nested-ternary": {
+      "count": 2
+    }
+  },
+  "src/command/cli/verify-results.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/command/setup/auto-approve.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/command/setup/run-setup.ts": {
+    "no-nested-ternary": {
+      "count": 3
+    }
+  },
+  "src/command/setup/setup-mcp.ts": {
+    "no-nested-ternary": {
+      "count": 2
+    }
+  },
+  "src/features/crawl/crawl.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/features/harness/drive-report.ts": {
+    "no-nested-ternary": {
+      "count": 6
+    }
+  },
+  "src/features/harness/explore/disparity.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/features/harness/platform-config.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/features/harness/script/script-run.ts": {
+    "no-nested-ternary": {
+      "count": 8
+    }
+  },
+  "src/guards/ci/ci-gate-completeness.test.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/judgement/runs/artifact/render-report.ts": {
+    "no-nested-ternary": {
+      "count": 2
+    }
+  },
+  "src/judgement/runs/artifact/replay-mapping.ts": {
+    "no-nested-ternary": {
+      "count": 3
+    }
+  },
+  "src/language/flows/affected-tools.ts": {
+    "no-nested-ternary": {
+      "count": 3
+    }
+  },
+  "src/language/flows/decision.ts": {
+    "no-nested-ternary": {
+      "count": 4
+    }
+  },
+  "src/language/flows/flow-replay-run.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/language/flows/flow-replay.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/language/flows/flow-replay.unreachable.test.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/language/flows/flow-replay.unreached-step.test.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/language/flows/flow-replayable.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/language/flows/flow-result.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/language/flows/recording/recording-backtrack.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/language/flows/recording/tape/recordings.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/language/flows/suite/parallel-suite.test.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/language/flows/verify-change-tools.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/memory/cloud/cloud-config.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/memory/cloud/sync-cycle.test.ts": {
+    "no-nested-ternary": {
+      "count": 2
+    }
+  },
+  "src/memory/cloud/sync-daemon.test.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/memory/cloud/sync-describe.ts": {
+    "no-nested-ternary": {
+      "count": 2
+    }
+  },
+  "src/memory/cloud/sync-hostile-server.test.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/memory/project/dir/reticle-dir.ts": {
+    "no-nested-ternary": {
+      "count": 2
+    }
+  },
+  "src/portal/input/real-input.ts": {
+    "no-nested-ternary": {
+      "count": 2
+    }
+  },
+  "src/portal/production/production-drive.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/portal/realm/web-realm.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/portal/session/dev-server/dev-command.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/portal/session/live-control-tools.ts": {
+    "no-nested-ternary": {
+      "count": 2
+    }
+  },
+  "src/portal/session/no-session-next-action.ts": {
+    "no-nested-ternary": {
+      "count": 4
+    }
+  },
+  "src/portal/session/no-session-watch.ts": {
+    "no-nested-ternary": {
+      "count": 2
+    }
+  },
+  "src/portal/session/session-manager.ts": {
+    "no-nested-ternary": {
+      "count": 4
+    }
+  },
+  "src/portal/session/session-successor.test.ts": {
+    "no-nested-ternary": {
+      "count": 2
+    }
+  },
+  "src/surface/tools/account-tool.ts": {
+    "no-nested-ternary": {
+      "count": 3
+    }
+  },
+  "src/surface/tools/act-sequence-tool.ts": {
+    "no-nested-ternary": {
+      "count": 3
+    }
+  },
+  "src/surface/tools/act-tools.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/surface/tools/act/sequence-grade.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/surface/tools/harness-explore.ts": {
+    "no-nested-ternary": {
+      "count": 2
+    }
+  },
+  "src/surface/tools/harness-script.ts": {
+    "no-nested-ternary": {
+      "count": 2
+    }
+  },
+  "src/surface/tools/invoke-tool.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/surface/tools/lease-tools.ts": {
+    "no-nested-ternary": {
+      "count": 5
+    }
+  },
+  "src/surface/tools/next-step.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/surface/tools/observe-tools.ts": {
+    "no-nested-ternary": {
+      "count": 3
+    }
+  },
+  "src/surface/tools/platform-moment.ts": {
+    "no-nested-ternary": {
+      "count": 2
+    }
+  },
+  "src/surface/tools/read-tools.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/surface/tools/read/query-windowed.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/surface/tools/reconcile-tools.ts": {
+    "no-nested-ternary": {
+      "count": 2
+    }
+  },
+  "src/telemetry/harness-run.ts": {
+    "no-nested-ternary": {
+      "count": 4
+    }
+  },
+  "src/telemetry/telemetry.ts": {
+    "no-nested-ternary": {
+      "count": 2
+    }
+  }
+}
