@@ -177,6 +177,7 @@ export const SESSION_EXEMPT_TOOLS: ReadonlySet<string> = new Set([
   // dangling name it would be a lie this file's own test 6 is written to catch.
   ReticleTool.INTENT, // reads/writes .reticle/intent/; sessionId only picks the project
   ReticleTool.CONTEXT, // folds the journal + intent ledger; must still answer when nothing is connected
+  ReticleTool.MAP, // folds the journals on disk into the App Graph; answers with no tab connected
   ReticleTool.PROJECT, // reads .reticle/project.json
   // Reads the team's shared memory over HTTP; sessionId only resolves WHICH project's link file to
   // use. It must answer with no tab connected — "what does this project know?" is a question an

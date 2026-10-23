@@ -36,6 +36,7 @@ import { BROWSER_TOOLS } from './browser-tools.js';
 import { FLOW_TOOLS } from '@/language/flows/flow-tools.js';
 import { INTENT_TOOLS } from '@/memory/intent/intent-tools.js';
 import { CONTEXT_TOOLS } from '@/judgement/runs/context-tools.js';
+import { MAP_TOOLS } from './map-tools.js';
 import { PROJECT_TOOLS } from '@/memory/project/project-tools.js';
 import { MEMORY_TOOLS } from '@/memory/recall/memory-tools.js';
 import { RUN_TOOLS } from '@/judgement/runs/run-tools.js';
@@ -560,6 +561,7 @@ export const RAW_TOOLS: ToolDef[] = withCompactEnvelope([
   ...CONTRACT_TOOLS,
   ...INTENT_TOOLS,
   ...CONTEXT_TOOLS,
+  ...MAP_TOOLS,
   ...DOMAIN_TOOLS,
   // reticle_flow_save / reticle_flow_list / reticle_flow_load. See flow-tools.ts.
   ...FLOW_TOOLS,

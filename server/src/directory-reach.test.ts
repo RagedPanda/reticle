@@ -775,6 +775,9 @@ const REACHES_FOR: Record<string, readonly string[]> = {
     'dev-server',
     // `reticle_coverage { app: true }` folds a session into the app-wide ledger.
     'exhaust',
+    // `reticle_map` reads each session's journal as driven steps. A leaf: `app-graph` imports
+    // nothing from this package, so this adds no mutual pair.
+    'app-graph',
     'hooks',
     'navigation',
     'lifetime',

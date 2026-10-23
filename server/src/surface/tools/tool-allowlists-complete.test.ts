@@ -175,7 +175,15 @@ describe('tool allowlists are complete', () => {
      * in TOOLS of its own). Every other set no: it acts on no page, mints no ref, and produces no
      * verdict.
      */
-    const PINNED_RAW_TOOL_COUNT = 65;
+    /*
+     * 66 since `reticle_map`: the App Graph folded from the project's journals. SESSION_EXEMPT_TOOLS
+     * YES, because the agent asks for the map before it has opened anything, and it reads only disk
+     * and the live tabs' journals. Every other set no: it acts on no page (ACTION, CDP), mints no
+     * ref, and produces no verdict about the app (VERDICT: counting it would inflate the headline
+     * metric with reads). On no advertised surface (CORE, EXTENDED, VERIFY, LEAN): unproven, so one
+     * `reticle_run` hop like `reticle_context`, and the extended surface is at its shared cap.
+     */
+    const PINNED_RAW_TOOL_COUNT = 66;
 
     expect(
       RAW_TOOLS.length,
