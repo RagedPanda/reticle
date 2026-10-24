@@ -722,17 +722,12 @@
       "count": 8
     }
   },
-  "src/presenter/presenter-report.test.ts": {
-    "curly": {
-      "count": 1
-    }
-  },
   "src/presenter/presenter-report.ts": {
     "curly": {
-      "count": 21
+      "count": 18
     },
     "no-nested-ternary": {
-      "count": 8
+      "count": 7
     }
   },
   "src/presenter/presenter-run-state.ts": {
