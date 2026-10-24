@@ -910,6 +910,7 @@ export function main(): void {
         parsed.bug,
         parsed.feedbackKind,
         parsed.agent,
+        parsed.contact,
       );
       break;
     case 'version':

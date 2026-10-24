@@ -564,6 +564,21 @@ await settle();
   check('human feedback sends', human.sent === true, human.reason ?? '');
   const f = find('feedback_submitted').find((e) => e.properties.feedback_source === 'human');
   check('  carries the rating', f?.properties.feedback_rating === 5);
+  check('  carries no reply address the person did not give', !('feedback_contact' in (f?.properties ?? {})));
+}
+
+// ── 8a. A reply address, sent only when the person gives it ──────────────────
+const withContact = await submitFeedback({
+  source: 'human',
+  kind: 'feature_request',
+  text: 'please add a reply',
+  contact: 'reply-e2e@example.com',
+});
+await settle();
+{
+  check('feedback with a reply address sends', withContact.sent === true, withContact.reason ?? '');
+  const f = find('feedback_submitted').find((e) => e.properties.feedback_kind === 'feature_request' && e.properties.feedback_source === 'human');
+  check('  carries the address as feedback_contact, unredacted', f?.properties.feedback_contact === 'reply-e2e@example.com');
 }
 
 // ── 8b. Version changed (update + rollback) ───────────────────────────────────

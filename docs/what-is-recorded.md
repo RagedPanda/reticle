@@ -59,7 +59,7 @@ DO_NOT_TRACK=1               # the convention, honoured
 npx @reticlehq/server telemetry disable   # this machine, permanently
 ```
 
-Telemetry carries no free text. Free text leaves in three ways: a feedback report (never collected passively; `RETICLE_FEEDBACK=0` disables it), HUD notes on a linked project with `--memory on`, and your prompts from a linked project. Prompts are on by default once a project is linked; `"shareRequests": false` stops them.
+Telemetry carries no free text. Free text leaves in three ways: a feedback report (never collected passively; `RETICLE_FEEDBACK=0` disables it; a reply address is sent only when you give it with `--contact`), HUD notes on a linked project with `--memory on`, and your prompts from a linked project. Prompts are on by default once a project is linked; `"shareRequests": false` stops them.
 
 The daemon also fetches a small public file, `https://reticle.sh/hud/notices.v1.json`, for the notices in the HUD's rail. The request carries nothing about you or your project. `RETICLE_TELEMETRY=0` or `DO_NOT_TRACK=1` stops it, and `RETICLE_HUD_NOTICES_URL` points it elsewhere.
 

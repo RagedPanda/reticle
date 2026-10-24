@@ -83,6 +83,8 @@ Reticle is built for agents, which creates an unusual problem: the primary user'
 
 The `rating` is secondary to that text on purpose. A score produced because something asked for one is indistinguishable from a score that was earned, and once both sit in the same column neither means anything. The text is the part that can be acted on or quoted.
 
+`contact` is an email address for a reply from the maintainers. Send only an address that the user typed for this purpose. Never guess one or reuse one from somewhere else. It must be one plain address of at most 254 characters. Anything else is refused with a reason, and nothing is filed. Without `contact`, no address is sent.
+
 ### It will tell you when it cannot send
 
 Feedback sends in the background so you are not kept waiting, but it does not pretend to succeed: `sent` stays `false` until delivery is confirmed, `accepted` says the report was validated and queued, and a send that later fails is reported on a later tool result. A report that is not accepted says why:

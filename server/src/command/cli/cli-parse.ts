@@ -29,6 +29,7 @@ import { FORCE_FLAG } from './cli-kill.js';
 export {
   AGENT_FLAG,
   BUG_FLAG,
+  CONTACT_FLAG,
   FEEDBACK_KINDS,
   KIND_FLAG,
   RATING_FLAG,

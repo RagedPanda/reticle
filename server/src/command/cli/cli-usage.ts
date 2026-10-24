@@ -166,12 +166,13 @@ const COMMANDS: readonly CommandDoc[] = [
   },
   {
     name: 'feedback',
-    synopsis: 'feedback [--rating 1-5] [--bug] "message"',
+    synopsis: 'feedback [--rating 1-5] [--bug] [--contact <email>] "message"',
     summary: "Tell us what worked and what didn't; prints exactly what it sends",
     group: HelpGroup.ACCOUNT,
     detail:
       'Agents: reticle feedback --agent --kind <bug|gap|ambiguity|feature_request|improvement|experience> "message"\n' +
-      'works from anywhere, including a setup that never finished.',
+      'works from anywhere, including a setup that never finished.\n' +
+      '--contact <email> adds an address for a reply. It is sent only when you give it.',
   },
   {
     name: 'telemetry',

@@ -142,12 +142,14 @@ Reticle verifies apps for AI agents, and for a long time it had no way to hear w
 | Who | How | What it carries |
 | --- | --- | --- |
 | Your agent | Calls the `reticle_session { action: "feedback" }` MCP tool (after a failure, **or to ask for a feature**) | What it wrote: an analysis, or a request with the goal behind it, what would improve, and how it works around the gap today. Plus the model it is running, which it tells us because MCP cannot |
-| You | Run `npx @reticlehq/server feedback [--rating 1-5] [--bug] "your words"` | Your words and your rating |
+| You | Run `npx @reticlehq/server feedback [--rating 1-5] [--bug] [--contact you@example.com] "your words"` | Your words and your rating, and your reply address if you give one |
 | Your agent, before Reticle works | Runs `npx @reticlehq/server feedback --agent --kind <bug\|gap\|ambiguity\|feature_request\|improvement\|experience> "what happened"` | The same words, filed from the shell. This exists for the phase where there is no daemon and no MCP tools (a failed `init`, half-finished wiring), which is the failure we are otherwise never told about |
 
 Agents are instructed, in the tool description itself, never to include app source, secrets, or user data, and to describe the failure in their own words instead.
 
 **It is redacted before it leaves your machine.** Emails, credentials in URLs, `Authorization` headers and API-key assignments, recognizable vendor tokens (`sk-…`, `ghp_…`, `AKIA…`, `xoxb-…`, JWTs), and home-directory paths are stripped and replaced with `[redacted]`. This runs client-side, in [`feedback.ts`](https://github.com/reticlehq/reticle/blob/main/server/src/telemetry/feedback.ts), so you can read exactly what it removes rather than take our word for it. It is a safety net, not a guarantee: it cannot catch a secret that looks like an ordinary sentence, which is why the instruction above comes first.
+
+**A reply address is sent only when you give it.** `--contact you@example.com` on `reticle feedback` adds one email address so that the maintainers can answer you. Your agent can pass one on with `contact`, but only an address that you typed for this purpose. It must not guess one or reuse one from somewhere else. The address goes as `feedback_contact` on that one report. It is not redacted, because you gave it to be read. Without `--contact` or `contact`, no address is sent.
 
 **It shows you what it sends.** `reticle feedback` prints the exact payload before transmitting, and names any redaction rule that fired.
 
