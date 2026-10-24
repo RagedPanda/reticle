@@ -55,13 +55,16 @@ export function spawnsHeadless(headless: boolean, requested: number, resolved: n
 }
 
 const RELEASE_VERSION = /^\d+\.\d+\.\d+/;
+/** The first release whose `/status` names the agents attached to it (`mcpPeers`). */
+const MCP_PEERS_SINCE = '3.6.0';
 
 /**
  * Should a proxy stop the older daemon it found, and start its own release?
  *
  * Only an OLDER daemon, read from `/status`, with no tab attached and no other agent attached. A
  * tab or an agent can have a call in flight, so that daemon stays and the skew is described as
- * before. A status that does not parse, or a version that does not compare, keeps the daemon.
+ * before. A daemon before `MCP_PEERS_SINCE` does not report its agents, so it stays too. A status
+ * that does not parse, or a version that does not compare, keeps the daemon.
  */
 export function retiresOlderDaemon(status: unknown, proxyVersion: string): boolean {
   if (typeof status !== 'object' || null === status) {
@@ -74,6 +77,10 @@ export function retiresOlderDaemon(status: unknown, proxyVersion: string): boole
   }
   // Only a plain release number compares; anything else keeps the daemon.
   if (!RELEASE_VERSION.test(version) || !isNewerVersion(proxyVersion, version)) {
+    return false;
+  }
+  // An older daemon never sends `mcpPeers`, so it cannot say that no agent is attached.
+  if (isNewerVersion(MCP_PEERS_SINCE, version)) {
     return false;
   }
   const peers = fields['mcpPeers'];

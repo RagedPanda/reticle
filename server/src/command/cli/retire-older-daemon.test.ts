@@ -26,6 +26,16 @@ describe('a newer proxy meets an older daemon', () => {
     expect(retiresOlderDaemon(status('3.7.0', { mcpPeers: ['3.7.0'] }), '3.8.0')).toBe(false);
   });
 
+  // An older daemon never sends `mcpPeers`, so a missing list does not mean that no agent is there.
+  it('keeps a daemon too old to say whether an agent is attached', () => {
+    expect(retiresOlderDaemon(status('3.5.9'), '3.8.0')).toBe(false);
+    expect(retiresOlderDaemon(status('3.0.0'), '3.8.0')).toBe(false);
+  });
+
+  it('retires an idle daemon from the first release that reports its agents', () => {
+    expect(retiresOlderDaemon(status('3.6.0'), '3.8.0')).toBe(true);
+  });
+
   it('keeps a daemon of the same or a newer release', () => {
     expect(retiresOlderDaemon(status('3.8.0'), '3.8.0')).toBe(false);
     expect(retiresOlderDaemon(status('3.9.0'), '3.8.0')).toBe(false);
