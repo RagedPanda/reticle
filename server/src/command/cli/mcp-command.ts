@@ -125,9 +125,16 @@ export async function handleMcp(opts: {
   // failure a user reports as "it disconnected" left nothing behind to read.
   setProxyLogPort(port);
   // The storm exit is a proxy exit too: report it before the process goes.
-  const resilience = installProxyResilience(process, proxyLog, undefined, () => {
-    void flushProxyExit(ProxyExitReason.CLIENT_GONE_STORM).finally(() => process.exit(0));
-  });
+  // Only the client pipes count toward the storm exit; see installProxyResilience.
+  const resilience = installProxyResilience(
+    process,
+    proxyLog,
+    undefined,
+    () => {
+      void flushProxyExit(ProxyExitReason.CLIENT_GONE_STORM).finally(() => process.exit(0));
+    },
+    [process.stdin, process.stdout],
+  );
   /**
    * Make sure a daemon is on the port, spawning one if not.
    *

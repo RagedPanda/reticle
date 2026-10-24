@@ -424,7 +424,7 @@
   },
   "src/command/daemon/daemon-resilience.ts": {
     "curly": {
-      "count": 10
+      "count": 9
     }
   },
   "src/command/daemon/daemon-resolve.test.ts": {
@@ -495,11 +495,6 @@
   "src/command/daemon/lifetime/unclean-predecessor.ts": {
     "curly": {
       "count": 1
-    }
-  },
-  "src/command/daemon/proxy-disconnect-storm.test.ts": {
-    "curly": {
-      "count": 9
     }
   },
   "src/command/daemon/wake-decision.ts": {
