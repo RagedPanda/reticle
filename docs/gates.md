@@ -2,6 +2,7 @@
 title: Gates
 description: 'I changed some files. Which command do I run before I push?'
 icon: shield-check
+noindex: true
 ---
 
 If you changed anything at all, run `pnpm verify` (`format:check`, `lint`, `typecheck`, `test:unit`; about two minutes). If you also touched the tool surface, install, desktop or Rust, section 1 below names the one extra command your change needs. CI is path-routed too, and `gate` counts a skipped job as green, so a gate you skip here may also be skipped in CI.

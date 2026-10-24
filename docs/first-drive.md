@@ -2,6 +2,7 @@
 title: Your first drive
 description: 'Clone to a real verdict in about fifteen minutes, and the traps that cost other people a debugging session.'
 icon: play
+noindex: true
 ---
 
 The goal of this page is narrow and deliberate: **end with a real verdict on screen**, produced by Reticle against a running app, in a checkout you just cloned. Not a passing unit test, the thing the project exists to do.

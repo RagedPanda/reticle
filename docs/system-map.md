@@ -2,6 +2,7 @@
 title: System map
 description: 'How a tool call travels from a coding agent to your app and back, and which of those failures are silent.'
 icon: map
+noindex: true
 ---
 
 A tool call crosses five processes and four hops: coding agent → `reticle mcp` proxy (stdio) → daemon on `:4400` (HTTP POST out, SSE back) → browser SDK (WebSocket) → your app. Each hop has its own failure vocabulary and its own way of lying, and the ones marked **silent** below fail with no error reaching either the agent or you.
