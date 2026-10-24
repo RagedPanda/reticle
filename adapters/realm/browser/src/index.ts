@@ -79,7 +79,7 @@ export { buildSnapshot } from './dom/snapshot.js';
 // geometry (see ElementDescriptor.chart), and exported for direct use — canvasChartData is the only
 // route to a canvas chart's data, since its pixels are not DOM.
 export { inspectChart, canvasChartData } from './dom/chart.js';
-export type { ChartReport, ChartFinding, CanvasChartData } from './dom/chart.js';
+export type { ChartReport, ChartFinding, CanvasChartData, ChartGlobals } from './dom/chart.js';
 export { matchQuery, runQuery } from './dom/query.js';
 export { executeAction, executeSequence } from './actions/actions.js';
 export { describe, getRole, getAccessibleName, getStates, isVisible } from './dom/a11y.js';
