@@ -41,6 +41,9 @@ import {
   type InstallSource,
   type McpConnection,
   type McpOutage,
+  type DaemonDeath,
+  type ProxyExit,
+  type WakeRefusal,
   type ToolRefusal,
   type AppInstrumentation,
   type HarnessRun,
@@ -411,6 +414,12 @@ export interface TelemetryExtra {
   link?: PlatformLink;
   /** `harness_run`: one phase of one Harness run. */
   harness?: HarnessRun;
+  /** `mcp_proxy_exited`: why the proxy left, and what it saw in its life. */
+  proxyExit?: ProxyExit;
+  /** `daemon_died_unclean`: how old the dead daemon was when its pidfile was found. */
+  daemonDeath?: DaemonDeath;
+  /** `wake_refused`: what held the port. */
+  wakeRefusal?: WakeRefusal;
   /**
    * `platform_linked`: the workspace just linked. Overrides the envelope's own reading, which looks
    * at the daemon's working directory and not at the project the HUD linked.
@@ -600,6 +609,9 @@ export const createTelemetry = (opts: {
       ...(extra?.hud !== undefined ? { hud: extra.hud } : {}),
       ...(extra?.link !== undefined ? { link: extra.link } : {}),
       ...(extra?.harness !== undefined ? { harness: extra.harness } : {}),
+      ...(extra?.proxyExit !== undefined ? { proxyExit: extra.proxyExit } : {}),
+      ...(extra?.daemonDeath !== undefined ? { daemonDeath: extra.daemonDeath } : {}),
+      ...(extra?.wakeRefusal !== undefined ? { wakeRefusal: extra.wakeRefusal } : {}),
     };
     // The wire schema's caps are only real if something applies them. An event that fails is
     // DROPPED, never sent and never repaired: the payload is exactly what the caps exist to stop.
@@ -634,6 +646,9 @@ export const createTelemetry = (opts: {
       hud,
       link,
       harness,
+      proxyExit,
+      daemonDeath,
+      wakeRefusal,
       ...rest
     } = event;
     // `$session_id` is PostHog's OWN session property, so sending ours under that name lights up
@@ -670,6 +685,9 @@ export const createTelemetry = (opts: {
       hud,
       link,
       harness,
+      proxyExit,
+      daemonDeath,
+      wakeRefusal,
     };
     for (const [prefix, block] of Object.entries(blocks)) {
       for (const [key, value] of Object.entries(block ?? {})) {

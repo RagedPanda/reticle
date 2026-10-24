@@ -3390,7 +3390,7 @@
   },
   "src/surface/mcp/mcp-proxy.ts": {
     "curly": {
-      "count": 43
+      "count": 42
     }
   },
   "src/surface/mcp/mcp.test.ts": {

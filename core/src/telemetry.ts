@@ -44,7 +44,7 @@ import { BrowserBrand, FeedbackSchema } from './telemetry-feedback.js';
 import { CaptureLoss, VerifiedReason } from './verdict/verified-constants.js';
 import { IdentitySchema } from './telemetry-feedback.js';
 import { LicenseActivation } from './telemetry-license.js';
-import { SIGNAL_FIELDS } from './telemetry-signals.js';
+import { OutageErrCode, SIGNAL_FIELDS, TRANSPORT_FIELDS } from './telemetry-signals.js';
 import { BugFoundSchema } from './telemetry-bug.js';
 export * from './telemetry-bug.js';
 
@@ -168,6 +168,17 @@ export const TelemetryEventKind = {
    * that decides whether this is fixed.
    */
   MCP_CONNECTION_LOST: 'mcp_connection_lost',
+  /**
+   * The MCP proxy process ended. The agent lost its tools until the client starts a new one.
+   *
+   * `mcp_connection_lost` cannot see this: the stream to the daemon can be healthy when the proxy
+   * leaves. Sent even when the proxy has no other counts to report. See `ProxyExitSchema`.
+   */
+  MCP_PROXY_EXITED: 'mcp_proxy_exited',
+  /** A daemon start found the pidfile of a daemon that died without a clean stop. */
+  DAEMON_DIED_UNCLEAN: 'daemon_died_unclean',
+  /** The proxy found the daemon port held by a stranger or by another project, and did not use it. */
+  WAKE_REFUSED: 'wake_refused',
   /**
    * `reticle init` finished. The onboarding funnel had no instrumentation at all, so a setup that
    * failed on a missing dependency was indistinguishable from a user who never tried.
@@ -598,6 +609,11 @@ export const OutageReason = {
   SSE_CLOSED: 'sse_closed',
   /** A reconnect attempt could not reach the daemon at all. */
   CONNECT_ERROR: 'connect_error',
+  /**
+   * A stream that was already serving was reset. The request saw the error before the response
+   * closed, so this used to read as `connect_error`, which says the daemon was never reached.
+   */
+  SSE_RESET: 'sse_reset',
   /** Anything the proxy reported that this list does not name. A classifier must be able to say so. */
   OTHER: 'other',
 } as const;
@@ -629,6 +645,10 @@ export const McpOutageSchema = z.object({
    * worth driving down.
    */
   pendingLost: z.number().int().nonnegative().optional(),
+  /** The socket error code behind the drop, when the drop came with one. */
+  errCode: z.nativeEnum(OutageErrCode).optional(),
+  /** The stream got a response before it failed: a live stream dropped, not a refused connect. */
+  responded: z.boolean().optional(),
 });
 export type McpOutage = z.infer<typeof McpOutageSchema>;
 
@@ -928,5 +948,7 @@ export const TelemetryEventSchema = z.object({
   licenseKeyPresent: z.boolean().optional(),
   // Account, workspace, client, launch, and the HUD / link / Harness-run blocks: see that file.
   ...SIGNAL_FIELDS,
+  // The proxy-exit, unclean-death and wake-refusal blocks: see telemetry-signals.ts.
+  ...TRANSPORT_FIELDS,
 });
 export type TelemetryEvent = z.infer<typeof TelemetryEventSchema>;

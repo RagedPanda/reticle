@@ -22,6 +22,8 @@ import {
   probeDaemon,
   proxyLog,
   setProxyLogPort,
+  flushProxyExit,
+  reportWakeRefused,
 } from '@/surface/mcp/mcp-proxy.js';
 import { installProxyResilience } from '@/command/daemon/daemon-resilience.js';
 import { readProjectId, readProjectPort } from './ports/resolve/cli-port.js';
@@ -35,7 +37,7 @@ import { WakeAction, decideWake } from '@/command/daemon/wake-decision.js';
 import { pickDaemonPortToBind } from '@/command/daemon/binding/free-port.js';
 import { fetchStatus } from '@/command/daemon/binding/daemon-status-probe.js';
 import { migrateApprovals } from '@/command/setup/approval-migration.js';
-import { ReticleEnv } from '@reticlehq/core';
+import { ProxyExitReason, ReticleEnv, WakeRefusalPresence } from '@reticlehq/core';
 import { agentIo } from '@/command/setup/agent-io.js';
 import { SERVER_VERSION } from '@/command/version/identity/server-version.js';
 import { homedir } from 'node:os';
@@ -122,7 +124,10 @@ export async function handleMcp(opts: {
   // swallows stderr, so wiring these to `log` meant a crash was handled and then unrecorded — the
   // failure a user reports as "it disconnected" left nothing behind to read.
   setProxyLogPort(port);
-  const resilience = installProxyResilience(process, proxyLog);
+  // The storm exit is a proxy exit too: report it before the process goes.
+  const resilience = installProxyResilience(process, proxyLog, undefined, () => {
+    void flushProxyExit(ProxyExitReason.CLIENT_GONE_STORM).finally(() => process.exit(0));
+  });
   /**
    * Make sure a daemon is on the port, spawning one if not.
    *
@@ -148,6 +153,11 @@ export async function handleMcp(opts: {
     const wake = decideWake(presence, daemonProjectAt(port, reticleStateHome()), projectId);
     if (WakeAction.USE === wake) return;
     if (WakeAction.REFUSE === wake) {
+      void reportWakeRefused(
+        PortPresence.DAEMON === presence
+          ? WakeRefusalPresence.OTHER_PROJECT
+          : WakeRefusalPresence.FOREIGN,
+      );
       throw new Error(
         PortPresence.DAEMON === presence
           ? `the daemon on port ${String(port)} belongs to a different project, so this one will ` +
@@ -158,6 +168,7 @@ export async function handleMcp(opts: {
     const scriptPath = process.argv[1];
     if (scriptPath === undefined) {
       log('reticle_mcp_no_script', {});
+      await flushProxyExit(ProxyExitReason.WAKE_FAILED);
       process.exit(1);
     }
     const daemonArgs = daemonSpawnArgs({
