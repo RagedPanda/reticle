@@ -87,6 +87,11 @@ export function reportMcpOutage(
   facts: { reason: string; attempts: number; pendingLost?: number } & Partial<DropCause>,
 ): void {
   const reason = outageReason(facts.reason);
+  // The idle exit is not an outage. The daemon retires on schedule, `daemon_stopped` says so, and
+  // a `first` row for it was most of this event's volume. A real fault keeps its own slot below.
+  if (OutageStage.FIRST === stage && isBenign(reason)) {
+    return;
+  }
   const slot = `${stage}:${isBenign(reason) ? 'benign' : 'fault'}`;
   if (reported.has(slot)) return;
   reported.add(slot);

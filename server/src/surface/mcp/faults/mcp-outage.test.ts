@@ -140,7 +140,7 @@ describe('a benign drop cannot mask a real one', () => {
     const reasons = emit.mock.calls.map(
       (call) => (call[1] as { outage: { reason: string } }).outage.reason,
     );
-    expect(reasons).toEqual([OutageReason.DAEMON_SHUTDOWN, OutageReason.SSE_ABORTED]);
+    expect(reasons).toEqual([OutageReason.SSE_ABORTED]);
     emit.mockRestore();
   });
 
@@ -157,9 +157,17 @@ describe('a benign drop cannot mask a real one', () => {
 
   it('reports one benign drop per stage, not one per retirement', () => {
     const emit = vi.spyOn(getTelemetry(), 'emit').mockResolvedValue(true);
-    reportMcpOutage(OutageStage.FIRST, { reason: OutageReason.DAEMON_SHUTDOWN, attempts: 1 });
-    reportMcpOutage(OutageStage.FIRST, { reason: OutageReason.DAEMON_SHUTDOWN, attempts: 1 });
+    reportMcpOutage(OutageStage.RECOVERED, { reason: OutageReason.DAEMON_SHUTDOWN, attempts: 2 });
+    reportMcpOutage(OutageStage.RECOVERED, { reason: OutageReason.DAEMON_SHUTDOWN, attempts: 2 });
     expect(emit).toHaveBeenCalledTimes(1);
+    emit.mockRestore();
+  });
+
+  it('does not report the idle exit as a first outage, because it is not one', () => {
+    // The daemon retires on schedule after it sits idle. `daemon_stopped` already says so.
+    const emit = vi.spyOn(getTelemetry(), 'emit').mockResolvedValue(true);
+    reportMcpOutage(OutageStage.FIRST, { reason: OutageReason.DAEMON_SHUTDOWN, attempts: 1 });
+    expect(emit).not.toHaveBeenCalled();
     emit.mockRestore();
   });
 });

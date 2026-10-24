@@ -212,8 +212,10 @@ describe('what an outage event is allowed to say', () => {
     daemon.streams[0]?.write(SHUTDOWN_FRAME);
     daemon.streams[0]?.end();
 
+    // The planned exit is not an outage, so it sends no `first` row. The link coming back still
+    // reports, and names the shutdown as its cause.
     await vi.waitFor(() => expect(seen().length).toBeGreaterThan(0));
-    expect(seen()[0]?.stage).toBe(OutageStage.FIRST);
+    expect(seen()[0]?.stage).toBe(OutageStage.RECOVERED);
     expect(seen()[0]?.reason).toBe(OutageReason.DAEMON_SHUTDOWN);
   });
 
@@ -228,8 +230,11 @@ describe('what an outage event is allowed to say', () => {
 
     daemon.streams[0]?.end();
 
-    await vi.waitFor(() => expect(seen().length).toBeGreaterThan(0));
-    expect(seen()[0]?.reason).toBe(OutageReason.SSE_ENDED);
+    // Read by reason: the proxy of the test before can still report its own drop into this spy.
+    await vi.waitFor(() =>
+      expect(seen().some((o) => OutageReason.SSE_ENDED === o.reason)).toBe(true),
+    );
+    expect(seen().some((o) => OutageReason.DAEMON_SHUTDOWN === o.reason)).toBe(false);
   });
 
   /**
