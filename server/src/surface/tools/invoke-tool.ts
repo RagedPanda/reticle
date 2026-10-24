@@ -973,6 +973,9 @@ function unmatchedRootOf(
 ): { root: string; contenders: readonly string[]; serving?: string } | undefined {
   try {
     const target = sessionTarget(deps, sessionId);
+    // A lease that claimed a root writes there. The page's unmatched bucket is not where this
+    // run goes, so naming it would send the agent to fix a folder the run never touches.
+    if (target.claimedRoot !== undefined) return undefined;
     const resolved = deps.artifactRootFor?.(target.projectId, target.origin);
     if (resolved === undefined || ArtifactRootReason.MATCHED_PROJECT === resolved.reason)
       return undefined;

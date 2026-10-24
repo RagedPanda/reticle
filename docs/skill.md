@@ -81,9 +81,9 @@ Every `until`, `predicate` and `expect` is `{ kind, ...fields }`; unknown fields
 | --- | --- |
 | `element` | `query: { testid \| role+name \| text \| label \| placeholder \| alt \| component, scope? }`, `state?`: `visible` `hidden` `enabled` `disabled` `checked` `expanded` `pressed` `focused` `present` `inViewport`, `absent?` |
 | `text` | `contains`, `scope?`, `visible?`, `absent?`, `ignoreCase?`, `satisfies?` |
-| `net` | `method`, `urlContains`, `status`, `ok`, `count` (exact: catches a double submit), `bodyContains`, `bodyMatches`, `requestBodyMatches`, `repeatable` |
+| `net` | `method`, `urlContains`, `status`, `ok`, `count` (exact; omit = ≥1; 0 = never), `bodyContains`, `bodyMatches`, `requestBodyMatches`, `repeatable` |
 | `route` | `pathname` or `contains` |
-| `signal` | `name`, `dataMatches?`, `count?` |
+| `signal` | `name`, `dataMatches?`, `count?` (as `net`) |
 | `state` | `store`, `path`, `equals` or `satisfies` |
 | `console` | `level`, `contains?`, `absent?` |
 | `settled` / `animation` / `compare` | `quietMs`, `channel?` / `name`, `completed` / `left`, `right`, `as` |

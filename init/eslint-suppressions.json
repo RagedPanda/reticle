@@ -1,0 +1,47 @@
+{
+  "src/detect/workspace-apps.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/gather-plan-input.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/no-package-json.ts": {
+    "no-nested-ternary": {
+      "count": 3
+    }
+  },
+  "src/patch/snippets.ts": {
+    "no-nested-ternary": {
+      "count": 2
+    }
+  },
+  "src/plan/plan-framework.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/plan/plan-vite.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/plan/plan.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/run.test.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/run.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  }
+}

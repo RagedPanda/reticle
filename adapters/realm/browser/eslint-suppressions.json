@@ -1,0 +1,52 @@
+{
+  "src/actions/actions-dom.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/actions/actions.ts": {
+    "no-nested-ternary": {
+      "count": 3
+    }
+  },
+  "src/commands/commands.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/observers/perf.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/presenter/presenter-account.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/presenter/presenter-harness-row.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/presenter/presenter-report.ts": {
+    "no-nested-ternary": {
+      "count": 8
+    }
+  },
+  "src/presenter/presenter-settings.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "src/presenter/presenter.ts": {
+    "no-nested-ternary": {
+      "count": 2
+    }
+  },
+  "src/presenter/tour/tour.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  }
+}

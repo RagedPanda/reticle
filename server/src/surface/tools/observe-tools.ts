@@ -449,7 +449,7 @@ export const OBSERVE_TOOLS: ToolDef[] = [
           '{ state, path|equals } { route, pathname (exact) | contains (path+query+hash) } ' +
           '{ element, testid|role|text } { text } { console, level|contains|absent } { animation, name } ' +
           '{ settled } { compare, left, right } — combine with { allOf | anyOf | not }. Prefer a signal/net/state consequence ' +
-          'over element/text presence.',
+          'over element/text presence. For net and signal, count is exact; omit it for at least one; 0 means never.',
       ),
       until: PredicateSchema.optional().describe("Alias for `predicate` (act_and_wait's name)."),
       timeout_ms: timeoutMsSchema

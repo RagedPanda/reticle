@@ -1,0 +1,7 @@
+{
+  "src/cli-realm.ts": {
+    "no-nested-ternary": {
+      "count": 1
+    }
+  }
+}

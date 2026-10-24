@@ -12,6 +12,8 @@ import { RecordingStore } from '@/language/flows/recording/tape/recordings.js';
 import { FlowStore } from '@/language/flows/flows.js';
 import { ProjectStore } from '@/memory/project/project-store.js';
 import { AnnotationStore } from '@/language/flows/stores/annotation-store.js';
+import { ArtifactRootReason } from '@/memory/project/artifact-root.js';
+import { claimArtifactRoot, dropArtifactRootClaim } from '@/memory/project/root-claims.js';
 import { createNodeFileSystem } from '@/memory/project/fs/fs-port.js';
 import type { Session } from '@/portal/session/session.js';
 import type { SessionManager } from '@/portal/session/session-manager.js';
@@ -580,5 +582,48 @@ describe('a Harness drive the agent did not start', () => {
     } finally {
       forgetDrives();
     }
+  });
+});
+
+/*
+ * A lease that claimed a root writes its runs there. The mismatch advice must not name the
+ * page's unmatched bucket, where this run never goes (#1773).
+ */
+describe('unmatched evidence for a claimed root', () => {
+  const UNMATCHED = '/home/me/.reticle/unmatched/demo';
+  const CLAIMED = '/work/shop/.reticle';
+
+  function depsWithUnmatched(): ToolDeps {
+    return {
+      ...fakeDeps(),
+      artifactRootFor: () => ({
+        root: UNMATCHED,
+        reason: ArtifactRootReason.NO_MATCH,
+        candidates: ['/code/shop'],
+      }),
+    };
+  }
+
+  it('is not reported when a lease claimed the session root', async () => {
+    claimArtifactRoot('demo', CLAIMED);
+    try {
+      const r = (await runTool(
+        stubTool(ReticleTool.PROJECT, { ok: true }),
+        depsWithUnmatched(),
+        {},
+      )) as { next?: string };
+      expect(String(r.next ?? '')).not.toContain(UNMATCHED);
+    } finally {
+      dropArtifactRootClaim('demo');
+    }
+  });
+
+  it('is reported when nothing claimed the session root', async () => {
+    const r = (await runTool(
+      stubTool(ReticleTool.PROJECT, { ok: true }),
+      depsWithUnmatched(),
+      {},
+    )) as { next?: string };
+    expect(String(r.next ?? '')).toContain(UNMATCHED);
   });
 });

@@ -1,0 +1,7 @@
+{
+  "src/verdict/check-sentence.ts": {
+    "no-nested-ternary": {
+      "count": 3
+    }
+  }
+}
