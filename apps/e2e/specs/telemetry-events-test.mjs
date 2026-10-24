@@ -406,6 +406,8 @@ await settle();
   check('  first attach is not a reconnect', cs[0]?.properties.connection_reconnect === false);
   check('  a re-attach IS flagged, so churn is distinguishable from usage', cs[1]?.properties.connection_reconnect === true);
   check('  carries how long the daemon sat before anyone used it', (cs[0]?.properties.connection_daemonAgeMs ?? 0) >= 5000);
+  check('  asks PostHog not to look up a location', cs.every((e) => e.properties.$geoip_disable === true));
+  check('  keeps the request address off the row', cs.every((e) => e.properties.$ip === '0.0.0.0'));
 }
 
 // ── 4d-bis. MCP outage — the transport-stability metric ──────────────────────

@@ -115,6 +115,8 @@ Every event carries the same few fields:
 
 There are no IP-based profiles, no cookies, no fingerprinting, and no person profiles: events are processed in "personless" mode, so they are never joined into an identity.
 
+Your IP address is not stored, and no location is found from it. Each event tells PostHog not to look up a location (`$geoip_disable: true`). Each event also sets `$ip` to `0.0.0.0`, so PostHog does not store the address the request came from. Events from older versions do not do this.
+
 ## The platform side
 
 When you sign in to Reticle and link a project, the platform (a separate service, with its own analytics) knows your email and your workspace, because you gave them to it. The open-source runtime never sends either. Once a project is linked, its events carry the workspace's id and nothing else about the account, so the two sides can be joined per workspace on that id. Emails stay on the platform side only. Unlinked, nothing in these events refers to an account at all.

@@ -51,7 +51,7 @@ The Harness runs on the platform, so the platform sees what it drives: each step
 
 ## Telemetry, which is separate from all of the above
 
-The CLI sends anonymous usage events: event names and a random installation id. No code, no page content, no URLs from your app. It is how we know which parts of the product are reached at all.
+The CLI sends anonymous usage events: event names and a random installation id. No code, no page content, no URLs from your app. No IP address and no location: each event tells the analytics service not to store the address or look up a location from it. It is how we know which parts of the product are reached at all.
 
 ```bash
 RETICLE_TELEMETRY=0          # this shell

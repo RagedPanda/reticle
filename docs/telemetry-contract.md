@@ -438,6 +438,8 @@ The second is the one that matters. It drives the real built modules against a r
 
 We measure **that** something happened and **what class** of thing it was, never **what** it was, in whose app, or containing what.
 
+Nor **from where**. Every event carries `$geoip_disable: true` and `$ip: "0.0.0.0"`. PostHog fills `$ip` from the request when the event leaves it empty, and `null` counts as empty, so the placeholder is what keeps the request address off the row. `telemetry.test.ts` holds this rule.
+
 The user's prompts are the clearest case. `reticle hook prompt` saves each prompt to the project's `.reticle/`, and it sends no event: `cli.ts` runs it before it reports the command, so telemetry does not learn that a prompt existed. A prompt leaves the machine only inside a run, to the user's own linked workspace, and only when the project shares requests. `prompt-never-in-telemetry.test.ts` holds this rule.
 
 ## The setup funnel: `onboarding_step`

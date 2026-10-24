@@ -89,6 +89,13 @@ const POSTHOG_KEY = 'phc_q4yCxKMXHfWQ43VAz4HxJXZFLqFi4nBbg5v3avemggYo';
 const POSTHOG_PERSONLESS = { $process_person_profile: false } as const;
 
 /**
+ * No address and no location leave with an event. `$geoip_disable` stops PostHog from looking up a
+ * city, a postal code and coordinates from the IP. PostHog also stores the request IP as `$ip` when
+ * the event leaves `$ip` empty (`null` counts as empty), so a fixed placeholder takes its place.
+ */
+const POSTHOG_NO_IP = { $geoip_disable: true, $ip: '0.0.0.0' } as const;
+
+/**
  * PostHog's group type for a licensed customer. Sent as `$groups` so PostHog can aggregate a whole
  * organisation natively: per-company retention, "which orgs went quiet", one row per customer rather
  * than one per machine.
@@ -701,6 +708,7 @@ export const createTelemetry = (opts: {
       properties: {
         ...properties,
         ...POSTHOG_PERSONLESS,
+        ...POSTHOG_NO_IP,
         // Only on a licensed build. An unlicensed event has no organisation to belong to, and an
         // empty group key would mint a phantom "no org" bucket that every OSS install falls into.
         ...(event.licenseId !== undefined
