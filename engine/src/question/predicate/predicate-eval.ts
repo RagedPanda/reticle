@@ -11,6 +11,7 @@ import {
   REDACTED_VALUE,
   type ReticleEvent,
 } from '@reticlehq/core';
+import { isReticleVoice } from '../../state-bookkeeping.js';
 import { describeObserved } from './observed-in-window.js';
 import { netEvidence } from './net-evidence.js';
 import {
@@ -536,7 +537,9 @@ export function evalAnimation(
   const wantType = true === p.completed ? EventType.ANIM_END : EventType.ANIM_START;
   const hit = events.find((e) => {
     if (e.type !== wantType) return false;
-    if (p.name !== undefined && str(e.data['name']) !== p.name) return false;
+    const name = str(e.data['name']);
+    // A check with no name asks about the app, so Reticle's own bookkeeping signals do not count.
+    if (p.name === undefined ? isReticleVoice(name ?? '') : name !== p.name) return false;
     if (p.target !== undefined && e.ref !== p.target) return false;
     return true;
   });
@@ -563,7 +566,9 @@ export function evalSignal(
   let redactedField: string | undefined;
   const isMatch = (e: ReticleEvent): boolean => {
     if (e.type !== EventType.SIGNAL) return false;
-    if (p.name !== undefined && str(e.data['name']) !== p.name) return false;
+    const name = str(e.data['name']);
+    // A check with no name asks about the app, so Reticle's own bookkeeping signals do not count.
+    if (p.name === undefined ? isReticleVoice(name ?? '') : name !== p.name) return false;
     if (p.dataMatches !== undefined) {
       const payload = (e.data['data'] ?? {}) as Record<string, unknown>;
       const hidden =

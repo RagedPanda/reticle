@@ -30,6 +30,7 @@ import {
   urlForMatch,
   type ReticleEvent,
 } from '@reticlehq/core';
+import { isReticleVoice } from '../state-bookkeeping.js';
 
 export interface NetCall {
   /** When the call settled, on the session clock. */
@@ -452,9 +453,6 @@ export function pageRequest(
   return undefined;
 }
 
-/** Reticle's own signals and stores, which say nothing about the app. */
-const RETICLE_VOICE = /^(?:reticle:|__reticle)/;
-
 /**
  * True when the app published no signal and no store change, in the window or before it.
  *
@@ -468,9 +466,9 @@ export function appIsSilent(
 ): boolean {
   if (prior === undefined) return false;
   const speaks = (e: ReticleEvent): boolean => {
-    if (e.type === EventType.SIGNAL) return !RETICLE_VOICE.test(asString(e.data['name']) ?? '');
+    if (e.type === EventType.SIGNAL) return !isReticleVoice(asString(e.data['name']) ?? '');
     if (e.type !== EventType.STATE_CHANGE) return false;
-    return !RETICLE_VOICE.test(asString(e.data['store']) ?? asString(e.data['name']) ?? '');
+    return !isReticleVoice(asString(e.data['store']) ?? asString(e.data['name']) ?? '');
   };
   return !prior.some(speaks) && !events.some(speaks);
 }

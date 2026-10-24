@@ -3,6 +3,7 @@ import {
   asRef,
   EventType,
   ReticleCommand,
+  RETICLE_BUSY_SIGNAL,
   THROTTLED_STARVED_NOTE,
   type CommandResult,
   type ElementQuery,
@@ -227,6 +228,22 @@ describe('predicate engine', () => {
       dataMatches: { score: 78 },
     };
     expect((await evaluatePredicate(session, predicate, 20)).pass).toBe(true);
+  });
+
+  // Reticle sends its own bookkeeping as signals (`reticle:busy` for declared work and short
+  // timers). A signal check that names no signal asks about the app, so those do not count.
+  it("a nameless signal check is not met by Reticle's own signals", async () => {
+    const busy = [
+      ev(EventType.SIGNAL, { name: RETICLE_BUSY_SIGNAL, data: { delta: 1 } }, 2),
+      ev(EventType.SIGNAL, { name: RETICLE_BUSY_SIGNAL, data: { delta: -1 } }, 3),
+    ];
+    expect((await evaluatePredicate(new FakeSession(busy), { kind: 'signal' })).pass).toBe(false);
+    const app = new FakeSession([...busy, ev(EventType.SIGNAL, { name: 'saved' }, 4)]);
+    expect((await evaluatePredicate(app, { kind: 'signal' })).pass).toBe(true);
+    expect((await evaluatePredicate(app, { kind: 'signal', count: 1 })).pass).toBe(true);
+    expect(
+      (await evaluatePredicate(app, { kind: 'signal', name: RETICLE_BUSY_SIGNAL, count: 2 })).pass,
+    ).toBe(true);
   });
 
   it('console absent passes when no errors, fails when present', async () => {
