@@ -303,11 +303,6 @@
       "count": 1
     }
   },
-  "src/command/cli/ports/port-holder.ts": {
-    "curly": {
-      "count": 6
-    }
-  },
   "src/command/cli/ports/resolve/cli-port.test.ts": {
     "curly": {
       "count": 4

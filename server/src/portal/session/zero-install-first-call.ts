@@ -11,8 +11,9 @@
  * browser opened on another repo's app produces a confident verdict about code nobody touched. It
  * changes nothing in the repo — wiring it for good stays the agent's call, named in the notice.
  *
- * Where the serving process cannot be observed (no `lsof`, so Windows) nothing is opened and the
- * no-session answer names the lease and the init command instead.
+ * Where the serving process cannot be observed nothing is opened, and the no-session answer names
+ * the lease and the init command instead. On Windows the lookup reads the listener's command line
+ * (see `findListenerCwd`), so a dev server run from the project's `node_modules` counts.
  */
 import { realpathSync } from 'node:fs';
 import { resolve, sep } from 'node:path';
