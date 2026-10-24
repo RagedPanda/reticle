@@ -864,8 +864,11 @@ export function evalSettled(
 
   if (inFlight + streaming > 0) {
     let what = `${String(inFlight)} request(s) in flight and ${String(streaming)} response body(ies) still streaming`;
-    if (0 === streaming) what = `${String(inFlight)} request(s) still in flight`;
-    else if (0 === inFlight) what = `${String(streaming)} response body(ies) still streaming`;
+    if (0 === streaming) {
+      what = `${String(inFlight)} request(s) still in flight`;
+    } else if (0 === inFlight) {
+      what = `${String(streaming)} response body(ies) still streaming`;
+    }
     return {
       pass: false,
       failureReason: `not settled: ${what}`,
@@ -884,8 +887,11 @@ export function evalSettled(
   // A network-scoped settle reads only completed requests for the quiet window; the in-flight checks
   // above already ran for every scope.
   let activity = SETTLE_ACTIVITY;
-  if (SettledChannel.NETWORK === p.channel) activity = NETWORK_ACTIVITY;
-  else if (SettledChannel.APP === p.channel) activity = APP_ACTIVITY;
+  if (SettledChannel.NETWORK === p.channel) {
+    activity = NETWORK_ACTIVITY;
+  } else if (SettledChannel.APP === p.channel) {
+    activity = APP_ACTIVITY;
+  }
   let lastT = -1;
   let lastType: EventType | undefined;
   for (const e of events) {

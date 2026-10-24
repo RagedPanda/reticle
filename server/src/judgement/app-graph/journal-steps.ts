@@ -27,7 +27,9 @@ const anchorOf = (step: Record<string, unknown>): Record<string, unknown> | unde
   const target = record(step['target']);
   const testid =
     asString(target['testid']) ?? ('testid' === step['by'] ? asString(step['value']) : undefined);
-  if (testid !== undefined) return { by: 'testid', value: testid };
+  if (testid !== undefined) {
+    return { by: 'testid', value: testid };
+  }
   const role =
     asString(target['role']) ?? ('role' === step['by'] ? asString(step['value']) : undefined);
   const name = asString(target['name']) ?? asString(step['name']);
@@ -36,8 +38,12 @@ const anchorOf = (step: Record<string, unknown>): Record<string, unknown> | unde
 
 const heldOf = (effect: unknown): boolean | undefined => {
   const verified = record(effect)['verified'];
-  if ('yes' === verified) return true;
-  if ('no' === verified) return false;
+  if ('yes' === verified) {
+    return true;
+  }
+  if ('no' === verified) {
+    return false;
+  }
   return undefined;
 };
 
@@ -51,20 +57,26 @@ export function journalSteps(
   // The steps of the last sequence, by index, so its later verdict lines find them.
   let sequence: DrivenStep[] = [];
   for (const a of actions) {
-    if (!PRESSING.has(a.tool)) continue;
+    if (!PRESSING.has(a.tool)) {
+      continue;
+    }
     const args = record(a.args);
     const index = args['step'];
     // A sequence's verdict for one of its steps arrives as its own line.
     if ('number' === typeof index) {
       const step = sequence[index];
       const held = heldOf(a.effect);
-      if (step !== undefined && held !== undefined) step.held = held;
+      if (step !== undefined && held !== undefined) {
+        step.held = held;
+      }
       continue;
     }
     const inner = Array.isArray(args['steps']) ? args['steps'].map(record) : undefined;
     if (inner === undefined) {
       const anchor = anchorOf(args);
-      if (anchor === undefined) continue;
+      if (anchor === undefined) {
+        continue;
+      }
       const held = heldOf(a.effect);
       steps.push({
         anchor,
@@ -88,7 +100,9 @@ export function journalSteps(
               since: a.tRange.from,
               window: last ? within(a.tRange.from, a.tRange.to) : [],
             };
-      if (driven !== undefined) steps.push(driven);
+      if (driven !== undefined) {
+        steps.push(driven);
+      }
       // Kept by position, so a step without an anchor still takes its index.
       sequence[i] = driven ?? { anchor: {}, since: a.tRange.from, window: [] };
     });

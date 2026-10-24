@@ -613,11 +613,12 @@ export class Bridge {
             return;
           }
           let notFollowed: string | undefined;
-          if (following !== undefined)
+          if (following !== undefined) {
             notFollowed =
               this.#follower === undefined
                 ? FollowRefusal.POLICY_REFUSED
                 : this.#follower.refusal(parsed, following);
+          }
           if (notFollowed !== undefined) {
             log('origin_follow_refused', { sessionId: parsed.sessionId, origin: following });
             this.sessions.noteClosure(notFollowed, this.#clock());

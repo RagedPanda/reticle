@@ -42,7 +42,9 @@ const ANNOUNCE_ROLES = new Set(['alert', 'status']);
  * so they are the principled exception — and a bounded one, since a page has very few.
  */
 function announces(el: Element, role: string): boolean {
-  if (ANNOUNCE_ROLES.has(role)) return true;
+  if (ANNOUNCE_ROLES.has(role)) {
+    return true;
+  }
   const live = el.getAttribute('aria-live');
   return live !== null && 'off' !== live;
 }
@@ -89,15 +91,21 @@ function readingParts(el: Element): { text: string; own: boolean } {
 function isInlineIn(el: Element): boolean {
   const view = el.ownerDocument.defaultView;
   const parent = el.parentElement;
-  if (null === view || null === parent) return false;
+  if (null === view || null === parent) {
+    return false;
+  }
   const around = view.getComputedStyle(parent).display;
-  if (around.includes('flex') || around.includes('grid')) return false;
+  if (around.includes('flex') || around.includes('grid')) {
+    return false;
+  }
   return 'inline' === view.getComputedStyle(el).display;
 }
 
 /** Inline text with nothing to drive or name: read as part of its parent's sentence, not a line. */
 function foldsIntoParent(el: Element): boolean {
-  if (skipEarly(el) || !isInlineIn(el)) return false;
+  if (skipEarly(el) || !isInlineIn(el)) {
+    return false;
+  }
   const role = getRole(el);
   return !INTERACTIVE.has(role) && !announces(el, role) && 0 === getAccessibleName(el).length;
 }
@@ -222,13 +230,19 @@ export const MAX_UNREAD_BRANCHES = 50;
  * marked hidden is exactly what a reader of an empty tree needs to know about.
  */
 function hiddenByMarkup(el: Element): boolean {
-  if ('true' === el.getAttribute('aria-hidden')) return true;
+  if ('true' === el.getAttribute('aria-hidden')) {
+    return true;
+  }
   return el instanceof HTMLElement && el.hidden;
 }
 
 function skipEarly(el: Element): boolean {
-  if (SKIP_TAGS.has(el.tagName.toLowerCase())) return true;
-  if (isIgnored(el)) return true; // Reticle overlay + known dev overlays
+  if (SKIP_TAGS.has(el.tagName.toLowerCase())) {
+    return true;
+  }
+  if (isIgnored(el)) {
+    return true;
+  } // Reticle overlay + known dev overlays
   return hiddenByMarkup(el);
 }
 
@@ -284,8 +298,11 @@ function formatLine(
   const component = null === testid ? info?.componentStack[0] : undefined;
   const where = info?.source;
   let who = '';
-  if (null !== testid) who = ` [testid=${testid}]`;
-  else if (component !== undefined) who = ` [component=${component}]`;
+  if (null !== testid) {
+    who = ` [testid=${testid}]`;
+  } else if (component !== undefined) {
+    who = ` [component=${component}]`;
+  }
   const idPart = `${who}${where === undefined ? '' : ` [src=${where.file}:${String(where.line)}]`}`;
   return `${indent}- ${role}${namePart}${refPart}${valuePart}${textPart}${layoutPart}${stateSuffix(el)}${idPart}`;
 }
@@ -301,7 +318,9 @@ function formatTextLine(depth: number, text: string): string {
  * snapshot is blind to it; this line makes it visible. Empty for non-container elements.
  */
 function layoutSignature(style: CSSStyleDeclaration | null): string {
-  if (null === style) return '';
+  if (null === style) {
+    return '';
+  }
   const display = style.display;
   // Grid track templates are the high-signal CLS case (column/row count + sizing) and there are
   // few grid containers per page. Flex is intentionally excluded: nearly every row is a flex
@@ -360,13 +379,17 @@ function pierceChildren(parent: Element): Element[] {
   // not, so the two tools disagreed about what is on the page — and the snapshot is the one an agent
   // reads to decide what to query for, which makes its omission the one that actually costs.
   const shadow = parent.shadowRoot ?? capturedRootOf(parent);
-  if (shadow !== null) out.push(...shadow.children);
+  if (shadow !== null) {
+    out.push(...shadow.children);
+  }
   // Realm-aware: an iframe nested INSIDE another frame's body belongs to that frame's realm, so the
   // top window's constructor never matches it and nested embeds were silently never pierced.
   if (isFrame(parent)) {
     try {
       const body = parent.contentDocument?.body;
-      if (body !== null && body !== undefined) out.push(...body.children);
+      if (body !== null && body !== undefined) {
+        out.push(...body.children);
+      }
     } catch {
       /* cross-origin frame — inaccessible by design */
     }
@@ -386,7 +409,9 @@ function visit(child: Element, depth: number, ctx: WalkCtx, inLive: boolean): vo
     // Only the hidden ones are counted. The others — <script>, <style>, Reticle's own HUD — are
     // noise the tree is SUPPOSED to omit, and counting them would put a number on every ordinary page and so
     // make the number mean nothing on the one page that needs it.
-    if (hiddenByMarkup(child)) ctx.hiddenSkipped += 1;
+    if (hiddenByMarkup(child)) {
+      ctx.hiddenSkipped += 1;
+    }
     return;
   }
   // Resolve computed style ONCE per node (the dominant snapshot cost) and thread it into both the
@@ -459,7 +484,9 @@ function visit(child: Element, depth: number, ctx: WalkCtx, inLive: boolean): vo
   // that carry no role, no testid and no pointer cursor, so the lean view is empty while the app is
   // full of things to drive. Knowing how many were passed over is what turns "" into "look again in
   // full mode" — see the note the snapshot tool builds from this.
-  if (lean && !include && meaningful) ctx.leanSkipped += 1;
+  if (lean && !include && meaningful) {
+    ctx.leanSkipped += 1;
+  }
   if (include) {
     ctx.nodes += 1;
     ctx.lines.push(
@@ -496,7 +523,9 @@ function walk(parent: Element, depth: number, ctx: WalkCtx, inLive = false): voi
       return;
     }
     const child = children[index];
-    if (child !== undefined) visit(child, depth, ctx, inLive);
+    if (child !== undefined) {
+      visit(child, depth, ctx, inLive);
+    }
   }
 }
 
@@ -510,8 +539,12 @@ function collectDialogs(root: ParentNode): string[] {
   const nodes = root.querySelectorAll('[role="dialog"], dialog[open], [aria-modal="true"]');
   const names: string[] = [];
   for (const node of nodes) {
-    if (isReticleOverlay(node)) continue;
-    if (isVisible(node)) names.push(getAccessibleName(node) || '(unnamed dialog)');
+    if (isReticleOverlay(node)) {
+      continue;
+    }
+    if (isVisible(node)) {
+      names.push(getAccessibleName(node) || '(unnamed dialog)');
+    }
   }
   return names;
 }
@@ -538,7 +571,9 @@ const MODAL_SELECTOR = '[role="dialog"], [role="alertdialog"], dialog[open], [ar
 
 function overlayHidingPage(root: ParentNode): string | undefined {
   // Only meaningful for a whole-page snapshot; a scoped snapshot is the subtree the caller chose.
-  if (root !== document.body) return undefined;
+  if (root !== document.body) {
+    return undefined;
+  }
   const dialogs = document.body.querySelectorAll(
     '[role="dialog"], dialog[open], [aria-modal="true"]',
   );
@@ -561,7 +596,9 @@ function overlayHidingPage(root: ParentNode): string | undefined {
     // Never OUR overlay. Reticle's HUD must not be able to explain the app's absence with itself:
     // that turns "the page did not render" into "an overlay is covering it", which sends the reader
     // to dismiss a panel that was never the problem.
-    if (isReticleOverlay(d)) continue;
+    if (isReticleOverlay(d)) {
+      continue;
+    }
     if (isVisible(d)) {
       modal = d;
       break;
@@ -569,11 +606,17 @@ function overlayHidingPage(root: ParentNode): string | undefined {
     hiddenCandidate ??= d;
   }
   modal ??= hiddenCandidate;
-  if (modal === undefined) return undefined;
+  if (modal === undefined) {
+    return undefined;
+  }
   const modalEl = modal;
   const outside = Array.from(document.body.children).filter((c) => !c.contains(modalEl));
-  if (0 === outside.length) return undefined;
-  if (!outside.every((c) => 'true' === c.getAttribute('aria-hidden'))) return undefined;
+  if (0 === outside.length) {
+    return undefined;
+  }
+  if (!outside.every((c) => 'true' === c.getAttribute('aria-hidden'))) {
+    return undefined;
+  }
   return (
     'the rest of the page is aria-hidden behind an open overlay (a focus-trap modal), so this ' +
     'snapshot shows only the overlay. If it will not close its cleanup may be stuck on a throttled ' +
@@ -632,16 +675,21 @@ export function buildSnapshot(options: SnapshotOptions = {}): SnapshotResult {
     unreadOverflow: false,
     ...(true === options.ids ? { ids: true } : {}),
   };
-  if (true === options.includeRoot) visit(root, 0, ctx, false);
-  else walk(root, 0, ctx);
+  if (true === options.includeRoot) {
+    visit(root, 0, ctx, false);
+  } else {
+    walk(root, 0, ctx);
+  }
   // Nothing at all, while an open dialog sits in a subtree an overlay stamped aria-hidden (a second
   // overlay — a tooltip, a toast — hid the dialog's own portal): the dialog IS what is on screen.
   // An agent got an empty tree over "Copy this now" and could neither read nor press its button.
   if (0 === ctx.nodes && root === document.body) {
     ctx.throughOverlay = true;
-    for (const child of Array.from(root.children))
-      if (overlayStamped(child) && null !== child.querySelector(MODAL_SELECTOR))
+    for (const child of Array.from(root.children)) {
+      if (overlayStamped(child) && null !== child.querySelector(MODAL_SELECTOR)) {
         visit(child, 0, ctx, false);
+      }
+    }
     ctx.throughOverlay = false;
   }
   return {

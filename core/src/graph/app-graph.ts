@@ -210,13 +210,19 @@ const COMPONENT = /\[component=([^\]]+)\]/;
 export const controlsOf = (tree: string): SeenControl[] =>
   tree.split('\n').flatMap((line) => {
     const m = LINE.exec(line);
-    if (null === m) return [];
+    if (null === m) {
+      return [];
+    }
     const [, role = '', name = '', rest = ''] = m;
     const testid = TESTID.exec(rest)?.[1];
     const component = COMPONENT.exec(rest)?.[1];
-    if (testid === undefined && !CONTROL_ROLES.has(role)) return [];
+    if (testid === undefined && !CONTROL_ROLES.has(role)) {
+      return [];
+    }
     // A data-named row is kept only when its component names it; otherwise it is the row's data.
-    if (testid === undefined && component === undefined && name.length > ROW_NAME_CHARS) return [];
+    if (testid === undefined && component === undefined && name.length > ROW_NAME_CHARS) {
+      return [];
+    }
     return [
       {
         role,
@@ -229,24 +235,33 @@ export const controlsOf = (tree: string): SeenControl[] =>
 
 /** A seen control's identity on its screen, the same as the act that presses it would have. */
 const controlKey = (c: SeenControl): string | undefined => {
-  if (c.testid !== undefined) return `testid=${c.testid}`;
-  if (c.component !== undefined && c.name.length > ROW_NAME_CHARS)
+  if (c.testid !== undefined) {
+    return `testid=${c.testid}`;
+  }
+  if (c.component !== undefined && c.name.length > ROW_NAME_CHARS) {
     return `component=${c.component}`;
-  if ('' === c.name) return undefined;
+  }
+  if ('' === c.name) {
+    return undefined;
+  }
   return `${c.role} "${c.name}"`;
 };
 
 /** An action's identity on its screen: the anchor a flow would use, never a ref. */
 const anchorKey = (anchor: Record<string, unknown>): string | undefined => {
   const value = str(anchor['value']);
-  if ('testid' === anchor['by'] && value !== undefined) return `testid=${value}`;
+  if ('testid' === anchor['by'] && value !== undefined) {
+    return `testid=${value}`;
+  }
   const name = str(anchor['name']);
   const component = str(anchor['component']);
   // A row named by its data is one action of its component, as the look that saw it keyed it.
-  if (component !== undefined && name !== undefined && name.length > ROW_NAME_CHARS)
+  if (component !== undefined && name !== undefined && name.length > ROW_NAME_CHARS) {
     return `component=${component}`;
-  if ('role' === anchor['by'] && value !== undefined && name !== undefined)
+  }
+  if ('role' === anchor['by'] && value !== undefined && name !== undefined) {
     return `${value} "${normalName(name)}"`;
+  }
   return component === undefined ? undefined : `component=${component}`;
 };
 
@@ -264,7 +279,9 @@ const thingOf = (path: string): string | undefined =>
  */
 const TYPENAME_DEPTH = 4;
 const typenameOf = (body: unknown): string | undefined => {
-  if ('string' !== typeof body || '' === body) return undefined;
+  if ('string' !== typeof body || '' === body) {
+    return undefined;
+  }
   let parsed: unknown;
   try {
     parsed = JSON.parse(body);
@@ -274,17 +291,29 @@ const typenameOf = (body: unknown): string | undefined => {
   // REST's own declarations: Stripe's `object`, JSON:API's `data.type`.
   const top = parsed as { object?: unknown; data?: { type?: unknown } } | null;
   if (null !== top && 'object' === typeof top) {
-    if ('string' === typeof top.object && '' !== top.object) return top.object;
-    if ('string' === typeof top.data?.type && '' !== top.data.type) return top.data.type;
+    if ('string' === typeof top.object && '' !== top.object) {
+      return top.object;
+    }
+    if ('string' === typeof top.data?.type && '' !== top.data.type) {
+      return top.data.type;
+    }
   }
-  if (!body.includes('__typename')) return undefined;
+  if (!body.includes('__typename')) {
+    return undefined;
+  }
   const walk = (value: unknown, depth: number): string | undefined => {
-    if (depth > TYPENAME_DEPTH || null === value || 'object' !== typeof value) return undefined;
+    if (depth > TYPENAME_DEPTH || null === value || 'object' !== typeof value) {
+      return undefined;
+    }
     const own = (value as Record<string, unknown>)['__typename'];
-    if ('string' === typeof own && '' !== own) return own;
+    if ('string' === typeof own && '' !== own) {
+      return own;
+    }
     for (const child of Object.values(value)) {
       const found = walk(child, depth + 1);
-      if (found !== undefined) return found;
+      if (found !== undefined) {
+        return found;
+      }
     }
     return undefined;
   };
@@ -302,7 +331,9 @@ export function mapOfRun(
   const edges: RunMap['edges'] = new Map();
   const node = (kind: MapNodeKind, label: string): string => {
     const id = `${kind} ${label}`;
-    if (!nodes.has(id)) nodes.set(id, { kind, label });
+    if (!nodes.has(id)) {
+      nodes.set(id, { kind, label });
+    }
     return id;
   };
   const edge = (from: string, to: string, kind: MapEdgeKind): void => {
@@ -313,8 +344,12 @@ export function mapOfRun(
     .filter((e) => EventType.ROUTE_CHANGE === e.type)
     .map((e) => ({ t: e.t, path: routeOf(e.data) }))
     .filter((r): r is { t: number; path: string } => r.path !== undefined);
-  if (start !== undefined) screenOf(start);
-  for (const r of routes) screenOf(r.path);
+  if (start !== undefined) {
+    screenOf(start);
+  }
+  for (const r of routes) {
+    screenOf(r.path);
+  }
   // The screen an act was pressed on: the last route before its window opened.
   const on = (since: number): string | undefined => {
     const before = routes.filter((r) => r.t < since).at(-1)?.path ?? start;
@@ -336,8 +371,9 @@ export function mapOfRun(
     const at = node(MapNodeKind.SCREEN, screen);
     for (const control of look.controls) {
       const key = controlKey(control);
-      if (key !== undefined)
+      if (key !== undefined) {
         edge(at, node(MapNodeKind.ACTION, `${screen} ${key}`), MapEdgeKind.HAS);
+      }
     }
   }
   /**
@@ -357,7 +393,9 @@ export function mapOfRun(
   for (const s of steps) {
     const key = anchorKey(s.anchor);
     const screen = on(s.since);
-    if (key === undefined || screen === undefined) continue;
+    if (key === undefined || screen === undefined) {
+      continue;
+    }
     const action = node(MapNodeKind.ACTION, `${screen} ${key}`);
     // Proven if any press of it this run held; refuted only if one failed and none held.
     const seenAs = nodes.get(action);
@@ -366,28 +404,40 @@ export function mapOfRun(
       const by = str(s.anchor['by']);
       const value = str(s.anchor['value']);
       const name = str(s.anchor['name']);
-      if (by !== undefined && value !== undefined)
+      if (by !== undefined && value !== undefined) {
         seenAs.anchor = { by, value, ...(name === undefined ? {} : { name }) };
+      }
     }
-    if (seenAs !== undefined && s.held !== undefined && true !== seenAs.held) seenAs.held = s.held;
+    if (seenAs !== undefined && s.held !== undefined && true !== seenAs.held) {
+      seenAs.held = s.held;
+    }
     edge(node(MapNodeKind.SCREEN, screen), action, MapEdgeKind.HAS);
     for (const e of s.window) {
       if (EventType.ROUTE_CHANGE === e.type) {
         const to = routeOf(e.data);
-        if (to !== undefined) edge(action, screenOf(to), MapEdgeKind.LEADS_TO);
+        if (to !== undefined) {
+          edge(action, screenOf(to), MapEdgeKind.LEADS_TO);
+        }
         continue;
       }
-      if (EventType.NET_REQUEST !== e.type) continue;
+      if (EventType.NET_REQUEST !== e.type) {
+        continue;
+      }
       const url = str(e.data['url']) ?? '';
-      if (isDevToolingUrl(url) || !APP_INITIATORS.has(str(e.data['initiator']) ?? '')) continue;
+      if (isDevToolingUrl(url) || !APP_INITIATORS.has(str(e.data['initiator']) ?? '')) {
+        continue;
+      }
       const method = (str(e.data['method']) ?? 'GET').toUpperCase();
       const path = templatePath(url);
-      if (background.has(`${method} ${path}`)) continue;
+      if (background.has(`${method} ${path}`)) {
+        continue;
+      }
       edge(action, node(MapNodeKind.REQUEST, `${method} ${path}`), MapEdgeKind.SENDS);
       const status = 'number' === typeof e.data['status'] ? e.data['status'] : 0;
       const made = typenameOf(e.data['responseBody']) ?? thingOf(path);
-      if (WRITES.has(method) && status >= OK_MIN && status < OK_MAX && made !== undefined)
+      if (WRITES.has(method) && status >= OK_MIN && status < OK_MAX && made !== undefined) {
         edge(action, node(MapNodeKind.THING, made), MapEdgeKind.MAKES);
+      }
     }
   }
   return { nodes, edges };
@@ -508,29 +558,39 @@ export function frontierLine(map: AppMap): string {
 export function pathTo(map: AppMap, from: string, to: string): Anchor[] | undefined {
   const start = `${MapNodeKind.SCREEN} ${templatePath(from)}`;
   const goal = `${MapNodeKind.SCREEN} ${templatePath(to)}`;
-  if (start === goal) return [];
+  if (start === goal) {
+    return [];
+  }
   const anchors = new Map(
     map.nodes.flatMap((n) => (n.anchor === undefined ? [] : [[n.id, n.anchor] as const])),
   );
   // screen -> (action, next screen), only through actions that can be pressed again.
   const next = new Map<string, { action: string; to: string }[]>();
-  for (const has of map.edges.filter((e) => MapEdgeKind.HAS === e.kind && anchors.has(e.to)))
+  for (const has of map.edges.filter((e) => MapEdgeKind.HAS === e.kind && anchors.has(e.to))) {
     for (const lead of map.edges.filter(
       (e) => MapEdgeKind.LEADS_TO === e.kind && has.to === e.from,
-    ))
+    )) {
       next.set(has.from, [...(next.get(has.from) ?? []), { action: has.to, to: lead.to }]);
+    }
+  }
   const via = new Map<string, { from: string; action: string }>();
   const queue = [start];
   for (let at = queue.shift(); at !== undefined; at = queue.shift()) {
     for (const step of next.get(at) ?? []) {
-      if (step.to === start || via.has(step.to)) continue;
+      if (step.to === start || via.has(step.to)) {
+        continue;
+      }
       via.set(step.to, { from: at, action: step.action });
       if (step.to === goal) {
         const path: Anchor[] = [];
         for (let back = via.get(goal); back !== undefined; back = via.get(back.from)) {
           const anchor = anchors.get(back.action);
-          if (anchor !== undefined) path.unshift(anchor);
-          if (back.from === start) break;
+          if (anchor !== undefined) {
+            path.unshift(anchor);
+          }
+          if (back.from === start) {
+            break;
+          }
         }
         return path;
       }

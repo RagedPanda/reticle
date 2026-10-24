@@ -223,8 +223,10 @@ export default tseslint.config(
     // is understood once. Write if/else, an early return or a lookup. What existed when the rule
     // landed is recorded in each package's eslint-suppressions.json and may only shrink: `pnpm lint`
     // fails on a new one, and on a record that outlives its violation until `--prune-suppressions`.
+    // Every if/else is a braced block: a one-line `if (x) y;` hides where the branch ends, and the next
+    // line written under it runs every time (`npx eslint --fix <file>` adds the braces).
     files: ['**/*.ts', '**/*.tsx'],
-    rules: { 'no-nested-ternary': 'error' },
+    rules: { 'no-nested-ternary': 'error', curly: ['error', 'all'] },
   },
   {
     // The rule that BANS these tokens has to name them — in its own doc comment explaining the ban, and
