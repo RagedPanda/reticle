@@ -73,7 +73,7 @@ const { getSessionMetrics, resetSessionMetrics } = await import(`${DIST}/telemet
 const { installDaemonTelemetry } = await import(`${DIST}/telemetry/daemon-telemetry.js`);
 const { installDaemonResilience } = await import(`${DIST}/command/daemon/daemon-resilience.js`);
 const { submitFeedback } = await import(`${DIST}/telemetry/feedback.js`);
-const { reportCliRun } = await import(`${DIST}/telemetry/cli-telemetry.js`);
+const { reportCliRun, cliActorOf } = await import(`${DIST}/telemetry/cli-telemetry.js`);
 const { runTool } = await import(`${DIST}/surface/tools/invoke-tool.js`);
 const { TOOLS } = await import(`${DIST}/surface/tools/tools.js`);
 const { buildErrorPayload } = await import(`${DIST}/surface/tools/error-recovery.js`);
@@ -164,7 +164,8 @@ check('`mcp` does NOT count as a CLI run — it is the agent\'s transport, not a
   // tile counting sessions was ~6x high.
   check('every DAEMON event carries a sessionId', captured.filter((e) => SESSION_SCOPED_EVENTS.has(e.event)).every((e) => typeof e.properties.sessionId === 'string'));
   check('  a one-shot CLI run carries NONE — it is not a session', find('cli_command_run').every((e) => e.properties.sessionId === undefined && e.properties.$session_id === undefined));
-  check('  nor does it carry `actor` — human by definition once `mcp` is excluded', find('cli_command_run').every((e) => e.properties.actor === undefined));
+  // An agent also runs commands through a shell, and marks the shell. `actor` says which ran it.
+  check('  carries `actor`: agent under an agent marker, else human', find('cli_command_run').every((e) => e.properties.actor === cliActorOf(process.env)));
   // Dead fields from the v2→v3 migration that nothing set any more.
   check('  the dead sessionMs/tool fields are gone', captured.every((e) => e.properties.sessionMs === undefined && e.properties.tool === undefined));
 }
