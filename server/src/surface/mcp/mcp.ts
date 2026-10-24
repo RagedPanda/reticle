@@ -18,7 +18,7 @@ import { buildDynamicTools } from '@/surface/tools/dynamic-tools.js';
 import { runTool } from '@/surface/tools/invoke-tool.js';
 import { sessionEnvelopeShape, newSnapshotCache, type ToolCall } from '@/surface/tools/tool-kit.js';
 import { buildErrorPayload, codedRefusalOf } from '@/surface/tools/error-recovery.js';
-import { takeVersionSkewOnto } from '@/command/version/version-nudge.js';
+import { connectionSkew, takeVersionSkewOnto } from '@/command/version/version-nudge.js';
 import { resultIsError } from './faults/mcp-is-error.js';
 import { consumerVerdictRefusal, reservedVerdictKeysIn } from './consumer-verdict-guard.js';
 import { buildServerInstructions, type InstructionState } from './server-instructions.js';
@@ -599,6 +599,31 @@ function toolNameOf(request: unknown): string | undefined {
   if (typeof params !== 'object' || null === params) return undefined;
   const name = (params as { name?: unknown }).name;
   return 'string' === typeof name ? name : undefined;
+}
+
+/**
+ * The daemon's factory for one MCP server for each attach. A proxy's id is its agent identity, so a
+ * reconnect from the same proxy is the same owner and keeps its leases. An attach with no proxy id
+ * gets a new random id from `createMcpServer`.
+ *
+ * `instructions` is read for each attach, not once: a project that gets wired while the daemon is
+ * alive must stop being told to wire itself on the next agent that connects.
+ */
+export function mcpServerFactoryFor(
+  deps: ToolDeps,
+  profile: ToolSurface,
+  instructions: () => boolean | Omit<InstructionState, 'advertised'>,
+): (peerSkew?: string, proxyId?: string) => McpServer {
+  return (peerSkew, proxyId) =>
+    createMcpServer(
+      {
+        ...deps,
+        ...(peerSkew === undefined ? {} : { peerSkew: connectionSkew(peerSkew) }),
+        ...(proxyId === undefined ? {} : { attachId: proxyId }),
+      },
+      profile,
+      instructions(),
+    );
 }
 
 /**

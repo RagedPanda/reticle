@@ -32,7 +32,6 @@ import { resolveBridgeSecurityWithAutoToken } from './portal/bridge/bridge-secur
 import type { StartOptions } from './start-options.js';
 export type { StartOptions } from './start-options.js';
 import { Bridge } from './portal/bridge/bridge.js';
-import { connectionSkew } from './command/version/version-nudge.js';
 import { SERVER_VERSION } from './command/version/identity/server-version.js';
 import { BaselineStore } from './memory/project/baselines.js';
 import { RecordingStore } from './language/flows/recording/tape/recordings.js';
@@ -50,7 +49,7 @@ import { ReticleRunner } from './judgement/runs/reticle-runner.js';
 import { createRunnerPort } from './judgement/runs/runner-port.js';
 import { RunStore } from './judgement/runs/artifact/run-store.js';
 import { startVerifyServer } from './judgement/runs/verify-server.js';
-import { createMcpServer } from './surface/mcp/mcp.js';
+import { createMcpServer, mcpServerFactoryFor } from './surface/mcp/mcp.js';
 import { instructionStateAt } from './surface/mcp/mcp-proxy.js';
 import { LEASE_ACQUIRE_TOOL } from './surface/tools/lease-tools.js';
 import { attachHudHarness, projectLinkOnly, startChatDrives } from './surface/tools/chat-drives.js';
@@ -605,17 +604,8 @@ export async function startDaemon(options: StartOptions = {}): Promise<RunningSe
   };
   const profile = resolveToolSurface(options.toolProfile);
   const effectiveDeps = realInput !== undefined ? { ...deps, realInput } : deps;
-  // Read per attach, not once: a project that gets wired while this daemon is alive should stop
-  // being told to wire itself on the next agent that connects.
-  // A proxy's id is its agent identity, so a reconnect from the same proxy keeps its leases.
-  shared.attachMcp((peerSkew, proxyId) =>
-    createMcpServer(
-      {
-        ...effectiveDeps,
-        ...(peerSkew === undefined ? {} : { peerSkew: connectionSkew(peerSkew) }),
-        ...(proxyId === undefined ? {} : { attachId: proxyId }),
-      },
-      profile,
+  shared.attachMcp(
+    mcpServerFactoryFor(effectiveDeps, profile, () =>
       instructionStateAt(port, bridge.sessions.count()),
     ),
   );
