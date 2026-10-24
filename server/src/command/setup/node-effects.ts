@@ -56,6 +56,9 @@ const PROBE_TIMEOUT_MS = 5_000;
 /** The supervisor that owns the server's output and keeps its log bounded. */
 const LOG_CAP_SCRIPT = fileURLToPath(new URL('./bringup/dev-server-log-cap.js', import.meta.url));
 
+/** The error code of a `wx` write to a file that is already there. */
+const EEXIST = 'EEXIST';
+
 /**
  * The state home when this process can write it, else the project's own `.reticle/logs`.
  *
@@ -71,10 +74,14 @@ export function writableLogDir(preferred: string, projectDir: string): string {
   } catch {
     const fallback = join(projectDir, ReticleDir.ROOT, ReticleDir.LOGS_SUBDIR);
     mkdirSync(fallback, { recursive: true });
-    // Its own ignore file, because the workspace one may not be written yet on a first init.
-    const ignore = join(fallback, '.gitignore');
-    if (!existsSync(ignore)) {
-      writeFileSync(ignore, '*\n');
+    // Its own ignore file, because the workspace one may not be written yet on a first init. `wx`
+    // creates it only when it is absent, in one step, so a file that is already there is kept.
+    try {
+      writeFileSync(join(fallback, '.gitignore'), '*\n', { flag: 'wx' });
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== EEXIST) {
+        throw error;
+      }
     }
     return fallback;
   }

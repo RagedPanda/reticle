@@ -208,6 +208,8 @@ const OVER_THE_LINE: Readonly<Record<string, number>> = {
   // +1: nuxt-snippets.ts, split out of snippets.ts when it crossed the 1000-line cap.
   // +3: angular.ts, remix.ts and static-page.ts — one per stack `init` learned to wire, each beside
   // the patchers of its kind rather than folded into snippets.ts, which is near the cap already.
+  // +1: python-snippets.ts, split from snippets.ts when the snippets started to read the token at
+  // run time, because snippets.ts was near the cap.
   'init/src/patch': 21,
   // Crossed the line at 11 with `plan-angular.ts` and `plan-electron-vite.ts`, one per stack `init`
   // learned to wire, each beside the other per-framework builders. 12 with `plan-vite.ts`: the Vite

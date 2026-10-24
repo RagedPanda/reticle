@@ -1888,6 +1888,18 @@ describe('absence and negation hold like a count — a late error must not pass'
     expect((await verdict).pass).toBe(true);
   }, 3_000);
 
+  // The other side of #1644: `count: 0` now holds like an absence, and a quiet page must still pass
+  // it before the budget ends.
+  it('still passes a quiet `count: 0`, without burning the timeout', async () => {
+    const session = new LiveSession();
+    const verdict = waitForPredicate(
+      session,
+      { kind: 'signal', name: 'order:placed', count: 0 },
+      10_000,
+    );
+    expect((await verdict).pass).toBe(true);
+  }, 3_000);
+
   // #1344: a click handler that calls `setTimeout(() => console.error('boom'), 800)`. A hold of
   // 300ms passed the step and the error landed in nobody's window.
   it('FAILS a clean-console check when the error lands 800ms later, past the old 300ms hold', async () => {
