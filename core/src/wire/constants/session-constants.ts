@@ -155,6 +155,12 @@ export const SESSION_LIFECYCLE = {
   DAEMON_IDLE_SHUTDOWN_MS: 300_000,
   /** How often the daemon checks whether it has gone idle. Unref'd, so it never keeps the process up. */
   DAEMON_IDLE_CHECK_MS: 30_000,
+  /**
+   * An agent that attached this recently still counts as attached for the idle check. A client that
+   * starts a new MCP proxy for each turn (Codex) detaches between turns, and a used daemon must not
+   * exit and cold-start again for each turn.
+   */
+  DAEMON_AGENT_RECENT_MS: 1_800_000,
 } as const;
 
 /**

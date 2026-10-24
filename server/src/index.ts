@@ -62,7 +62,11 @@ import {
 } from './portal/session/session-reaper.js';
 import { wireSessionScope } from './portal/session/no-session-watch.js';
 import { withDetachGrace } from './surface/agent-presence-grace.js';
-import { buildIdlePredicate, noteSetupHold } from './command/daemon/lifetime/daemon-usefulness.js';
+import {
+  buildIdlePredicate,
+  noteAgentPresence,
+  noteSetupHold,
+} from './command/daemon/lifetime/daemon-usefulness.js';
 import { resolveToolSurface } from './surface/tools/tool-surface.js';
 import { statusPayload } from './status-payload.js';
 import type { BrowserPool } from './portal/pool/browser-pool.js';
@@ -456,6 +460,7 @@ export async function startDaemon(options: StartOptions = {}): Promise<RunningSe
   shared.attachAgentPresence(
     withDetachGrace((connected) => {
       agentConnected = connected;
+      noteAgentPresence(Date.now());
       if (!connected) {
         endAllSessions(bridge.sessions, AGENT_STOPPED_NOTICE);
       }
