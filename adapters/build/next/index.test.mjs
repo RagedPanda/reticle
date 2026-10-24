@@ -55,6 +55,21 @@ describe('readPairingToken', () => {
   });
 });
 
+describe('readPairingToken with a token folder that is not absolute', () => {
+  const previous = process.env[TOKEN_ENV];
+  afterEach(() => {
+    if (previous === undefined) delete process.env[TOKEN_ENV];
+    else process.env[TOKEN_ENV] = previous;
+  });
+
+  // A relative folder would be made inside the project, where git can commit the token.
+  it('reads no token and makes no folder', () => {
+    process.env[TOKEN_ENV] = 'relative-token-dir';
+    expect(readPairingToken()).toBeUndefined();
+    expect(existsSync(join(process.cwd(), 'relative-token-dir'))).toBe(false);
+  });
+});
+
 describe('withReticle', () => {
   const previousEnv = process.env.NODE_ENV;
 

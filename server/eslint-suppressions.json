@@ -2786,7 +2786,7 @@
   },
   "src/portal/bridge/pairing-token.ts": {
     "curly": {
-      "count": 10
+      "count": 9
     }
   },
   "src/portal/bridge/protocol-skew.ts": {

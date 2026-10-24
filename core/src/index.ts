@@ -85,6 +85,7 @@ export * from './verdict/predicate-tree.js';
 export * from './artifacts/flow-expect-flat.js';
 export * from './identity/project-id.js';
 export * from './identity/checkout.js';
+export * from './identity/state-dir.js'; // resolveStateDir: refuses a state folder that is not absolute
 export * from './words/notices.js';
 export * from './artifacts/journal.js';
 // Not an API — three names that exist so importing the BROWSER SDK from here fails with a sentence

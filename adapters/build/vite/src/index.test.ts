@@ -1,6 +1,6 @@
 import { afterAll, describe, it, expect } from 'vitest';
 import { OPTIMIZER_OPTIONS_KEY, optimizerOptionsKey, viteMajor } from './installed.js';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { transformSync } from '@babel/core';
@@ -12,6 +12,7 @@ import {
   RETICLE_CONNECT_MODULE,
   connectModuleSource,
   installedSdk,
+  readPairingToken,
 } from './index.js';
 import { ignoredFileNotice } from './stamping.js';
 
@@ -895,5 +896,23 @@ describe('the opt-out report', () => {
     expect(line).toContain('Generated.tsx');
     expect(line).toContain('@reticle-ignore');
     expect(line.toLowerCase()).toContain('source');
+  });
+});
+
+/** A relative token folder would be made inside the project, where git can commit the token. */
+describe('readPairingToken with a token folder that is not absolute', () => {
+  it('reads no token and makes no folder', () => {
+    const saved = process.env[ReticleEnv.PAIRING_TOKEN_DIR];
+    process.env[ReticleEnv.PAIRING_TOKEN_DIR] = 'relative-token-dir';
+    try {
+      expect(readPairingToken()).toBeUndefined();
+      expect(existsSync(join(process.cwd(), 'relative-token-dir'))).toBe(false);
+    } finally {
+      if (saved === undefined) {
+        delete process.env[ReticleEnv.PAIRING_TOKEN_DIR];
+      } else {
+        process.env[ReticleEnv.PAIRING_TOKEN_DIR] = saved;
+      }
+    }
   });
 });

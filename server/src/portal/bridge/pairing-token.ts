@@ -2,8 +2,8 @@ import { chmod, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { chmodSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { randomBytes } from 'node:crypto';
 import { homedir } from 'node:os';
-import { join } from 'node:path';
-import { ReticleDir, ReticleEnv } from '@reticlehq/core';
+import { isAbsolute, join } from 'node:path';
+import { ReticleDir, ReticleEnv, resolveStateDir } from '@reticlehq/core';
 
 /**
  * Auto-provisioned bridge pairing token. The daemon reads-or-creates a per-user secret at
@@ -29,9 +29,11 @@ export const PAIRING_TOKEN_DIR_ENV = ReticleEnv.PAIRING_TOKEN_DIR;
 
 /** The default directory that holds the token — the per-user ~/.reticle so it's shared across projects. */
 export function defaultPairingTokenDir(): string {
-  const override = process.env[PAIRING_TOKEN_DIR_ENV];
-  if (override !== undefined && override.length > 0) return override;
-  return join(homedir(), ReticleDir.ROOT);
+  return resolveStateDir(
+    process.env[PAIRING_TOKEN_DIR_ENV],
+    join(homedir(), ReticleDir.ROOT),
+    isAbsolute,
+  );
 }
 
 /**
@@ -80,8 +82,9 @@ export async function configuredPairingToken(
   return readOrCreatePairingToken(dir, deps);
 }
 
+/** Throws when `dir` is not absolute: the token must never be made inside the working folder. */
 export function pairingTokenPath(dir: string): string {
-  return join(dir, ReticleDir.PAIRING_TOKEN_FILE);
+  return join(resolveStateDir(undefined, dir, isAbsolute), ReticleDir.PAIRING_TOKEN_FILE);
 }
 
 /** Production IO adapter: 0600 file + 0700 dir so only the owner can read the secret. */

@@ -63,6 +63,9 @@ const RETICLE_WS_PATH = '/reticle';
  * @returns {string | undefined}
  */
 function ensurePairingToken(dir) {
+  // A relative folder is made inside the folder `next dev` runs in, which is the project. The same
+  // rule as core's `resolveStateDir`; this file is plain CJS and does not depend on core.
+  if (!path.isAbsolute(dir)) return undefined;
   const file = path.join(dir, PAIRING_TOKEN_FILE);
   try {
     const existing = fs.readFileSync(file, 'utf8').trim();

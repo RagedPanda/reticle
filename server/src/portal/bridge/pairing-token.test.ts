@@ -108,3 +108,32 @@ describe('configuredPairingToken', () => {
     expect(await configuredPairingToken({}, deps)).toBeUndefined();
   });
 });
+
+/** A relative token folder is created inside the folder the process runs in, often the project. */
+describe('a pairing token folder that is not absolute', () => {
+  it('is refused, and no token is written', async () => {
+    const ctx = memDeps();
+    await expect(readOrCreatePairingToken('relative/.reticle', ctx.deps)).rejects.toThrow(
+      /not an absolute path/,
+    );
+    expect(ctx.writes()).toBe(0);
+  });
+
+  it('is refused by the sync reader too', () => {
+    expect(() => readOrCreatePairingTokenSync('relative/.reticle')).toThrow(/not an absolute path/);
+  });
+
+  it('is refused when it comes from the environment', () => {
+    const saved = process.env[ReticleEnv.PAIRING_TOKEN_DIR];
+    process.env[ReticleEnv.PAIRING_TOKEN_DIR] = 'relative/.reticle';
+    try {
+      expect(() => defaultPairingTokenDir()).toThrow(/not an absolute path/);
+    } finally {
+      if (saved === undefined) {
+        delete process.env[ReticleEnv.PAIRING_TOKEN_DIR];
+      } else {
+        process.env[ReticleEnv.PAIRING_TOKEN_DIR] = saved;
+      }
+    }
+  });
+});
