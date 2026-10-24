@@ -4605,11 +4605,6 @@
       "count": 1
     }
   },
-  "src/telemetry/mcp-connection.ts": {
-    "curly": {
-      "count": 1
-    }
-  },
   "src/telemetry/missing-metrics.test.ts": {
     "curly": {
       "count": 2

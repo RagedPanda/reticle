@@ -101,7 +101,7 @@ The single exception is `daemon_stopped`, which is **awaited**, because the proc
 | `runtime_crashed` | an unhandled failure in the daemon | stability |
 | `feedback_submitted` | `reticle feedback`, or an agent's report | the qualitative channel |
 | `identified` | nothing in this version: `reticle identify` was removed | joined anonymous machine ids to a person who volunteered one; older versions may still send it |
-| `mcp_client_connected` | an MCP client attached | how many sessions are agent-driven at all |
+| `mcp_client_connected` | an MCP client attached, once per proxy process: a reconnect of the same proxy sends nothing. `mcp_proxy_exited` counts its drops | how many sessions are agent-driven at all |
 | `app_instrumented` | the first app carrying the SDK reached this daemon | **the funnel step everything turns on**; see below |
 | `mcp_connection_lost` | the proxy lost its daemon | **the transport-stability metric.** The disconnect that makes a user reopen `/mcp` is invisible without it |
 | `mcp_proxy_exited` | the MCP proxy process ended (stdin end, idle, client-gone storm, failed wake) | how often the agent loses its tools because the PROXY left, which `mcp_connection_lost` cannot see. Awaited before exit, and sent even when the proxy has no other counts |

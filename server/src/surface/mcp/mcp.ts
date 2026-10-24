@@ -689,7 +689,9 @@ export function createMcpServer(
     // the first moment it can carry WHO. It used to fire from the SSE `connect()` resolution, which
     // happens before the handshake — so every connect row was anonymous, and the field meant to say
     // which agent client converts best was empty on every event ever sent.
-    void runAsAgent(deps.attachId, () => Promise.resolve(reportMcpConnected(info.name)));
+    void runAsAgent(deps.attachId, () =>
+      Promise.resolve(reportMcpConnected(info.name, deps.attachId)),
+    );
   };
   server.server.onclose = () => {
     noteAgentDetached(deps.attachId);

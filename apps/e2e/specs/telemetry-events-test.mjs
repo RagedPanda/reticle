@@ -396,12 +396,13 @@ metrics.recordConnectAttempt('attached')(classifyConnectFailure(new Error('conne
 
 // ── 4d. MCP client attached — "running" vs "actually being used" ──────────────
 markDaemonStart(Date.now() - 5000);
-reportMcpConnected('claude-code');
-reportMcpConnected('claude-code');
+reportMcpConnected('claude-code', 'proxy-e2e-1');
+reportMcpConnected('claude-code', 'proxy-e2e-1'); // the same proxy reconnects: not sent again
+reportMcpConnected('claude-code', 'proxy-e2e-2');
 await settle();
 {
   const cs = find('mcp_client_connected');
-  check('mcp_client_connected fires when an agent actually attaches', cs.length === 2, `got ${cs.length}`);
+  check('mcp_client_connected fires once per proxy when an agent attaches', cs.length === 2, `got ${cs.length}`);
   check('  first attach is not a reconnect', cs[0]?.properties.connection_reconnect === false);
   check('  a re-attach IS flagged, so churn is distinguishable from usage', cs[1]?.properties.connection_reconnect === true);
   check('  carries how long the daemon sat before anyone used it', (cs[0]?.properties.connection_daemonAgeMs ?? 0) >= 5000);
