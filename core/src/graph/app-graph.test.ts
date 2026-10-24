@@ -249,6 +249,35 @@ describe('what each screen offers', () => {
     ]);
   });
 
+  it('reads a name that holds a ref-like part to the last ref, as before', () => {
+    const tricky = [
+      '- button "Say " (ref=x) to it" (ref=e1) [testid=say]',
+      '- button "Empty" (ref=) still" (ref=e2)',
+      '- button "" (ref=e3) [testid=]',
+      '- button "Open" (ref=e4) [testid=] [testid=open]',
+      '- button "No close" (ref=e5',
+      '- button "Line\rbreak" (ref=e6)',
+      '- button "Ref break" (ref=e\r7) [testid=ref-break]',
+      '- button "Rest" (ref=e8) x\r" (ref=e9)',
+    ].join('\n');
+    expect(controlsOf(tricky)).toEqual([
+      { role: 'button', name: 'Say " (ref=x) to it', testid: 'say' },
+      { role: 'button', name: 'Empty" (ref=) still' },
+      { role: 'button', name: '' },
+      { role: 'button', name: 'Open', testid: 'open' },
+      { role: 'button', name: 'Ref break', testid: 'ref-break' },
+    ]);
+  });
+
+  // The snapshot text comes from the page, so the page decides its length and its content. A long
+  // run of `" (ref=` or `[testid=` must cost time in proportion to its length. A backtracking
+  // pattern took seconds on these lines, and its time grows with the square of the length.
+  it('reads a long hostile line in one pass', () => {
+    const refs = `- button "${'" (ref='.repeat(30_000)}`;
+    const ids = `- button "x" (ref=e1) ${'[testid='.repeat(30_000)}${'[component='.repeat(20_000)}`;
+    expect(controlsOf(`${refs}\n${ids}`)).toEqual([{ role: 'button', name: 'x' }]);
+  }, 30_000);
+
   it('keeps a data-named row as one action of its component, seen or pressed', () => {
     const long =
       'Performance: a duplicate request for the onboarding connect screen sent twice on one load';

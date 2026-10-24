@@ -6,7 +6,8 @@
  * an action, an action LEADS TO a screen, SENDS a request and MAKES a thing. Everything here was
  * observed: the model's words never add a node. Ids collapse (`templatePath`), so a hundred
  * conversations are one screen and a row the drive created is a thing made, never a new screen: the
- * create-and-back-out loop a state graph otherwise falls into (plan/qa-platform/research).
+ * create-and-back-out loop a state graph otherwise falls into: each new row looks like a new screen,
+ * so the drive keeps making rows and backing out.
  *
  * Pure: a run's acts and recording in, a run's map out; merged into the app's map across runs. One fold,
  * here in core, so the cloud verifier and the open-source daemon describe an app the same way: a fix to
@@ -202,20 +203,70 @@ const CONTROL_ROLES: ReadonlySet<string> = new Set([
   'spinbutton',
 ]);
 
-const LINE = /^\s*- (\S+) "(.*)" \(ref=[^)]+\)(.*)$/;
-const TESTID = /\[testid=([^\]]+)\]/;
-const COMPONENT = /\[component=([^\]]+)\]/;
+/** A snapshot line's start: `- <role> "`. */
+const LINE_HEAD = /^\s*- (\S+) "/;
+/** What ends a name, before the ref: `" (ref=`. */
+const REF_OPEN = '" (ref=';
+const REF_CLOSE = ')';
+/** Line breaks other than `\n`. A name or a rest that holds one is not read. */
+const LINE_BREAK = /[\r\u2028\u2029]/g;
+
+/**
+ * A snapshot line as role, name and the part after the ref: `- <role> "<name>" (ref=<ref>)<rest>`.
+ * The name runs to the LAST `" (ref=` that a non-empty ref and a `)` follow.
+ *
+ * Read with `indexOf`, not one regular expression. The page writes this text, and a pattern with
+ * two open-ended groups backtracks: its time grows with the square of the line length.
+ */
+const snapshotLine = (line: string): { role: string; name: string; rest: string } | undefined => {
+  const head = LINE_HEAD.exec(line);
+  if (null === head) {
+    return undefined;
+  }
+  const start = head[0].length;
+  const breaks = [...line.slice(start).matchAll(LINE_BREAK)].map((m) => start + m.index);
+  const firstBreak = breaks[0] ?? line.length;
+  const lastBreak = breaks[breaks.length - 1] ?? -1;
+  const lastClose = line.lastIndexOf(REF_CLOSE);
+  for (let at = line.lastIndexOf(REF_OPEN); start <= at; at = line.lastIndexOf(REF_OPEN, at - 1)) {
+    const ref = at + REF_OPEN.length;
+    if (ref < lastClose && REF_CLOSE !== line[ref]) {
+      const close = line.indexOf(REF_CLOSE, ref);
+      // A break may sit only inside the ref: never in the name, never in the rest.
+      if (at <= firstBreak && lastBreak < close) {
+        return { role: head[1] ?? '', name: line.slice(start, at), rest: line.slice(close + 1) };
+      }
+    }
+  }
+  return undefined;
+};
+
+/** The value of the first `[key=value]` with a non-empty value, read in one pass. */
+const bracketValue = (text: string, key: string): string | undefined => {
+  const open = `[${key}=`;
+  for (let at = text.indexOf(open); -1 !== at; at = text.indexOf(open, at + 1)) {
+    const start = at + open.length;
+    const end = text.indexOf(']', start);
+    if (-1 === end) {
+      return undefined;
+    }
+    if (start < end) {
+      return text.slice(start, end);
+    }
+  }
+  return undefined;
+};
 
 /** The controls in a snapshot tree; rows (long, data-named, with no test id) left out. */
 export const controlsOf = (tree: string): SeenControl[] =>
   tree.split('\n').flatMap((line) => {
-    const m = LINE.exec(line);
-    if (null === m) {
+    const parsed = snapshotLine(line);
+    if (parsed === undefined) {
       return [];
     }
-    const [, role = '', name = '', rest = ''] = m;
-    const testid = TESTID.exec(rest)?.[1];
-    const component = COMPONENT.exec(rest)?.[1];
+    const { role, name, rest } = parsed;
+    const testid = bracketValue(rest, 'testid');
+    const component = bracketValue(rest, 'component');
     if (testid === undefined && !CONTROL_ROLES.has(role)) {
       return [];
     }
