@@ -450,7 +450,7 @@ One kind for every step of every phase, rather than an event name per step. A na
 ```
 install    script_started → runtime_ready → cli_installed → agents_detected → mcp_registered
 onboard    tour_started → concept_shown → first_look → first_act → first_verdict
-first_run  project_detected → instrumented → app_connected → driven → flow_recorded → verdict_produced
+first_run  project_detected → next_step_offered → instrumented → app_connected → driven → flow_recorded → verdict_produced
 ```
 
 Four decisions are written into the shape, and each exists because the alternative loses something:
@@ -463,6 +463,8 @@ Four decisions are written into the shape, and each exists because the alternati
 `step` is a CLOSED SET, validated against the funnel's own vocabulary. It was `z.string().max(48)` with a comment promising it was never user text, and a cap is not a promise: `/Users/someone/secret/ project` is 28 characters and validated cleanly. That is a rule-3 leak from the one payload a person can edit, the installer's breadcrumb file, on disk, in their own home directory.
 
 `elapsedMs` absent means NOT MEASURED, never zero. A zero enters every average as a real duration and drags it toward a number nobody experienced.
+
+`next_step_offered` measures the consent rule. The first session call in an unwired project changes no file. It offers one next step, `offered`: `lease` when an app is up to check with the zero-install lease, and `init_consent` when no app is up and the agent must ask the user to agree to `init`. The offer is reported `started`. The agent's next tool call, of any kind, reports it `completed` with `nextFollowed`: for `lease`, that call acquired a lease; for `init_consent`, the project was wired by then. An offer that no call follows stays `started`. `server/src/telemetry/onboarding-firsts.ts` is the one emit site, and `runTool` closes the offer, so a call through `reticle_run` counts as the tool it reached.
 
 `flow_recorded` is reported once per daemon for each `status` and `reason`. A browser session ends at every page reload, so a report per session end repeated the same step without limit.
 

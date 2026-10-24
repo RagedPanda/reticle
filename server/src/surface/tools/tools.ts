@@ -3,7 +3,7 @@ import { z } from 'zod';
 import {
   EMPTY_SESSION_LIST_OUTPUT,
   emptySessionList,
-  wireCallerBesideLiveSessions,
+  nextStepBesideLiveSessions,
 } from './empty-session-list.js';
 import { AttrNamesSchema, QueryBy, ReticleCommand, SnapshotMode } from '@reticlehq/core';
 import { ReticleTool } from '@reticlehq/core';
@@ -186,9 +186,8 @@ export const RAW_TOOLS: ToolDef[] = withCompactEnvelope([
       // An empty list is a dead end on its own; see empty-session-list.ts for what it carries.
       if (0 === sessions.length) return emptySessionList(deps, sessions);
       // Another project's tab is up. This caller's project may still never have been wired.
-      const wired = await wireCallerBesideLiveSessions(deps, sessions);
-      if (wired === undefined) return { sessions };
-      return { sessions: await list(), wired };
+      const nextStep = nextStepBesideLiveSessions(deps, sessions);
+      return nextStep === undefined ? { sessions } : { sessions, next_step: nextStep };
     },
   },
   {
@@ -879,7 +878,7 @@ export const MERGED_SURFACE_PLANS: MergePlan[] = [
           defaultAction: 'list',
           description:
             'By action: "list" (the default) shows connected tabs; "yield" is MANDATORY before you stop; "tune" hides or moves the HUD; "feedback" reports a problem. ' +
-            'In full: "list" is the first call to make, and on a project that has never connected it wires the app and names the files it changed under `wired`; "yield" hands control back to the human (mode: waiting|ask); "tune" takes `hud` (hidden, shown, removed until reload, or a corner) for when the HUD covers a control you must test, and `idleEndMs`; "feedback" files a report; "end", "resume", "messages", "review" and "narrate" manage the session and the human channel.',
+            'In full: "list" is the first call to make, and on a project that has never connected it changes no file: `next_step` names the zero-install lease and the consent question for wiring; "yield" hands control back to the human (mode: waiting|ask); "tune" takes `hud` (hidden, shown, removed until reload, or a corner) for when the HUD covers a control you must test, and `idleEndMs`; "feedback" files a report; "end", "resume", "messages", "review" and "narrate" manage the session and the human channel.',
         }
       : plan,
   ),

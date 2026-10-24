@@ -2,11 +2,12 @@
  * SessionStart: tell the agent, once per project, that this web app has Reticle's tools but was
  * never wired to them.
  *
- * The plugin registers the MCP server and stops. The step that makes the tools useful — `init` in
- * the app — is a separate act, and the MCP server's own "run init first" instruction is only read
- * once the agent calls a Reticle tool, which an agent never does unprompted. So most plugin installs
- * sat with an attached agent and no app, and never got a verdict. This puts the missing step in
- * front of the agent at the start of the session instead of waiting for a task that names Reticle.
+ * The plugin registers the MCP server and stops. An agent never reads the MCP server's own
+ * instructions until it calls a Reticle tool, so this puts the first step in front of it at the
+ * start of the session. The first step is the lease: it checks the running app now and changes no
+ * file. `init` keeps Reticle wired, and it changes the user's files, so the agent runs it only when
+ * the user agrees. The consent sentences are the same as the MCP instructions
+ * (`wiringConsent` in server/src/surface/tools/empty-session-list.ts).
  *
  * Never fails the session: any error, or any doubt about the project, prints nothing and exits 0.
  */
@@ -36,6 +37,8 @@ const WEB_DEPS = [
   'react-router',
   '@tanstack/react-start',
 ];
+const LEASE_CALL =
+  'reticle_run({ tool: "reticle_lease", args: { action: "acquire", url: "<the running app\'s URL>" } })';
 const STATE_DIR = process.env['RETICLE_STATE_DIR'] ?? join(homedir(), '.reticle');
 const NUDGED_FILE = join(STATE_DIR, 'plugin-init-nudged.json');
 
@@ -84,10 +87,11 @@ function main() {
 
   const command = `RETICLE_INSTALL_SOURCE=plugin npx -y ${pinnedServer()} init`;
   const context =
-    'Reticle is installed (plugin) but this web app is not wired to it yet, so no reticle_* tool ' +
-    'can see or verify anything here. In your first reply, tell the user this in one line and offer ' +
-    `to run \`${command}\` in this directory: it adds a dev-only SDK, wires the build config, starts ` +
-    'the dev server and opens the app. Run it only if they agree; if they decline, do not raise it again.';
+    `This web app can be checked now with no install: \`${LEASE_CALL}\` opens the running app in ` +
+    "Reticle's own browser and changes no file. To keep Reticle wired to this app: `init` changes " +
+    'files: it adds a dev-only SDK to package.json and the lockfile, edits the build config and ' +
+    'starts the dev server. Ask the user before you wire the app. If they agree, run ' +
+    `\`${command}\` in the app's folder. If they decline, do not ask again.`;
   process.stdout.write(
     JSON.stringify({
       hookSpecificOutput: { hookEventName: 'SessionStart', additionalContext: context },

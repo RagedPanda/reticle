@@ -42,6 +42,7 @@ import { emitBugFoundHook, emitVerdictHook } from '@/hooks/hook-emit.js';
 import {
   noteActed,
   noteFirstVerdict,
+  noteNextCall,
   noteOnboardingFirst,
   noteVerdictProduced,
 } from '@/telemetry/onboarding-firsts.js';
@@ -415,6 +416,10 @@ export async function runTool<Ext>(
         deps.attachId !== undefined &&
         ReticleTool.RUN !== tool.name &&
         'function' === typeof deps.now;
+      // Closes the offer of an earlier first session call: did the agent do the offered step?
+      if (agentCall) {
+        noteNextCall(tool.name, args);
+      }
       const ends = endsRun(tool.name, args);
       // A call that only ends a run starts none: a second yield in a row carries no empty report.
       if (agentCall && !ends && deps.attachId !== undefined)

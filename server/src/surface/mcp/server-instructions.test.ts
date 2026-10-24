@@ -55,8 +55,8 @@ describe('buildServerInstructions', () => {
       expect(degraded).toMatch(/A session on this project's app listed there is the proof/);
     });
 
-    // The first run wires the app, not the install: the agent's first session call does it and
-    // says which files changed. Restarting a dev server is no longer the agent's move at all.
+    // Wiring changes the user's files, so it waits for the user's agreement. The session call
+    // changes no file. Restarting a dev server is no longer the agent's move at all.
     // An agent read "until one appears no other tool can tell you anything about this app", so in an
     // unwired project it wrote a throwaway Playwright script instead, though a zero-install lease
     // gets a verdict with no file changed. Measured with `claude -p` on a fresh Vite app: no Reticle
@@ -68,9 +68,12 @@ describe('buildServerInstructions', () => {
       expect(text).not.toMatch(/no other tool can tell you anything/);
     });
 
-    it('has the first session call wire the app and name what changed', () => {
-      expect(text).toContain('Its first call wires the app');
-      expect(text).toContain('`wired` lists the files it changed');
+    it('wires the app only when the user agrees, and says the session call changes no file', () => {
+      expect(text).toMatch(
+        /Ask the user before you wire the app\. If they agree, run `npx @reticlehq\/server init`/,
+      );
+      expect(text).toMatch(/changes no file/);
+      expect(text).not.toMatch(/first call wires the app/);
       expect(text).not.toMatch(/then RESTART the dev server/);
     });
 
@@ -92,9 +95,9 @@ describe('buildServerInstructions', () => {
     const text = buildServerInstructions({ previouslyConnected: false, appHere: true });
 
     it('tells the agent to raise it with the user unprompted, and to ask first', () => {
-      expect(text.slice(0, 900)).toMatch(/first reply/);
+      expect(text.slice(0, 1200)).toMatch(/first reply/);
       expect(text).toMatch(/even if .*unrelated/);
-      expect(text).toMatch(/only if they agree/);
+      expect(text).toMatch(/ask the consent question/);
     });
 
     it('does not say so where no app was found', () => {

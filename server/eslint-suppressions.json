@@ -3033,7 +3033,7 @@
   },
   "src/portal/session/first-run-wiring.ts": {
     "curly": {
-      "count": 3
+      "count": 2
     }
   },
   "src/portal/session/handshake-facts-are-read.test.ts": {
@@ -3905,11 +3905,6 @@
       "count": 24
     }
   },
-  "src/surface/tools/empty-session-list.ts": {
-    "curly": {
-      "count": 5
-    }
-  },
   "src/surface/tools/envelope-keys-declared.test.ts": {
     "curly": {
       "count": 2
@@ -4422,7 +4417,7 @@
   },
   "src/surface/tools/tools.ts": {
     "curly": {
-      "count": 10
+      "count": 9
     }
   },
   "src/surface/tools/unadvertised-help.ts": {

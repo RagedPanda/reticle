@@ -155,7 +155,8 @@ Svelte stores, Pinia. Anything else works through the generic `pushStore`.
    the sense `npm init` is: it installs the dev-only SDK, wires the build config, starts the dev
    server if none is running and opens the app to prove a session connected. A dev server that was
    already running must be restarted once: it read the build config before `init` edited it. Skip
-   this step and the agent's first `reticle_session` call wires the app instead. A session listed
+   this step and the agent checks the app with the zero-install lease, and asks before it runs
+   `init`. A session listed
    means the SDK reached the page. Setup is finished when the first run returns a verdict.
 
    Optional, for the dashboard: `reticle connect` wires the app if needed, signs you in in the

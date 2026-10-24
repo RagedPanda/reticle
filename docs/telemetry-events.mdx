@@ -497,6 +497,9 @@ The message itself never leaves. It interpolates whatever the caller asked for (
 | `reason` | string, up to 64, optional | Classified cause on failure. Our vocabulary, never a raw error or a path |
 | `stack` | string, up to 64, optional | The framework, so a phase failing on only one is visible |
 | `unattended` | boolean, optional | Nobody was asked anything: the zero-human-input path an agent takes from a link |
+| `firstEver` | boolean, optional | The first time this machine and project crossed this step |
+| `offered` | `NextStepOffered`, optional | Only on `next_step_offered`: `lease` or `init_consent`, the step the first session call offered |
+| `nextFollowed` | boolean, optional | Only on a `completed` `next_step_offered`: the agent's next call did the offered step |
 
 **The question it answers:** where do people stop, between never having heard of Reticle and having a verdict on their own app. No other event can answer it. `init_completed` fires when the files are written, and the story continues for minutes after that; `app_instrumented` sees one moment of it. This is the only event that spans the whole route.
 
@@ -506,7 +509,7 @@ The steps are the funnel, in order, and they live in one table in `core/src/onbo
 | --- | --- |
 | `install` | `script_started`, `runtime_ready`, `cli_installed`, `agents_detected`, `mcp_registered` |
 | `onboard` | `tour_started`, `concept_shown`, `first_look`, `first_act`, `first_verdict` |
-| `first_run` | `project_detected`, `instrumented`, `app_connected`, `driven`, `flow_recorded`, `verdict_produced` |
+| `first_run` | `project_detected`, `next_step_offered`, `instrumented`, `app_connected`, `driven`, `flow_recorded`, `verdict_produced` |
 
 `first_run.verdict_produced` is the conversion event. Everything before it is setup that proved nothing.
 

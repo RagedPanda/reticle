@@ -159,7 +159,7 @@ function reopenableUrl(raw: string | undefined): { url: string; port: number } |
  * bin on PATH, so a bare `reticle init` fails with "command not found" exactly where it is handed out.
  */
 const CLI = 'npx @reticlehq/server';
-const INIT_COMMAND = `${CLI} init`;
+export const INIT_COMMAND = `${CLI} init`;
 const OPEN_COMMAND = `${CLI} open`;
 const LOCALHOST = 'http://localhost';
 
@@ -172,7 +172,7 @@ const ZERO_INSTALL_SEES =
   'or source file:line until the app is wired';
 
 /** The zero-install call, with the URL only when it can be named without guessing. */
-function zeroInstallLease(url: string | undefined): string {
+export function zeroInstallLease(url: string | undefined): string {
   // Through reticle_run: reticle_lease is not on the default surface, and reticle_run is on every one (#1547).
   return `reticle_run { tool: "reticle_lease", args: { action: "acquire", url: "${url ?? "<the app's URL>"}" } }`;
 }

@@ -29,7 +29,7 @@ It registers Reticle with every coding agent it finds and prints the next steps:
 
 ## 2. Wire this app (once per project)
 
-In the project, call `reticle_session { action: "list" }` and do its `next_action`. On a never-connected project that call runs `init` itself and lists what it changed under `wired`; tell the user in one line. If it answers `run_init`, run this in the app's folder:
+In the project, call `reticle_session { action: "list" }`. It changes no file. On a project that is not wired, its `next_step` names the zero-install lease, which checks the running app now with nothing installed, and the consent question for `init`. `init` changes files, so run it only when the user agrees. A request to set up Reticle is that agreement. Run it in the app's folder:
 
 ```bash
 RETICLE_INSTALL_SOURCE=npx_skill npx @reticlehq/server@latest init
@@ -135,7 +135,7 @@ Two places always need the user:
 1. **No recognisable dev script in `package.json`.** Say so; do not invent one.
 2. **Your host asks the human to approve a command.** That prompt belongs to the host. Never bypass or suppress it, and take a refusal as the answer. `init` writing a pre-approval rule for the `reticle` server is not that: it is a scoped, announced config change the human asked for by running the command, and it covers only Reticle's own tools.
 
-Everything else (running `init`, starting the dev server, opening the browser) is a setup step, not a decision. When `init` cannot finish alone, read `docs/skill-setup.md`, which ships beside this file (`https://docs.reticle.sh/skill-setup.md`).
+When the user asked for setup, everything else (running `init`, starting the dev server, opening the browser) is a setup step, not a decision. When `init` cannot finish alone, read `docs/skill-setup.md`, which ships beside this file (`https://docs.reticle.sh/skill-setup.md`).
 
 # VERIFY
 

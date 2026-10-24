@@ -94,15 +94,14 @@ export function firstCallOpener(io: FirstCallIo): () => Promise<FirstCallOpened 
 
 /**
  * The daemon's two answers to an app nobody wired, built together because both ask the same
- * question first — which unwired web app is this caller in. `firstRun` wires it when the agent
+ * question first — which unwired web app is this caller in. `firstRun` names it when the agent
  * lists sessions; `openUnwiredApp` opens it zero-install on a page-needing call.
  */
 export function agentWiring(
-  port: number,
   sessions: { list(): readonly unknown[] },
   lease: (url: string) => Promise<unknown>,
 ): { firstRun: FirstRunWiring; openUnwiredApp: () => Promise<FirstCallOpened | undefined> } {
-  const firstRun = firstRunWiring({ port, cliPath: process.argv[1] ?? '' });
+  const firstRun = firstRunWiring();
   const openUnwiredApp = firstCallOpener({
     project: () => firstRun.projectDirectory(callingClientDirectory() ?? process.cwd()),
     serving: async (ports) => (await probeDevServerStates(ports)).serving,

@@ -16,6 +16,7 @@
  */
 import { z } from 'zod';
 import {
+  NextStepOffered,
   OnboardingPhase,
   OnboardingStepSchema,
   OnboardingStepStatus,
@@ -28,6 +29,7 @@ import {
  * re-exported here so every `@reticlehq/core/telemetry` import reaches it.
  */
 export {
+  NextStepOffered,
   OnboardingPhase,
   OnboardingStepSchema,
   OnboardingStepStatus,

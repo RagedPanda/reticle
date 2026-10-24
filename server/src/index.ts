@@ -597,7 +597,7 @@ export async function startDaemon(options: StartOptions = {}): Promise<RunningSe
     bridgePort: port,
     nonces: bridge.nonces,
     browserProbe: probeLaunchableChromium,
-    ...agentWiring(port, bridge.sessions, leaseUrl),
+    ...agentWiring(bridge.sessions, leaseUrl),
     // A finished verification should not sit behind a one-minute timer — see ToolDeps.onRunPersisted.
     onRunPersisted: (): void => cloudSync.nudge(),
     syncNow: () => cloudSync.syncNow(),

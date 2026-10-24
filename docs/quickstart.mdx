@@ -5,7 +5,7 @@ description: Install Reticle, connect your coding agent, and get a real verdict 
 icon: rocket
 ---
 
-**Four steps: run the installer once per machine, run `reticle init` once per project, then optionally `reticle connect` for the dashboard and `reticle sync` to send runs.** Skip `init` and your agent's first `reticle_session` call wires the app instead. Reticle embeds a dev-only SDK in your running app and proves a browser session connected. No account needed for steps 1 and 2.
+**Four steps: run the installer once per machine, run `reticle init` once per project, then optionally `reticle connect` for the dashboard and `reticle sync` to send runs.** Skip `init` and your agent can still check the app with the zero-install lease, and it asks you before it wires the app. Reticle embeds a dev-only SDK in your running app and proves a browser session connected. No account needed for steps 1 and 2.
 
 By the end of this page your agent will click a button in your app and prove what happened: the request that fired, the state that changed, and the file to open if it didn't.
 
@@ -67,10 +67,10 @@ Step 1 is once per machine. This step is once per project. **Skipping it is a co
 
 <Note>
   **Skipped this step?** Ask your agent to verify something in the app. Its first `reticle_session`
-  call finds a project that has never connected, runs `init` there itself, and lists every file it
-  changed under `wired`. Asked about something unrelated, it offers to wire the app instead of doing
-  it. This works in Claude Code, Codex, Cursor and other MCP agents, including a second project
-  while Reticle is already running for another one.
+  call finds a project that has never connected and changes no file. It names the zero-install
+  lease, which checks the running app now with nothing installed, and it tells the agent to ask you
+  before it runs `init`. This works in Claude Code, Codex, Cursor and other MCP agents, including a
+  second project while Reticle is already running for another one.
 </Note>
 
 Prefer to install the skill and let the agent run setup itself? On Claude Code the plugin registers the MCP server and the skill in one step:

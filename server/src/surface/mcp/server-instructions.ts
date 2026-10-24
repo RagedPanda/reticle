@@ -1,5 +1,6 @@
 import { ReticleTool, WRITING_RULE_SHORT } from '@reticlehq/core';
 import { SHARED_PARAM_GUIDANCE } from './shared-params.js';
+import { wiringConsent } from '@/surface/tools/empty-session-list.js';
 import { defaultAdvertisedNames } from '@/surface/tools/tool-surface.js';
 import { surfaceVocabulary, listOf, type SurfaceVocabulary } from './surface-vocabulary.js';
 /**
@@ -111,7 +112,7 @@ const firstMoveFor = (
   appHere: boolean,
 ): string => `FIRST: when this session started, no app had connected to Reticle in this project, so \`init\` has not wired it.${verifyNowFor(v)}
 
-To wire it for good, call ${v.sessions}. Its first call wires the app (\`init\`, dev server, browser) and \`wired\` lists the files it changed; tell the user. If it answers \`run_init\`, run that command in the app's directory. A session on this project's app listed there is the proof that it is wired.${appHere ? TELL_THE_USER : ''}`;
+To wire it for good: ${wiringConsent()} ${v.sessions} changes no file. A session on this project's app listed there is the proof that it is wired.${appHere ? TELL_THE_USER : ''}`;
 
 /**
  * A verdict before any wiring. The lead used to say that until the app was wired "no other tool can
@@ -128,7 +129,7 @@ const UNWIRED_LEAD_END = 'is the proof that it is wired.';
 
 // An agent never asked to verify anything never reads "fix that first"; this makes it raise wiring.
 const TELL_THE_USER =
-  ' If none is listed, this directory holds a web app that is not wired: in your first reply, even if their request is unrelated, tell the user in one line and offer to wire it (the first session call does it). Do it only if they agree; if they decline, do not raise it again.';
+  ' If none is listed, this directory holds a web app that is not wired: in your first reply, even if their request is unrelated, tell the user in one line and ask the consent question above.';
 
 /** The nudge set for the AGENT's directory: a shared daemon briefs from where IT started. */
 export function localizeInstructions(instructions: string, appHere: boolean): string {
