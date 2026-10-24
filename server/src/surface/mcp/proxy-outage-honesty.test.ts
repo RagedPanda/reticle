@@ -175,7 +175,7 @@ describe('what an outage event is allowed to say', () => {
    *
    * A reset emits on the request before the response closes, so it reached the `connect_error`
    * branch. That branch says "the daemon could not be reached", which is false for a stream that
-   * was already serving. In the field this reading covered nearly every Windows drop.
+   * was already serving. On Windows, a dropped stream is often reset this way.
    *
    * First in the file on purpose: a proxy from an earlier test can still report its own drops into
    * the same spy, and the assertion reads the first outage.

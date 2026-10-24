@@ -246,12 +246,16 @@ The token is the contents of `~/.reticle/pairing-token`; do not commit it. On Cr
 
 ## Plain HTML
 
-A directory with an `index.html` and no `package.json` is wired by `init` itself: it writes the connect snippet into `index.html`, before `</body>`, writes `.reticle.json`, and hands over to setup. The block is marked, so a re-run finds it and never writes a second one, and a re-run with a new `--port` rewrites the port inside it. It loads the SDK from a CDN and runs only when the page is opened on `localhost`, `127.0.0.1` or `[::1]`: a static file has no development build to strip it, so the host is the only line between the snippet and a published page. The page carries no pairing token: `init` writes it into `reticle.local.js` beside the page, which the snippet imports, and adds that file to `.gitignore`. Keep it out of anything you publish, and let each teammate run `reticle init` for their own. Several pages and no `index.html` is a choice `init` does not make for you: it prints the snippet, filled in with your project id and token, for you to paste:
+A directory with an `index.html` and no `package.json` is wired by `init` itself: it writes the connect snippet into `index.html`, before `</body>`, writes `.reticle.json`, and hands over to setup. The block is marked, so a re-run finds it and never writes a second one, and a re-run with a new `--port` rewrites the port inside it. It loads the SDK from a CDN and runs only when the page is opened on `localhost`, `127.0.0.1` or `[::1]`: a static file has no development build to strip it, so the host is the only line between the snippet and a published page. The page carries no pairing token: `init` writes it into `reticle.local.js` beside the page, which the snippet imports, and adds that file to `.gitignore`. Keep it out of anything you publish, and let each teammate run `reticle init` for their own. Several pages and no `index.html` is a choice `init` does not make for you: it prints the snippet, filled in with your project id, for you to paste. The snippet does not contain the token. It imports `reticle.local.js`, which `init` writes at the project root and adds to `.gitignore`:
 
 ```html
 <script type="module">
-  import { reticle } from 'https://cdn.jsdelivr.net/npm/@reticlehq/browser@<version>/+esm';
-  reticle.connect({ projectId: '<your-project-id>', token: '<pairing token>' });
+  Promise.all([
+    import('https://cdn.jsdelivr.net/npm/@reticlehq/browser@<version>/+esm'),
+    import('./reticle.local.js').catch(() => ({})),
+  ]).then(([{ reticle }, local]) =>
+    reticle.connect({ projectId: '<your-project-id>', token: local.token }),
+  );
 </script>
 ```
 

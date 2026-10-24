@@ -11,8 +11,9 @@
  * after every other gate has passed. A page on an origin nobody admitted may follow only when ALL of
  * these hold:
  *
- *  - its HELLO names a session this bridge already admitted from an allowed origin. A new origin can
- *    never START a session, so an arbitrary page cannot open one of its own;
+ *  - its HELLO names a session this bridge already admitted: first from an allowed origin, then from
+ *    each origin it followed to. A new origin can never START a session, so an arbitrary page cannot
+ *    open one of its own;
  *  - its HELLO passed the token or nonce check, the same as any other page;
  *  - the page address in the HELLO is on the origin the socket came from;
  *  - the host returns `true` for this move. The host is the one party that knows whether its own

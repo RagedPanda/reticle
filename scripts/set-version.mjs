@@ -132,6 +132,15 @@ const RULES = [
       text.split(`**${from}**`).join(`**${to}**`).split(`is ${from}.`).join(`is ${to}.`),
   },
   {
+    what: 'GitHub Action pin in its README',
+    // The README pins the action at a release tag. It did not hold the current version when it
+    // drifted, so the containment check above cannot find it: match any version.
+    files: () => ['action/README.md'],
+    matchesAnyVersion: true,
+    edit: (text, _from, to) =>
+      text.replace(/reticlehq\/reticle\/action@v\d+\.\d+\.\d+/g, `reticlehq/reticle/action@v${to}`),
+  },
+  {
     what: 'crate pin in docs (major.minor, Cargo caret semantics)',
     // These read `reticle-tauri = "2.13"`, not the full version — a caret pin, which is the correct
     // thing for a Cargo dependency and the reason the whole-version replace above cannot see them.
