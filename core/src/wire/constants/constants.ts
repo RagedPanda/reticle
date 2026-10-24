@@ -306,6 +306,8 @@ export const ReticleDir = {
   VISUAL_SUBDIR: 'visual',
   /** verification-run artifacts —.reticle/runs/<runId>.json (the OEM/CI-consumable verdict). */
   RUNS_SUBDIR: 'runs',
+  /** Dev-server logs, only when the state home cannot be written. Machine-local, like `runs/`. */
+  LOGS_SUBDIR: 'logs',
   /** fail-to-pass bug capsules —.reticle/capsules/<id>.json (a minimal failing flow + its evidence). */
   CAPSULES_SUBDIR: 'capsules',
   /**

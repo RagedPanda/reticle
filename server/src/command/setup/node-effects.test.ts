@@ -180,6 +180,24 @@ describe('the dev server this process owns', () => {
     rmSync(dir, { recursive: true, force: true });
   });
 
+  // A sandboxed agent host or a locked-down profile cannot write the state home. Init had already
+  // wired the project, and then stopped here with a file-system error.
+  it('logs into the project when the state home cannot be written', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'unwritable-state-'));
+    const blocker = join(dir, 'not-a-folder');
+    writeFileSync(blocker, '');
+    const server = new OwnedDevServer(join(blocker, 'state'));
+    try {
+      expect(() => server.start('node -e "setTimeout(() => {}, 5000)"', dir, {})).not.toThrow();
+      expect(server.logPath()?.startsWith(join(dir, '.reticle', 'logs'))).toBe(true);
+      expect(readFileSync(join(dir, '.reticle', 'logs', '.gitignore'), 'utf8')).toBe('*\n');
+    } finally {
+      server.stop();
+      await sleep(50);
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   it('has nothing to stop when nothing was started', () => {
     expect(() => new OwnedDevServer(LOG_DIR).stop()).not.toThrow();
   });
