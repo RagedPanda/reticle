@@ -225,6 +225,7 @@ export const ProxyExitSchema = z.object({
   drops: z.number().int().nonnegative(),
   /** How many `tools/call` requests the client sent through this proxy. */
   toolCalls: z.number().int().nonnegative(),
+  proxyId: z.string().min(1).max(64).optional(),
 });
 export type ProxyExit = z.infer<typeof ProxyExitSchema>;
 

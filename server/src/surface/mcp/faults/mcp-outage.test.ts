@@ -10,6 +10,7 @@ import { describe, expect, it, beforeEach, vi } from 'vitest';
 import { OutageReason, TelemetryEventKind } from '@reticlehq/core/telemetry';
 import { OutageStage, reportMcpOutage, resetOutageReporting } from './mcp-outage.js';
 import { getTelemetry } from '@/telemetry/telemetry.js';
+import { PROXY_ID } from '@/telemetry/proxy-telemetry.js';
 
 describe('reportMcpOutage', () => {
   beforeEach(() => {
@@ -25,8 +26,21 @@ describe('reportMcpOutage', () => {
         reason: OutageReason.SSE_ENDED,
         attempts: 1,
         pendingLost: 0,
+        proxyId: PROXY_ID,
       },
     });
+    emit.mockRestore();
+  });
+
+  /**
+   * The proxy is not the daemon, so an outage carries no `sessionId`. The proxy id is the join: the
+   * same id is on `mcp_client_connected`, which carries the daemon's `sessionId`.
+   */
+  it('names the proxy process, so an outage joins its daemon run', () => {
+    const emit = vi.spyOn(getTelemetry(), 'emit').mockResolvedValue(true);
+    reportMcpOutage(OutageStage.FIRST, { reason: OutageReason.SSE_ABORTED, attempts: 1 });
+    const outage = (emit.mock.calls[0]?.[1] as { outage?: { proxyId?: string } }).outage;
+    expect(outage?.proxyId).toBe(PROXY_ID);
     emit.mockRestore();
   });
 

@@ -66,6 +66,12 @@ describe('reportMcpConnected', () => {
     expect(seen()).toHaveLength(1);
   });
 
+  it('carries the proxy id, the key that joins an outage to this daemon run', () => {
+    const seen = connections();
+    reportMcpConnected('cursor', 'proxy-a', () => 2_000);
+    expect(seen()[0]?.['proxyId']).toBe('proxy-a');
+  });
+
   it('caps a client name to the wire limit, so the event is not dropped as invalid', () => {
     const seen = connections();
     reportMcpConnected('x'.repeat(500), undefined, () => 2_000);

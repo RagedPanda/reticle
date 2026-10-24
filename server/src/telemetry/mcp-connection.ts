@@ -79,6 +79,9 @@ export function reportMcpConnected(
         // `app_instrumented` sets, never a second counter, so the two halves of the funnel cannot
         // disagree about one daemon run.
         appConnected: appEverConnected(),
+        // The proxy that attached. Its `mcp_connection_lost` and `mcp_proxy_exited` rows carry the
+        // same id and no `sessionId`, so this row is how they join this daemon run.
+        ...(attachId === undefined ? {} : { proxyId: attachId }),
       },
     });
   } catch {

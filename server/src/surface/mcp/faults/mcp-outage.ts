@@ -21,6 +21,7 @@ import {
   TelemetryEventKind,
 } from '@reticlehq/core/telemetry';
 import { getTelemetry } from '@/telemetry/telemetry.js';
+import { PROXY_ID } from '@/telemetry/proxy-telemetry.js';
 
 /**
  * `OutageStage` and `OutageReason` are core's — this re-export only saves the proxy an import. They
@@ -105,6 +106,8 @@ export function reportMcpOutage(
       pendingLost: facts.pendingLost ?? 0,
       ...(facts.error !== undefined ? { errCode: outageErrCode(facts.error) } : {}),
       ...(facts.responded !== undefined ? { responded: facts.responded } : {}),
+      // The join key: this event has no `sessionId`, and `mcp_client_connected` carries this id.
+      proxyId: PROXY_ID,
     },
   });
 }

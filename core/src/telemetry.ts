@@ -544,6 +544,8 @@ export const McpConnectionSchema = z.object({
    * OPTIONAL because an older sender has none. Absent means not measured, never `false`.
    */
   appConnected: z.boolean().optional(),
+  /** The id of the proxy process that attached. Its outages carry the same id. */
+  proxyId: z.string().min(1).max(64).optional(),
 });
 export type McpConnection = z.infer<typeof McpConnectionSchema>;
 
@@ -653,6 +655,8 @@ export const McpOutageSchema = z.object({
   errCode: z.nativeEnum(OutageErrCode).optional(),
   /** The stream got a response before it failed: a live stream dropped, not a refused connect. */
   responded: z.boolean().optional(),
+  /** The proxy process. It joins `mcp_client_connected`, which carries the daemon's `sessionId`. */
+  proxyId: z.string().min(1).max(64).optional(),
 });
 export type McpOutage = z.infer<typeof McpOutageSchema>;
 

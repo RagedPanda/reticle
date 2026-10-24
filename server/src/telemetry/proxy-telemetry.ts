@@ -14,6 +14,7 @@ import {
   type ProxyExitReason,
   type WakeRefusalPresence,
 } from '@reticlehq/core/telemetry';
+import { randomUUID } from 'node:crypto';
 import { getSessionMetrics, type SessionMetrics } from './session-metrics.js';
 import { getTelemetry, type Telemetry } from './telemetry.js';
 
@@ -29,6 +30,13 @@ export async function flushProxySessionMetrics(
     session: metrics.summarize(false),
   });
 }
+
+/**
+ * This proxy process's id. The proxy sends it to the daemon on every connect, and the daemon puts
+ * it on `mcp_client_connected`. The proxy's own events carry it too, so an outage or an exit joins
+ * the daemon run it served. A random UUID for each process: it names nothing on the machine.
+ */
+export const PROXY_ID = randomUUID();
 
 /** What this proxy process saw in its life, for `mcp_proxy_exited`. One proxy per process. */
 let drops = 0;
@@ -73,7 +81,7 @@ export async function reportProxyExited(
   }
   exitReported = true;
   await telemetry.emit(TelemetryEventKind.MCP_PROXY_EXITED, {
-    proxyExit: { reason, uptimeMs, drops, toolCalls },
+    proxyExit: { reason, uptimeMs, drops, toolCalls, proxyId: PROXY_ID },
   });
 }
 

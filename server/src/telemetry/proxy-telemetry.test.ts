@@ -12,6 +12,7 @@ import {
   noteProxyDrop,
   noteProxyToolCall,
   reportDaemonDiedUnclean,
+  PROXY_ID,
   reportProxyExited,
   reportWakeRefused,
   resetProxyExitReporting,
@@ -133,6 +134,12 @@ describe('the proxy exit, unclean death and wake refusal reach the wire', () => 
     expect(event?.properties.proxyExit_uptimeMs).toBe(1234);
     expect(event?.properties.proxyExit_drops).toBe(1);
     expect(event?.properties.proxyExit_toolCalls).toBe(2);
+  });
+
+  it('names the proxy process, so its exit joins its outages and its daemon run', async () => {
+    const { telemetry, calls } = recording();
+    await reportProxyExited(ProxyExitReason.IDLE, telemetry, 1234);
+    expect(calls[0]?.batch[0]?.properties.proxyExit_proxyId).toBe(PROXY_ID);
   });
 
   it('sends daemon_died_unclean with the age of the dead daemon', async () => {

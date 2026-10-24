@@ -1,5 +1,4 @@
 import * as http from 'node:http';
-import { randomUUID } from 'node:crypto';
 import { stateDirProblem } from '@/command/daemon/state-dir.js';
 import { reticleStateHome } from '@/command/daemon/daemon.js';
 import {
@@ -40,7 +39,12 @@ import {
   OnRequest,
 } from './proxy/proxy-lifecycle.js';
 import { describePresence, probePresence } from '@/command/daemon/binding/port-presence.js';
-import { flushProxyExit, noteProxyDrop, noteProxyToolCall } from '@/telemetry/proxy-telemetry.js';
+import {
+  PROXY_ID,
+  flushProxyExit,
+  noteProxyDrop,
+  noteProxyToolCall,
+} from '@/telemetry/proxy-telemetry.js';
 export { flushProxyExit, reportWakeRefused } from '@/telemetry/proxy-telemetry.js';
 import { detectStack } from '@/telemetry/feedback-context.js';
 /**
@@ -99,8 +103,6 @@ export const MAX_RECONNECT_ATTEMPTS = ((): number => {
 export const RECONNECT_INITIALIZE_ID = '__reticle_proxy_reinit';
 
 const INITIALIZE_METHOD = 'initialize';
-/** One id per proxy process. Every reconnect sends it, so the daemon sees the same agent return. */
-const PROXY_ID = randomUUID();
 /**
  * How long the handshake waits on the daemon before the proxy answers it.
  *
