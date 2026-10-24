@@ -27,6 +27,19 @@ export interface VersionMove {
 const LAST_VERSION_FILE = 'last-version';
 /** Our own release numbers only. Anything else in the file is not sent. */
 const RELEASE_VERSION = /^\d+\.\d+\.\d+(?:-[a-z]+(?:\.\d+)?)?$/;
+/** What a version that is not one of our release numbers reports as. */
+export const OTHER_VERSION = 'other';
+
+/**
+ * A version string that came from outside this process, made safe to send: one of our release
+ * numbers as it is, anything else as `other`, and nothing when there is no value.
+ */
+export function releaseVersionOf(raw: string | undefined): string | undefined {
+  if (raw === undefined) {
+    return undefined;
+  }
+  return RELEASE_VERSION.test(raw) ? raw : OTHER_VERSION;
+}
 
 /**
  * Record `current` as the last version this machine ran, and return the move when the record held

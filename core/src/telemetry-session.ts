@@ -322,6 +322,11 @@ export const SessionSummarySchema = z.object({
    */
   msToFirstApp: z.number().int().nonnegative().optional(),
   /**
+   * The SDK version of the last page that connected to this daemon, from its HELLO. Our own
+   * release number, or `other`. Absent when no page announced one.
+   */
+  sdkVersion: z.string().min(1).max(32).optional(),
+  /**
    * What state the AGENT's work was in when the session ended. Absent on a periodic flush.
    *
    * Distinct from `exit`, which says why the PROCESS ended. A daemon can exit tidily on idle while

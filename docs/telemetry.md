@@ -31,7 +31,7 @@ Twenty-two kinds of events, each a single small JSON object. This is the whole l
 | `daemon_stopped` | The local daemon stops | A summary of the session; see below |
 | `session_progress` | Periodically, from a daemon that is still running | The same summary as `daemon_stopped`, marked `final: false`. It exists so a long session is not invisible until it exits |
 | `app_instrumented` | The first time your app's SDK connects in a given daemon run | Nothing beyond the common fields. It is the second half of the install funnel: registering the MCP server is one thing, getting the SDK into a running page is another |
-| `verification_completed` | A verification produces a verdict | Whether it passed, whether Reticle refused to call a passing check verified, and **why** the verdict came out that way; see below |
+| `verification_completed` | A verification produces a verdict | Whether it passed, whether Reticle refused to call a passing check verified, **why** the verdict came out that way, and the version of the Reticle SDK in the page; see below |
 | `project_profiled` | Once per daemon start | The shape of the project; see below |
 | `version_changed` | Reticle starts on a version that differs from the last start on this machine, or you update or roll back | The two version numbers, which direction, and whether an agent had been told about the new version |
 | `runtime_crashed` | The daemon hits an uncaught error | The error's type, **Reticle's own** stack frames, and the message with variables stripped; see below |

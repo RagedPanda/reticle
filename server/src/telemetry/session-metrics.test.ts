@@ -839,3 +839,19 @@ describe('recovery — did the agent get unstuck after an error', () => {
     expect(m.summarize(true).errorsRecovered).toBe(1);
   });
 });
+
+/** The page SDK version on the session rows, so a window can be split by the SDK that served it. */
+describe('the page SDK version on the session summary', () => {
+  it('carries the version of the last page that connected', () => {
+    const m = new SessionMetrics(clock());
+    m.recordAppConnected('3.7.1');
+    m.recordAppConnected('3.8.0');
+    expect(m.summarize(false).sdkVersion).toBe('3.8.0');
+  });
+
+  it('is absent when no page announced a version', () => {
+    const m = new SessionMetrics(clock());
+    m.recordAppConnected();
+    expect('sdkVersion' in m.summarize(false)).toBe(false);
+  });
+});

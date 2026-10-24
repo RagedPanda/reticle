@@ -214,6 +214,7 @@ function recordVerification(
   durationMs: number,
   brand: BrowserBrand | undefined,
   sessionId: string | undefined,
+  sdkVersion: string | undefined,
 ): boolean {
   const verification = verificationOf(
     toolName,
@@ -221,6 +222,7 @@ function recordVerification(
     durationMs,
     brand,
     currentDrivenBy() !== undefined,
+    sdkVersion,
   );
   if (verification === undefined) return false;
   getSessionMetrics().recordVerification();
@@ -706,6 +708,7 @@ async function dispatchTool<Ext>(
       Date.now() - startedAt,
       session?.brand,
       session?.id,
+      session?.sdkVersion,
     );
     reportBugsFound(tool.name, raw, session?.id);
   }

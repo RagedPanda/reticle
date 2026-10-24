@@ -30,6 +30,7 @@ import { describeToolParams } from './argument-shape.js';
 import { machineSnapshot } from './machine-snapshot.js';
 import { classifyError } from './error-class.js';
 import { HudMetrics, type HudSignals } from './hud-metrics.js';
+import { releaseVersionOf } from '@/command/update/version-seen.js';
 
 /** Cap the distinct error shapes held in memory — a pathological loop must not grow unbounded. */
 const MAX_ERROR_KINDS = 40;
@@ -172,6 +173,8 @@ export class SessionMetrics {
    */
   #appConnects = 0;
   #firstAppAt: number | undefined;
+  /** The SDK version of the last page that connected, session-lifetime like `#appConnects`. */
+  #sdkVersion: string | undefined;
   readonly #clients = new Set<string>();
   /** Client name -> version, session-lifetime. Never cleared: who drove is a fact about the session. */
   readonly #clientVersions = new Map<string, string>();
@@ -408,8 +411,9 @@ export class SessionMetrics {
    * Zero of these at shutdown means the daemon ran and no app ever connected — a broken install.
    * Non-zero with no tool calls is the opposite problem. See SessionSummary.appConnects.
    */
-  recordAppConnected(): void {
+  recordAppConnected(sdkVersion?: string): void {
     this.#appConnects += 1;
+    this.#sdkVersion = releaseVersionOf(sdkVersion) ?? this.#sdkVersion;
     this.#firstAppAt ??= this.#now();
   }
 
@@ -609,6 +613,7 @@ export class SessionMetrics {
       ...(this.#firstAppAt === undefined
         ? {}
         : { msToFirstApp: Math.max(0, this.#firstAppAt - this.#startedAt) }),
+      ...(this.#sdkVersion === undefined ? {} : { sdkVersion: this.#sdkVersion }),
       ...this.#hud.summarize(),
       final,
       // Only on a real exit. A periodic flush carrying `exit: "unknown"` would read as a daemon that

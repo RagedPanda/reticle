@@ -399,6 +399,8 @@ export const VerificationSchema = z.object({
    * `VerificationDriver`. Absent is the ordinary case and means the agent called the tool itself.
    */
   driven: z.nativeEnum(VerificationDriver).optional(),
+  /** The page SDK version from its HELLO: our own release number, or `other`. Absent if unsaid. */
+  sdkVersion: z.string().min(1).max(32).optional(),
 });
 export type Verification = z.infer<typeof VerificationSchema>;
 

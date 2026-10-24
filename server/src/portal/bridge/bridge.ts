@@ -759,7 +759,7 @@ export class Bridge {
           // The one fact that separates a broken install from an unused one. Best-effort and wrapped:
           // a metric must never affect whether an app can connect. See SessionSummary.appConnects.
           try {
-            getSessionMetrics().recordAppConnected();
+            getSessionMetrics().recordAppConnected(parsed.sdkVersion);
           } catch {
             /* never let a counter interfere with an app connecting */
           }
