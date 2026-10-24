@@ -34,8 +34,10 @@ import {
 } from '@/command/daemon/daemon-resolve.js';
 import { daemonSpawnArgs } from './daemon-start-options.js';
 import { WakeAction, decideWake } from '@/command/daemon/wake-decision.js';
+import { runKill } from './cli-kill.js';
 import { pickDaemonPortToBind } from '@/command/daemon/binding/free-port.js';
-import { fetchStatus } from '@/command/daemon/binding/daemon-status-probe.js';
+import { fetchStatus, summarizeStatus } from '@/command/daemon/binding/daemon-status-probe.js';
+import { isNewerVersion } from '@/command/update/update-nudge.js';
 import { migrateApprovals } from '@/command/setup/approval-migration.js';
 import { ProxyExitReason, ReticleEnv, WakeRefusalPresence } from '@reticlehq/core';
 import { agentIo } from '@/command/setup/agent-io.js';
@@ -50,6 +52,36 @@ import { platformKey } from '@/command/setup/agent-configs.js';
  */
 export function spawnsHeadless(headless: boolean, requested: number, resolved: number): boolean {
   return headless || requested !== resolved;
+}
+
+const RELEASE_VERSION = /^\d+\.\d+\.\d+/;
+
+/**
+ * Should a proxy stop the older daemon it found, and start its own release?
+ *
+ * Only an OLDER daemon, read from `/status`, with no tab attached and no other agent attached. A
+ * tab or an agent can have a call in flight, so that daemon stays and the skew is described as
+ * before. A status that does not parse, or a version that does not compare, keeps the daemon.
+ */
+export function retiresOlderDaemon(status: unknown, proxyVersion: string): boolean {
+  if (typeof status !== 'object' || null === status) {
+    return false;
+  }
+  const fields = status as Record<string, unknown>;
+  const version = fields['version'];
+  if ('string' !== typeof version) {
+    return false;
+  }
+  // Only a plain release number compares; anything else keeps the daemon.
+  if (!RELEASE_VERSION.test(version) || !isNewerVersion(proxyVersion, version)) {
+    return false;
+  }
+  const peers = fields['mcpPeers'];
+  // A daemon sends `mcpPeers` only when an agent is attached.
+  if (Array.isArray(peers) && 0 < peers.length) {
+    return false;
+  }
+  return 0 === summarizeStatus(status).sessionCount;
 }
 
 /**
@@ -158,7 +190,19 @@ export async function handleMcp(opts: {
     // APPLICATION. That is worse than the disconnect it was reintroduced under the cover of, because
     // a disconnect is visible and this is a false green wearing a valid session.
     const wake = decideWake(presence, daemonProjectAt(port, reticleStateHome()), projectId);
-    if (WakeAction.USE === wake) return;
+    if (WakeAction.USE === wake) {
+      // A proxy from a newer release stops an older daemon that nobody is using, and starts its own.
+      // Otherwise every tool refused on the skew until a person ran `reticle restart`.
+      const status = await fetchStatus(port);
+      if (!retiresOlderDaemon(status, SERVER_VERSION)) {
+        return;
+      }
+      log('reticle_mcp_retiring_older_daemon', { port, proxyVersion: SERVER_VERSION });
+      // Not stopped: use it. The daemon describes the skew to this agent, as before.
+      if (!(await runKill(port, false))) {
+        return;
+      }
+    }
     if (WakeAction.REFUSE === wake) {
       void reportWakeRefused(
         PortPresence.DAEMON === presence

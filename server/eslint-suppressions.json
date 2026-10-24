@@ -295,11 +295,6 @@
       "count": 1
     }
   },
-  "src/command/cli/mcp-command.ts": {
-    "curly": {
-      "count": 1
-    }
-  },
   "src/command/cli/open-navigate.ts": {
     "curly": {
       "count": 1
@@ -495,11 +490,6 @@
   "src/command/daemon/lifetime/unclean-predecessor.ts": {
     "curly": {
       "count": 1
-    }
-  },
-  "src/command/daemon/wake-decision.ts": {
-    "curly": {
-      "count": 2
     }
   },
   "src/command/setup/agent-configs.test.ts": {
