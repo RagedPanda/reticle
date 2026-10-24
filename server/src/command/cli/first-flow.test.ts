@@ -9,7 +9,7 @@ import { initCoverageLines, msgProveOneFlow } from './try-command.js';
 
 const URL = 'http://localhost:5173';
 const PROMPT =
-  "Read https://reticle.sh/SKILL.md, then improve Reticle's coverage in this repo:\n- add a store";
+  "Read https://docs.reticle.sh/skill.md, then improve Reticle's coverage in this repo:\n- add a store";
 
 describe("init's ending", () => {
   it('at a low score: the score, the gaps, that the Harness can be switched on, then the prompt', () => {

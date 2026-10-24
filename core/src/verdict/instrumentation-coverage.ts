@@ -174,7 +174,7 @@ export function coverageOf(input: {
 
 /** The first line of every coverage prompt. */
 export const AGENT_PROMPT_LEAD =
-  "Read https://reticle.sh/SKILL.md, then improve Reticle's coverage in this repo:";
+  "Read https://docs.reticle.sh/skill.md, then improve Reticle's coverage in this repo:";
 /** The last line: what the agent hands back. */
 export const AGENT_PROMPT_TAIL = 'Report the coverage line it prints.';
 /** The placeholder the person replaces with the journey their change touched. */

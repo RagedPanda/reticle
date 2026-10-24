@@ -12,7 +12,7 @@ describe('doctor coverage rows', () => {
           missing: [{ capability: 'file:line source mapping' }],
           notSeenYet: ['stable test ids'],
           prompt:
-            'Read https://reticle.sh/SKILL.md, then improve…\nReport the coverage line it prints.',
+            'Read https://docs.reticle.sh/skill.md, then improve…\nReport the coverage line it prints.',
         },
       ],
     });

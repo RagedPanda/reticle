@@ -113,6 +113,12 @@ describe('agentPromptFor', () => {
     expect(lines.at(-1)).toBe(AGENT_PROMPT_TAIL);
   });
 
+  // The prompt told agents to read https://reticle.sh/SKILL.md, which answered 404. The docs host
+  // serves the skill.
+  it('links the skill on the docs host', () => {
+    expect(AGENT_PROMPT_LEAD).toContain('https://docs.reticle.sh/skill.md');
+  });
+
   it('lists only the gaps it was given, each with its fix and the control it names', () => {
     const prompt = agentPromptFor({ gaps, appName: 'shop', url: 'http://localhost:3000/' });
     expect(prompt).toContain('no store answers `cart.items`');
