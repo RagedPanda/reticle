@@ -19,7 +19,7 @@ import {
   type ReticleEvent,
 } from '@reticlehq/core';
 import { haltedFrom } from './recording/replay-halt.js';
-import { establishedState, samePath } from './flow-journey.js';
+import { establishedState, samePath, startPathBudgetMs } from './flow-journey.js';
 import { asRecord, asString } from '@reticlehq/core';
 import {
   navigablePath,
@@ -253,8 +253,7 @@ export function startPathMismatchHint(
   return `this flow's journey starts on ${startPath} but the tab is on ${current} — navigate there (reticle_navigate { url: "${startPath}" }), then replay`;
 }
 
-/** How long replay waits for the SDK to reconnect on the start page before falling back to the hint. */
-const START_PATH_ARRIVAL_TIMEOUT_MS = 5_000;
+/** How often replay looks for the SDK on the start page; how long is `startPathBudgetMs`. */
 const START_PATH_POLL_MS = 100;
 
 const REAL_ARRIVAL_CLOCK: ArrivalClock = {
@@ -362,7 +361,7 @@ export async function arriveAtStartPath(
     command(name: string, args?: Record<string, unknown>): Promise<CommandResult>;
   },
   flow: FlowFile,
-  timeoutMs: number = START_PATH_ARRIVAL_TIMEOUT_MS,
+  timeoutMs: number = startPathBudgetMs(flow),
   clock: ArrivalClock = REAL_ARRIVAL_CLOCK,
 ): Promise<StartPathArrival> {
   const target = flow.startPath;
@@ -472,7 +471,7 @@ export async function navigateAndAwait(
   },
   destination: string,
   expectedPath: string,
-  timeoutMs: number = START_PATH_ARRIVAL_TIMEOUT_MS,
+  timeoutMs: number,
   clock: ArrivalClock = REAL_ARRIVAL_CLOCK,
   /** True when the destination is the page we are already on — see `arrivedSuccessor`. */
   isReload: boolean = false,
