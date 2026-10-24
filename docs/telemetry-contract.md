@@ -111,8 +111,8 @@ The single exception is `daemon_stopped`, which is **awaited**, because the proc
 | `onboarding_step` | each step of install / onboard / first run | WHERE people stop, which no other kind can answer |
 | `bug_found` | a defect was detected in the app under test | the value delivered, as opposed to the work done |
 | `tool_refused` | a tool could not do what was asked | WHY the largest cohort in the funnel goes quiet. See below |
-| `hud_viewed` | a HUD page or the account menu opened, deduped per tab (same page within 30s is one view) | how often each page is used, and by whom (`accountState`, `client`); `hudPanelMs` says how long |
-| `hud_signin_prompted` | the HUD showed a sign-in / link ask, once per surface per tab | the top of the signup funnel: who SAW an ask, beside `hudControls` for who pressed it |
+| `hud_viewed` | a HUD page or the account menu opened, deduped per daemon (same page within 30s is one view). The Agent Log that the HUD opens by itself on page load is not a view | how often each page is used, and by whom (`accountState`, `client`); `hudPanelMs` says how long |
+| `hud_signin_prompted` | the HUD showed a sign-in / link ask, once per surface per daemon | the top of the signup funnel: who SAW an ask, beside `hudControls` for who pressed it |
 | `platform_linked` | a project on this machine was bound to a workspace (a new binding, not a re-run) | the OSS to platform join; see below |
 | `harness_run` | a Harness run started, and again when it ended | the Harness funnel by source; see below |
 

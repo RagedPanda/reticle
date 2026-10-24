@@ -715,7 +715,7 @@ await waitUntil(() => find('project_profiled').length > 0);
   reportHudUse({ panel: 'chat' }, 'tab-e2e');
   reportHudUse({ panel: 'harness' }, 'tab-e2e'); // within 30s: deduped
   reportHudUse({ prompt: 'rail' }, 'tab-e2e');
-  reportHudUse({ prompt: 'rail' }, 'tab-e2e'); // once per surface per tab
+  reportHudUse({ prompt: 'rail' }, 'tab-e2e-reload'); // once per surface per daemon, across a reload
   reportPlatformLinked({ via: 'hud', priorProjectId: undefined, projectId: 'p1', workspaceId: 'org_e2e' });
   await reportHarnessRun(
     { source: 'hud', hosted: true },
@@ -729,7 +729,7 @@ await waitUntil(() => find('project_profiled').length > 0);
   check('  dedupes the same page on the same tab within 30s', views.filter((e) => e.properties.hud_view === 'harness').length === 1, String(views.length));
   check('  carries the tab-count bucket', views.every((e) => e.properties.hud_tabs === '1'));
   const prompts = find('hud_signin_prompted');
-  check('hud_signin_prompted fires once per surface per tab', prompts.length === 1, String(prompts.length));
+  check('hud_signin_prompted fires once per surface per daemon', prompts.length === 1, String(prompts.length));
   check('  carries the surface', prompts[0]?.properties.hud_surface === 'rail');
   const linked = find('platform_linked')[0];
   check('platform_linked fires', linked !== undefined);
