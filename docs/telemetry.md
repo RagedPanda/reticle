@@ -33,7 +33,7 @@ Twenty-two kinds of events, each a single small JSON object. This is the whole l
 | `app_instrumented` | The first time your app's SDK connects in a given daemon run | Nothing beyond the common fields. It is the second half of the install funnel: registering the MCP server is one thing, getting the SDK into a running page is another |
 | `verification_completed` | A verification produces a verdict | Whether it passed, whether Reticle refused to call a passing check verified, and **why** the verdict came out that way; see below |
 | `project_profiled` | Once per daemon start | The shape of the project; see below |
-| `version_changed` | You update or roll back | The two version numbers, and which direction |
+| `version_changed` | Reticle starts on a version that differs from the last start on this machine, or you update or roll back | The two version numbers, which direction, and whether an agent had been told about the new version |
 | `runtime_crashed` | The daemon hits an uncaught error | The error's type, **Reticle's own** stack frames, and the message with variables stripped; see below |
 | `mcp_client_connected` | An agent attaches to the daemon | Whether it is a reconnect, and how long the daemon had been idle |
 | `mcp_connection_lost` | The agent's MCP tools go away | Which stage (`first`, or `budget_spent` when it stopped retrying), the cause, and the attempt count. **At most twice per session**, because a reconnect loop can fire many times in a row and an event each would bill for the pathology instead of measuring it |

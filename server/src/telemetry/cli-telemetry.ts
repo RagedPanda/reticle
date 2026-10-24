@@ -18,6 +18,9 @@ import { describeCliFlags } from './argument-shape.js';
 import { rememberInstallSource, resolveInstallSource } from './install-source.js';
 import { installPlatformLinkTelemetry } from './platform-linked.js';
 import { envAgentClient } from './agent-client.js';
+import { noteRunningVersion } from '@/command/update/version-seen.js';
+import { wasNudged } from '@/command/update/nudge-credit.js';
+import { SERVER_VERSION } from '@/command/version/identity/server-version.js';
 
 /**
  * Report that a person ran a `reticle` subcommand.
@@ -90,6 +93,25 @@ export function claimInstallReport(command: string, firstRun: boolean, stateDir:
   }
 }
 
+/**
+ * Send `version_changed` when this start runs a different version from the last start on this
+ * machine. Every start does this, the daemon too: an upgrade through `npx @reticlehq/server@latest`
+ * never runs `reticle update`, so the updater alone saw almost no version move.
+ */
+function reportVersionMove(): void {
+  const moved = noteRunningVersion(SERVER_VERSION, RETICLE_STATE_DIR);
+  if (moved === undefined) {
+    return;
+  }
+  void getTelemetry().emit(TelemetryEventKind.VERSION_CHANGED, {
+    detach: true,
+    versionChange: {
+      ...moved,
+      ...(wasNudged(moved.to, RETICLE_STATE_DIR) ? { nudged: true } : {}),
+    },
+  });
+}
+
 export function reportCliRun(argv: readonly string[]): void {
   const firstArg = argv[0];
   /*
@@ -109,6 +131,7 @@ export function reportCliRun(argv: readonly string[]): void {
   drainInstallTrace(RETICLE_STATE_DIR);
   // Before anything reads it: a channel declared on THIS command outlives it.
   rememberInstallSource(process.env, RETICLE_STATE_DIR);
+  reportVersionMove();
   if (firstArg === DAEMON_INNER_COMMAND) {
     return;
   }
