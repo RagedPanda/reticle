@@ -461,6 +461,8 @@ Four decisions are written into the shape, and each exists because the alternati
 
 `elapsedMs` absent means NOT MEASURED, never zero. A zero enters every average as a real duration and drags it toward a number nobody experienced.
 
+`flow_recorded` is reported once per daemon for each `status` and `reason`. A browser session ends at every page reload, so a report per session end repeated the same step without limit.
+
 `first_look`, `first_act`, and `driven` are reported after the tool handler returns. Refusals, paused calls, and actions explicitly reported as not dispatched do not complete them. A dispatched action whose asserted consequence fails still counts as an action; it does not become a successful verification.
 
 Historical builds omitted the deferred `init_completed` on the default runtime path and counted first looks/actions before their handlers ran. Segment by version when comparing conversion across this change; missing older completion events and older action milestones cannot be repaired from aggregates. Runtime init failures now use classified reasons (`dev_server`, `app_connection`, `bridge_occupied`, `runtime_error`); preflight refusals use `preflight`. Raw errors and project paths are not sent.

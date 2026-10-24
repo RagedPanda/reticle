@@ -2491,16 +2491,6 @@
       "count": 1
     }
   },
-  "src/memory/journal/session-end.test.ts": {
-    "curly": {
-      "count": 1
-    }
-  },
-  "src/memory/journal/session-end.ts": {
-    "curly": {
-      "count": 4
-    }
-  },
   "src/memory/journal/session-journal-cap.test.ts": {
     "curly": {
       "count": 7
