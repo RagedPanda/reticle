@@ -77,24 +77,16 @@ import { nativeWarn } from './timers/console/native-console.js';
 import { installRecorder, type RecorderHandle } from './recorder/recorder.js';
 import { Annotator } from './review/annotator.js';
 import type { Teardown } from './observers/types.js';
-import { helloMode, type ReticleConnectOptions } from './connect-options.js';
-export { helloMode } from './connect-options.js';
+import {
+  helloMode,
+  leaseToken,
+  shouldBlockProduction,
+  type ReticleConnectOptions,
+} from './connect-options.js';
+export { helloMode, shouldBlockProduction } from './connect-options.js';
 
 // Re-exported so every existing importer of the options type is unaffected by the file split.
 export type { ReticleConnectOptions };
-
-/**
- * Runtime backstop for the dev-only SDK: block connecting when the build reports production, unless
- * explicitly overridden. Pure so it's testable; connect reads NODE_ENV safely (process may be absent
- * in a raw browser). This is defense-in-depth - the primary guard is the consumer gating the import
- * behind `import.meta.env.DEV` so the SDK is dead-code-eliminated from prod bundles entirely.
- */
-export function shouldBlockProduction(
-  nodeEnv: string | undefined,
-  allowInProduction: boolean,
-): boolean {
-  return 'production' === nodeEnv && !allowInProduction;
-}
 
 /**
  * The daemon only upgrades WebSocket connections on `RETICLE_WS_PATH`, so a hand-written bridge URL
@@ -354,6 +346,12 @@ export class Reticle {
 
   connect(options: ReticleConnectOptions = {}): void {
     if (this.#connected) {
+      // A lease replaces a token the bridge may have refused, and dials again. See `leaseToken`.
+      const leased = leaseToken(options, this.#token);
+      if (leased !== undefined) {
+        this.#token = leased;
+        this.#transport?.redialAfterRefusal();
+      }
       this.#adoptLateProjectId(options);
       return;
     }
