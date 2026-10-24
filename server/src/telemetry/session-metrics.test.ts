@@ -855,3 +855,34 @@ describe('the page SDK version on the session summary', () => {
     expect('sdkVersion' in m.summarize(false)).toBe(false);
   });
 });
+
+/**
+ * An agent that calls tools against a daemon with no app sends no verdict and often no refusal.
+ * The session rows had no field for that work, so this churn had no shape in the data.
+ */
+describe('tool calls before the first app connected', () => {
+  it('counts the calls that came before any app', () => {
+    const m = new SessionMetrics(clock());
+    m.recordToolCall('reticle_session');
+    m.recordToolCall('reticle_look');
+    m.recordAppConnected('3.8.0');
+    m.recordToolCall('reticle_act');
+    expect(m.summarize(false).toolCallsBeforeApp).toBe(2);
+  });
+
+  it('keeps the count across a flush, like appConnects', () => {
+    const m = new SessionMetrics(clock());
+    m.recordToolCall('reticle_session');
+    m.summarize(false);
+    m.reset();
+    m.recordToolCall('reticle_session');
+    expect(m.summarize(true).toolCallsBeforeApp).toBe(2);
+  });
+
+  it('is absent when no call came before the app', () => {
+    const m = new SessionMetrics(clock());
+    m.recordAppConnected();
+    m.recordToolCall('reticle_act');
+    expect('toolCallsBeforeApp' in m.summarize(false)).toBe(false);
+  });
+});

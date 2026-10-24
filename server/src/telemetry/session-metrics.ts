@@ -173,6 +173,11 @@ export class SessionMetrics {
    */
   #appConnects = 0;
   #firstAppAt: number | undefined;
+  /**
+   * Tool calls before the first app connected, session-lifetime like `#appConnects`. An agent that
+   * works against a daemon with no app sends no verdict and often no refusal; this gives it a shape.
+   */
+  #toolCallsBeforeApp = 0;
   /** The SDK version of the last page that connected, session-lifetime like `#appConnects`. */
   #sdkVersion: string | undefined;
   readonly #clients = new Set<string>();
@@ -286,6 +291,9 @@ export class SessionMetrics {
     }
     this.#toolCalls += 1;
     this.#lifetimeToolCalls += 1;
+    if (this.#firstAppAt === undefined) {
+      this.#toolCallsBeforeApp += 1;
+    }
     bump(this.#toolCounts, tool);
     this.#inFlight = tool;
     this.#breadcrumb.push(tool);
@@ -614,6 +622,7 @@ export class SessionMetrics {
         ? {}
         : { msToFirstApp: Math.max(0, this.#firstAppAt - this.#startedAt) }),
       ...(this.#sdkVersion === undefined ? {} : { sdkVersion: this.#sdkVersion }),
+      ...(this.#toolCallsBeforeApp > 0 ? { toolCallsBeforeApp: this.#toolCallsBeforeApp } : {}),
       ...this.#hud.summarize(),
       final,
       // Only on a real exit. A periodic flush carrying `exit: "unknown"` would read as a daemon that

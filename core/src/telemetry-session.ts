@@ -327,6 +327,12 @@ export const SessionSummarySchema = z.object({
    */
   sdkVersion: z.string().min(1).max(32).optional(),
   /**
+   * Tool calls made before the first app connected. Session lifetime, like `appConnects`: read the
+   * last row, never sum. Absent when there were none. With `appConnects: 0`, it is an agent that
+   * worked against a daemon with no app, which sends no verdict and often no refusal.
+   */
+  toolCallsBeforeApp: z.number().int().nonnegative().optional(),
+  /**
    * What state the AGENT's work was in when the session ended. Absent on a periodic flush.
    *
    * Distinct from `exit`, which says why the PROCESS ended. A daemon can exit tidily on idle while
