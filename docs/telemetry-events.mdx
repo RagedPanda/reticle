@@ -80,7 +80,7 @@ Fires on the first ever run on a machine. Carries `installSource`.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `installSource` | `InstallSource`, optional | Which published route brought this install in: `skill_file`, `npx_skill`, `plugin`, `install_script`, `docs_site`, `readme`, `cli_direct`, `unknown` |
+| `installSource` | `InstallSource`, optional | Which published route brought this install in: `skill_file`, `npx_skill`, `plugin`, `install_script`, `docs_site`, `readme`, `blog`, `cli_direct`, `unknown` |
 
 `installSource` is **declared, never detected**. A channel sets `RETICLE_INSTALL_SOURCE` on the process that runs the install and anything unrecognised reports `unknown`, so `unknown` is expected to be the largest bucket while the marker spreads across four separately published artifacts. Read a small `unknown` as a marker that spread, never as success. Nothing infers it: `npm_config_user_agent` only says npx ran us and every route goes through npx; the presence of a plugin directory or a skill folder says a route exists rather than that it ran the install. `installSource` is **not** limited to this event. It is resolved once per process (`server/src/telemetry/telemetry.ts:455`) and stamped on every event that process sends (`:519`), so any chart can group by it. It is also sourced **config first, then environment**: `projectInstallSource()` prefers the value recorded in `.reticle.json`, because the environment variable exists for exactly one command and is gone by the next, which is why the field originally reached a handful of events and nothing else.
 

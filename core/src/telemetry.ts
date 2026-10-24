@@ -665,6 +665,8 @@ export const InstallSource = {
   DOCS_SITE: 'docs_site',
   /** The repository README's install snippet. */
   README: 'readme',
+  /** reticle.sh/blog, whose posts' install snippets carry the marker. */
+  BLOG: 'blog',
   /** Somebody typed the command with no channel in front of it. Only ever self-declared. */
   CLI_DIRECT: 'cli_direct',
   /** No marker, or one this list does not name. The honest answer, and expected to dominate. */

@@ -301,7 +301,7 @@ Nothing infers. Three things look like signals and are not: `npm_config_user_age
 
 `install_script` is the one-line installer (`install.sh` / `install.ps1`), which exports the marker for every `reticle` it runs. A declared marker is remembered machine-wide in `~/.reticle/install-source` the first time a command sees one (write-once: the first channel keeps the credit), and read after the project config and the environment, so the agent's `reticle mcp` a minute later still carries it.
 
-So `plugin` is the only route detectable without anybody typing anything (the plugin registers the MCP server and sets the marker in its `env`). `skill_file`, `npx_skill`, `docs_site` and `readme` are detectable only where that channel's own published copy of the install command carries the marker, and each of those is a separately published artifact. `cli_direct` is not detectable at all.
+So `plugin` is the only route detectable without anybody typing anything (the plugin registers the MCP server and sets the marker in its `env`). `skill_file`, `npx_skill`, `docs_site`, `readme` and `blog` are detectable only where that channel's own published copy of the install command carries the marker, and each of those is a separately published artifact. `cli_direct` is not detectable at all.
 
 **`unknown` is therefore expected to be the largest bucket, and shrinking it is a distribution job rather than a classifier job.** Read a small `unknown` as a marker that spread. A guessed attribution would be worse than none: it is the number distribution decisions get steered on, and once a guess sits in the same column as a measurement the two cannot be told apart.
 
