@@ -185,13 +185,14 @@ describe('a package.json with no UI library', () => {
     expect(again.written['.gitignore']).toBeUndefined();
   });
 
-  it('keeps the manual recipe when no index.html exists and writes no static token files', () => {
+  it('keeps the manual recipe when no index.html exists, with the token in its module only', () => {
     const io = memoryIo({ 'package.json': files['package.json'], 'about.html': PAGE });
     expect(runInit(OPTS, io).ok).toBe(false);
     expect(io.lines.join('\n')).toContain('reticle.connect(');
+    expect(io.lines.join('\n')).not.toContain(TEST_PAIRING_TOKEN);
     expect(io.written['index.html']).toBeUndefined();
-    expect(io.written[STATIC_TOKEN_MODULE]).toBeUndefined();
-    expect(io.written['.gitignore']).toBeUndefined();
+    expect(io.written[STATIC_TOKEN_MODULE]).toContain(TEST_PAIRING_TOKEN);
+    expect(io.written['.gitignore']).toContain(STATIC_TOKEN_MODULE);
   });
 
   it('does not write files or mint a pairing token during a dry run', () => {

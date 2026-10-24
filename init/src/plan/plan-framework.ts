@@ -745,6 +745,19 @@ export function astroSteps(input: PlanInput): Step[] {
   ];
 }
 
+/** Write the gitignored module that holds this machine's pairing token, and its ignore line. */
+function staticTokenSteps(input: PlanInput): Step[] {
+  return Object.entries(
+    staticTokenFiles(input.pairingToken, (path) => input.htmlLocalSources?.[path] ?? null),
+  ).map(([path, content]) => ({
+    title: StepTitle.STATIC_PAIRING_TOKEN,
+    target: path,
+    status: StepStatus.APPLY,
+    detail: STATIC_GITIGNORE_PATH === path ? STATIC_IGNORE_DETAIL : STATIC_TOKEN_DETAIL,
+    write: { path, content },
+  }));
+}
+
 /**
  * The plain-HTML path: write the static connect when the page exists, otherwise print the recipe.
  *
@@ -757,15 +770,7 @@ export function htmlSteps(input: PlanInput): Step[] {
   if (null !== index) {
     // The page is publishable; the pairing token belongs in its gitignored sibling module instead.
     // Refresh that module even when the connect block itself is already in place.
-    const steps: Step[] = Object.entries(
-      staticTokenFiles(input.pairingToken, (path) => input.htmlLocalSources?.[path] ?? null),
-    ).map(([path, content]) => ({
-      title: StepTitle.STATIC_PAIRING_TOKEN,
-      target: path,
-      status: StepStatus.APPLY,
-      detail: STATIC_GITIGNORE_PATH === path ? STATIC_IGNORE_DETAIL : STATIC_TOKEN_DETAIL,
-      write: { path, content },
-    }));
+    const steps = staticTokenSteps(input);
     const written = withStaticSnippet(
       index,
       connectArg(input.options.port, input.options.projectId),
@@ -793,6 +798,8 @@ export function htmlSteps(input: PlanInput): Step[] {
     ];
   }
   return [
+    // The manual snippet imports the token from this module rather than printing it.
+    ...staticTokenSteps(input),
     {
       title: StepTitle.CONNECT_SNIPPET,
       target: HTML_INDEX_PATH,

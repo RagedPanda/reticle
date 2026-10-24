@@ -130,7 +130,7 @@
       "count": 8
     },
     "no-nested-ternary": {
-      "count": 3
+      "count": 2
     }
   },
   "src/node-io.ts": {
@@ -225,7 +225,7 @@
   },
   "src/patch/snippets.ts": {
     "curly": {
-      "count": 7
+      "count": 6
     },
     "no-nested-ternary": {
       "count": 2
