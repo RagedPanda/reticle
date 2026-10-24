@@ -2548,7 +2548,7 @@
   },
   "src/memory/project/artifact-root.ts": {
     "curly": {
-      "count": 9
+      "count": 8
     }
   },
   "src/memory/project/artifact-roots-complete.test.ts": {
