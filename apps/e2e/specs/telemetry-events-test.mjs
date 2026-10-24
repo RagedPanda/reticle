@@ -837,7 +837,7 @@ await waitUntil(() => find('project_profiled').length > 0);
 
 // ── 12. The first session call in an unwired project offers a step, and writes nothing ──
 {
-  const { readdirSync, statSync } = await import('node:fs');
+  const { existsSync, readdirSync, statSync } = await import('node:fs');
   const unwired = mkdtempSync(join(tmpdir(), 'reticle-unwired-'));
   writeFileSync(join(unwired, 'package.json'), JSON.stringify({ scripts: { dev: 'vite' }, dependencies: { react: '^18.3.1', vite: '^5.4.0' } }));
   writeFileSync(join(unwired, 'index.html'), '<div id="root"></div>');
@@ -852,8 +852,9 @@ await waitUntil(() => find('project_profiled').length > 0);
       noSessionNextAction: () => ({ action: 'open_app', port: 5173, reason: 'an app is up and not wired' }),
     },
     firstRun: firstRunWiring(),
-    // The daemon's own project is the spec's root; the agent calls from the unwired one.
-    reticleRoot: join(root, '.reticle'),
+    // The proxy starts the daemon in the agent's own folder, so the daemon is rooted IN the
+    // unwired project. That is the case where a write lands in the project.
+    reticleRoot: join(unwired, '.reticle'),
   };
   const answer = await runWithClientDirectory(unwired, () => runTool(sessionTool, emptyDeps, { action: 'list' }));
   await settle(() => find('onboarding_step').some((e) => e.properties.onboarding_step === 'next_step_offered'));
@@ -865,6 +866,7 @@ await waitUntil(() => find('project_profiled').length > 0);
   const { impactStore } = await import(`${DIST}/memory/impact/impact-recorder.js`);
   impactStore(emptyDeps.reticleRoot)?.flush();
   check('  and NO file was written in the project', tree() === before, tree());
+  check('  and the project has no .reticle directory', !existsSync(emptyDeps.reticleRoot));
   removeScratch(unwired);
 }
 

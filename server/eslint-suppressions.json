@@ -2301,11 +2301,6 @@
       "count": 6
     }
   },
-  "src/memory/impact/impact-store.ts": {
-    "curly": {
-      "count": 13
-    }
-  },
   "src/memory/intent/inline-intent.test.ts": {
     "curly": {
       "count": 1
@@ -2514,11 +2509,6 @@
   "src/memory/project/artifact-root-resolver.test.ts": {
     "curly": {
       "count": 3
-    }
-  },
-  "src/memory/project/artifact-root-resolver.ts": {
-    "curly": {
-      "count": 5
     }
   },
   "src/memory/project/artifact-root.ts": {
