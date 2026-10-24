@@ -160,7 +160,7 @@ A journey in one call: `reticle_act { steps: [{ target, action, args?, expect? }
 
 **The Harness** drives the app for you on the Reticle platform, saves what it drove as flows, and answers in a few lines. It spends credits (`reticle connect` signs in and grants free ones): `reticle_verify { action: "explore", persona: "a returning customer checking out" }`. Poll `{ runId }` when it answers `running`; never start a second.
 
-**Instrumentation** raises what a verdict can see; `reticle doctor` and the HUD score it with a fix per gap: keep the build plugin `init` added (`file:line`), put `data-testid` on every control a flow uses, `registerStore(name, store)` from `@reticlehq/browser`, and `reticle.signal("order:placed", { id })` once each user-visible outcome commits.
+**Instrumentation** raises what a verdict can see; `reticle doctor` and the HUD score it with a fix per gap: keep the build plugin `init` added (`file:line`), put `data-testid` on every control a flow uses, `registerStore(name, store)` from `@reticlehq/browser`, and `reticle.signal("order:placed", { id })` once each user-visible outcome commits. Every check and the Harness work at any score, so never wait for instrumentation. Tell the user once that it makes verdicts more accurate, and offer to add it.
 
 ## When it goes wrong
 
