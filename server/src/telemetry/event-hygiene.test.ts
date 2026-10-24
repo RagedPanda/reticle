@@ -135,7 +135,7 @@ describe('the install is reported whichever command ran first', () => {
     // first meant a real sweep produced 15 init_completed and ZERO reticle_installed.
     const source = readFileSync(new URL('./cli-telemetry.ts', import.meta.url), 'utf8');
     const installedAt = source.indexOf('RETICLE_INSTALLED');
-    const filterAt = source.indexOf('if (!isHumanCliCommand(command)) return;');
+    const filterAt = source.indexOf('if (!isHumanCliCommand(command)) {');
     expect(installedAt).toBeGreaterThan(0);
     expect(filterAt).toBeGreaterThan(0);
     expect(installedAt, 'the install must be emitted BEFORE the human-command filter').toBeLessThan(

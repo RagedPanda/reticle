@@ -5,9 +5,10 @@
  * next to the explanation of why it exists rather than buried in a startup function.
  */
 import { TelemetryActor, TelemetryEventKind } from '@reticlehq/core/telemetry';
-import { DAEMON_INNER_COMMAND, knownCommand } from '@/command/cli/cli-parse.js';
+import { DAEMON_INNER_COMMAND, PROBE_COMMANDS, knownCommand } from '@/command/cli/cli-parse.js';
 import { getTelemetry } from './telemetry.js';
 import { drainInstallTrace } from './install-trace.js';
+import { mkdirSync, unlinkSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 
@@ -53,6 +54,42 @@ export function cliActorOf(env: NodeJS.ProcessEnv): TelemetryActor {
   return envAgentClient(env) === undefined ? TelemetryActor.HUMAN : TelemetryActor.AGENT;
 }
 
+/** Set by a probe on a new machine: the install is not reported yet. */
+const INSTALL_PENDING_FILE = 'install-pending';
+
+/**
+ * True when this command reports `reticle_installed`. Exported for its test.
+ *
+ * A probe (`--version`, `--help`, `telemetry`) on a new machine does not report the install. It
+ * leaves a pending file, and the first real command after it claims the report by deleting that
+ * file. So the report reads the install source that the machine state holds by then, and a probe
+ * with no marker cannot make it `unknown`. A machine with no pending file and no first run has
+ * reported its install already.
+ */
+export function claimInstallReport(command: string, firstRun: boolean, stateDir: string): boolean {
+  const pending = join(stateDir, INSTALL_PENDING_FILE);
+  if (PROBE_COMMANDS.has(command)) {
+    if (firstRun) {
+      try {
+        mkdirSync(stateDir, { recursive: true });
+        writeFileSync(pending, '');
+      } catch {
+        /* an unwritable home: the install is not reported, as with an ephemeral id */
+      }
+    }
+    return false;
+  }
+  if (firstRun) {
+    return true;
+  }
+  try {
+    unlinkSync(pending);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function reportCliRun(argv: readonly string[]): void {
   const firstArg = argv[0];
   /*
@@ -72,21 +109,26 @@ export function reportCliRun(argv: readonly string[]): void {
   drainInstallTrace(RETICLE_STATE_DIR);
   // Before anything reads it: a channel declared on THIS command outlives it.
   rememberInstallSource(process.env, RETICLE_STATE_DIR);
-  if (firstArg === DAEMON_INNER_COMMAND) return;
+  if (firstArg === DAEMON_INNER_COMMAND) {
+    return;
+  }
   const command = knownCommand(firstArg);
   const telemetry = getTelemetry();
-  // FIRST — before the human-command filter. The install happened whichever command ran, and on most
-  // machines the very first contact is the agent spawning `reticle mcp`, which that filter excludes.
+  // FIRST — before the human-command filter. The install happened whichever real command ran, and on
+  // most machines the very first contact is the agent spawning `reticle mcp`, which that filter excludes.
   // Behind the filter this event never fires at all on an install that only ever runs `reticle mcp`.
   // `detach` so a quick command (`version`/`gate`) exits immediately instead of waiting out the POST.
-  if (telemetry.firstRun)
+  if (claimInstallReport(command, telemetry.firstRun, RETICLE_STATE_DIR)) {
     void telemetry.emit(TelemetryEventKind.RETICLE_INSTALLED, {
       detach: true,
       // WHICH published route brought this machine in. Self-declared by the channel, never inferred
       // — see install-source.ts for which of the four routes can actually carry the marker.
       installSource: resolveInstallSource(process.env, RETICLE_STATE_DIR),
     });
-  if (!isHumanCliCommand(command)) return;
+  }
+  if (!isHumanCliCommand(command)) {
+    return;
+  }
   void telemetry.emit(TelemetryEventKind.CLI_COMMAND_RUN, {
     detach: true,
     // The agent's transport (`mcp`) is excluded above, but an agent also runs commands through a

@@ -4485,11 +4485,6 @@
       "count": 10
     }
   },
-  "src/telemetry/cli-telemetry.ts": {
-    "curly": {
-      "count": 3
-    }
-  },
   "src/telemetry/connect-failure.ts": {
     "curly": {
       "count": 1
