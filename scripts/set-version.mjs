@@ -82,7 +82,7 @@ const RULES = [
   },
   {
     what: 'plugin + marketplace manifests',
-    files: () => ['plugin/.claude-plugin/plugin.json', '.claude-plugin/marketplace.json'],
+    files: () => ['plugins/reticle/.claude-plugin/plugin.json', '.claude-plugin/marketplace.json'],
     // The directory refuses an unpinned npx, so the MCP command carries the release version too.
     edit: (text, from, to) =>
       text
@@ -105,7 +105,7 @@ const RULES = [
   {
     what: 'SKILL.md frontmatter',
     // docs/skill.md is the published copy of the skill and declares the version too.
-    files: () => tracked('plugin/SKILL.md', 'skills/*/SKILL.md', 'docs/skill.md'),
+    files: () => tracked('plugins/*/SKILL.md', 'skills/*/SKILL.md', 'docs/skill.md'),
     edit: (text, from, to) => text.replace(`version: ${from}`, `version: ${to}`),
   },
   {

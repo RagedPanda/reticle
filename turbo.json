@@ -65,7 +65,7 @@
         "$TURBO_ROOT$/docs/**",
         "$TURBO_ROOT$/skills/**",
         "$TURBO_ROOT$/.claude-plugin/**",
-        "$TURBO_ROOT$/plugin/**",
+        "$TURBO_ROOT$/plugins/**",
         "$TURBO_ROOT$/.github/**",
         "$TURBO_ROOT$/package.json",
         "$TURBO_ROOT$/test/**",
@@ -84,7 +84,7 @@
         "$TURBO_ROOT$/skills/**",
         "$TURBO_ROOT$/docs/**",
         "$TURBO_ROOT$/.claude-plugin/**",
-        "$TURBO_ROOT$/plugin/**"
+        "$TURBO_ROOT$/plugins/**"
       ]
     },
     "@reticlehq/server#test:unit": {
