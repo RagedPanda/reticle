@@ -35,6 +35,7 @@
     "bench:gate": "node bench/harness/gate.mjs",
     "bench:dashboard": "node bench/dashboard.mjs",
     "bench:intent-effect": "node bench/harness/intent-effect.mjs",
+    "bench:parallel": "node bench/harness/parallel-agents.mjs",
     "publish:dry-run": "pnpm build && pnpm -r publish --access public --no-git-checks --dry-run",
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "docs:api": "typedoc",
