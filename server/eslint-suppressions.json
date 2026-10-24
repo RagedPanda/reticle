@@ -813,7 +813,7 @@
   },
   "src/command/version/version-skew.ts": {
     "curly": {
-      "count": 11
+      "count": 10
     }
   },
   "src/config-search-depth.test.ts": {

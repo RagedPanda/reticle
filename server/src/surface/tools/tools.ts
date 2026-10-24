@@ -117,6 +117,13 @@ export const RAW_TOOLS: ToolDef[] = withCompactEnvelope([
               .describe(
                 "Present only when this page's SDK version differs from the daemon's. A skewed pair connects and then disagrees about tool behaviour — usually surfacing as a bare -32000. Fix it before trusting any verdict from this session.",
               ),
+            sdkVersion: z.string().optional().describe("The page's SDK version, when it said."),
+            sdkBehind: z
+              .string()
+              .optional()
+              .describe(
+                'Present only when the page SDK is a minor release or more behind the daemon. The page connects, but newer commands and fixes are not in it. Says how to update it.',
+              ),
             window: z.string().optional().describe('Desktop window label (Tauri: main, setup…).'),
             documentStatus: z
               .number()

@@ -570,6 +570,8 @@ const REACHES_FOR: Record<string, readonly string[]> = {
     // by the next push the drive's own tool calls make.
     'harness',
     'human',
+    // The listing and each verdict compare the page SDK with this daemon's own version.
+    'identity',
     'impact',
     'input',
     'journal',

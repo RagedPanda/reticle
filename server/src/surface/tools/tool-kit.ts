@@ -298,6 +298,8 @@ export const EnvelopeKey = {
   TALK_TO_US: 'talk_to_us',
   /** SDK/daemon version skew — often the one fact that explains everything else in the session. */
   VERSION_SKEW: 'version_skew',
+  /** On each verdict from a page whose SDK is behind the daemon. See session-info.ts. */
+  SDK_BEHIND: 'sdk_behind',
   /** A feedback report that was accepted and then failed to send. Only the reporter can act on it. */
   FEEDBACK_UNDELIVERED: 'feedback_undelivered',
   /** Once per project: verified runs exist only on this machine. See platform-moment.ts. */

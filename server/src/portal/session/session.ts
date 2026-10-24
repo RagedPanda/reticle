@@ -299,6 +299,7 @@ export class Session implements HandshakeFacts {
       hasCapabilities: this.hasCapabilities,
       runtime: this.#runtime,
       versionSkew: this.versionSkew,
+      sdkVersion: this.sdkVersion,
       hidden: this.#hidden,
       page: this.page,
       health: () => this.health(),

@@ -1,5 +1,6 @@
 import { takeCallSecrets, withCallSecrets } from './tool-kit.js';
 import { healthEnvelope } from '@/portal/session/session-health.js';
+import { sdkBehindNote } from '@/portal/session/session-info.js';
 import { logToolCall, toolLogPath } from '@/hooks/tool-log.js';
 import { nextStep } from './next-step.js';
 import { currentDrivenBy } from '@/hooks/driven-by.js';
@@ -884,6 +885,10 @@ async function dispatchTool<Ext>(
   // stub", never as a crash on the whole tool surface.
   if (true === deps.pool?.stubInstalled?.(resolved.id)) {
     envelope[EnvelopeKey.HOST_STUB] = HOST_STUB_NOTE;
+  }
+  const behind = sdkBehindNote(resolved);
+  if (behind !== undefined && 'verified' in result) {
+    envelope[EnvelopeKey.SDK_BEHIND] = behind;
   }
   // The health block is idempotent: add it only when the handler didn't already include a `session`.
   if (!('session' in result)) Object.assign(envelope, healthEnvelope(resolved));

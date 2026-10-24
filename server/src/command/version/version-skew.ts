@@ -210,6 +210,16 @@ export function compareVersions(a: string | undefined, b: string): number | unde
   return 0;
 }
 
+/** True when the page SDK is a minor release or more behind the daemon. A patch is not behind. */
+export function sdkIsBehind(sdk: string | undefined, daemon: string): boolean {
+  const minorOf = (v: string): string => v.split('-')[0]?.split('.').slice(0, 2).join('.') ?? v;
+  if (sdk === undefined) {
+    return false;
+  }
+  const order = compareVersions(minorOf(sdk), minorOf(daemon));
+  return order !== undefined && order < 0;
+}
+
 /** The same fact for the person looking at the page, on its overlay. */
 export const SDK_BEHIND_NARRATION = (sdk: string, daemon: string): string =>
   `This app runs Reticle SDK ${sdk}, older than Reticle ${daemon}. Run \`reticle update\` in the ` +
@@ -230,10 +240,7 @@ export function describeSdkBehind(
   daemon: string,
   fix: () => string,
 ): string | undefined {
-  const minorOf = (v: string): string => v.split('-')[0]?.split('.').slice(0, 2).join('.') ?? v;
-  if (sdk === undefined) return undefined;
-  const order = compareVersions(minorOf(sdk), minorOf(daemon));
-  if (order === undefined || order >= 0) return undefined;
+  if (sdk === undefined || !sdkIsBehind(sdk, daemon)) return undefined;
   return (
     `This page runs Reticle SDK ${sdk}, older than Reticle ${daemon}. It connects and verifies, ` +
     `but everything added since is missing from the page, the overlay's newer controls included. ` +
