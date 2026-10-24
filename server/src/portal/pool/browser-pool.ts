@@ -13,11 +13,7 @@
 import { unreachableUrlIn, type SeedStorage } from '@reticlehq/core';
 import { seedStorageInto, targetOriginOf } from './storage-seed.js';
 import { installLeaseMarker, leaseMarkerOf } from './lease-marker-stamp.js';
-import {
-  grantLeasePermissions,
-  NOTIFICATION_PERMISSION_READ,
-  NOTIFICATION_READ_TIMEOUT_MS,
-} from './context-permissions.js';
+import { grantLeasePermissions, readNotificationPermission } from './context-permissions.js';
 import type {
   InitScriptHandle,
   Launcher,
@@ -28,7 +24,7 @@ import type {
   ScreenshotOptions,
 } from './pool-contract.js';
 import type { RealInputArgs, RealInputResult } from '@/portal/input/real-input.js';
-import type { LeaseEmulation, LeaseMedia } from './lease-emulation.js';
+import { readViewport, type LeaseEmulation, type LeaseMedia } from './lease-emulation.js';
 import { NotHtmlDocumentError, READER_NOT_HTML } from './zero-install.js';
 export type {
   InitScriptHandle,
@@ -177,9 +173,6 @@ interface ActiveLease {
   /** Whether its context accepts any TLS certificate (#1255). Fixed when the context is made. */
   ignoresHTTPSErrors: boolean;
 }
-
-/** The page's own layout viewport, read back after a resize. */
-const VIEWPORT_READ_SCRIPT = '[window.innerWidth, window.innerHeight]';
 
 /**
  * Owns a headless browser (and, when asked, a headed one) and leases isolated contexts out of them,
@@ -517,18 +510,7 @@ export class BrowserPool {
   /** The size a leased page reports for itself, or undefined when it cannot be read. */
   async viewportOfLease(sessionId: string): Promise<{ width: number; height: number } | undefined> {
     const lease = this.#active.get(this.#leaseIdOf(sessionId));
-    if (lease?.page.evaluate === undefined) {
-      return undefined;
-    }
-    try {
-      const size = await lease.page.evaluate(VIEWPORT_READ_SCRIPT);
-      const [width, height] = Array.isArray(size) ? (size as unknown[]) : [];
-      return 'number' === typeof width && 'number' === typeof height
-        ? { width, height }
-        : undefined;
-    } catch {
-      return undefined;
-    }
+    return lease === undefined ? undefined : readViewport(lease.page);
   }
 
   async setMocksLease(sessionId: string, rules: readonly PooledMockRule[]): Promise<boolean> {
@@ -590,19 +572,7 @@ export class BrowserPool {
    */
   async notificationPermission(sessionId: string): Promise<string | undefined> {
     const lease = this.#active.get(this.#leaseIdOf(sessionId));
-    if (lease === undefined || lease.page.evaluate === undefined) return undefined;
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    const gaveUp = new Promise<undefined>((resolve) => {
-      timer = setTimeout(() => resolve(undefined), NOTIFICATION_READ_TIMEOUT_MS);
-    });
-    try {
-      const value = await Promise.race([lease.page.evaluate(NOTIFICATION_PERMISSION_READ), gaveUp]);
-      return 'string' === typeof value ? value : undefined;
-    } catch {
-      return undefined;
-    } finally {
-      clearTimeout(timer);
-    }
+    return lease === undefined ? undefined : readNotificationPermission(lease.page);
   }
 
   async sweepExpired(): Promise<string[]> {

@@ -116,7 +116,8 @@ export type { RecommendationInputs } from './portal/session/presence/session-rec
 export { TOOLS } from './surface/tools/tools.js';
 export type { ToolDeps, ToolDef } from './surface/tools/tools.js';
 export { createToolInvoker, UNKNOWN_TOOL_ERROR } from './surface/tools/tool-invoker.js';
-export { runTool, SESSION_BOUND_TOOLS, SESSION_EXEMPT_TOOLS } from './surface/tools/invoke-tool.js';
+export { runTool } from './surface/tools/invoke-tool.js';
+export { SESSION_BOUND_TOOLS, SESSION_EXEMPT_TOOLS } from './surface/tools/tool-kit.js';
 export type { ToolInvoker } from './surface/tools/tool-invoker.js';
 
 /**

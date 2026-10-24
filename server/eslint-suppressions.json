@@ -2869,7 +2869,7 @@
   },
   "src/portal/pool/browser-pool.ts": {
     "curly": {
-      "count": 55
+      "count": 54
     }
   },
   "src/portal/pool/context-permissions.ts": {

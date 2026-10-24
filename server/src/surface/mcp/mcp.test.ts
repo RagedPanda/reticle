@@ -11,7 +11,7 @@ import {
 } from './mcp.js';
 import { TOOL_SURFACE } from '@/surface/tools/tool-surface.js';
 import { TOOLS, type ToolDeps } from '@/surface/tools/tools.js';
-import { SESSION_BOUND_TOOLS } from '@/surface/tools/invoke-tool.js';
+import { SESSION_BOUND_TOOLS } from '@/surface/tools/tool-kit.js';
 import { ReticleTool } from '@reticlehq/core';
 import { getSessionMetrics, resetSessionMetrics } from '@/telemetry/session-metrics.js';
 

@@ -37,11 +37,11 @@ const SERVER_SRC = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 /** Each behavioural set, and the file that owns it. */
 const ALLOWLISTS: ReadonlyArray<{ readonly name: string; readonly file: string }> = [
-  { name: 'ACTION_TOOLS', file: 'tools/invoke-tool.ts' },
-  { name: 'CDP_TOOLS', file: 'tools/invoke-tool.ts' },
-  { name: 'REF_MINTING_TOOLS', file: 'tools/invoke-tool.ts' },
-  { name: 'SESSION_BOUND_TOOLS', file: 'tools/invoke-tool.ts' },
-  { name: 'SESSION_EXEMPT_TOOLS', file: 'tools/invoke-tool.ts' },
+  { name: 'ACTION_TOOLS', file: 'tools/tool-kit.ts' },
+  { name: 'CDP_TOOLS', file: 'tools/tool-kit.ts' },
+  { name: 'REF_MINTING_TOOLS', file: 'tools/tool-kit.ts' },
+  { name: 'SESSION_BOUND_TOOLS', file: 'tools/tool-kit.ts' },
+  { name: 'SESSION_EXEMPT_TOOLS', file: 'tools/tool-kit.ts' },
   { name: 'VERDICT_TOOLS', file: 'tools/feedback-tools.ts' },
   { name: 'CORE_TOOL_NAMES', file: 'tools/tool-surface.ts' },
   { name: 'EXTENDED_TOOL_NAMES', file: 'tools/tool-surface.ts' },
