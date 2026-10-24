@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { FEEDBACK_HINT } from './diagnose/closing-hint.js';
+import { COMMUNITY_HINT, FEEDBACK_HINT } from './diagnose/closing-hint.js';
 import { SILENT_HOST } from './host.js';
 import { runInit, resolveLockfiles, type InitIo, type InitOptions } from './run.js';
 import { codexAvailableProbe } from './register/mcp.js';
@@ -588,6 +588,20 @@ describe('runInit', () => {
     const noPkg = memoryIo({});
     runInit(OPTS, noPkg);
     expect(noPkg.lines.join('\n')).toContain(FEEDBACK_HINT);
+  });
+
+  it('ends a successful run with the community line, and only a successful run', () => {
+    const ok = memoryIo(VITE_FILES);
+    runInit(OPTS, ok);
+    expect(ok.lines.at(-1)).toBe(COMMUNITY_HINT);
+
+    const dry = memoryIo(VITE_FILES);
+    runInit({ ...OPTS, dryRun: true }, dry);
+    expect(dry.lines).not.toContain(COMMUNITY_HINT);
+
+    const noPkg = memoryIo({});
+    runInit(OPTS, noPkg);
+    expect(noPkg.lines).not.toContain(COMMUNITY_HINT);
   });
 
   // When the runtime follows (dev server, browser, connect), asking here put the request for

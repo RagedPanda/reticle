@@ -25,6 +25,12 @@ export const FEEDBACK_HINT =
   `  ${CLI} feedback --agent --kind <bug|gap|ambiguity|feature_request|improvement> "what happened"   (agents)\n` +
   `  ${CLI} feedback "what worked, what didn't"   (humans)`;
 
+/**
+ * The last line of a successful `init`, after the ask: where the user can tell the maintainers what
+ * they build. Only on success: on a failure, the ask above is the thing to do.
+ */
+export const COMMUNITY_HINT = 'Tell us what you are building: https://discord.gg/BwAbzv9ZRz';
+
 /** User-facing closing copy for `restartHint` — one named home per sentence block. */
 const RestartHintCopy = {
   DEMO:
