@@ -403,13 +403,14 @@ function withStateDirDiagnostic(reason: string): string {
 }
 
 export function startMcpProxy(
-  port: number,
+  bootPort: number,
   /**
    * Bring a daemon back before reconnecting. Without it the proxy retried a DEAD port until the
    * budget ran out and then killed itself, taking the agent's whole Reticle surface with it — the
-   * failure mode for a daemon that crashed, was stopped, or shut itself down as idle.
+   * failure mode for a daemon that crashed, was stopped, or shut itself down as idle. A returned
+   * port is where the daemon now is; the proxy dials it from then on.
    */
-  ensureDaemon?: () => Promise<void>,
+  ensureDaemon?: () => Promise<number | void>,
   /** Observe the real shutdown boundary in transport tests without terminating their worker. */
   exitProcess: (code: number) => void = (code) => process.exit(code),
   /**
@@ -422,6 +423,7 @@ export function startMcpProxy(
    */
   onUsableSession: () => void = () => undefined,
 ): Promise<never> {
+  let port = bootPort;
   return new Promise<never>((_resolve, reject) => {
     // A client just started us, which is the only honest evidence that Reticle is registered with
     // one at all: a config entry proves somebody wrote JSON, not that a client ever read it. Paired
@@ -944,7 +946,10 @@ export function startMcpProxy(
           attemptsBeforeDormant += attempts;
           attempts = 0;
           void (ensureDaemon?.() ?? Promise.resolve())
-            .then(() => connect(false))
+            .then((resolved) => {
+              port = resolved ?? port;
+              return connect(false);
+            })
             .catch((err: unknown) => {
               dormant = true;
               const reason = withStateDirDiagnostic(

@@ -106,10 +106,9 @@ export async function handleMcp(opts: {
   // takes the requested port when it is free or unclaimed, and relocates to an OS-assigned port
   // rather than adopting a daemon that belongs to somebody else.
   //
-  // Synchronous-looking on purpose: a probe is one loopback connect, and doing it here keeps the
-  // proxy's transport built around a single fixed number. Making the proxy chase a moving port would
-  // mean reworking the reconnect path, which is the one piece whose failure reads to a user as
-  // "the MCP server disappeared mid-session".
+  // The reconnect path keeps one port. Only a WAKE, which already starts from a dormant proxy,
+  // resolves again and moves the proxy: see `ensure`. The reconnect path is the one piece whose
+  // failure reads to a user as "the MCP server disappeared mid-session", so it does not chase.
   // Read once and reused by the wake path below: the boot resolution and every later wake must be
   // defending the SAME identity, and computing it twice is how they drift apart.
   // Before the port work, because it is the only moment we are guaranteed to get on a machine that
@@ -129,24 +128,30 @@ export async function handleMcp(opts: {
   }
 
   const projectId = readProjectId(process.cwd());
-  const port = await resolveMcpPort(
-    opts.port,
-    projectId,
-    reticleStateHome(),
-    {
-      alive: isAlive,
-      daemonPresent: async (p: number): Promise<boolean> =>
-        presenceIsUsable(await probePresence(p, { tcpOpen: probeDaemon, status: fetchStatus })),
-      pickPort: (p: number): Promise<number> => pickDaemonPortToBind(p),
-    },
-    readProjectPort(process.cwd()),
-  );
-  if (port !== opts.port) {
+  const resolvePort = (): Promise<number> =>
+    resolveMcpPort(
+      opts.port,
+      projectId,
+      reticleStateHome(),
+      {
+        alive: isAlive,
+        daemonPresent: async (p: number): Promise<boolean> =>
+          presenceIsUsable(await probePresence(p, { tcpOpen: probeDaemon, status: fetchStatus })),
+        pickPort: (p: number): Promise<number> => pickDaemonPortToBind(p),
+      },
+      readProjectPort(process.cwd()),
+    );
+  const noteRelocated = (to: number): void => {
     log('reticle_mcp_port_relocated', {
       requested: opts.port,
-      port,
-      reason: relocationReason(opts.port, port, projectId, reticleStateHome(), isAlive),
+      port: to,
+      reason: relocationReason(opts.port, to, projectId, reticleStateHome(), isAlive),
     });
+  };
+  // `let`: a wake that finds the port taken resolves again, and the proxy follows (#1651, #1652).
+  let port = await resolvePort();
+  if (port !== opts.port) {
+    noteRelocated(port);
   }
   // The proxy IS the MCP server the editor launched. Nothing respawns it, so an uncaught throw here
   // is what a user experiences as "the MCP server disconnected — open /mcp and reconnect". Log it,
@@ -175,7 +180,7 @@ export async function handleMcp(opts: {
    * a dead port until the budget ran out and the agent's MCP server exited with it. Reticle simply
    * disappeared mid-session with nothing said. Respawning here makes the reconnect self-healing.
    */
-  const ensure = async (): Promise<void> => {
+  const ensure = async (mayRelocate = true): Promise<number> => {
     // The same question every other surface asks. It used to be a bare TCP connect, so a stranger on
     // the bridge port answered "a daemon is here" — the proxy connected, the stream ended, and each
     // client request woke into the identical non-answer. Rejecting here is what puts the proxy
@@ -195,12 +200,23 @@ export async function handleMcp(opts: {
       // Otherwise every tool refused on the skew until a person ran `reticle restart`.
       const status = await fetchStatus(port);
       if (!retiresOlderDaemon(status, SERVER_VERSION)) {
-        return;
+        return port;
       }
       log('reticle_mcp_retiring_older_daemon', { port, proxyVersion: SERVER_VERSION });
       // Not stopped: use it. The daemon describes the skew to this agent, as before.
       if (!(await runKill(port, false))) {
-        return;
+        return port;
+      }
+    }
+    if (WakeAction.REFUSE === wake && mayRelocate) {
+      // Somebody else took the port after our daemon left it. Resolve again, as at boot: our own
+      // daemon wherever it moved, else a free port. Once per wake, so it cannot loop.
+      const moved = await resolvePort();
+      if (moved !== port) {
+        noteRelocated(moved);
+        port = moved;
+        setProxyLogPort(port);
+        return ensure(false);
       }
     }
     if (WakeAction.REFUSE === wake) {
@@ -238,6 +254,7 @@ export async function handleMcp(opts: {
     // none: a client that believes it stops waiting for the thing that has not happened.
     await waitForDaemon(port);
     log('reticle_mcp_daemon_started', { port, ...(driveUrl !== undefined ? { driveUrl } : {}) });
+    return port;
   };
   // Start the proxy WHATEVER happened to the daemon.
   //
