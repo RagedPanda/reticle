@@ -36,6 +36,7 @@ import { BROWSER_TOOLS } from './browser-tools.js';
 import { FLOW_TOOLS } from '@/language/flows/flow-tools.js';
 import { INTENT_TOOLS } from '@/memory/intent/intent-tools.js';
 import { CONTEXT_TOOLS } from '@/judgement/runs/context-tools.js';
+import { MAP_TOOLS } from './map-tools.js';
 import { PROJECT_TOOLS } from '@/memory/project/project-tools.js';
 import { MEMORY_TOOLS } from '@/memory/recall/memory-tools.js';
 import { RUN_TOOLS } from '@/judgement/runs/run-tools.js';
@@ -207,6 +208,18 @@ export const RAW_TOOLS: ToolDef[] = withCompactEnvelope([
         .describe(
           'Return only what changed since your last snapshot of the same scope/mode (mode:delta|unchanged). First call (or after a route change) still returns the full tree.',
         ),
+      ids: z
+        .boolean()
+        .optional()
+        .describe(
+          'Add [testid=…] to each control that carries one: a stable identity for a harness mapping the app. Off by default; it costs tokens.',
+        ),
+      audit: z
+        .boolean()
+        .optional()
+        .describe(
+          'Also measure the page for what a person would see broken: text cut off with no ellipsis, controls drawn over each other, text under WCAG contrast. Returns `audit: [{ kind, ref, what, detail }]`. Off by default; it forces layout.',
+        ),
       ...sessionIdShape,
     },
     outputSchema: {
@@ -297,6 +310,8 @@ export const RAW_TOOLS: ToolDef[] = withCompactEnvelope([
       return commandOrThrow(deps, resolved.id, ReticleCommand.SNAPSHOT, {
         scope: args['scope'],
         mode,
+        ...(true === args['ids'] ? { ids: true } : {}),
+        ...(true === args['audit'] ? { audit: true } : {}),
       }).then((raw) =>
         withSizeCost(
           noteUnmountedRoot(
@@ -546,6 +561,7 @@ export const RAW_TOOLS: ToolDef[] = withCompactEnvelope([
   ...CONTRACT_TOOLS,
   ...INTENT_TOOLS,
   ...CONTEXT_TOOLS,
+  ...MAP_TOOLS,
   ...DOMAIN_TOOLS,
   // reticle_flow_save / reticle_flow_list / reticle_flow_load. See flow-tools.ts.
   ...FLOW_TOOLS,

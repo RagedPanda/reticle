@@ -3,6 +3,10 @@ import { capturedRootOf } from './shadow-registry.js';
 import { isElement, isFrame } from './realm.js';
 import { getAccessibleName, getRole, getStates, getValue, isVisible } from './a11y.js';
 import { refs } from './addressing/refs.js';
+import { readTestId } from './addressing/testid-attr.js';
+import { identifyComponent } from '@/registry/stores/adapters.js';
+import { auditLayout, type LayoutFinding } from './layout-audit.js';
+import { pageRoute } from '@/security/page-location.js';
 import { isIgnored, isReticleOverlay } from './dom-ignore.js';
 
 export const INTERACTIVE = new Set([
@@ -121,6 +125,8 @@ interface SnapshotResult {
    * must not receive the entire page as if it were the modal.
    */
   scopeMissing?: boolean;
+  /** Visible layout defects under the scope, when `audit` asked for them. */
+  audit?: LayoutFinding[];
   /**
    * How many MEANINGFUL nodes the lean walk passed over, present only in a lean mode and only when
    * non-zero. This is what stops an empty `interactive` tree reading as an empty page — the mode is
@@ -185,6 +191,15 @@ interface SnapshotOptions {
    * is re-reading is exactly the node the truncated walk stopped before emitting.
    */
   includeRoot?: boolean | undefined;
+  /**
+   * Add `[testid=…]` to the line of each control that carries one. Off by default, where it stays: a
+   * test id cost +15% on the most-called read (see `formatLine`). A harness building a map of the app
+   * asks for it, because a visible name is not an identity ("Open 2" is "Open 3" after the next issue)
+   * and a test id is. It annotates lines that are already there; it never adds one.
+   */
+  ids?: boolean | undefined;
+  /** Also measure the page for visible layout defects (`layout-audit.ts`). Off by default: it forces layout. */
+  audit?: boolean | undefined;
 }
 
 /**
@@ -237,6 +252,8 @@ function formatLine(
   layout: string,
   /** The element's OWN text, when it has no accessible name to carry it. */
   ownText = '',
+  /** Name the element's test id on its line (`SnapshotOptions.ids`). */
+  withTestId = false,
 ): string {
   const indent = '  '.repeat(depth);
   const value = getValue(el);
@@ -260,7 +277,20 @@ function formatLine(
   // ACCESSIBLE NAME, and two of them on one line would be unreadable. This is the element's own
   // text and never a descendant's, so a reader can tell whose it is — which is the whole complaint.
   const textPart = ownText.length > 0 ? ` [text="${ownText}"]` : '';
-  return `${indent}- ${role}${namePart}${refPart}${valuePart}${textPart}${layoutPart}${stateSuffix(el)}`;
+  const testid = withTestId ? readTestId(el) : null;
+  // Without a test id, the component it renders in is the next most stable identity a map can key on;
+  // and where it is written, so a finding on it names the file to open.
+  const info = withTestId ? identifyComponent(el) : null;
+  const component = null === testid ? info?.componentStack[0] : undefined;
+  const where = info?.source;
+  const idPart = `${
+    null !== testid
+      ? ` [testid=${testid}]`
+      : component === undefined
+        ? ''
+        : ` [component=${component}]`
+  }${where === undefined ? '' : ` [src=${where.file}:${String(where.line)}]`}`;
+  return `${indent}- ${role}${namePart}${refPart}${valuePart}${textPart}${layoutPart}${stateSuffix(el)}${idPart}`;
 }
 
 /** A generic container's own text content, with no ref (kept lean — text isn't actionable). */
@@ -301,6 +331,8 @@ interface WalkCtx {
   unreadOverflow: boolean;
   /** Walk into subtrees an overlay library stamped aria-hidden (see `overlayStamped`). */
   throughOverlay?: boolean;
+  /** Annotate each control's line with its test id (`SnapshotOptions.ids`). */
+  ids?: boolean;
 }
 
 /** `aria-hidden` an overlay library (Radix's `aria-hidden` package) stamped, beside `data-aria-hidden`. */
@@ -439,7 +471,7 @@ function visit(child: Element, depth: number, ctx: WalkCtx, inLive: boolean): vo
       // away what kind of element it was, which is half of what a snapshot is for.
       'generic' === role && text.length > 0 && 0 === layout.length
         ? formatTextLine(depth, text)
-        : formatLine(child, depth, role, name, layout, text),
+        : formatLine(child, depth, role, name, layout, text, true === ctx.ids),
     );
     walk(child, depth + 1, ctx, announce);
   } else {
@@ -556,7 +588,7 @@ function buildStatus(root: ParentNode): SnapshotStatus {
   const visibleDialogs = collectDialogs(root);
   const overlay = overlayHidingPage(root);
   return {
-    route: `${location.pathname}${location.search}${location.hash}`,
+    route: pageRoute(),
     title: document.title,
     ...(visibleDialogs.length > 0 ? { visibleDialogs } : {}),
     ...(overlay !== undefined ? { overlayHidingPage: overlay } : {}),
@@ -601,6 +633,7 @@ export function buildSnapshot(options: SnapshotOptions = {}): SnapshotResult {
     maxDepth: options.maxDepth ?? 20,
     unread: [],
     unreadOverflow: false,
+    ...(true === options.ids ? { ids: true } : {}),
   };
   if (true === options.includeRoot) visit(root, 0, ctx, false);
   else walk(root, 0, ctx);
@@ -626,5 +659,6 @@ export function buildSnapshot(options: SnapshotOptions = {}): SnapshotResult {
     ...(ctx.hiddenSkipped > 0 ? { hiddenSkipped: ctx.hiddenSkipped } : {}),
     ...(ctx.unread.length > 0 ? { unread: ctx.unread } : {}),
     ...(ctx.unreadOverflow ? { unreadOverflow: true as const } : {}),
+    ...(true === options.audit ? { audit: auditLayout(root) } : {}),
   };
 }

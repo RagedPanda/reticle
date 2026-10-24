@@ -679,6 +679,9 @@ const SETTLE_ACTIVITY: ReadonlySet<EventType> = new Set([
   EventType.DOM_ATTR,
 ]);
 
+/** An app-scoped settle: the default's activity, and every framework render commit. */
+const APP_ACTIVITY: ReadonlySet<EventType> = new Set([...SETTLE_ACTIVITY, EventType.RENDER_COMMIT]);
+
 /** The quiet window of a network-scoped settle: a completed request is the only activity. */
 const NETWORK_ACTIVITY: ReadonlySet<EventType> = new Set([EventType.NET_REQUEST]);
 
@@ -691,6 +694,8 @@ const NET_TYPES: ReadonlySet<EventType> = new Set([
 
 /** Default quiet window — enough to absorb a render+xhr settle without waiting on slow polls. */
 const DEFAULT_QUIET_MS = 500;
+/** Work the app declared (`reticle.busy`; core's `RETICLE_BUSY_SIGNAL`); not imported: coupling only shrinks. */
+const RETICLE_BUSY_SIGNAL = 'reticle:busy';
 
 /**
  * Did the browser LEAVE for this record, rather than make a request whose result we will see?
@@ -837,6 +842,26 @@ export function evalSettled(
   }
   const streaming = openStreams.size;
 
+  // Work only the app can see (`reticle.busy`): starts minus ends, in order, never below zero, so an
+  // end whose start fell before this window is not credit against work started inside it.
+  let appBusy = 0;
+  for (const e of events) {
+    if (e.type !== EventType.SIGNAL || RETICLE_BUSY_SIGNAL !== e.data['name']) continue;
+    const delta = (e.data['data'] as { delta?: unknown } | undefined)?.delta;
+    if ('number' === typeof delta) appBusy = Math.max(0, appBusy + Math.sign(delta));
+  }
+  if (appBusy > 0 && 0 === inFlight + streaming) {
+    const what = `${String(appBusy)} app task(s) still pending`;
+    return {
+      pass: false,
+      failureReason: `not settled: ${what}`,
+      observed: what,
+      expected: 'no work the app declared still pending',
+      assertion: 'settled.app-busy',
+      evidence: { settled: false, appBusy, ...disclosure },
+    };
+  }
+
   if (inFlight + streaming > 0) {
     const what =
       0 === streaming
@@ -861,7 +886,12 @@ export function evalSettled(
 
   // A network-scoped settle reads only completed requests for the quiet window; the in-flight checks
   // above already ran for every scope.
-  const activity = SettledChannel.NETWORK === p.channel ? NETWORK_ACTIVITY : SETTLE_ACTIVITY;
+  const activity =
+    SettledChannel.NETWORK === p.channel
+      ? NETWORK_ACTIVITY
+      : SettledChannel.APP === p.channel
+        ? APP_ACTIVITY
+        : SETTLE_ACTIVITY;
   let lastT = -1;
   let lastType: EventType | undefined;
   for (const e of events) {

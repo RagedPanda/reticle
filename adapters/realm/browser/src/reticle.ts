@@ -1,4 +1,6 @@
 import { setPresenterViewer, setPresenterVisible } from './dom/dom-ignore.js';
+import { trackBusy } from './busy.js';
+import { declareRoutes } from './observers/route.js';
 import { setOutwardPolicy } from './actions/danger-context.js';
 import { coverageMarkers, notApplicableFor } from './dom/addressing/coverage-markers.js';
 import {
@@ -29,9 +31,7 @@ import {
   HudCorner,
   HudVisibility,
   type CommandMessage,
-  type HelloEnv,
   type HelloMessage,
-  type HelloScope,
   type RedactionConfig,
   type ReticleEvent,
 } from '@reticlehq/core';
@@ -56,6 +56,8 @@ import {
 import { installAllObservers, runTeardowns } from './observers/install-all.js';
 import { setTestIdAttr } from './dom/addressing/testid-attr.js';
 import { setNetworkBodyMaxChars } from './observers/net-detail/network-body.js';
+import { pageHref } from './security/page-location.js';
+import { scrubKnownSecrets } from './security/serialization.js';
 import { installOverlay, type OverlayHandle } from './presenter/chrome/overlay.js';
 // TYPES only. Naming the panel's class here would put the whole panel in the first thing a page
 // downloads, and the panel is wanted only once an agent connects. It is fetched below instead, at
@@ -75,7 +77,8 @@ import { nativeWarn } from './timers/console/native-console.js';
 import { installRecorder, type RecorderHandle } from './recorder/recorder.js';
 import { Annotator } from './review/annotator.js';
 import type { Teardown } from './observers/types.js';
-import type { ReticleConnectOptions } from './connect-options.js';
+import { helloMode, type ReticleConnectOptions } from './connect-options.js';
+export { helloMode } from './connect-options.js';
 
 // Re-exported so every existing importer of the options type is unaffected by the file split.
 export type { ReticleConnectOptions };
@@ -98,17 +101,6 @@ export function shouldBlockProduction(
  * with no path (`ws://localhost:4400`) would be answered with a silent 400. Give a pathless ws(s)
  * URL the bridge path; anything with an explicit path (a reverse proxy mount) is left alone.
  */
-/** The env and scope connect() named, for the HELLO. Absent stays absent: an older daemon reads it. */
-export function helloMode(options: Pick<ReticleConnectOptions, 'env' | 'scope'>): {
-  env?: HelloEnv;
-  scope?: HelloScope;
-} {
-  return {
-    ...(options.env === undefined ? {} : { env: options.env }),
-    ...(options.scope === undefined ? {} : { scope: options.scope }),
-  };
-}
-
 export function withBridgePath(bridgeUrl: string): { url: string; adjusted: boolean } {
   let parsed: URL;
   try {
@@ -686,8 +678,20 @@ export class Reticle {
   }
 
   /** Surface an arbitrary app-domain observation the DOM can't express. */
+  /** Declare the app's route patterns (`/runs/:id`, `*` for the rest): each route change names its screen. */
+  routes(patterns: readonly string[]): void {
+    declareRoutes(patterns);
+  }
+
   signal(name: string, data: Record<string, unknown> = {}): void {
     this.#emit(EventType.SIGNAL, { name, data });
+  }
+
+  /** Work only the app can see (a debounced save, a worker): a settle waits for it. Returns `work`. */
+  busy<T>(work: Promise<T>): Promise<T> {
+    return trackBusy(work, (name, data) => {
+      this.signal(name, data);
+    });
   }
 
   /** Report a framework/store state change the agent can observe and assert on. */
@@ -805,8 +809,8 @@ export class Reticle {
       protocolVersion: RETICLE_PROTOCOL_VERSION,
       sessionId: this.#session,
       ...(this.#projectId === undefined ? {} : { projectId: this.#projectId }),
-      url: location.href,
-      title: document.title,
+      url: pageHref(),
+      title: scrubKnownSecrets(document.title),
       adapters: adapterNames(),
       ...(this.#token === undefined ? {} : { token: this.#token }),
       ...this.#mode,
