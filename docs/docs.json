@@ -227,7 +227,7 @@
               },
               {
                 "group": "Internals",
-                "pages": ["system-map", "telemetry-contract", "telemetry-events"]
+                "pages": ["system-map"]
               }
             ]
           }

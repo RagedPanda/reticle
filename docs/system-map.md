@@ -9,7 +9,7 @@ A tool call crosses five processes and four hops: coding agent → `reticle mcp`
 
 > How a tool call gets from a coding agent to your app and back, what each hop can do wrong, and which of those failures are **silent**. Written for anyone touching the transport, the daemon, the bridge, or a gate, and for contributors trying to work out where their change lives.
 >
-> Companion pages: [`harness-rules.md`](https://github.com/reticlehq/reticle/blob/main/apps/e2e/harness-rules.md) (what a gate must do about all this) and [`telemetry-contract.md`](./telemetry-contract.md) (the rules for anything that emits).
+> Companion pages: [`harness-rules.md`](https://github.com/reticlehq/reticle/blob/main/apps/e2e/harness-rules.md) (what a gate must do about all this) and [`contributing/telemetry/contract.md`](https://github.com/reticlehq/reticle/blob/main/contributing/telemetry/contract.md) (the rules for anything that emits).
 
 ## 1. Topology: 5 processes, 4 hops
 

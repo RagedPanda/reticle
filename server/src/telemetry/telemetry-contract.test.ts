@@ -61,7 +61,7 @@ import { join } from 'node:path';
  * and where to add it. That is the point: these are not tests of what the code does today, they are
  * a tripwire on the ways the telemetry can silently stop being true.
  *
- * See `docs/telemetry-contract.md` for the human-facing version of these rules.
+ * See `contributing/telemetry/contract.md` for the human-facing version of these rules.
  */
 
 /** Events an agent's tool call can produce. Each must have somewhere it is actually emitted from. */
@@ -122,11 +122,11 @@ describe('every telemetry event kind is real and reachable', () => {
  */
 describe('every telemetry event kind is documented', () => {
   it('appears by name in the contract doc', () => {
-    const doc = readFileSync(join(REPO_ROOT, 'docs/telemetry-contract.md'), 'utf8');
+    const doc = readFileSync(join(REPO_ROOT, 'contributing/telemetry/contract.md'), 'utf8');
     const undocumented = Object.values(TelemetryEventKind).filter((kind) => !doc.includes(kind));
     expect(
       undocumented,
-      `add these to docs/telemetry-contract.md: ${undocumented.join(', ')}`,
+      `add these to contributing/telemetry/contract.md: ${undocumented.join(', ')}`,
     ).toEqual([]);
   });
 });

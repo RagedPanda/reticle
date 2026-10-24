@@ -1,12 +1,10 @@
----
-title: Telemetry contract
-description: 'Read this before adding a tool, an event, a finding kind, or a failure path. Telemetry fails silently.'
-icon: file-contract
----
+# Telemetry contract
 
 > For anyone (human or agent) adding a tool, an event, a finding kind, or a failure path to Reticle.
 >
 > The rules here are enforced by `server/src/telemetry/telemetry-contract.test.ts`. If you break one, that test tells you which and where. This page is why.
+>
+> [`events.md`](events.md) lists every event and every field, with when it is sent, why, what one row counts, and an example payload. The user page, [`docs/telemetry.md`](../../docs/telemetry.md), says what leaves the machine and how to turn it off.
 
 ## Why this has its own contract
 
@@ -23,11 +21,11 @@ So the rule is not "remember to add telemetry". The rule is that the guard lives
 
 ### 1. Everything routes through a chokepoint
 
-Tool usage, timing, errors, verifications and bugs are all recorded in **one place**: `runTool` in `tools/invoke-tool.ts`. Adding a tool to `TOOLS` is all it takes to be instrumented.
+Tool usage, timing, errors, verifications and bugs are all recorded in **one place**: `runTool` in `server/src/surface/tools/invoke-tool.ts`. Adding a tool to `TOOLS` is all it takes to be instrumented.
 
 Do **not** add telemetry inside a tool handler. If you find yourself wanting to, the metric probably belongs at the chokepoint, read off the result.
 
-> The exceptions are paths that genuinely do not go through `runTool`. One is the verification runner (`reticle verify`, the HTTP verify surface), which has its own reporter in `telemetry/run-telemetry.ts`. The other is the MCP proxy's POST leg (`postToSession`): a socket failure there never reaches a tool handler, so the counts live on the proxy's session summary and flush as `session_progress`. **If you add another dispatch path, it needs the same treatment**, and until it has one it is invisible. That gap existed for real: CI-found bugs were uncounted.
+> The exceptions are paths that genuinely do not go through `runTool`. One is the verification runner (`reticle verify`, the HTTP verify surface), which has its own reporter in `server/src/telemetry/run-telemetry.ts`. The other is the MCP proxy's POST leg (`postToSession`): a socket failure there never reaches a tool handler, so the counts live on the proxy's session summary and flush as `session_progress`. **If you add another dispatch path, it needs the same treatment**, and until it has one it is invisible. That gap existed for real: CI-found bugs were uncounted.
 
 ### 2. Names say what happened
 
@@ -62,7 +60,7 @@ The old set failed this so badly it confused its own authors: `invoke` meant "th
 
 `--http-token` holds a secret. `reticle_act`'s `args` holds the text being typed into the app, which on a login form is a password. Assume every value is the worst thing it could be.
 
-There is one narrow exception, and it is explicit rather than heuristic: parameters whose values are enums **we** defined are allow-listed in `telemetry/argument-shape.ts`, and anything unrecognised reports as `other` so a schema change cannot start forwarding free text.
+There is one narrow exception, and it is explicit rather than heuristic: parameters whose values are enums **we** defined are allow-listed in `server/src/telemetry/argument-shape.ts`, and anything unrecognised reports as `other` so a schema change cannot start forwarding free text.
 
 ### 4. Never derive a vocabulary by copying it
 
@@ -90,20 +88,20 @@ The single exception is `daemon_stopped`, which is **awaited**, because the proc
 
 | Kind | When | What it answers |
 | --- | --- | --- |
-| `reticle_installed` | first-ever run on a machine | install count, and the new-user curve |
+| `reticle_installed` | the first real command on a machine. A probe (`--version`, `--help`, `telemetry`) on a new machine leaves `~/.reticle/install-pending`, and the next real command sends the event | install count, and the new-user curve |
 | `cli_command_run` | a `reticle` subcommand ran | intent: `verify`/`gate` mean something very different from `status`. `actor` is `agent` when a coding agent's marker is in the environment (the agent ran it through a shell), else `human`; older versions send no `actor`. Never emitted for the internal `_daemon` spawn or the agent's `mcp` transport |
 | `daemon_started` | the daemon came up | active sessions |
-| `daemon_stopped` | clean exit | the rich session roll-up. **Count sessions with this one**; see below |
+| `daemon_stopped` | clean exit | the last window of the session roll-up, with the lifetime totals. **Do not count sessions with this one alone**; see below |
 | `session_progress` | periodic flush from a LIVE daemon | same payload, `final: false`. Sum the scalar counters across both (each is windowed) |
 | `verification_completed` | a verdict was produced | the product's reason to exist: was an app actually verified |
 | `project_profiled` | once per daemon start | stack, size, and how deeply the feature surface is used (activation vs retention) |
-| `version_changed` | the running version differs from last seen | upgrade adoption, and whether a nudge caused it |
+| `version_changed` | a start runs a version that differs from the last start on this machine (`~/.reticle/last-version`), or `reticle update` / `rollback` moved it | upgrade adoption, and whether a nudge caused it |
 | `runtime_crashed` | an unhandled failure in the daemon | stability |
 | `feedback_submitted` | `reticle feedback`, or an agent's report | the qualitative channel |
 | `identified` | nothing in this version: `reticle identify` was removed | joined anonymous machine ids to a person who volunteered one; older versions may still send it |
 | `mcp_client_connected` | an MCP client attached, once per proxy process: a reconnect of the same proxy sends nothing. `mcp_proxy_exited` counts its drops | how many sessions are agent-driven at all |
 | `app_instrumented` | the first app carrying the SDK reached this daemon | **the funnel step everything turns on**; see below |
-| `mcp_connection_lost` | the proxy lost its daemon | **the transport-stability metric.** The disconnect that makes a user reopen `/mcp` is invisible without it |
+| `mcp_connection_lost` | the proxy lost its daemon | **the transport-stability metric.** The disconnect that makes a user reopen `/mcp` is invisible without it. Join it to its daemon run on `proxyId` |
 | `mcp_proxy_exited` | the MCP proxy process ended (stdin end, idle, client-gone storm, failed wake) | how often the agent loses its tools because the PROXY left, which `mcp_connection_lost` cannot see. Awaited before exit, and sent even when the proxy has no other counts |
 | `daemon_died_unclean` | a daemon start found the pidfile of a daemon that never stopped cleanly | how often daemons die without a stop (kill, sleep, crash), and how old they were |
 | `wake_refused` | the proxy found its daemon port held by a stranger or by another project | how often a wake is refused, and by what. Once per proxy process |
@@ -175,7 +173,7 @@ An `unknown` rate quoted without this split is a number about all three at once 
 
 ## Sessions: `daemon_stopped` vs `session_progress`
 
-Count sessions with **`daemon_stopped`** (`final: true`). It fires once, at a clean exit.
+Count daemon runs with **`daemon_started`**. Count working sessions as the `sessionId`s that have a `session_progress` row or a verdict. `daemon_stopped` (`final: true`) fires once, at a clean exit, and most of its rows are `endReason: never_used` with `exit: idle`: a daemon that started and timed out. A daemon that served a tool call does not idle-exit, so it rarely reaches a clean stop. Counting sessions with `daemon_stopped` alone describes the unused daemons.
 
 A running daemon rolls its window up every 5 minutes as **`session_progress`** (`final: false`), same payload shape.
 
@@ -213,10 +211,13 @@ Four counters and one flag were added because the data could not answer question
 | `outage.stage` / `outage.reason` / `outage.attempts` | `mcp_connection_lost` | which stage of the outage, why the stream went away (closed `OutageReason`, `other` for anything unnamed), and how many reconnects had been tried. See below. |
 | `outage.errCode` / `outage.responded` | `mcp_connection_lost` | the socket error code behind the drop, from the closed `OutageErrCode` (`ECONNRESET` \| `ECONNREFUSED` \| `EPIPE` \| `ETIMEDOUT` \| `other`), and whether the stream had got a response before it failed. A reset of a live stream is `sse_reset` with `responded: true`. Before this field it read as `connect_error`, which says the daemon was never reached. `errCode` is absent when the drop came with no error. |
 | `proxyExit.reason` / `.uptimeMs` / `.drops` / `.toolCalls` | `mcp_proxy_exited` | why the proxy left (`stdin_end` \| `idle` \| `client_gone_storm` \| `wake_failed`), how long it ran, how many times it lost its daemon stream, and how many `tools/call` requests it carried. Counts only, never content. |
+| `outage.proxyId` / `proxyExit.proxyId` / `connection.proxyId` | `mcp_connection_lost`, `mcp_proxy_exited`, `mcp_client_connected` | a random id of the MCP proxy process, made once for each process. The proxy events carry no `sessionId`, because the proxy is not the daemon. `mcp_client_connected` carries this id and the daemon's `sessionId`, so a query joins an outage or a proxy exit to the project, the client and the verdicts of the daemon run it served. A proxy reconnect to a NEW daemon sends no new `mcp_client_connected`, so the join finds the first daemon only. |
 | `daemonDeath.ageMs` | `daemon_died_unclean` | the time from the dead daemon's start (its pidfile write) to its discovery. No pid, no port. |
 | `wakeRefusal.presence` | `wake_refused` | `foreign` (not a Reticle daemon) \| `other_project` (a Reticle daemon for another project). |
 | `project.initialized` | `project_profiled` | has `reticle init` run here -- a `.reticle.json` is present. On `project_profiled` rather than `app_instrumented` deliberately: that event fires once per daemon start whatever happens next, so it is the only place a fact about a project reaches us for the users who never instrument anything. **Absent means an older sender, never `false`.** |
 | `project.appConnectedBefore` | `project_profiled` | has an app for THIS project ever connected to Reticle, from durable state -- not from this process. Scoped to project + port like every other reader of that state, so it cannot borrow another project's success on a shared daemon. **Absent when the daemon did not know its own port**, which is not-measured rather than `false`; a `false` invented from a read error would put the working installs into the cohort we are sizing. |
+| `verification.sdkVersion` / `session.sdkVersion` | `verification_completed`, session summary | the page SDK version from its HELLO: our own release number, or `other` for anything else, so a hand-built page cannot put free text on the wire. On the summary it is the last page that connected, kept for the whole run like `appConnects`. Compare it with the envelope `version` to count verdicts judged on a page older than the daemon. **Absent when the page did not say.** |
+| `session.toolCallsBeforeApp` | session summary | tool calls made before the first app connected. Session lifetime like `appConnects`: read the last row, never sum. Absent when zero. With `appConnects: 0`, it is an agent that worked against a daemon with no app: no verdict, often no refusal, and before this field no shape at all. "Did an app ever connect" is `appConnects > 0`, which is always present. |
 | `connection.appConnected` | `mcp_client_connected` | was an app already attached when the agent arrived. The mirror of `instrumentation.agentAttached`, read off the same flag so the two halves cannot disagree about one daemon run. The closest thing we have to WHAT THE AGENT SAW. |
 | `installSource` | `reticle_installed`, `init_completed` | WHICH published route brought this install in, from core's closed `InstallSource`. Read from one self-declared marker (`RETICLE_INSTALL_SOURCE`) and NEVER inferred, so `unknown` is expected to dominate until every channel's own copy of the install command carries it. See below. |
 | `feedback.contact` | `feedback_submitted` | a reply address. **Sent only when the person gave it** for this purpose: `reticle feedback --contact <email>`, or an agent relaying an address the user typed (`contact` on `reticle_session { action: "feedback" }`, whose description says never to guess or reuse one). One plain address of at most 254 characters, checked by core's `isFeedbackContact`; anything else is refused with a reason and nothing is filed. Not redacted, because it was given to be read. The one personal value telemetry carries. **Absent on every report that did not give one.** |
@@ -284,6 +285,8 @@ Capped at 50 per daemon run. Volume is part of this taxonomy's design and a stuc
 
 ## Did anybody hear about the release: the nudge
 
+`version_changed` used to come only from `reticle update` and `reticle rollback`, so an upgrade through `npx @reticlehq/server@latest` sent nothing. Each start now compares its version with `~/.reticle/last-version` and reports a move once (`server/src/command/update/version-seen.ts`). The updater records the version it installed, so its own move is not sent twice.
+
 `versionChange.nudged` answers "did the nudge cause this update", and it only ever reaches us from machines that **did** update. The cohort that matters is the opposite one: an install pinned several releases back never fires `version_changed` at all, so the population being nudged the hardest was the population the metric structurally could not see.
 
 `session.updateNudged` + `session.updateOffered` close that. Crossed against the same installId's `version` on a later day, they separate two causes that need opposite fixes:
@@ -306,6 +309,8 @@ Four install routes ship at once (the SKILL.md paste URL, an `npx skills add` pa
 There is exactly ONE mechanism, and it is a declaration rather than a detection: the channel sets `RETICLE_INSTALL_SOURCE` on the process that runs the install, and `install-source.ts` narrows it against core's `InstallSource`. Anything unrecognised reports `unknown`; an echo would put whatever somebody exported onto the wire.
 
 Nothing infers. Three things look like signals and are not: `npm_config_user_agent` says npm ran us, and all four routes go through npx; a `.claude-plugin/` directory or an installed skill folder says a route is PRESENT, not that it ran `init`, and both are present on any machine that tried more than one; and which command ran first says nothing about who told the user to run it.
+
+**The install event waits for a real command.** An agent often runs `--version` or `--help` first, with no marker. When `reticle_installed` went out on that probe, its `installSource` read `unknown` for good. A probe on a new machine now leaves `~/.reticle/install-pending` and sends nothing; the next real command sends the event, with the source that the machine state holds by then. The `npx skills add` copy of the skill carries `RETICLE_INSTALL_SOURCE=npx_skill` in its `init` command (`scripts/sync-skill.mjs` writes it).
 
 `install_script` is the one-line installer (`install.sh` / `install.ps1`), which exports the marker for every `reticle` it runs. A declared marker is remembered machine-wide in `~/.reticle/install-source` the first time a command sees one (write-once: the first channel keeps the credit), and read after the project config and the environment, so the agent's `reticle mcp` a minute later still carries it.
 
@@ -376,7 +381,7 @@ The lesson is not "wire the field". It is that **the battery asserted the event 
 
 **`first` alone is unfalsifiable, and the pair is the metric.** `first` with a matching `recovered` is a blip the agent probably never noticed (check `pendingLost`). `first` with `budget_spent` and no `recovered` is a session whose tools never came back on their own, which is the number worth driving down. Counting `first` on its own over-states the problem by roughly the whole of it.
 
-Still true and worth knowing when you query it: `mcp_connection_lost` carries **no `sessionId`** (it fires from the proxy process, not the daemon), so it cannot be joined to a project, a stack or a verdict. Every question of the form "did losing the link stop this person verifying" is therefore unanswerable today, and that is the single most valuable thing missing from this event.
+`mcp_connection_lost` carries **no `sessionId`**, because it fires from the proxy process, not the daemon. It carries `proxyId` instead. Join it to the `mcp_client_connected` row with the same `connection_proxyId`, which carries the daemon's `sessionId`, to ask "did losing the link stop this person verifying". Rows from versions before 3.8.0 have no `proxyId` and cannot be joined.
 
 ### Licence activation
 
@@ -418,7 +423,7 @@ One deliberate exception to the rules above: `RETICLE_TELEMETRY_FILE` keeps tele
 | **A failure path** (connect, install, crash) | Classify it into an enum with an explicit `OTHER` bucket; a classifier that cannot say "I don't know" lies instead | ✓ |
 | **An event kind** | Add to `TelemetryEventKind` + a payload schema + emit it + add a live check to `apps/e2e/specs/telemetry-events-test.mjs` that asserts the **fields**, not just that it arrived | partly; the live check is on you |
 | **A field on an EXISTING block** | Add it to that block's schema in core, and nothing else. The `blocks` map flattens every key it finds, so a new field on `connection`/`project`/`outage`/… reaches the wire for free | `extra-blocks-reach-the-wire.test.ts` |
-| **A new block on `TelemetryExtra`** | FOUR hand-maintained lists, and missing any one drops the payload in silence (see `outage`): `TelemetryExtra` (`telemetry/telemetry.ts`), the `emit()` event-build spread (same file), the destructure + `blocks` prefix map (same file), and `TelemetryEventSchema` (`core/src/telemetry.ts`). Then add a `SAMPLES` entry in `extra-blocks-reach-the-wire.test.ts` | `extra-blocks-reach-the-wire.test.ts` |
+| **A new block on `TelemetryExtra`** | FOUR hand-maintained lists, and missing any one drops the payload in silence (see `outage`): `TelemetryExtra` (`server/src/telemetry/telemetry.ts`), the `emit()` event-build spread (same file), the destructure + `blocks` prefix map (same file), and `TelemetryEventSchema` (`core/src/telemetry.ts`). Then add a `SAMPLES` entry in `extra-blocks-reach-the-wire.test.ts` | `extra-blocks-reach-the-wire.test.ts` |
 | **A new SCALAR on the envelope** (`installSource`, `automation`, `licenseId`) | THREE: `TelemetryExtra` if a caller sets it, the `emit()` event build, and `TelemetryEventSchema`. **No `blocks` entry** -- there is nothing to flatten, and adding one is a silent no-op | ✗ **not enforced; be careful** |
 | **A dispatch path** that bypasses `runTool` | Give it a reporter like `run-telemetry.ts`, or it is invisible | ✗ **not enforced; be careful** |
 

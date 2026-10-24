@@ -25,7 +25,7 @@ Twenty-two kinds of events, each a single small JSON object. This is the whole l
 
 | Event | When | Extra data |
 | --- | --- | --- |
-| `reticle_installed` | The first time Reticle runs on a machine | n/a |
+| `reticle_installed` | The first real command Reticle runs on a machine. `--version`, `--help` and `telemetry` do not count | n/a |
 | `cli_command_run` | You run a `reticle` command | Which subcommand (`verify`, `status`, …) and which flags were present, by name |
 | `daemon_started` | The local daemon starts | n/a |
 | `daemon_stopped` | The local daemon stops | A summary of the session; see below |

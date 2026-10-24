@@ -93,7 +93,7 @@ export const TelemetryEventKind = {
    * tool never idle-exits, so only idle ones reach a clean shutdown. Emitting a periodic flush under
    * an exit's name therefore describes active sessions at one end and abandoned ones at the other.
    *
-   * Count sessions with DAEMON_STOPPED. Sum work with both.
+   * Count daemon runs with DAEMON_STARTED, clean exits with DAEMON_STOPPED. Sum work with both.
    */
   SESSION_PROGRESS: 'session_progress',
   /**
@@ -107,7 +107,10 @@ export const TelemetryEventKind = {
    * between a retention problem and an activation problem. Once per daemon start, so it is cheap.
    */
   PROJECT_PROFILED: 'project_profiled',
-  /** `reticle update` or `reticle rollback` moved the installed version. Carries from → to. */
+  /**
+   * A start found a version that differs from the last start on this machine, or `reticle update` /
+   * `reticle rollback` moved it. Carries from → to.
+   */
   VERSION_CHANGED: 'version_changed',
   /** An uncaught exception or unhandled rejection reached the top of the daemon. Crash analytics. */
   RUNTIME_CRASHED: 'runtime_crashed',
