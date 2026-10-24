@@ -32,6 +32,11 @@ export const HumanControlKind = {
   PAUSE: 'pause',
   RESUME: 'resume',
   END: 'end',
+  /**
+   * A note the human typed for the agent. Only an older SDK sends it: the current HUD has no note
+   * box. Protocol 1 still accepts that SDK, so keep this kind. Without it, its notes are dropped
+   * with no error.
+   */
   MESSAGE: 'message',
   /** Human clicked ▶ on a saved flow in the panel — replay it (no agent). `text` carries the name. */
   REPLAY: 'replay',
