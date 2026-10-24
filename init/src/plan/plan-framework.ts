@@ -81,6 +81,21 @@ const STATIC_TOKEN_DETAIL = `write this machine’s pairing token to ${STATIC_TO
 const STATIC_IGNORE_DETAIL = `add ${STATIC_TOKEN_MODULE} to ${STATIC_GITIGNORE_PATH} — it holds this machine’s pairing token`;
 const STATIC_CONNECT_DETAIL = 'write the dev-only connect snippet (loopback hosts only)';
 const STATIC_CONNECT_ALREADY_DETAIL = `${HTML_INDEX_PATH} already loads the Reticle SDK`;
+/** The package whose presence makes a static page an Electron renderer. */
+const ELECTRON_PACKAGE = 'electron';
+/**
+ * An Electron app often serves its renderer from a local HTTP server, so the packaged app runs on
+ * `localhost` on every user's machine. The localhost-only guard then lets the snippet run in
+ * production, and a packager glob such as `**\/*.js` can ship the token module.
+ */
+const ELECTRON_STATIC_DETAIL =
+  `This is an Electron app. Its packaged renderer can also run on localhost, so init did not ` +
+  `write the localhost-only snippet into ${HTML_INDEX_PATH} or the ${STATIC_TOKEN_MODULE} token ` +
+  'module. Connect only in development: for example, send `!app.isPackaged` from the main ' +
+  'process to the renderer, and call `reticle.connect()` only when it is true. Use ' +
+  `@reticlehq/electron for IPC and capture. If ${STATIC_TOKEN_MODULE} is in the project, keep ` +
+  `it out of the package: electron-builder \`files: ["!${STATIC_TOKEN_MODULE}"]\`, or Electron ` +
+  `Forge \`packagerConfig.ignore: [/${STATIC_TOKEN_MODULE.replaceAll('.', '\\.')}$/]\`.`;
 
 /**
  * Turn a conservative source patch into a step: applied when it patched, already when the wiring is
@@ -766,6 +781,16 @@ function staticTokenSteps(input: PlanInput): Step[] {
  * where the if/else chain this replaced used to hand it these instructions silently.
  */
 export function htmlSteps(input: PlanInput): Step[] {
+  if (input.detection.dependencies?.[ELECTRON_PACKAGE] !== undefined) {
+    return [
+      {
+        title: StepTitle.CONNECT_SNIPPET,
+        target: HTML_INDEX_PATH,
+        status: StepStatus.MANUAL,
+        detail: ELECTRON_STATIC_DETAIL,
+      },
+    ];
+  }
   const index = input.htmlIndexSource ?? null;
   if (null !== index) {
     // The page is publishable; the pairing token belongs in its gitignored sibling module instead.
