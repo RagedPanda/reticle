@@ -190,6 +190,8 @@ export interface RunningServer {
    * the client owns the process and there is no stream to warn. See SharedServer.announceShutdown.
    */
   announceShutdown?: () => void;
+  /** Daemon only: run `handler` when a caller with the pairing token POSTs SHUTDOWN_PATH. */
+  onShutdownRequest?: (handler: () => void) => void;
   close: () => Promise<void>;
 }
 
@@ -723,6 +725,7 @@ export async function startDaemon(options: StartOptions = {}): Promise<RunningSe
     // says WHETHER it is idle; this says how long that quiet should be tolerated — see idle-grace.
     agentAttached: () => agentConnected,
     announceShutdown: () => shared.announceShutdown(),
+    onShutdownRequest: (handler) => shared.attachShutdown(handler),
     close: async () => {
       reaper.stop();
       await cleanupCaptureDirectories();

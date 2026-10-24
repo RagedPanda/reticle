@@ -32,6 +32,12 @@ export const MCP_SHUTDOWN_EVENT = 'reticle-shutdown';
 /** Local-only daemon introspection — `reticle status` GETs this for sessions + health at a glance. */
 export const STATUS_PATH = '/status';
 /**
+ * Local-only stop request — `reticle stop` and `reticle kill` POST here first, with the pairing token
+ * as a bearer token. It runs the daemon's normal shutdown path. A signal cannot do that on Windows,
+ * where it ends the process at once.
+ */
+export const SHUTDOWN_PATH = '/shutdown';
+/**
  * Query flag on STATUS_PATH: the caller (a running `reticle init`) is waiting on this daemon, so it
  * must not idle out yet. Without it the daemon init started exited mid-wait on a slow desktop build.
  */

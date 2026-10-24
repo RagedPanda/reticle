@@ -8,6 +8,7 @@ import {
   STATUS_PATH,
   STATUS_HOLD_QUERY,
   DRIVE_PATH,
+  SHUTDOWN_PATH,
   PROXY_ID_PARAM,
 } from '@reticlehq/core';
 import { getSessionMetrics } from '@/telemetry/session-metrics.js';
@@ -54,6 +55,12 @@ export interface SharedServer {
    */
   attachDrive(provider: (url: string) => Promise<unknown>): void;
   /**
+   * Register the handler behind POST /shutdown: the daemon's normal shutdown path. Only a loopback
+   * caller with the pairing token reaches it. Left unattached, the route 404s, and the caller falls
+   * back to a signal.
+   */
+  attachShutdown(handler: () => void): void;
+  /**
    * Register a callback fired when the AGENT presence changes — true when the first MCP client (any
    * agent: Codex/OpenCode/Claude/Hermes) connects, false when the last one disconnects. Agent-
    * independent: the MCP connection lives exactly as long as the agent session, so its presence IS
@@ -87,6 +94,7 @@ export function createSharedServer(options: { token?: string } = {}): SharedServ
   let pageSdkVersions: () => readonly (string | undefined)[] = () => [];
   let statusProvider: ((held: boolean) => unknown) | undefined;
   let driveProvider: ((url: string) => Promise<unknown>) | undefined;
+  let shutdownHandler: (() => void) | undefined;
   let agentPresence: ((connected: boolean) => void) | undefined;
   const transports = new Map<string, SSEServerTransport>();
   /**
@@ -162,6 +170,31 @@ export function createSharedServer(options: { token?: string } = {}): SharedServ
       );
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(body);
+      return;
+    }
+
+    if ('POST' === req.method && path === SHUTDOWN_PATH) {
+      // Stricter than the routes above: loopback alone is not enough to stop a daemon that serves
+      // every agent on this machine. The caller must also show the pairing token.
+      if (!isLoopbackPeer(req.socket.remoteAddress) || token === undefined) {
+        res.writeHead(403, { 'Content-Type': 'text/plain' });
+        res.end('forbidden');
+        return;
+      }
+      if (!tokensMatch(token, requestToken(req, url))) {
+        res.writeHead(401, { 'Content-Type': 'text/plain' });
+        res.end('unauthorized');
+        return;
+      }
+      const handler = shutdownHandler;
+      if (handler === undefined) {
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
+        res.end('not found');
+        return;
+      }
+      // Answer first: the shutdown closes this server.
+      res.writeHead(202, { 'Content-Type': 'text/plain' });
+      res.end('stopping', () => handler());
       return;
     }
 
@@ -318,6 +351,10 @@ export function createSharedServer(options: { token?: string } = {}): SharedServ
     driveProvider = provider;
   }
 
+  function attachShutdown(handler: () => void): void {
+    shutdownHandler = handler;
+  }
+
   function attachAgentPresence(cb: (connected: boolean) => void): void {
     agentPresence = cb;
   }
@@ -386,6 +423,7 @@ export function createSharedServer(options: { token?: string } = {}): SharedServ
     attachPageSdkVersions,
     attachStatus,
     attachDrive,
+    attachShutdown,
     attachAgentPresence,
     announceShutdown,
     close,

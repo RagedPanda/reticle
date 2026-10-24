@@ -82,6 +82,23 @@ export async function configuredPairingToken(
   return readOrCreatePairingToken(dir, deps);
 }
 
+/**
+ * The token a local command shows the daemon: `RETICLE_TOKEN`, else the stored file. Never creates
+ * one, because a new token is not the token the running daemon holds.
+ */
+export function storedPairingToken(env: NodeJS.ProcessEnv = process.env): string | undefined {
+  const fromEnv = env[ReticleEnv.TOKEN]?.trim();
+  if (fromEnv !== undefined && 0 < fromEnv.length) {
+    return fromEnv;
+  }
+  try {
+    const stored = readFileSync(pairingTokenPath(defaultPairingTokenDir()), 'utf8').trim();
+    return 0 < stored.length ? stored : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 /** Throws when `dir` is not absolute: the token must never be made inside the working folder. */
 export function pairingTokenPath(dir: string): string {
   return join(resolveStateDir(undefined, dir, isAbsolute), ReticleDir.PAIRING_TOKEN_FILE);
