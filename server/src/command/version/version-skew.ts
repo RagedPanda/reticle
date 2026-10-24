@@ -270,6 +270,40 @@ function sdkUpdateConverges(daemonVersion: string, agentVersion: string): string
 }
 
 /**
+ * The newest page SDK version that is newer than `agentVersion`, or undefined when no page is.
+ *
+ * The agent's MCP server starts the daemon. When a page is newer than it, `reticle stop` only
+ * starts a daemon at the same old version again, and the advice loops.
+ */
+function newestPageAhead(
+  pageSdkVersions: readonly (string | undefined)[],
+  agentVersion: string,
+): string | undefined {
+  let newest: string | undefined;
+  for (const version of pageSdkVersions) {
+    const ahead = compareVersions(version, agentVersion);
+    if (version === undefined || ahead === undefined || ahead <= 0) {
+      continue;
+    }
+    const order = newest === undefined ? 1 : compareVersions(version, newest);
+    if (order !== undefined && order > 0) {
+      newest = version;
+    }
+  }
+  return newest;
+}
+
+/** The MCP server is the old part: a daemon restart comes back at its version. */
+function mcpServerIsOld(agentVersion: string, pageVersion: string): string {
+  return (
+    `The connected pages run SDK ${pageVersion}, but the agent's MCP server is ${agentVersion}. ` +
+    `The MCP server starts the daemon, so \`reticle stop\` starts a ${agentVersion} daemon again. ` +
+    'Do not stop the daemon. Tell the human to update the MCP entry (or the Reticle plugin) to ' +
+    `@reticlehq/server@${pageVersion} or later, clear a cached npx copy, and restart the agent.`
+  );
+}
+
+/**
  * The fix line for another Reticle process that disagrees with the daemon it attached to.
  *
  * Branches on DIRECTION, which the old unconditional `reticle stop` did not (#618). Restarting the
@@ -301,6 +335,11 @@ export function daemonFix(
       'replace it with another newer daemon and leave the same mismatch. Tell the human to restart ' +
       'the agent so it spawns a current MCP server (or update the package it spawns), then retry.'
     );
+  }
+  const pageAhead =
+    agentVersion === undefined ? undefined : newestPageAhead(pageSdkVersions, agentVersion);
+  if (agentVersion !== undefined && pageAhead !== undefined) {
+    return mcpServerIsOld(agentVersion, pageAhead);
   }
   if (
     order !== undefined &&
