@@ -11,6 +11,7 @@
     "windows": "^(core|engine|server|init|open-verification|spec-runner|conformance|adapters/(build|lint|realm/browser|realm/electron|realm/cli|realm/tauri|framework)|scripts)/|^apps/e2e/|^(package\\.json|pnpm-lock\\.yaml|turbo\\.json|\\.github/workflows/ci\\.yml)$",
     "rust": "^(adapters/realm/tauri/|apps/tauri-smoke/src-tauri/|\\.github/workflows/ci\\.yml)",
     "break": "^(break/|install/|init/|server/src/command/(setup|cli)/|\\.github/workflows/ci\\.yml)",
-    "launchers": "^install/"
+    "launchers": "^install/",
+    "toolsurface": "^(server/src/surface/|core/src/wire/tool-names\\.ts)"
   }
 }

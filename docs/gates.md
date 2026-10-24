@@ -93,7 +93,7 @@ Which means a gate skipped locally can also be skipped in CI, if what you change
 | `early-gates` and `break-matrix` | a change to `init/`, `server/src/command/cli/`, `server/src/command/setup/`, `install/` or `break/`; nightly and on demand. The shipped CLI's first-run refusals on Linux, macOS and Windows; the hostile-environment matrix |
 | `launchers` | a change to `install/`; nightly and on demand. Both launchers parse, are pure ASCII, and install the published CLI on Linux, macOS and Windows (PowerShell 5.1 and 7) |
 | `package-quality` | always: publint, are-the-types-wrong and the pack-size budgets for every published package |
-| `bench` | in the merge queue and on a push to main when something that could move the numbers changed, nightly, and on demand. It is ~19 minutes, so it does not run on a pull request; the queue stops a token regression before it reaches `main` |
+| `bench` | in the merge queue and on a push to main when something that could move the numbers changed, nightly, and on demand. It is ~19 minutes, so a pull request runs it only when it changes the tool surface (`server/src/surface/` or `core/src/wire/tool-names.ts`): those changes move the price on every turn, and review needs the number. The queue stops a token regression before it reaches `main` |
 
 ---
 
