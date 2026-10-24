@@ -178,6 +178,9 @@ interface ActiveLease {
   ignoresHTTPSErrors: boolean;
 }
 
+/** The page's own layout viewport, read back after a resize. */
+const VIEWPORT_READ_SCRIPT = '[window.innerWidth, window.innerHeight]';
+
 /**
  * Owns a headless browser (and, when asked, a headed one) and leases isolated contexts out of them,
  * capped at `maxContexts` across both.
@@ -496,6 +499,23 @@ export class BrowserPool {
       return true;
     } catch {
       return false;
+    }
+  }
+
+  /** The size a leased page reports for itself, or undefined when it cannot be read. */
+  async viewportOfLease(sessionId: string): Promise<{ width: number; height: number } | undefined> {
+    const lease = this.#active.get(this.#leaseIdOf(sessionId));
+    if (lease?.page.evaluate === undefined) {
+      return undefined;
+    }
+    try {
+      const size = await lease.page.evaluate(VIEWPORT_READ_SCRIPT);
+      const [width, height] = Array.isArray(size) ? (size as unknown[]) : [];
+      return 'number' === typeof width && 'number' === typeof height
+        ? { width, height }
+        : undefined;
+    } catch {
+      return undefined;
     }
   }
 
