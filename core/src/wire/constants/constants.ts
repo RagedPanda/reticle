@@ -628,6 +628,9 @@ export const InputModeReason = {
    */
   NOT_CONFIGURED: 'real-input-not-configured-for-this-session',
   TARGET_NOT_FOCUSABLE: 'target-cannot-hold-focus', // lease press: the named element took no focus
+  /** A production drive presses only in the page. A native key goes to whatever holds focus, so
+   * the production policy could not judge the control it pressed. */
+  PRODUCTION_PRESS_IN_PAGE: 'production-drive-presses-in-page',
 } as const;
 export type InputModeReason = (typeof InputModeReason)[keyof typeof InputModeReason];
 
