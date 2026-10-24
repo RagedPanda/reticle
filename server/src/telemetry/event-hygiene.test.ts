@@ -21,9 +21,9 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { TelemetryEventKind, isSessionScoped } from '@reticlehq/core/telemetry';
+import { TelemetryActor, TelemetryEventKind, isSessionScoped } from '@reticlehq/core/telemetry';
 import { knownCommand } from '@/command/cli/cli-parse.js';
-import { isHumanCliCommand } from './cli-telemetry.js';
+import { cliActorOf, isHumanCliCommand } from './cli-telemetry.js';
 import { createTelemetry } from './telemetry.js';
 import { describeToolParams } from './argument-shape.js';
 import { readFileSync } from 'node:fs';
@@ -46,6 +46,13 @@ describe('cli_command_run reports human intent, and only that', () => {
 
   it('an unrecognised command still reports, as `unknown`', () => {
     expect(isHumanCliCommand(knownCommand('flurb'))).toBe(true);
+  });
+
+  it('says an agent ran the command when the agent marked the shell it spawned', () => {
+    // Agents run `reticle gate`, `init` and `verify` through a shell. That is not a person typing.
+    expect(cliActorOf({ CLAUDECODE: '1' })).toBe(TelemetryActor.AGENT);
+    expect(cliActorOf({ CURSOR_TRACE_ID: 'abc' })).toBe(TelemetryActor.AGENT);
+    expect(cliActorOf({})).toBe(TelemetryActor.HUMAN);
   });
 });
 

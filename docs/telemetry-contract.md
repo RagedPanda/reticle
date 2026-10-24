@@ -91,7 +91,7 @@ The single exception is `daemon_stopped`, which is **awaited**, because the proc
 | Kind | When | What it answers |
 | --- | --- | --- |
 | `reticle_installed` | first-ever run on a machine | install count, and the new-user curve |
-| `cli_command_run` | a human ran a `reticle` subcommand | human intent: `verify`/`gate` mean something very different from `status`. Never emitted for the internal `_daemon` spawn |
+| `cli_command_run` | a `reticle` subcommand ran | intent: `verify`/`gate` mean something very different from `status`. `actor` is `agent` when a coding agent's marker is in the environment (the agent ran it through a shell), else `human`; older versions send no `actor`. Never emitted for the internal `_daemon` spawn or the agent's `mcp` transport |
 | `daemon_started` | the daemon came up | active sessions |
 | `daemon_stopped` | clean exit | the rich session roll-up. **Count sessions with this one**; see below |
 | `session_progress` | periodic flush from a LIVE daemon | same payload, `final: false`. Sum the scalar counters across both (each is windowed) |

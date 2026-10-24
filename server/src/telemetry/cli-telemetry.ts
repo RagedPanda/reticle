@@ -4,7 +4,7 @@
  * Lives in its own module so `cli.ts` stays a dispatcher, and so the `_daemon` exclusion below sits
  * next to the explanation of why it exists rather than buried in a startup function.
  */
-import { TelemetryEventKind } from '@reticlehq/core/telemetry';
+import { TelemetryActor, TelemetryEventKind } from '@reticlehq/core/telemetry';
 import { DAEMON_INNER_COMMAND, knownCommand } from '@/command/cli/cli-parse.js';
 import { getTelemetry } from './telemetry.js';
 import { drainInstallTrace } from './install-trace.js';
@@ -16,6 +16,7 @@ const RETICLE_STATE_DIR = process.env['RETICLE_STATE_DIR'] ?? join(homedir(), '.
 import { describeCliFlags } from './argument-shape.js';
 import { rememberInstallSource, resolveInstallSource } from './install-source.js';
 import { installPlatformLinkTelemetry } from './platform-linked.js';
+import { envAgentClient } from './agent-client.js';
 
 /**
  * Report that a person ran a `reticle` subcommand.
@@ -42,6 +43,14 @@ const AGENT_TRANSPORT_COMMAND = 'mcp';
 /** True when this command represents a person typing something. Exported for the gate. */
 export function isHumanCliCommand(command: string): boolean {
   return command !== AGENT_TRANSPORT_COMMAND && command !== DAEMON_INNER_COMMAND;
+}
+
+/**
+ * Who ran the command. A coding agent runs `reticle gate`, `init` and `verify` through a shell, and
+ * it marks the processes it spawns (see `envAgentClient`). Without the marker it is a person.
+ */
+export function cliActorOf(env: NodeJS.ProcessEnv): TelemetryActor {
+  return envAgentClient(env) === undefined ? TelemetryActor.HUMAN : TelemetryActor.AGENT;
 }
 
 export function reportCliRun(argv: readonly string[]): void {
@@ -80,10 +89,9 @@ export function reportCliRun(argv: readonly string[]): void {
   if (!isHumanCliCommand(command)) return;
   void telemetry.emit(TelemetryEventKind.CLI_COMMAND_RUN, {
     detach: true,
-    // No `actor`: with the agent's transport excluded, this event is human BY DEFINITION, so the
-    // field would be constant here — zero information. `actor` stays where it earns its place:
-    // verification_completed and bug_found, where it splits the agent's own loop from a human or
-    // CI-triggered run.
+    // The agent's transport (`mcp`) is excluded above, but an agent also runs commands through a
+    // shell. `actor` splits those from a command a person typed.
+    actor: cliActorOf(process.env),
     // A fixed, low-cardinality vocabulary WE define, so it is safe to send whole and it is the closest
     // honest read we have on intent: `verify` and `gate` mean something very different from `status`.
     // An unrecognized first arg reports as `unknown` rather than being echoed — an echo would put
