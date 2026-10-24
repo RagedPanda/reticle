@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { missingTokenWarning } from './token/missing-token.js';
 import { ensurePairingToken } from './token/ensure-token.js';
 import { homedir } from 'node:os';
-import { isAbsolute, join } from 'node:path';
+import { isAbsolute, join, resolve, sep } from 'node:path';
 import {
   RETICLE_RENDER_PREHOOK,
   ReticleDir,
@@ -421,13 +421,16 @@ function isHtmlEntry(id: string, specifier: string | undefined, root: string | u
 export function readPairingToken(): string | undefined {
   let dir: string;
   try {
+    // The daemon's rule: a relative folder is resolved against the working folder, and a Windows
+    // path on POSIX is not used. Both warn, so the two sides agree on one token file.
     dir = resolveStateDir(
       process.env[ReticleEnv.PAIRING_TOKEN_DIR],
       join(homedir(), ReticleDir.ROOT),
-      isAbsolute,
+      { isAbsolute, resolve, sep },
+      (warning) => console.warn(`[reticle] ${warning}`),
     );
   } catch (error) {
-    // A relative folder would put the token inside the project. The dev server still starts.
+    // Only a home folder that is not absolute gets here. The dev server still starts.
     console.warn(`[reticle] ${error instanceof Error ? error.message : String(error)}`);
     return undefined;
   }
