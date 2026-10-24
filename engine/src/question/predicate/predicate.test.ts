@@ -1884,6 +1884,40 @@ describe('absence and negation hold like a count — a late error must not pass'
     expect((await verdict).pass).toBe(false);
   });
 
+  // `count: 0` is an absence. It held only for the 300ms count hold, so a handler that awaits
+  // 500ms and then sends the request passed a "no request" check.
+  it('FAILS a `net count: 0` check when the request is sent 500ms later', async () => {
+    const session = new LiveSession();
+    const verdict = waitForPredicate(
+      session,
+      { kind: 'net', method: 'POST', urlContains: '/api/save', count: 0 },
+      5000,
+    );
+    setTimeout(
+      () =>
+        session.push(
+          ev(
+            EventType.NET_REQUEST,
+            { id: 'n1', method: 'POST', url: '/api/save', status: 200 },
+            500,
+          ),
+        ),
+      500,
+    );
+    expect((await verdict).pass).toBe(false);
+  });
+
+  it('FAILS a `signal count: 0` check when the signal fires 500ms later', async () => {
+    const session = new LiveSession();
+    const verdict = waitForPredicate(
+      session,
+      { kind: 'signal', name: 'order:placed', count: 0 },
+      5000,
+    );
+    setTimeout(() => session.push(ev(EventType.SIGNAL, { name: 'order:placed' }, 500)), 500);
+    expect((await verdict).pass).toBe(false);
+  });
+
   it('keeps holding while the page is still busy, and fails on an error after the busy spell', async () => {
     // A clock that moves, so "quiet for N ms" means something.
     const started = performance.now();
