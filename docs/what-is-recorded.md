@@ -5,7 +5,7 @@ description: What Reticle keeps on your machine, what is redacted, and what it t
 
 Reticle drives your app and reads what it did. That means it holds real content from real pages, so this page says exactly what it keeps, where it keeps it, and what it takes to make any of it leave.
 
-If you read one line: **a verdict is entirely local and needs no account.** Nothing from your app leaves the machine until you link a project (`reticle connect`, or `RETICLE_API_KEY` in CI). After that, what syncs is set by `reticle config`, and when the Harness drives, the platform sees the steps it drives. A linked project also sends each prompt you typed with the runs that verify it, unless `"shareRequests": false`; see [Prompt capture](prompt-capture.md). Secret values never leave. (Anonymous usage counts, which carry nothing from your app, are separate and described in [Telemetry](telemetry.md).)
+If you read one line: **a verdict is entirely local and needs no account.** Nothing from your app leaves the machine until you link a project (`reticle connect`, or `RETICLE_API_KEY` in CI). After that, what syncs is set by `reticle config`, and when the Harness drives, the platform sees the steps it drives. A linked project also sends each prompt you typed with the runs that verify it, unless `"shareRequests": false`; see [Prompt capture](prompt-capture.md). Secret values never leave. (Usage counts, which carry nothing from your app, are separate and described in [Telemetry](telemetry.md).)
 
 ## On your machine
 
@@ -51,7 +51,7 @@ The Harness runs on the platform, so the platform sees what it drives: each step
 
 ## Telemetry, which is separate from all of the above
 
-The CLI sends anonymous usage events: event names and a random installation id. No code, no page content, no URLs from your app. No IP address and no location: each event tells the analytics service not to store the address or look up a location from it. It is how we know which parts of the product are reached at all.
+The CLI sends usage events: event names, a random installation id, and a hash of the project's git origin. A linked project adds its workspace id, and a licensed build adds its licence id, so those events can be connected to an organization. No code, no page content, no URLs from your app. No IP address and no location: each event tells the analytics service not to store the address or look up a location from it. It is how we know which parts of the product are reached at all.
 
 ```bash
 RETICLE_TELEMETRY=0          # this shell

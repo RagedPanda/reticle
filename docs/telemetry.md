@@ -1,16 +1,16 @@
 ---
 title: Telemetry
-description: 'The complete description of the anonymous usage data Reticle collects, what it is for, and how to turn it off.'
+description: 'The complete description of the usage data Reticle collects, what it is for, and how to turn it off.'
 icon: chart-line
 ---
 
-Reticle sends anonymous usage counters (which commands ran, which tools an agent called, whether a verification produced a verdict) and nothing from the app under test. To turn it off permanently, run `npx @reticlehq/server telemetry disable`.
+Reticle sends usage counters (which commands ran, which tools an agent called, whether a verification produced a verdict) and nothing from the app under test. To turn it off permanently, run `npx @reticlehq/server telemetry disable`.
 
 This page is the complete description of what is collected. If something is not listed here, it is not sent.
 
 ## The short version
 
-- **Anonymous.** We cannot tell who you are, and we do not try.
+- **No name, no email, no account.** The events do not carry who you are, and we do not try to find out. Two fields can connect events to an organization: the workspace id of a project you linked, and the licence id of a licensed build. See [the fields on every event](#what-is-sent).
 - **No code, no app data.** Nothing from the app under test (no DOM, no network traffic, no console output, no source, no file paths) ever leaves your machine.
 - **The one exception is feedback you deliberately send us**, and it is never collected passively. See [Feedback](#feedback) below.
 - **Opt out any time**, permanently, with one command:
@@ -101,11 +101,12 @@ Every event carries the same few fields:
 | Field | What it is | What it is not |
 | --- | --- | --- |
 | `anonymousId` | A random UUID minted locally on first run, stored at `~/.reticle/telemetry-id` | Not derived from your name, email, hardware, or anything else about you |
-| `projectId` | A one-way SHA-256 hash of the git origin URL, or of the directory path outside a repo | Not reversible: we can count _distinct_ projects, but not learn any project's name, URL, or location. Hashing the origin means one repo counts once instead of once per teammate and per clone |
+| `projectId` | A SHA-256 hash of the git origin URL, or of the directory path outside a repo | Not the URL or the path. We use it to count _distinct_ projects. A hash cannot be turned back into a URL, but anyone who has a URL can hash it and compare: for a public repository, the id can be matched to the repository. Hashing the origin means one repo counts once instead of once per teammate and per clone |
 | `actor` | Whether a person or an agent caused this: a typed `reticle` command is a person, an MCP tool call is the agent | Not a claim about _why_. Whether you asked your agent to verify, or it decided to, lives in a prompt Reticle never sees, and we do not guess |
 | `sessionId` | A random id for this daemon run, held in memory and never written to disk | Not a device id and not persistent: a restarted daemon gets a new one. It only groups one run's own events together |
 | `accountState` / `linked` | Whether this machine is signed out, signed in, or signed in with this project linked to a workspace | Not who is signed in: read from whether a sign-in file exists, never from what is in it |
 | `workspaceId` | Only once this project is linked: the Reticle workspace's id, the `orgId` in `.reticle/cloud.json` | Not the workspace's name and not your email. It is the one key the Reticle platform can join this usage to the workspace you created there; see [The platform side](#the-platform-side) |
+| `licenseId` | Only on a licensed (enterprise) build: the id of the licence key it runs with, sent as the event's `organization` group | Not sent by an open-source install. Our licence records connect each licence id to the company that holds the key, so these events are not anonymous to us |
 | `client` | Which coding agent the event came from, from a closed list (`claude_code`, `cursor`, `codex`, and so on, or `other`) | Not the name your agent sent: a name we do not list arrives as `other` |
 | `launch` | How `reticle` was started: `npx`, `global`, `project` or `other` | Not the path it was started from; only the bucket leaves |
 | `projectIdSource` | Whether `projectId` came from a shared git origin or from the local directory path | Not the origin or the path. It exists so we can tell when "how many people share this project" is a real measurement. Outside a pushed repo there is nothing shared to hash, so those rows always show one user |
@@ -113,7 +114,7 @@ Every event carries the same few fields:
 | `os` | The platform (`darwin` / `linux` / `win32`) | Not the OS version, hostname, or hardware |
 | `ci` | Whether the run is inside CI | n/a |
 
-There are no IP-based profiles, no cookies, no fingerprinting, and no person profiles: events are processed in "personless" mode, so they are never joined into an identity.
+There are no IP-based profiles, no cookies, no fingerprinting, and no person profiles: events are processed in "personless" mode, so they are never joined into a person profile.
 
 Your IP address is not stored, and no location is found from it. Each event tells PostHog not to look up a location (`$geoip_disable: true`). Each event also sets `$ip` to `0.0.0.0`, so PostHog does not store the address the request came from. Events from older versions do not do this.
 
@@ -125,11 +126,11 @@ The sign-in page Reticle opens also says where the sign-in started (`from=termin
 
 ## What is never sent
 
-Your code. Your app's DOM, network requests or responses, console logs, application state, or screenshots. File paths, project names, or git remote URLs. Your name, email or employer. Any account identifier, with one exception you opt into by linking a project: the workspace id, above. Environment variables. Anything typed into the app under test. The names of your flows, baselines, or tests. Error messages, and any stack frame belonging to your application.
+Your code. Your app's DOM, network requests or responses, console logs, application state, or screenshots. File paths, project names, or git remote URLs. Your name or email, except a reply address that you give with [feedback](#feedback). Any account identifier, with two exceptions: the workspace id of a project you linked, and the licence id of a licensed build, both above. Environment variables. Anything typed into the app under test. The names of your flows, baselines, or tests. Error messages, and any stack frame belonging to your application.
 
 A few of these are worth being explicit about, because they are the ones a product team is most tempted by:
 
-- **We do not send your project's name or its GitHub URL.** `projectId` is a one-way hash. It lets us count distinct projects and see that a project came back next week; it cannot be turned back into a repository, and we cannot look you up from it.
+- **We do not send your project's name or its GitHub URL.** `projectId` is a hash of the URL. It lets us count distinct projects and see that a project came back next week. We do not use it to find the repository. The hash is not a secret: for a public repository, anyone who has the URL can compute the same id.
 - **We do not try to work out who you work for.** No domain sniffing, no email inference, no matching a repo against a company. If you _want_ us to know, [email us](#telling-us-who-you-are).
 - **We do not record what you asked your agent to verify.** The `verification_completed` event knows that a verification happened and how it turned out. The prompt behind it is not something Reticle can see, and we do not reconstruct it.
 
@@ -167,7 +168,7 @@ Alongside the report, a feedback event carries context about the environment it 
 
 Plus the `version`, `os`, and `ci` fields every event carries. No paths, no project name, no dependency list, no user-agent string.
 
-**It has its own off switch.** To keep the anonymous counters but never send free text:
+**It has its own off switch.** To keep the usage counters but never send free text:
 
 ```bash
 RETICLE_FEEDBACK=0
@@ -177,7 +178,7 @@ Every switch in [Your choices](#your-choices) disables feedback too. If telemetr
 
 ## Telling us who you are
 
-Everything above is anonymous, and stays that way. There is no command that sends who you are: `reticle identify`, which used to, has been removed, and this version never sends an `identified` event. If you want support, an enterprise licence, or to be a design partner, email support@reticlehq.com.
+Nothing above names you, and no command adds your name: `reticle identify`, which used to, has been removed, and this version never sends an `identified` event. If you want support, an enterprise licence, or to be a design partner, email support@reticlehq.com.
 
 An identity sent by an earlier version with `reticle identify` stays linked to that machine's anonymous id until you ask for it to be removed: email support@reticlehq.com.
 
