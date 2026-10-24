@@ -8,6 +8,7 @@ import {
   STATUS_PATH,
   STATUS_HOLD_QUERY,
   DRIVE_PATH,
+  PROXY_ID_PARAM,
 } from '@reticlehq/core';
 import { getSessionMetrics } from '@/telemetry/session-metrics.js';
 import {
@@ -34,7 +35,7 @@ export interface SharedServer {
    * so each concurrent Claude Code client needs its own McpServer.
    * Must be called before listen.
    */
-  attachMcp(factory: (peerSkew?: string) => McpServer): void;
+  attachMcp(factory: (peerSkew?: string, proxyId?: string) => McpServer): void;
   /**
    * SDK version of each page connected when an agent attaches.
    * The daemon skew advice reads this so it does not tell the agent to restart over matching pages.
@@ -81,7 +82,7 @@ export interface SharedServer {
  * WS /reticle → browser SDK connections (via WebSocketServer)
  */
 export function createSharedServer(options: { token?: string } = {}): SharedServer {
-  type McpFactory = (peerSkew?: string) => McpServer;
+  type McpFactory = (peerSkew?: string, proxyId?: string) => McpServer;
   let mcpFactory: McpFactory | undefined;
   let pageSdkVersions: () => readonly (string | undefined)[] = () => [];
   let statusProvider: ((held: boolean) => unknown) | undefined;
@@ -237,7 +238,7 @@ export function createSharedServer(options: { token?: string } = {}): SharedServ
       // one active transport per Server instance, so concurrent clients each need
       // their own instance backed by the same shared ToolDeps.
       // Handed to THIS connection's server only: the skew is about this agent, not the daemon (#1136).
-      const mcpServer = mcpFactory(peerSkew);
+      const mcpServer = mcpFactory(peerSkew, proxyIdOf(url.searchParams.get(PROXY_ID_PARAM)));
       const transport = new SSEServerTransport(MCP_MESSAGE_PATH, res);
       const sid = transport.sessionId;
       transports.set(sid, transport);
@@ -403,6 +404,12 @@ const MAX_DRIVE_BODY_BYTES = 8 * 1024;
  * because real clients send them.
  */
 const JSON_MEDIA_TYPE = 'application/json';
+
+/** A proxy id is a UUID. Anything else is not an id this daemon keys an agent by. */
+const PROXY_ID_SHAPE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+function proxyIdOf(raw: string | null): string | undefined {
+  return null !== raw && PROXY_ID_SHAPE.test(raw) ? raw : undefined;
+}
 
 function isJsonRequest(req: http.IncomingMessage): boolean {
   // Read through the typed accessor rather than indexing the header bag: the index signature is

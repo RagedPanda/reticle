@@ -1411,7 +1411,7 @@
   },
   "src/index.ts": {
     "curly": {
-      "count": 7
+      "count": 6
     }
   },
   "src/judgement/capsule/capsule-store.ts": {

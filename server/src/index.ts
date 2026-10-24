@@ -17,6 +17,7 @@ import type { Server } from 'node:http';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
   AGENT_STOPPED_NOTICE,
+  AGENT_DETACH_GRACE_MS,
   RETICLE_DEFAULT_PORT,
   ReticleCommand,
   ReticleDir,
@@ -60,6 +61,7 @@ import {
   MCP_DISCONNECT_SUMMARY,
 } from './portal/session/session-reaper.js';
 import { wireSessionScope } from './portal/session/no-session-watch.js';
+import { withDetachGrace } from './surface/agent-presence-grace.js';
 import { buildIdlePredicate, noteSetupHold } from './command/daemon/lifetime/daemon-usefulness.js';
 import { resolveToolSurface } from './surface/tools/tool-surface.js';
 import { statusPayload } from './status-payload.js';
@@ -449,11 +451,16 @@ export async function startDaemon(options: StartOptions = {}): Promise<RunningSe
   // prompt into a dead session. A returning agent's next tool call revives the auto-ended session.
   // Track agent presence for the idle-shutdown predicate (below): the daemon is "idle" only when no
   // agent is attached AND no browser tab is connected AND no pool lease is active.
+  // The detach waits a short grace: a proxy that reconnects inside it keeps the sessions.
   let agentConnected = false;
-  shared.attachAgentPresence((connected) => {
-    agentConnected = connected;
-    if (!connected) endAllSessions(bridge.sessions, AGENT_STOPPED_NOTICE);
-  });
+  shared.attachAgentPresence(
+    withDetachGrace((connected) => {
+      agentConnected = connected;
+      if (!connected) {
+        endAllSessions(bridge.sessions, AGENT_STOPPED_NOTICE);
+      }
+    }, AGENT_DETACH_GRACE_MS),
+  );
 
   const reaper = new SessionReaper(bridge.sessions);
   reaper.start();
@@ -592,11 +599,14 @@ export async function startDaemon(options: StartOptions = {}): Promise<RunningSe
   const effectiveDeps = realInput !== undefined ? { ...deps, realInput } : deps;
   // Read per attach, not once: a project that gets wired while this daemon is alive should stop
   // being told to wire itself on the next agent that connects.
-  shared.attachMcp((peerSkew) =>
+  // A proxy's id is its agent identity, so a reconnect from the same proxy keeps its leases.
+  shared.attachMcp((peerSkew, proxyId) =>
     createMcpServer(
-      peerSkew === undefined
-        ? effectiveDeps
-        : { ...effectiveDeps, peerSkew: connectionSkew(peerSkew) },
+      {
+        ...effectiveDeps,
+        ...(peerSkew === undefined ? {} : { peerSkew: connectionSkew(peerSkew) }),
+        ...(proxyId === undefined ? {} : { attachId: proxyId }),
+      },
       profile,
       instructionStateAt(port, bridge.sessions.count()),
     ),

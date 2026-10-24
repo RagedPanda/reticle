@@ -1,4 +1,5 @@
 import * as http from 'node:http';
+import { randomUUID } from 'node:crypto';
 import { stateDirProblem } from '@/command/daemon/state-dir.js';
 import { reticleStateHome } from '@/command/daemon/daemon.js';
 import {
@@ -19,6 +20,7 @@ import {
   ReticleEnv,
   CONTRACT_FINGERPRINT,
   ProxyExitReason,
+  PROXY_ID_PARAM,
 } from '@reticlehq/core';
 import { SseFrameParser } from './sse-frame-parser.js';
 export { SseFrameParser, type SseFrame } from './sse-frame-parser.js';
@@ -97,6 +99,8 @@ export const MAX_RECONNECT_ATTEMPTS = ((): number => {
 export const RECONNECT_INITIALIZE_ID = '__reticle_proxy_reinit';
 
 const INITIALIZE_METHOD = 'initialize';
+/** One id per proxy process. Every reconnect sends it, so the daemon sees the same agent return. */
+const PROXY_ID = randomUUID();
 /**
  * How long the handshake waits on the daemon before the proxy answers it.
  *
@@ -720,7 +724,7 @@ export function startMcpProxy(
     function connect(first: boolean): void {
       // Announce this process to the daemon on the connect we already make — it is the single judge
       // of version skew, and this is the only moment it learns the agent's MCP server exists.
-      const announce = `${MCP_SSE_PATH}?${PEER_VERSION_PARAM}=${encodeURIComponent(SERVER_VERSION)}&${PEER_CONTRACT_PARAM}=${encodeURIComponent(CONTRACT_FINGERPRINT)}`;
+      const announce = `${MCP_SSE_PATH}?${PEER_VERSION_PARAM}=${encodeURIComponent(SERVER_VERSION)}&${PEER_CONTRACT_PARAM}=${encodeURIComponent(CONTRACT_FINGERPRINT)}&${PROXY_ID_PARAM}=${PROXY_ID}`;
       /**
        * ONE reconnect per connect attempt, whoever notices the failure first.
        *

@@ -373,6 +373,18 @@ export class BrowserPool {
   }
 
   /**
+   * The MCP connection `owner` came back: a proxy that reconnects keeps its id. Its leases stop
+   * their grace, because the owner they wait for is here again.
+   */
+  reattachOwner(owner: string): void {
+    for (const lease of this.#active.values()) {
+      if (lease.owner === owner) {
+        delete lease.detachedAt;
+      }
+    }
+  }
+
+  /**
    * Reclaim leases untouched for longer than the TTL — a hung/crashed agent never holds a slot
    * forever. Returns the released sessionIds. This is the fault-tolerance backstop for the pool.
    */

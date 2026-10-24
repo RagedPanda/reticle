@@ -650,6 +650,9 @@ export function createMcpServer(
    * store keeps it.
    */
   const deps = { snapshots: newSnapshotCache(), attachId: randomUUID(), ...rawDeps };
+  // A proxy that reconnects brings its own id as `attachId`, so this is the same owner coming back:
+  // take its leases out of their grace. A new random id owns no leases, so this does nothing.
+  deps.pool?.reattachOwner(deps.attachId);
   const encoding = (process.env[ENCODING_ENV] ?? '').toLowerCase();
   // Which surface this daemon advertises. The 18-tool default and the 48-tool full surface are
   // different products from inside an agent's context, so outcomes are only comparable when the
@@ -690,7 +693,7 @@ export function createMcpServer(
   };
   server.server.onclose = () => {
     noteAgentDetached(deps.attachId);
-    // A reconnect is a new owner and never takes these leases back; start their short grace.
+    // Start the leases' short grace. A reconnect from the same proxy takes them back (see above).
     deps.pool?.detachOwner(deps.attachId);
   };
   // Which agent is on the other end, for a feedback report. Registered as a lazy hook rather than

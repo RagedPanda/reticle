@@ -20,7 +20,7 @@ describe('closing an MCP connection', () => {
       fs: createMemoryFs().fs,
       reticleRoot: '/repo/.reticle',
       now: () => 1_000,
-      pool: { detachOwner },
+      pool: { detachOwner, reattachOwner: vi.fn() },
       attachId: 'attach-1',
     } as unknown as ToolDeps;
     const { InMemoryTransport } = await import('@modelcontextprotocol/sdk/inMemory.js');
@@ -34,5 +34,19 @@ describe('closing an MCP connection', () => {
 
     await client.close();
     expect(detachOwner).toHaveBeenCalledWith('attach-1');
+  });
+
+  it('takes the leases back when the same attach id connects again', () => {
+    const reattachOwner = vi.fn();
+    const deps = {
+      sessions: { resolve: () => undefined },
+      fs: createMemoryFs().fs,
+      reticleRoot: '/repo/.reticle',
+      now: () => 1_000,
+      pool: { detachOwner: vi.fn(), reattachOwner },
+      attachId: 'attach-1',
+    } as unknown as ToolDeps;
+    createMcpServer(deps, TOOL_SURFACE.ALL);
+    expect(reattachOwner).toHaveBeenCalledWith('attach-1');
   });
 });
