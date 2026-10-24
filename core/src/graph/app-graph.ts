@@ -228,14 +228,13 @@ export const controlsOf = (tree: string): SeenControl[] =>
   });
 
 /** A seen control's identity on its screen, the same as the act that presses it would have. */
-const controlKey = (c: SeenControl): string | undefined =>
-  c.testid !== undefined
-    ? `testid=${c.testid}`
-    : c.component !== undefined && c.name.length > ROW_NAME_CHARS
-      ? `component=${c.component}`
-      : '' === c.name
-        ? undefined
-        : `${c.role} "${c.name}"`;
+const controlKey = (c: SeenControl): string | undefined => {
+  if (c.testid !== undefined) return `testid=${c.testid}`;
+  if (c.component !== undefined && c.name.length > ROW_NAME_CHARS)
+    return `component=${c.component}`;
+  if ('' === c.name) return undefined;
+  return `${c.role} "${c.name}"`;
+};
 
 /** An action's identity on its screen: the anchor a flow would use, never a ref. */
 const anchorKey = (anchor: Record<string, unknown>): string | undefined => {
@@ -411,11 +410,7 @@ export function mergeMap(map: AppMap | undefined, run: RunMap, runId: string): A
       ...(0 === refuted ? {} : { refuted }),
       ...(0 === pressed ? {} : { pressed }),
       // The latest way it was pressed, else the one it was pressed by before.
-      ...(pressedBy !== undefined
-        ? { anchor: pressedBy }
-        : held?.anchor === undefined
-          ? {}
-          : { anchor: held.anchor }),
+      ...((a) => (a === undefined ? {} : { anchor: a }))(pressedBy ?? held?.anchor),
     });
   }
   const key = (e: { from: string; kind: string; to: string }): string =>

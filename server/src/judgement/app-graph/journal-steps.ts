@@ -36,7 +36,9 @@ const anchorOf = (step: Record<string, unknown>): Record<string, unknown> | unde
 
 const heldOf = (effect: unknown): boolean | undefined => {
   const verified = record(effect)['verified'];
-  return 'yes' === verified ? true : 'no' === verified ? false : undefined;
+  if ('yes' === verified) return true;
+  if ('no' === verified) return false;
+  return undefined;
 };
 
 export function journalSteps(

@@ -34,11 +34,6 @@
       "count": 1
     }
   },
-  "src/question/predicate/predicate-eval.ts": {
-    "no-nested-ternary": {
-      "count": 1
-    }
-  },
   "src/question/predicate/predicate-parse.ts": {
     "no-nested-ternary": {
       "count": 1

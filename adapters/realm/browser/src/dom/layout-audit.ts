@@ -111,12 +111,9 @@ const parse = (value: string): Rgba | null => {
   const m = RGB.exec(value);
   if (null === m) return null;
   const alphaRaw = m[4];
-  const alpha =
-    alphaRaw === undefined
-      ? 1
-      : alphaRaw.endsWith('%')
-        ? Number(alphaRaw.slice(0, -1)) / 100
-        : Number(alphaRaw);
+  let alpha = 1;
+  if (alphaRaw !== undefined)
+    alpha = alphaRaw.endsWith('%') ? Number(alphaRaw.slice(0, -1)) / 100 : Number(alphaRaw);
   return [Number(m[1]), Number(m[2]), Number(m[3]), alpha];
 };
 

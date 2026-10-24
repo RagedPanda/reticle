@@ -283,13 +283,10 @@ function formatLine(
   const info = withTestId ? identifyComponent(el) : null;
   const component = null === testid ? info?.componentStack[0] : undefined;
   const where = info?.source;
-  const idPart = `${
-    null !== testid
-      ? ` [testid=${testid}]`
-      : component === undefined
-        ? ''
-        : ` [component=${component}]`
-  }${where === undefined ? '' : ` [src=${where.file}:${String(where.line)}]`}`;
+  let who = '';
+  if (null !== testid) who = ` [testid=${testid}]`;
+  else if (component !== undefined) who = ` [component=${component}]`;
+  const idPart = `${who}${where === undefined ? '' : ` [src=${where.file}:${String(where.line)}]`}`;
   return `${indent}- ${role}${namePart}${refPart}${valuePart}${textPart}${layoutPart}${stateSuffix(el)}${idPart}`;
 }
 

@@ -612,10 +612,10 @@ export class Bridge {
             socket.close(WS_CLOSE.AUTH_FAILED[0], reason);
             return;
           }
-          const notFollowed =
-            following === undefined
-              ? undefined
-              : this.#follower === undefined
+          let notFollowed: string | undefined;
+          if (following !== undefined)
+            notFollowed =
+              this.#follower === undefined
                 ? FollowRefusal.POLICY_REFUSED
                 : this.#follower.refusal(parsed, following);
           if (notFollowed !== undefined) {
