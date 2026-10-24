@@ -781,7 +781,12 @@ export async function replayFlow(
       // happened in identical words rather than in two vocabularies that agree by coincidence.
       Object.assign(
         result,
-        stepEffect(windowEvents, { since: cursorBefore, until: cursorAfter }, appScope(session)),
+        stepEffect(
+          windowEvents,
+          { since: cursorBefore, until: cursorAfter },
+          // A failure the step declared is its expected result, as it is on the live path.
+          { ...appScope(session), declared },
+        ),
       );
       /*
        * A prefix step is setup and is not reported -- UNLESS it failed.

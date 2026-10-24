@@ -69,12 +69,14 @@ import { unreachableTargetNote } from './act/act-observation.js';
  * INSIDE the step loop, be caught as a step failure, and abort the rest of a journey that was
  * running perfectly. The drive is the product; the description of it is not.
  */
-function effectOf(session: Session, since: number): StepEffect {
+function effectOf(session: Session, since: number, expect: unknown): StepEffect {
   try {
+    // A failure the step declared is its expected result, as it is for `act_and_wait`'s `until`.
+    const declared = PredicateSchema.safeParse(expect);
     return stepEffect(
       session.eventsSince(since),
       { since, until: session.elapsed() },
-      appScope(session),
+      { ...appScope(session), ...(declared.success ? { declared: [declared.data] } : {}) },
     );
   } catch {
     return {};
@@ -368,7 +370,7 @@ export const ACT_SEQUENCE_TOOL: ToolDef = {
            */
           const describe = () => ({
             ...describeStepResult(step, asRecord(outcome.result)),
-            ...effectOf(session, stepSince),
+            ...effectOf(session, stepSince, step['expect']),
           });
           const deciding = (step: ReturnType<typeof describe>) =>
             (step.contradictions ?? [])
