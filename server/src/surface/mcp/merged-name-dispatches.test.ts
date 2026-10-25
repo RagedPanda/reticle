@@ -70,7 +70,7 @@ const dispatchableMergedNames = (): readonly string[] =>
   Object.keys(retiredToolNames()).filter((old) => {
     // A merge folds a group into one of its own members, so the surviving name appears on both
     // sides of the table. It is a live tool, not a name anybody has to be rescued from.
-    if (MERGED_TOOL_NAMES.has(old)) return false;
+    if (MERGED_TOOL_NAMES.has(old)) {return false;}
     const moved = mergedNameRedirect(old);
     return moved?.action !== undefined && MERGED_TOOL_NAMES.has(moved.tool);
   });

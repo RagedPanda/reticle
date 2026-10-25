@@ -48,7 +48,7 @@ describe('ProjectStore — temp-dir filesystem, never touches the repo', () => {
     await store.recordRun(RUN);
     const r = await store.read();
     expect(r.ok).toBe(true);
-    if (!r.ok) throw new Error('expected ok');
+    if (!r.ok) {throw new Error('expected ok');}
     expect(r.file.runs).toHaveLength(1);
     expect(r.file.runs[0]).toEqual({ ...RUN, at: FROZEN });
   });
@@ -67,7 +67,7 @@ describe('ProjectStore — temp-dir filesystem, never touches the repo', () => {
     await store.recordRun({ ...RUN, name: 'zeta' });
     await store.recordRun({ ...RUN, name: 'alpha' });
     const r = await store.read();
-    if (!r.ok) throw new Error('expected ok');
+    if (!r.ok) {throw new Error('expected ok');}
     expect(r.file.runs.map((x) => x.name)).toEqual(['zeta', 'alpha']);
   });
 
@@ -105,7 +105,7 @@ describe('ProjectStore — temp-dir filesystem, never touches the repo', () => {
       await store.recordRun({ ...RUN, name: 'checkout', summary: `r${i}` });
     }
     const r = await store.read();
-    if (!r.ok) throw new Error('expected ok');
+    if (!r.ok) {throw new Error('expected ok');}
     expect(r.file.runs).toHaveLength(PROJECT_RUN_CAP.PER_NAME);
     // The OLDEST were dropped: newest summary survives, oldest does not.
     expect(r.file.runs.at(-1)?.summary).toBe(`r${PROJECT_RUN_CAP.PER_NAME + 9}`);
@@ -134,7 +134,7 @@ describe('ProjectStore — temp-dir filesystem, never touches the repo', () => {
       await store.recordRun({ ...RUN, name: `flow-${i}` });
     }
     const r = await store.read();
-    if (!r.ok) throw new Error('expected ok');
+    if (!r.ok) {throw new Error('expected ok');}
     expect(r.file.runs).toHaveLength(PROJECT_RUN_CAP.TOTAL + 25);
     expect(r.file.runs.some((x) => 'flow-0' === x.name)).toBe(true); // the oldest flow's LKG survives
     expect(r.file.runs.at(-1)?.name).toBe(`flow-${PROJECT_RUN_CAP.TOTAL + 24}`);
@@ -187,7 +187,7 @@ describe('ProjectStore — temp-dir filesystem, never touches the repo', () => {
     await store.recordRun(RUN);
     const r = await store.read();
     expect(r.ok).toBe(true);
-    if (!r.ok) throw new Error('expected ok');
+    if (!r.ok) {throw new Error('expected ok');}
     expect(r.file.runs).toHaveLength(1);
     expect(r.file.runs[0]?.name).toBe('checkout');
   });
@@ -211,7 +211,7 @@ describe('ProjectStore — temp-dir filesystem, never touches the repo', () => {
       Array.from({ length: N }, (_v, i) => store.recordRun({ ...RUN, name: `flow-${String(i)}` })),
     );
     const r = await store.read();
-    if (!r.ok) throw new Error('expected ok');
+    if (!r.ok) {throw new Error('expected ok');}
     expect(r.file.runs).toHaveLength(N);
     expect(new Set(r.file.runs.map((x) => x.name)).size).toBe(N); // every distinct run survived
   });
@@ -231,7 +231,7 @@ describe('ProjectStore — temp-dir filesystem, never touches the repo', () => {
     await store.recordRoutes(['/deployments', '/', '/settings']);
 
     const r = await store.read();
-    if (!r.ok) throw new Error('expected ok');
+    if (!r.ok) {throw new Error('expected ok');}
     expect(r.file.learned).toEqual({
       flows: ['checkout'],
       routes: ['/', '/deployments', '/settings'],
@@ -244,7 +244,7 @@ describe('ProjectStore — temp-dir filesystem, never touches the repo', () => {
     await store.recordRoutes([]);
 
     const r = await store.read();
-    if (!r.ok) throw new Error('expected ok');
+    if (!r.ok) {throw new Error('expected ok');}
     expect(r.file.learned).toBeUndefined();
     expect(await readFile(reticleDirPaths(root).project, 'utf8')).not.toContain('"routes"');
   });
@@ -256,7 +256,7 @@ describe('ProjectStore — temp-dir filesystem, never touches the repo', () => {
     ]);
 
     const r = await store.read();
-    if (!r.ok) throw new Error('expected ok');
+    if (!r.ok) {throw new Error('expected ok');}
     expect(r.file.learned?.routes).toEqual(['/compose', '/deployments', '/diagnostics']);
   });
 
@@ -269,7 +269,7 @@ describe('ProjectStore — temp-dir filesystem, never touches the repo', () => {
     await store.recordRoutes(routes);
 
     const r = await store.read();
-    if (!r.ok) throw new Error('expected ok');
+    if (!r.ok) {throw new Error('expected ok');}
     expect(r.file.learned?.routes).toHaveLength(PROJECT_ROUTE_CAP);
     expect(r.file.learned?.routes).toContain('/route-000');
     expect(r.file.learned?.routes).not.toContain(`/route-${String(PROJECT_ROUTE_CAP)}`);

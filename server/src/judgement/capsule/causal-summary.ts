@@ -152,13 +152,13 @@ type CappedList =
 
 /** Trim one list to the cap and report the loss. Order is arrival order, so the head is the earliest. */
 function cap<T>(list: T[], name: CappedList, elided: Partial<Record<CappedList, number>>): T[] {
-  if (list.length <= MAX_SUMMARY_ENTRIES) return list;
+  if (list.length <= MAX_SUMMARY_ENTRIES) {return list;}
   elided[name] = list.length - MAX_SUMMARY_ENTRIES;
   return list.slice(0, MAX_SUMMARY_ENTRIES);
 }
 
 function pushUnique(list: string[], value: unknown): void {
-  if ('string' === typeof value && value.length > 0 && !list.includes(value)) list.push(value);
+  if ('string' === typeof value && value.length > 0 && !list.includes(value)) {list.push(value);}
 }
 
 /** Keep a diff value bounded so the per-act summary never bloats: primitives capped to a short string. */
@@ -168,9 +168,9 @@ function truncate(text: string): string {
   return text.length > MAX_DIFF_LEN ? `${text.slice(0, MAX_DIFF_LEN - 1)}…` : text;
 }
 function capValue(value: unknown): unknown {
-  if (value === undefined || null === value) return value;
-  if ('string' === typeof value) return truncate(value);
-  if ('number' === typeof value || 'boolean' === typeof value) return value;
+  if (value === undefined || null === value) {return value;}
+  if ('string' === typeof value) {return truncate(value);}
+  if ('number' === typeof value || 'boolean' === typeof value) {return value;}
   // Objects/arrays: a shallow, length-capped JSON repr (never a deep dump on the hot path).
   try {
     return truncate(JSON.stringify(value));
@@ -186,7 +186,7 @@ function capValue(value: unknown): unknown {
  * store that updates atomically pays nothing and the field's PRESENCE is what carries the meaning.
  */
 function stateSettle(diffs: readonly StateDiff[]): { stateSettleMs?: number } {
-  if (diffs.length < 2) return {};
+  if (diffs.length < 2) {return {};}
   const times = diffs.map((d) => d.atMs);
   const spread = Math.max(...times) - Math.min(...times);
   return spread > 0 ? { stateSettleMs: spread } : {};
@@ -294,7 +294,7 @@ export function causalSummary(
         // hash-routed app — the same reading that made a route predicate unsatisfiable there, and an
         // agent reasoning off this field would conclude the route never changed. See routeOfEvent.
         const routed = routeOfEvent(data);
-        if (routed !== undefined) route = routed.routePath;
+        if (routed !== undefined) {route = routed.routePath;}
         break;
       }
       case EventType.SIGNAL:

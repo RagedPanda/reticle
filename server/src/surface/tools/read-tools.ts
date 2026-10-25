@@ -46,7 +46,7 @@ import { navigablePath, routeOfUrl } from '@reticlehq/engine/question/predicate/
  * pointed at the default route rather than the recorded one.
  */
 function pathnameOf(url: string | undefined): string | undefined {
-  if (url === undefined) return undefined;
+  if (url === undefined) {return undefined;}
   const parts = routeOfUrl(url);
   // The query too, minus Reticle's own params: `/products?scope=TOPWEAR` and `/products` are different
   // pages, and replay compares the query when the flow recorded one (#1059), so dropping it here
@@ -160,7 +160,7 @@ export const READ_TOOLS: ToolDef[] = [
       // report "no baseline named 'default'", naming something the caller never mentioned.
       const name = asString(args['baseline']) ?? asString(args['name']) ?? 'default';
       const base = deps.baselines.get(name);
-      if (base === undefined) throw new Error(`no baseline named '${name}'`);
+      if (base === undefined) {throw new Error(`no baseline named '${name}'`);}
       const session = deps.sessions.resolve(asString(args['sessionId']));
       const { lines, route } = await snapshotTree(deps, asString(args['sessionId']));
       const { removed, added } = diffLines(base.lines, lines);
@@ -363,7 +363,7 @@ export const READ_TOOLS: ToolDef[] = [
       const name =
         asString(aliasParam(args, 'recordingName', ['name'])['recordingName']) ?? 'default';
       const program = deps.recordings.getCompiled(name);
-      if (program === undefined) throw new Error(`no compiled recording named '${name}'`);
+      if (program === undefined) {throw new Error(`no compiled recording named '${name}'`);}
       const session = deps.sessions.resolve(asString(args['sessionId']));
       const since = session.elapsed();
       const steps = await replayProgram(session, program, true === args['confirmDangerous']);
@@ -656,7 +656,7 @@ export const READ_TOOLS: ToolDef[] = [
         mode: SnapshotMode.INTERACTIVE,
         scope: args['scope'],
       });
-      if (!result.ok) throw new Error(result.error ?? 'snapshot failed');
+      if (!result.ok) {throw new Error(result.error ?? 'snapshot failed');}
       const snap = (result.result ?? {}) as { tree?: string; truncated?: boolean };
       const consoleErrors = session
         .eventsSince(0)
@@ -718,7 +718,7 @@ export const READ_TOOLS: ToolDef[] = [
         string,
         unknown
       >;
-      if (key === undefined) return data;
+      if (key === undefined) {return data;}
       // Look up the key in the scoped area, or across all three areas when none was named.
       const areas = area !== undefined ? [data] : [data['local'], data['session'], data['cookies']];
       for (const a of areas) {

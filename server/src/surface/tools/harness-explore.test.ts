@@ -753,7 +753,7 @@ describe('a saved plan the platform refuses', () => {
   });
   const platformWith = (script: unknown, posted: string[]) =>
     vi.fn((_url: string, init: RequestInit) => {
-      if ('POST' === init.method) posted.push('string' === typeof init.body ? init.body : '');
+      if ('POST' === init.method) {posted.push('string' === typeof init.body ? init.body : '');}
       return Promise.resolve(new Response(JSON.stringify({ planId: 'hp_1', script })));
     });
   afterEach(() => vi.unstubAllGlobals());

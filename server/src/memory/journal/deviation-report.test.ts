@@ -19,7 +19,7 @@ function seg(route: string, durationMs: number, over: Partial<SegmentRollup> = {
 
 function trained(route: string, durations: number[]): RouteEnvelope {
   let env = emptyEnvelope(route);
-  for (const d of durations) env = addSegmentToEnvelope(env, seg(route, d));
+  for (const d of durations) {env = addSegmentToEnvelope(env, seg(route, d));}
   return env;
 }
 

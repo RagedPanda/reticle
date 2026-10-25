@@ -56,10 +56,10 @@ function textFiles(dir: string): string[] {
     return out;
   }
   for (const entry of entries) {
-    if (SKIP_DIR.has(entry) || entry.startsWith('.')) continue;
+    if (SKIP_DIR.has(entry) || entry.startsWith('.')) {continue;}
     const full = join(dir, entry);
-    if (statSync(full).isDirectory()) out.push(...textFiles(full));
-    else if (TEXT_FILE.test(entry)) out.push(full);
+    if (statSync(full).isDirectory()) {out.push(...textFiles(full));}
+    else if (TEXT_FILE.test(entry)) {out.push(full);}
   }
   return out;
 }
@@ -175,7 +175,7 @@ describe('no published file carries a field or user number', { timeout: 120_000 
       for (const { pattern, why } of FIELD_NUMBER_PATTERNS) {
         const hit = flat.match(pattern);
         if (hit !== null)
-          found.push(`${file.replace(REPO, '.')}: ${why} — ${hit[0].slice(0, 120)}`);
+          {found.push(`${file.replace(REPO, '.')}: ${why} — ${hit[0].slice(0, 120)}`);}
       }
     }
 

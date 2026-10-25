@@ -40,12 +40,12 @@ interface Anomaly {
 
 /** The kinds in a replay's `regressed` list — bare strings, not the `{ kind }` objects above. */
 function regressedKinds(value: unknown): string[] {
-  if (!Array.isArray(value)) return [];
+  if (!Array.isArray(value)) {return [];}
   return value.filter((kind): kind is string => 'string' === typeof kind && kind.length > 0);
 }
 
 function kindsOf(value: unknown): string[] {
-  if (!Array.isArray(value)) return [];
+  if (!Array.isArray(value)) {return [];}
   return value
     .map((entry) => {
       const kind = (entry as Anomaly)?.kind;
@@ -70,22 +70,22 @@ function kindsOf(value: unknown): string[] {
  * recorded with `falseGreen: false`.
  */
 function verdictOf(result: Record<string, unknown>): boolean | undefined {
-  if ('boolean' === typeof result['pass']) return result['pass'];
+  if ('boolean' === typeof result['pass']) {return result['pass'];}
   const verdict = result['verdict'];
   if ('object' === typeof verdict && verdict !== null) {
     const nested = (verdict as Record<string, unknown>)['pass'];
-    if ('boolean' === typeof nested) return nested;
+    if ('boolean' === typeof nested) {return nested;}
   }
   // `verified` is the field the agent is told to gate on; "unknown" is deliberately not a verdict.
   const verified = result['verified'];
-  if ('yes' === verified) return true;
-  if ('no' === verified) return false;
+  if ('yes' === verified) {return true;}
+  if ('no' === verified) {return false;}
   return undefined;
 }
 
 /** The assertion label, from either envelope — act_and_wait nests it under `verdict`. */
 function assertionOf(result: Record<string, unknown>): unknown {
-  if (result['assertion'] !== undefined) return result['assertion'];
+  if (result['assertion'] !== undefined) {return result['assertion'];}
   const verdict = result['verdict'];
   return 'object' === typeof verdict && verdict !== null
     ? (verdict as Record<string, unknown>)['assertion']
@@ -151,7 +151,7 @@ export function bugsInResult(toolName: string, result: Record<string, unknown>):
   //
   // Nothing is lost by staying silent here: when the inner tool refuses or throws, the wrapper
   // returns { error, tool, params, hint }, which carries no verdict and no failures to classify.
-  if (toolName === ReticleTool.RUN) return [];
+  if (toolName === ReticleTool.RUN) {return [];}
   const bugs: BugCandidate[] = [];
   const verdict = verdictOf(result);
   const passed = true === verdict;
@@ -242,7 +242,7 @@ export function bugsInResult(toolName: string, result: Record<string, unknown>):
       // A suite that failed because nothing could RUN is not a regression in the user's app. This
       // rule never looked past `status`, so a project whose flow files did not resolve reported one
       // "defect found" per flow — Reticle's own failure, published as the customer's.
-      if (couldNotRun(failure)) continue;
+      if (couldNotRun(failure)) {continue;}
       bugs.push({
         source: BugSource.REPLAY,
         kind: 'flow-regression',
@@ -281,7 +281,7 @@ export function routeOf(result: Record<string, unknown>): string | undefined {
   const status = result['status'];
   if ('object' === typeof status && status !== null) {
     const r = (status as Record<string, unknown>)['route'];
-    if ('string' === typeof r && r.length > 0) return r;
+    if ('string' === typeof r && r.length > 0) {return r;}
   }
   const r = result['route'];
   return 'string' === typeof r && r.length > 0 ? r : undefined;

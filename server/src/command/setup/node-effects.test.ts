@@ -51,8 +51,8 @@ async function waitForPort(port: number, want: 'held' | 'free'): Promise<string>
   const deadline = Date.now() + 10_000;
   for (;;) {
     const held = holdersOf(port);
-    if (('held' === want) === ('' !== held)) return held;
-    if (Date.now() >= deadline) return held;
+    if (('held' === want) === ('' !== held)) {return held;}
+    if (Date.now() >= deadline) {return held;}
     await sleep(50);
   }
 }
@@ -75,7 +75,7 @@ describe('the dev server this process owns', () => {
         server.start(`node "${fixture}"`, dir, {});
         const deadline = Date.now() + 10_000;
         while (!server.output().includes('backgroundMarker') && Date.now() < deadline)
-          await sleep(50);
+          {await sleep(50);}
         // Astro checks this marker before agent auto-backgrounding. Without it, the launcher exits
         // and the server escapes the PID recorded for handover and cleanup.
         expect(JSON.parse(server.output())).toMatchObject({ backgroundMarker: '1' });
@@ -141,7 +141,7 @@ describe('the dev server this process owns', () => {
     server.start('echo "  Local: http://localhost:1234"', process.cwd(), {});
     // Polled, not slept: a fixed 600ms asserted a duration, and a shell starts slower on Windows,
     // so the output was still empty there. The per-test timeout is the bound.
-    while (!server.output().includes('http://localhost:1234')) await sleep(50);
+    while (!server.output().includes('http://localhost:1234')) {await sleep(50);}
     expect(server.output()).toContain('http://localhost:1234');
     expect(server.quietForMs()).toBeGreaterThanOrEqual(0);
     const log = server.logPath();
@@ -207,8 +207,8 @@ describe('probing the page', () => {
       server.once('error', reject);
       server.listen(0, '::1', () => {
         const addr = server.address();
-        if (null === addr || 'string' === typeof addr) reject(new Error('no port'));
-        else resolve(addr.port);
+        if (null === addr || 'string' === typeof addr) {reject(new Error('no port'));}
+        else {resolve(addr.port);}
       });
     });
     try {
@@ -244,8 +244,8 @@ describe('probing the page', () => {
       slow.once('error', reject);
       slow.listen(0, '127.0.0.1', () => {
         const addr = slow.address();
-        if (null === addr || 'string' === typeof addr) reject(new Error('no port'));
-        else resolve(addr.port);
+        if (null === addr || 'string' === typeof addr) {reject(new Error('no port'));}
+        else {resolve(addr.port);}
       });
     });
     // The same port on the other family answers at once — the sibling that used to win.
@@ -259,7 +259,7 @@ describe('probing the page', () => {
       expect(probe.served).toBe(false);
       expect(probe.reachedUrl).toBeUndefined();
     } finally {
-      for (const s of held) s.destroy();
+      for (const s of held) {s.destroy();}
       await new Promise<void>((resolve) => slow.close(() => resolve()));
       await new Promise<void>((resolve) => fast.close(() => resolve()));
     }
@@ -398,7 +398,7 @@ describe('handing the dev server over', () => {
       // init let go of it. A dead one stops beating and the deadline decides.
       const afterExit = beatNow();
       const deadline = Date.now() + 10_000;
-      while (beatNow() < afterExit + 10 && Date.now() < deadline) await sleep(20);
+      while (beatNow() < afterExit + 10 && Date.now() < deadline) {await sleep(20);}
       expect(beatNow(), 'the server stopped writing once init exited').toBeGreaterThanOrEqual(
         afterExit + 10,
       );
@@ -413,8 +413,8 @@ describe('handing the dev server over', () => {
     } finally {
       if (0 < pid) {
         try {
-          if (isWindows) spawnSync('taskkill', ['/PID', String(pid), '/T', '/F']);
-          else process.kill(-pid, 'SIGKILL');
+          if (isWindows) {spawnSync('taskkill', ['/PID', String(pid), '/T', '/F']);}
+          else {process.kill(-pid, 'SIGKILL');}
         } catch {
           /* already gone, which is the failure this test reports */
         }
@@ -429,7 +429,7 @@ describe('handing the dev server over', () => {
       while (Date.now() < settled) {
         await sleep(100);
         const next = beatNow();
-        if (next === last) break;
+        if (next === last) {break;}
         last = next;
       }
       try {

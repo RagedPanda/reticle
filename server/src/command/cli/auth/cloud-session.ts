@@ -66,7 +66,7 @@ export const resolveSessionFor = (
   perHost: Session | null,
   active: Session | null,
 ): Session | null => {
-  if (perHost !== null) return perHost;
+  if (perHost !== null) {return perHost;}
   return null !== active && normalizeUrl(active.url) === normalizeUrl(url) ? active : null;
 };
 

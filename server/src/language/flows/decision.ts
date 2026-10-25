@@ -233,7 +233,7 @@ export function buildDecision(
 
 /** Map a replay status to the suite verdict's three-state outcome. */
 function suiteVerdictOf(status: ReplayStatus): 'pass' | 'drift' | 'fail' {
-  if (status === ReplayStatus.OK) return 'pass';
+  if (status === ReplayStatus.OK) {return 'pass';}
   return status === ReplayStatus.DRIFT ? 'drift' : 'fail';
 }
 
@@ -263,12 +263,12 @@ export function unverifiableReason(
    */
   invoked: ReadonlyMap<string, FlowFile> = new Map(),
 ): string | undefined {
-  if (flow === undefined) return undefined;
+  if (flow === undefined) {return undefined;}
   if (0 === flow.steps.length) {
     return 'the flow has no steps — it replays green whatever the app does. Record it again, or add steps with reticle_run { tool: "reticle_annotate" }.';
   }
   const c = classifyFlowAssertions(flow, invoked);
-  if (c.grade !== FlowAssertionGrade.ASSERTION_FREE) return undefined;
+  if (c.grade !== FlowAssertionGrade.ASSERTION_FREE) {return undefined;}
   return (
     c.warning ??
     'the flow asserts no observable consequence, so it passes even when the feature is broken.'
@@ -312,8 +312,8 @@ export function buildSuiteVerdict(
       const reason = replay.unverifiable?.reason ?? unverifiableReason(flow);
       // A green that cannot go red is not a pass. Counted apart, so `passed` stays a count of things
       // actually verified rather than of replays that merely completed.
-      if (reason !== undefined) unverifiable.push({ flow: replay.name, reason });
-      else passed += 1;
+      if (reason !== undefined) {unverifiable.push({ flow: replay.name, reason });}
+      else {passed += 1;}
       continue;
     }
     const decision = replay.decision ?? buildDecision(replay, flow);
@@ -324,9 +324,9 @@ export function buildSuiteVerdict(
     // never reaches here. Both arrive as ReplayStatus.ERROR, so without this the suite cannot tell
     // "the app broke" from "Reticle could not run this" — and the bug metric reported the second as
     // the first, 8 times in one sweep.
-    if (0 === replay.steps.length && replay.error !== undefined) row.couldNotRun = true;
-    if (decision.whatChanged !== undefined) row.whatChanged = decision.whatChanged;
-    if (decision.whereInSource !== undefined) row.whereInSource = decision.whereInSource;
+    if (0 === replay.steps.length && replay.error !== undefined) {row.couldNotRun = true;}
+    if (decision.whatChanged !== undefined) {row.whatChanged = decision.whatChanged;}
+    if (decision.whereInSource !== undefined) {row.whereInSource = decision.whereInSource;}
     row.nextAction = decision.nextAction;
     failures.push(row);
   }
@@ -416,7 +416,7 @@ export function buildSuiteVerdict(
       ? ' — these flows shared one session and ran in order, so a pass here may rest on state an earlier flow left behind; replay with `parallel` to give each its own context'
       : '';
   const notAsSaved = runs.flatMap(({ replay, flow }) => {
-    if (flow === undefined) return [];
+    if (flow === undefined) {return [];}
     const report = replayability(flow);
     return Replayable.YES === report.status && report.writes === undefined
       ? []
@@ -460,7 +460,7 @@ function suiteCoverage(
   runs: ReadonlyArray<{ flow?: FlowFile }>,
 ): { steps: number; declared: number } | undefined {
   const flows = runs.map((run) => run.flow).filter((flow): flow is FlowFile => flow !== undefined);
-  if (0 === flows.length) return undefined;
+  if (0 === flows.length) {return undefined;}
   let steps = 0;
   let declared = 0;
   const walk = (list: readonly FlowStep[]): void => {
@@ -470,9 +470,9 @@ function suiteCoverage(
         continue;
       }
       steps += 1;
-      if (step.expect !== undefined) declared += 1;
+      if (step.expect !== undefined) {declared += 1;}
     }
   };
-  for (const flow of flows) walk(flow.steps);
+  for (const flow of flows) {walk(flow.steps);}
   return { steps, declared };
 }

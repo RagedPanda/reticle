@@ -24,7 +24,7 @@ function fakeIo(files: Record<string, string>): AgentWriterIo & { files: Record<
 
 const grantById = (id: string): ApprovalGrant => {
   const found = APPROVAL_GRANTS.find((g) => id === g.id);
-  if (undefined === found) throw new Error(`no grant ${id}`);
+  if (undefined === found) {throw new Error(`no grant ${id}`);}
   return found;
 };
 
@@ -34,7 +34,7 @@ const written = (io: { files: Record<string, string> }, file: string): Record<st
 describe('pre-approving Reticle', () => {
   it('writes nothing for an agent that is not installed', () => {
     const io = fakeIo({});
-    for (const r of grantAutoApproval(io, WHERE)) expect(r.outcome).toBe(ApprovalOutcome.ABSENT);
+    for (const r of grantAutoApproval(io, WHERE)) {expect(r.outcome).toBe(ApprovalOutcome.ABSENT);}
     expect(Object.keys(io.files)).toEqual([]);
   });
 
@@ -130,7 +130,7 @@ describe('pre-approving Reticle', () => {
     const broken: AgentWriterIo = {
       ...io,
       writeFile: (p, c) => {
-        if (p.includes('.gemini')) throw new Error('EACCES');
+        if (p.includes('.gemini')) {throw new Error('EACCES');}
         io.writeFile(p, c);
       },
     };

@@ -42,7 +42,7 @@ describe('a project file from another version is refused, not emptied', () => {
     const { store } = await storeWith(JSON.stringify({ version: 99, runs: [] }));
     const read = await store.read();
     expect(read.ok).toBe(false);
-    if (!read.ok) expect(read.reason).toBe(ProjectReadError.WRONG_VERSION);
+    if (!read.ok) {expect(read.reason).toBe(ProjectReadError.WRONG_VERSION);}
   });
 
   it('recording a run does NOT overwrite it', async () => {

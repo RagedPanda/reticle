@@ -7,6 +7,7 @@ import {
   promptHookCommand,
   promptHookInstalled,
   promptHookPath,
+  toolHookCommand,
   uninstallPromptHook,
 } from './prompt-hooks.js';
 import { RETICLE_VERSION } from '@/version.js';
@@ -156,5 +157,25 @@ describe('the prompt-capture hook in each agent config', () => {
     const windsurf = spec(PromptHookAgent.WINDSURF);
     expect(promptHookPath(windsurf, () => false)).toBe('.windsurf/hooks.json');
     expect(promptHookPath(windsurf, (p) => '.devin/hooks.json' === p)).toBe('.devin/hooks.json');
+  });
+
+  it("records Claude Code's own tool calls after they run, in the background", () => {
+    const content = installPromptHook(spec(PromptHookAgent.CLAUDE_CODE), null).content;
+    for (const event of ['PostToolUse', 'PostToolUseFailure']) {
+      const entry = dig(content, 'hooks', event, 0);
+      expect(entry).toMatchObject({
+        matcher: 'Bash|Edit|Write|MultiEdit|NotebookEdit|WebFetch|WebSearch',
+        hooks: [
+          { type: 'command', command: toolHookCommand(PromptHookAgent.CLAUDE_CODE), async: true },
+        ],
+      });
+    }
+    expect(promptHookInstalled(spec(PromptHookAgent.CLAUDE_CODE), content)).toBe(true);
+    // A config holding only the prompt entry still needs the tool entries.
+    const promptOnly = JSON.stringify({
+      hooks: { UserPromptSubmit: dig(content, 'hooks', 'UserPromptSubmit') },
+    });
+    expect(promptHookInstalled(spec(PromptHookAgent.CLAUDE_CODE), promptOnly)).toBe(false);
+    expect(uninstallPromptHook(spec(PromptHookAgent.CLAUDE_CODE), content).content).toBeNull();
   });
 });

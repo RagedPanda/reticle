@@ -63,10 +63,10 @@ export function correctionsAmong(checks: readonly Answered[]): ReadonlyMap<numbe
   const corrections = new Map<number, number>();
   for (const [index, check] of checks.entries()) {
     if (isAwaitingOutcome(check)) {
-      if (!openFor.has(check.claim)) openFor.set(check.claim, index);
+      if (!openFor.has(check.claim)) {openFor.set(check.claim, index);}
       continue;
     }
-    if (!decides(check)) continue;
+    if (!decides(check)) {continue;}
     const earlier = openFor.get(check.claim);
     if (earlier !== undefined) {
       corrections.set(index, earlier);

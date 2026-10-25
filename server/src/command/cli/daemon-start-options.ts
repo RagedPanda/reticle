@@ -57,14 +57,14 @@ export function daemonStartOptions(parsed: DaemonFlags): StartOptions {
  */
 export function daemonSpawnArgs(parsed: DaemonFlags): string[] {
   const args = [DAEMON_INNER_COMMAND, PORT_FLAG, String(parsed.port)];
-  if (parsed.driveUrl !== undefined) args.push(DRIVE_FLAG, parsed.driveUrl);
+  if (parsed.driveUrl !== undefined) {args.push(DRIVE_FLAG, parsed.driveUrl);}
   // Said either way: the child decides its own default from its environment, so a parent that
   // resolved hidden must say so rather than leave it to a default that may differ.
   args.push(parsed.headless ? HEADLESS_FLAG : HEADED_FLAG);
   if (parsed.http) {
     args.push(HTTP_FLAG);
-    if (parsed.httpPort !== undefined) args.push(HTTP_PORT_FLAG, String(parsed.httpPort));
-    if (parsed.httpToken !== undefined) args.push(HTTP_TOKEN_FLAG, parsed.httpToken);
+    if (parsed.httpPort !== undefined) {args.push(HTTP_PORT_FLAG, String(parsed.httpPort));}
+    if (parsed.httpToken !== undefined) {args.push(HTTP_TOKEN_FLAG, parsed.httpToken);}
   }
   return args;
 }
@@ -90,7 +90,7 @@ export function headlessByDefault(
   platform: string,
 ): boolean {
   const forced = env[HEADLESS_ENV];
-  if (env['CI'] !== undefined || (forced !== undefined && !OFF.has(forced))) return true;
+  if (env['CI'] !== undefined || (forced !== undefined && !OFF.has(forced))) {return true;}
   return (
     'linux' === platform && env['DISPLAY'] === undefined && env['WAYLAND_DISPLAY'] === undefined
   );

@@ -15,9 +15,9 @@ import type { SyncReport } from './sync-cycle.js';
  * checks nothing. Naming the origin and the underlying code turns it into one thing to look at.
  */
 export function describeTransportError(error: unknown, url: string): string {
-  if (!(error instanceof Error)) return String(error);
+  if (!(error instanceof Error)) {return String(error);}
   const cause: unknown = (error as { cause?: unknown }).cause;
-  if (!(cause instanceof Error)) return `${error.message} (${url})`;
+  if (!(cause instanceof Error)) {return `${error.message} (${url})`;}
   const code = (cause as { code?: unknown }).code;
   // The code and the message are each sometimes empty — an aggregate DNS failure carries a code and
   // no text, a TLS failure the reverse. Joined only when both are there, so the line never trails
@@ -33,14 +33,14 @@ export function describeTransportError(error: unknown, url: string): string {
 
 /** One line a human can read, for the CLI and the daemon log. */
 export function describeSync(report: SyncReport): string {
-  if (report.error !== undefined) return `sync failed — ${report.error}`;
+  if (report.error !== undefined) {return `sync failed — ${report.error}`;}
   const sent: string[] = [];
-  if (report.runsSent > 0) sent.push(`${String(report.runsSent)} run(s)`);
-  if (report.flowsSent > 0) sent.push(`${String(report.flowsSent)} flow(s)`);
-  if (report.capsulesSent > 0) sent.push(`${String(report.capsulesSent)} capsule(s)`);
+  if (report.runsSent > 0) {sent.push(`${String(report.runsSent)} run(s)`);}
+  if (report.flowsSent > 0) {sent.push(`${String(report.flowsSent)} flow(s)`);}
+  if (report.capsulesSent > 0) {sent.push(`${String(report.capsulesSent)} capsule(s)`);}
   if ((report.screenshotsSent ?? 0) > 0)
-    sent.push(`${String(report.screenshotsSent)} screenshot(s)`);
-  if (report.derivedSent.length > 0) sent.push(report.derivedSent.join(', '));
+    {sent.push(`${String(report.screenshotsSent)} screenshot(s)`);}
+  if (report.derivedSent.length > 0) {sent.push(report.derivedSent.join(', '));}
   /*
    * "Nothing to send" is a statement about the QUEUE, and it is false the moment the queue was full
    * and the server threw it away. Built from what was accepted, the sentence used to read "nothing
@@ -86,16 +86,16 @@ export function problemsOf(report: SyncReport): string[] {
   }
   const firstRefusal = report.notRetried[0];
   if (firstRefusal !== undefined)
-    problems.push(
+    {problems.push(
       `refused, not retried: ${String(report.notRetried.length)} run(s) (${firstRefusal.reason})`,
-    );
+    );}
   for (const set of report.setsNotRetried)
-    problems.push(`refused, not retried: ${String(set.count)} ${set.part}(s) (${set.reason})`);
-  if (report.held.length > 0) problems.push(`not sent: ${report.held.join('; ')}`);
+    {problems.push(`refused, not retried: ${String(set.count)} ${set.part}(s) (${set.reason})`);}
+  if (report.held.length > 0) {problems.push(`not sent: ${report.held.join('; ')}`);}
   const copies = report.flowConflicts ?? [];
   if (copies.length > 0)
-    problems.push(
+    {problems.push(
       `${String(copies.length)} flow conflict(s): another machine saved first, so this edit is kept as ${copies.join(', ')}; merge or delete it`,
-    );
+    );}
   return problems;
 }

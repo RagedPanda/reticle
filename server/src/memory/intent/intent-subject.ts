@@ -54,7 +54,7 @@ const firstSegment = (path: string): string | undefined => {
   const clean = path.split(/[?#]/)[0] ?? '';
   for (const part of clean.split('/')) {
     // Skip empties, the API version prefix, and anything that is plainly an id rather than a name.
-    if ('' === part || /^v\d+$/i.test(part) || /^\d+$/.test(part)) continue;
+    if ('' === part || /^v\d+$/i.test(part) || /^\d+$/.test(part)) {continue;}
     /*
      * A QUERY FRAGMENT is not a path segment.
      *
@@ -66,7 +66,7 @@ const firstSegment = (path: string): string | undefined => {
      * Skipped rather than aborting the walk, so a binding that asserts a filter AND a route still
      * finds the route.
      */
-    if (part.includes('=') || part.includes('&')) continue;
+    if (part.includes('=') || part.includes('&')) {continue;}
     return part;
   }
   return undefined;
@@ -74,18 +74,18 @@ const firstSegment = (path: string): string | undefined => {
 
 /** Walk a binding predicate tree for the first route or URL it mentions. */
 const fromBinding = (binding: unknown): string | undefined => {
-  if (typeof binding !== 'object' || null === binding) return undefined;
+  if (typeof binding !== 'object' || null === binding) {return undefined;}
   const node = binding as Record<string, unknown>;
   const direct = node['pathname'] ?? node['urlContains'] ?? node['path'];
   if ('string' === typeof direct) {
     const seg = firstSegment(direct);
-    if (seg !== undefined) return seg;
+    if (seg !== undefined) {return seg;}
   }
   const nested = node['predicates'] ?? node['of'];
   if (Array.isArray(nested)) {
     for (const child of nested) {
       const found = fromBinding(child);
-      if (found !== undefined) return found;
+      if (found !== undefined) {return found;}
     }
   }
   return undefined;
@@ -140,7 +140,7 @@ const featureOfFile = (file: string): string | undefined => {
   // The last part is the filename, never a feature.
   for (let i = parts.length - 2; i >= 0; i--) {
     const dir = parts[i];
-    if (dir === undefined || GENERIC_DIRS.has(dir.toLowerCase())) continue;
+    if (dir === undefined || GENERIC_DIRS.has(dir.toLowerCase())) {continue;}
     return dir;
   }
   return undefined;
@@ -154,15 +154,15 @@ const featureOfFile = (file: string): string | undefined => {
  */
 export const subjectFor = (evidence: SubjectEvidence): string => {
   const explicit = evidence.subject;
-  if ('string' === typeof explicit && explicit.trim() !== '') return slugifySubject(explicit);
+  if ('string' === typeof explicit && explicit.trim() !== '') {return slugifySubject(explicit);}
 
   const flow = evidence.surface?.flow;
-  if ('string' === typeof flow && flow.trim() !== '') return slugifySubject(flow);
+  if ('string' === typeof flow && flow.trim() !== '') {return slugifySubject(flow);}
 
   const route = evidence.surface?.route;
   if ('string' === typeof route) {
     const seg = firstSegment(route);
-    if (seg !== undefined) return slugifySubject(seg);
+    if (seg !== undefined) {return slugifySubject(seg);}
   }
 
   /*
@@ -172,14 +172,14 @@ export const subjectFor = (evidence: SubjectEvidence): string => {
   const files = evidence.surface?.files;
   if (Array.isArray(files)) {
     for (const file of files) {
-      if ('string' !== typeof file || '' === file) continue;
+      if ('string' !== typeof file || '' === file) {continue;}
       const feature = featureOfFile(file);
-      if (feature !== undefined) return slugifySubject(feature);
+      if (feature !== undefined) {return slugifySubject(feature);}
     }
   }
 
   const bound = fromBinding(evidence.binding);
-  if (bound !== undefined) return slugifySubject(bound);
+  if (bound !== undefined) {return slugifySubject(bound);}
 
   return UNSORTED_SUBJECT;
 };

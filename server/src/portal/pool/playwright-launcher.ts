@@ -248,9 +248,9 @@ function pathFromPlaywrightError(msg: string): string | undefined {
   // Playwright puts the path at the end of the line, and a Windows path can hold a space
   // (for example C:\Users\Jo Doe). Read to the end of the line and trim the result.
   const found = /executable doesn.?t exist at (.+)$/im.exec(msg);
-  if (null === found) return undefined;
+  if (null === found) {return undefined;}
   const captured = found[1];
-  if (undefined === captured) return undefined;
+  if (undefined === captured) {return undefined;}
   const path = captured.trim();
   return '' === path ? undefined : path;
 }
@@ -299,7 +299,7 @@ export function chromiumLaunchHint(msg: string): string | undefined {
   // Checked FIRST: Playwright's host-requirement validation error also contains
   // "browserType.launch", so the generic check below would otherwise misdiagnose it as a
   // missing binary and send the user through a fix that changes nothing.
-  if (/host system is missing dependencies/i.test(msg)) return CHROMIUM_MISSING_DEPS_HINT;
+  if (/host system is missing dependencies/i.test(msg)) {return CHROMIUM_MISSING_DEPS_HINT;}
   if (/executable doesn.?t exist|playwright install|browsertype\.launch/i.test(msg)) {
     return chromiumMissingHint(pathFromPlaywrightError(msg));
   }

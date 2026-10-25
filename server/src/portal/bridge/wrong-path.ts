@@ -47,7 +47,7 @@ export function noteWrongPathUpgrades(
   const handles = wss.shouldHandle.bind(wss);
   wss.shouldHandle = (req: IncomingMessage): boolean | Promise<boolean> => {
     const handled = handles(req);
-    if (false === handled) note(requestedPath(req.url), req.headers.origin);
+    if (false === handled) {note(requestedPath(req.url), req.headers.origin);}
     return handled;
   };
 }

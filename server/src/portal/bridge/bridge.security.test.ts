@@ -69,7 +69,7 @@ function waitUntil(condition: () => boolean, timeoutMs = 2000): Promise<void> {
 }
 
 afterEach(async () => {
-  for (const socket of sockets.splice(0)) socket.terminate();
+  for (const socket of sockets.splice(0)) {socket.terminate();}
   await Promise.all(bridges.splice(0).map((bridge) => bridge.close()));
 });
 
@@ -260,7 +260,7 @@ describe('Bridge security boundary', () => {
       clock: () => {
         calls += 1;
         // Let the handshake through; blow up once the first message is being handled.
-        if (calls > 3) throw new Error('clock exploded');
+        if (calls > 3) {throw new Error('clock exploded');}
         return 1_700_000_000_000;
       },
     });

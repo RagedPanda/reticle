@@ -92,7 +92,7 @@ describe('the proxy answering initialize itself', () => {
   const cleanups: (() => Promise<void> | void)[] = [];
 
   afterEach(async () => {
-    for (const cleanup of cleanups.splice(0).reverse()) await cleanup();
+    for (const cleanup of cleanups.splice(0).reverse()) {await cleanup();}
     vi.restoreAllMocks();
     vi.unstubAllEnvs();
     resetOutageReporting();
@@ -116,7 +116,7 @@ describe('the proxy answering initialize itself', () => {
     const replies: InitReply[] = [];
     vi.spyOn(process.stdout, 'write').mockImplementation((chunk: unknown): boolean => {
       for (const line of String(chunk).split('\n')) {
-        if ('' === line.trim()) continue;
+        if ('' === line.trim()) {continue;}
         try {
           replies.push(JSON.parse(line) as InitReply);
         } catch {
@@ -166,7 +166,7 @@ describe('the proxy answering initialize itself', () => {
     const replies: InitReply[] = [];
     vi.spyOn(process.stdout, 'write').mockImplementation((chunk: unknown): boolean => {
       for (const line of String(chunk).split('\n')) {
-        if ('' === line.trim()) continue;
+        if ('' === line.trim()) {continue;}
         try {
           replies.push(JSON.parse(line) as InitReply);
         } catch {

@@ -48,7 +48,7 @@ class Page implements FlowReplaySession {
   push(type: EventType, data: Record<string, unknown>): void {
     const event = { type, t: this.elapsed(), data } as unknown as ReticleEvent;
     this.#events.push(event);
-    for (const listener of this.#listeners) listener(event);
+    for (const listener of this.#listeners) {listener(event);}
   }
   command(name: string): Promise<CommandResult> {
     if (ReticleCommand.QUERY === name) {
@@ -64,7 +64,7 @@ class Page implements FlowReplaySession {
         },
       });
     }
-    if (ReticleCommand.ACT === name) this.onClick(this);
+    if (ReticleCommand.ACT === name) {this.onClick(this);}
     return Promise.resolve({ kind: 'command_result', id: 'x', ok: true, result: {} });
   }
   eventsSince(cursor = 0): ReticleEvent[] {
@@ -129,7 +129,7 @@ describe('a console-absent step replays the error its own action scheduled', () 
       console: { absent: true },
     };
     const compiled = compileAnnotation(annotation, 0).patch?.success;
-    if (compiled === undefined) throw new Error('expected a compiled console predicate');
+    if (compiled === undefined) {throw new Error('expected a compiled console predicate');}
 
     const warningPage = new Page((page) => {
       page.push(EventType.CONSOLE_WARN, { message: 'dev warning' });

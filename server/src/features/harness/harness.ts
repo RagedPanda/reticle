@@ -191,20 +191,20 @@ export const MSG_OPENED_IN_PLACE =
 
 /** A route-only guess that missed, on a click that added content: it opened something in place. */
 function openedInPlace(outcome: ToolOutcome): boolean {
-  if (outcome.isError || ReticleTool.ACT_AND_WAIT !== outcome.name) return false;
-  if (!claimsOnlyRoute(asRecord(outcome.args)['until'])) return false;
+  if (outcome.isError || ReticleTool.ACT_AND_WAIT !== outcome.name) {return false;}
+  if (!claimsOnlyRoute(asRecord(outcome.args)['until'])) {return false;}
   const result = asRecord(outcome.result);
-  if (Verified.YES === result['verified']) return false;
+  if (Verified.YES === result['verified']) {return false;}
   const summary = asRecord(asRecord(result['trace'])['summary']);
   return 0 < (Number(summary['domAdded']) || 0);
 }
 
 /** A route-only guess that missed: the known page to go to instead, when the map knows any. */
 function missedRouteHint(outcome: ToolOutcome, routes: readonly string[]): string | undefined {
-  if (outcome.isError || ReticleTool.ACT_AND_WAIT !== outcome.name) return undefined;
+  if (outcome.isError || ReticleTool.ACT_AND_WAIT !== outcome.name) {return undefined;}
   const until = asRecord(outcome.args)['until'];
   if (!claimsOnlyRoute(until) || Verified.YES === asRecord(outcome.result)['verified'])
-    return undefined;
+    {return undefined;}
   return routeHint(until, routes);
 }
 
@@ -213,16 +213,16 @@ const ACTING_TOOLS: ReadonlySet<string> = new Set([ReticleTool.ACT, ReticleTool.
 
 /** What an action did to which control, or undefined for a call that does not act on one. */
 function actKey(name: string, args: Record<string, unknown>): string | undefined {
-  if (!ACTING_TOOLS.has(name)) return undefined;
+  if (!ACTING_TOOLS.has(name)) {return undefined;}
   const target = args['ref'] ?? args['target'];
-  if (target === undefined) return undefined;
+  if (target === undefined) {return undefined;}
   return JSON.stringify([target, args['action'] ?? null, args['value'] ?? null]);
 }
 
 /** Whether a result's reaction digest says the page did nothing at all; undefined when it has none. */
 function changedNothing(result: unknown): boolean | undefined {
   const summary = asRecord(asRecord(asRecord(result)['trace'])['summary']);
-  if ('number' !== typeof summary['total']) return undefined;
+  if ('number' !== typeof summary['total']) {return undefined;}
   const moved = ['network', 'domAdded', 'domRemoved', 'domChanged', 'routeChanges', 'signals'].some(
     (k) => 0 < (Number(summary[k]) || 0),
   );
@@ -231,8 +231,8 @@ function changedNothing(result: unknown): boolean | undefined {
 
 /** A check that ran: the only thing that turns a drive into evidence. */
 function isProof(outcome: ToolOutcome): boolean {
-  if (outcome.isError) return false;
-  if (ReticleTool.ASSERT === outcome.name) return true;
+  if (outcome.isError) {return false;}
+  if (ReticleTool.ASSERT === outcome.name) {return true;}
   return ReticleTool.ACT_AND_WAIT === outcome.name && asRecord(outcome.args)['until'] !== undefined;
 }
 
@@ -386,7 +386,7 @@ export async function runHarness(
   const result = await driveToEnd(driver, toolset, options);
   // A drive ended here (its goal on the page, the budget, a stop) never heard the platform's last
   // word on spend, and a plan summed it as 0 while the workspace paid 3.5 (night 7).
-  if (result.creditsSpent !== undefined || driver.spent === undefined) return result;
+  if (result.creditsSpent !== undefined || driver.spent === undefined) {return result;}
   const spent = await driver.spent().catch(() => undefined);
   return spent === undefined ? result : { ...result, creditsSpent: spent };
 }
@@ -422,7 +422,7 @@ async function driveToEnd(
         goalMet: false,
       };
     }
-    for (const text of options.inbox?.() ?? []) history.push({ role: 'user', text });
+    for (const text of options.inbox?.() ?? []) {history.push({ role: 'user', text });}
     let turn: ModelTurn;
     try {
       turn = await withTimeout(
@@ -529,14 +529,14 @@ async function driveToEnd(
     for (const [i, outcome] of outcomes.entries()) {
       const hint = openedInPlace(outcome) ? MSG_OPENED_IN_PLACE : missedRouteHint(outcome, routes);
       if (hint !== undefined)
-        outcomes[i] = { ...outcome, result: { ...asRecord(outcome.result), next: hint } };
+        {outcomes[i] = { ...outcome, result: { ...asRecord(outcome.result), next: hint } };}
     }
     for (const outcome of outcomes) {
       const key = actKey(outcome.name, outcome.args);
-      if (key === undefined || outcome.isError) continue;
+      if (key === undefined || outcome.isError) {continue;}
       const nothing = changedNothing(outcome.result);
-      if (true === nothing) inert.add(key);
-      else if (false === nothing) inert.clear();
+      if (true === nothing) {inert.add(key);}
+      else if (false === nothing) {inert.clear();}
     }
     toolCalls.push(...outcomes);
     history.push({ role: 'tool', outcomes });

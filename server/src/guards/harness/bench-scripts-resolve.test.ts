@@ -38,11 +38,11 @@ function relativeImports(source: string): string[] {
   const found: string[] = [];
   for (const match of source.matchAll(/from\s+['"](\.[^'"]+)['"]/g)) {
     const spec = match[1];
-    if (spec !== undefined) found.push(spec);
+    if (spec !== undefined) {found.push(spec);}
   }
   for (const match of source.matchAll(/import\(\s*['"](\.[^'"]+)['"]/g)) {
     const spec = match[1];
-    if (spec !== undefined) found.push(spec);
+    if (spec !== undefined) {found.push(spec);}
   }
   return found;
 }

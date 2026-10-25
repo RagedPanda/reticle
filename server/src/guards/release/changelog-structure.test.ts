@@ -36,7 +36,7 @@ function headings(): string[] {
 /** [1, 2, 3] from "1.2.3"; null for Unreleased or anything else not a version. */
 function asVersion(name: string): readonly number[] | null {
   const parts = /^(\d+)\.(\d+)\.(\d+)$/.exec(name);
-  if (null === parts) return null;
+  if (null === parts) {return null;}
   return [Number(parts[1]), Number(parts[2]), Number(parts[3])];
 }
 
@@ -45,7 +45,7 @@ function compare(a: readonly number[], b: readonly number[]): number {
   for (let i = 0; i < 3; i += 1) {
     const left = a[i] ?? 0;
     const right = b[i] ?? 0;
-    if (left !== right) return left - right;
+    if (left !== right) {return left - right;}
   }
   return 0;
 }
@@ -60,7 +60,7 @@ describe('the changelog is shaped like a changelog', () => {
 
   it('writes each version down exactly once', () => {
     const seen = new Map<string, number>();
-    for (const name of headings()) seen.set(name, (seen.get(name) ?? 0) + 1);
+    for (const name of headings()) {seen.set(name, (seen.get(name) ?? 0) + 1);}
     const repeated = [...seen].filter(([, count]) => 1 < count).map(([name]) => name);
     expect(
       repeated.sort(),
@@ -78,9 +78,9 @@ describe('the changelog is shaped like a changelog', () => {
     for (let i = 1; i < versions.length; i += 1) {
       const above = versions[i - 1];
       const below = versions[i];
-      if (undefined === above || undefined === below) continue;
+      if (undefined === above || undefined === below) {continue;}
       if (0 >= compare(above.parts, below.parts))
-        wrong.push(`${above.name} is above ${below.name}`);
+        {wrong.push(`${above.name} is above ${below.name}`);}
     }
     expect(
       wrong,

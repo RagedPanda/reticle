@@ -6,12 +6,12 @@ const EXPLORE_ACTION = 'explore';
 
 /** A `tools/call` of reticle_verify explore, directly or through the reticle_run hatch. */
 export function isHarnessDriveCall(msg: { method?: unknown; params?: unknown }): boolean {
-  if (TOOLS_CALL !== msg.method) return false;
+  if (TOOLS_CALL !== msg.method) {return false;}
   const params = (msg.params ?? {}) as { name?: unknown; arguments?: unknown };
   const args = (params.arguments ?? {}) as Record<string, unknown>;
-  if (ReticleTool.VERIFY_EXPLORE === params.name) return true;
-  if (ReticleTool.VERIFY === params.name) return EXPLORE_ACTION === args['action'];
-  if (ReticleTool.RUN !== params.name) return false;
+  if (ReticleTool.VERIFY_EXPLORE === params.name) {return true;}
+  if (ReticleTool.VERIFY === params.name) {return EXPLORE_ACTION === args['action'];}
+  if (ReticleTool.RUN !== params.name) {return false;}
   const inner = (args['args'] ?? {}) as Record<string, unknown>;
   return (
     ReticleTool.VERIFY_EXPLORE === args['tool'] ||

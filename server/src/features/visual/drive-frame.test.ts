@@ -51,7 +51,7 @@ function deps(options: {
   } as unknown as Session;
   const sessions: Partial<SessionManager> = {
     resolve: () => {
-      if (true === options.gone) throw new Error('no connected session');
+      if (true === options.gone) {throw new Error('no connected session');}
       return session;
     },
   };

@@ -56,7 +56,7 @@ describe('Session.bufferHealth reports real eviction', () => {
   it('reports the drop once the buffer has evicted', () => {
     const session = new Session(hello(), noopSocket, () => 0);
     // One past the count cap: the oldest event is evicted and the counter must say so.
-    for (let i = 0; i <= RING_BUFFER_DEFAULTS.MAX_EVENTS; i += 1) session.pushEvent(evt(i));
+    for (let i = 0; i <= RING_BUFFER_DEFAULTS.MAX_EVENTS; i += 1) {session.pushEvent(evt(i));}
     expect(session.bufferHealth().dropped).toBeGreaterThan(0);
   });
 
@@ -64,9 +64,9 @@ describe('Session.bufferHealth reports real eviction', () => {
     // A counter that reported "1" forever would still satisfy the test above while understating the
     // gap by any margin. The disclosure is only useful if it tracks how much went missing.
     const session = new Session(hello(), noopSocket, () => 0);
-    for (let i = 0; i <= RING_BUFFER_DEFAULTS.MAX_EVENTS; i += 1) session.pushEvent(evt(i));
+    for (let i = 0; i <= RING_BUFFER_DEFAULTS.MAX_EVENTS; i += 1) {session.pushEvent(evt(i));}
     const first = session.bufferHealth().dropped;
-    for (let i = 0; i < 50; i += 1) session.pushEvent(evt(RING_BUFFER_DEFAULTS.MAX_EVENTS + i));
+    for (let i = 0; i < 50; i += 1) {session.pushEvent(evt(RING_BUFFER_DEFAULTS.MAX_EVENTS + i));}
     expect(session.bufferHealth().dropped).toBe(first + 50);
   });
 });

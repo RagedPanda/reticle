@@ -71,10 +71,10 @@ function fakePlatform() {
     (url: string, init: { method: string; headers: Record<string, string>; body?: string }) => {
       const body: unknown = init.body === undefined ? undefined : JSON.parse(init.body);
       calls.push({ method: init.method, url, auth: init.headers['authorization'], body });
-      if (init.headers['authorization'] !== `Bearer ${KEY}`) return reply(401, {});
+      if (init.headers['authorization'] !== `Bearer ${KEY}`) {return reply(401, {});}
       const path = new URL(url).pathname;
       if ('GET' === init.method && '/v1/memory' === path)
-        return reply(200, { projectId: PROJECT, entries: memory });
+        {return reply(200, { projectId: PROJECT, entries: memory });}
       if ('POST' === init.method && '/v1/memory' === path) {
         const b = body as Record<string, unknown>;
         const row = { intentId: `mem_${String(memory.length)}`, status: 'proposed', ...b };
@@ -87,11 +87,11 @@ function fakePlatform() {
       }
       if ('PATCH' === init.method && path.startsWith('/v1/memory/')) {
         const id = decodeURIComponent(path.slice('/v1/memory/'.length));
-        if (FORBIDDEN_ID === id) return reply(403, {});
+        if (FORBIDDEN_ID === id) {return reply(403, {});}
         const row = memory.find((r) => r['intentId'] === id);
-        if (row === undefined) return reply(404, {});
+        if (row === undefined) {return reply(404, {});}
         const b = body as Record<string, unknown>;
-        if ('stale' !== b['status'] || 1 !== Object.keys(b).length) return reply(400, {});
+        if ('stale' !== b['status'] || 1 !== Object.keys(b).length) {return reply(400, {});}
         row['status'] = 'stale';
         return reply(200, row);
       }

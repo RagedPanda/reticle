@@ -46,7 +46,7 @@ function askableDirectories(): { readonly dir: string; readonly name: string }[]
   const first = new Map<string, string>();
   for (const f of tracked) {
     const dir = dirname(f);
-    if (!first.has(dir)) first.set(dir, basename(f, '.ts'));
+    if (!first.has(dir)) {first.set(dir, basename(f, '.ts'));}
   }
   return [...first].map(([dir, name]) => ({ dir, name }));
 }
@@ -86,10 +86,10 @@ describe('the advice tool answers about every directory in this repository', () 
       Array.from({ length: LANES }, async () => {
         for (let i = next++; i < asked.length; i = next++) {
           const entry = asked[i];
-          if (entry === undefined) continue;
+          if (entry === undefined) {continue;}
           const said = await ask(entry.dir, entry.name);
           if (!/\b(SAFE|UNSAFE)\b/.test(said))
-            silent.push(`${entry.dir} (asked about ${entry.name})`);
+            {silent.push(`${entry.dir} (asked about ${entry.name})`);}
         }
       }),
     );

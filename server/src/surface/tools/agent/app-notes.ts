@@ -25,7 +25,7 @@ function pathOf(root: string): string {
 export function readAppNotes(root: string): string[] {
   try {
     const path = pathOf(root);
-    if (!existsSync(path)) return [];
+    if (!existsSync(path)) {return [];}
     const parsed: unknown = JSON.parse(readFileSync(path, 'utf8'));
     const notes =
       'object' === typeof parsed && null !== parsed ? (parsed as { notes?: unknown }).notes : [];
@@ -39,7 +39,7 @@ export function readAppNotes(root: string): string[] {
 export function addAppNote(root: string, note: string): boolean {
   try {
     const notes = readAppNotes(root);
-    if (notes.includes(note) || !existsSync(root)) return false;
+    if (notes.includes(note) || !existsSync(root)) {return false;}
     const kept = [...notes, note].slice(-MAX_NOTES);
     writeFileSync(pathOf(root), `${JSON.stringify({ notes: kept }, null, 2)}\n`);
     return true;

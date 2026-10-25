@@ -54,7 +54,7 @@ export const defaultProjectFor = (
   /** The `projectId` `init` wrote into `.reticle.json`, when there is one. */
   localProjectId?: string,
 ): string => {
-  if (existingProjectId !== undefined && existingProjectId.length > 0) return existingProjectId;
+  if (existingProjectId !== undefined && existingProjectId.length > 0) {return existingProjectId;}
   // The name part of `init`'s `<name>-<hash>`, else the id as written: a name the owner chose.
   const named =
     localProjectId === undefined || 0 === localProjectId.length
@@ -107,7 +107,7 @@ export function repoIdentity(dir: string): string | undefined {
       .replace(/^[a-z+]+:\/\/|^[^@]+@/i, '')
       .replace(':', '/')
       .toLowerCase();
-    if (0 === remote.length) return undefined;
+    if (0 === remote.length) {return undefined;}
     const inside = relative(git('rev-parse', '--show-toplevel'), dir).split('\\').join('/');
     return createHash('sha256')
       .update(`${remote}\u0000${inside}`)
@@ -143,14 +143,14 @@ export async function resolveProjectId(
   const { projects } = ProjectsListSchema.parse(await api('GET', `${url}/v1/projects`, token));
   const lc = wanted.toLowerCase();
   const holding = localId === undefined ? undefined : projects.find((p) => p.projectId === localId);
-  if (holding !== undefined) return holding.projectId;
+  if (holding !== undefined) {return holding.projectId;}
   const match = projects.find(
     (p) =>
       p.projectId === wanted ||
       (p.name.toLowerCase() === lc &&
         (repo === undefined || p.repo === undefined || p.repo === repo)),
   );
-  if (match !== undefined) return match.projectId;
+  if (match !== undefined) {return match.projectId;}
   let answer: unknown;
   try {
     answer = await api('POST', `${url}/v1/projects`, token, {
@@ -165,7 +165,7 @@ export async function resolveProjectId(
       !(error instanceof Error) ||
       0 === projects.length
     )
-      throw error;
+      {throw error;}
     const names = projects.map((p) => p.name).slice(0, MAX_NAMED);
     throw new Error(
       `${error.message}\nTo link one that exists: ${names.map((n) => `\`reticle connect --project ${n}\``).join(', ')}`,

@@ -16,9 +16,9 @@ export function laneIds(harness: string, leasing: boolean): LaneIds {
   const bySession = new Map<string, string>();
   return {
     idFor(sessionId) {
-      if (!leasing || sessionId === undefined) return harness;
+      if (!leasing || sessionId === undefined) {return harness;}
       const known = bySession.get(sessionId);
-      if (known !== undefined) return known;
+      if (known !== undefined) {return known;}
       const id = `${harness}-L${String(bySession.size + 1)}`;
       bySession.set(sessionId, id);
       return id;

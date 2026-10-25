@@ -94,7 +94,7 @@ describe('spawnDaemon with injectable deps', () => {
     const { deps, closed } = makeDeps({
       openFile: (path, flags) => {
         callCount += 1;
-        if (2 === callCount) throw new Error('disk full');
+        if (2 === callCount) {throw new Error('disk full');}
         const fd = openSync(path, flags);
         realOpened.push({ path, flags, fd });
         return fd;

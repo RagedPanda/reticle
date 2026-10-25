@@ -45,9 +45,9 @@ export function flowReplayVerdictId(flowName: string, at: number): string {
  * Otherwise the flow's own prose implies one. A flow with neither has no intent, and says so.
  */
 function intentIdOf(flow: FlowFile): string | undefined {
-  if (flow.intentId !== undefined) return flow.intentId;
+  if (flow.intentId !== undefined) {return flow.intentId;}
   // A sentence built from the steps names the flow; it is not a goal, so it declares nothing.
-  if (true === flow.intentDerived) return undefined;
+  if (true === flow.intentDerived) {return undefined;}
   // TRIMMED, not merely defined. `intent: "   "` satisfied `!== undefined` and silenced the gap, so
   // a flow whose stated goal is whitespace looked identical on disk to one somebody thought about.
   //
@@ -73,7 +73,7 @@ function intentIdOf(flow: FlowFile): string | undefined {
  */
 export async function linkFlowIntent(store: IntentStore, flow: FlowFile): Promise<FlowFile> {
   const id = intentIdOf(flow);
-  if (id === undefined) return flow;
+  if (id === undefined) {return flow;}
   if (flow.intent !== undefined) {
     await store.declare([{ id, statement: flow.intent, surface: { flow: flow.name } }]);
   }
@@ -97,7 +97,7 @@ export async function linkFlowIntent(store: IntentStore, flow: FlowFile): Promis
  * flow, and a verification tool that refuses to record work is one people route around.
  */
 export function flowIntentGap(flow: FlowFile): InstrumentationGap | undefined {
-  if (intentIdOf(flow) !== undefined) return undefined;
+  if (intentIdOf(flow) !== undefined) {return undefined;}
   return instrumentationGap(
     InstrumentationGapKind.NO_FLOW_INTENT,
     'this flow declares no intent, so nothing on disk says what it is meant to prove',
@@ -117,7 +117,7 @@ export async function flowIntentStatement(
   flow: FlowFile,
 ): Promise<string | undefined> {
   const id = intentIdOf(flow);
-  if (id === undefined) return undefined;
+  if (id === undefined) {return undefined;}
   const found = (await store.read()).find((intent) => intent.id === id);
   return found?.statement ?? flow.intent;
 }
@@ -135,7 +135,7 @@ export async function dischargeFlowIntent(
   proof: { verdictId: string; grade: string; at: number; runId?: string },
 ): Promise<boolean> {
   const id = intentIdOf(flow);
-  if (id === undefined) return false;
+  if (id === undefined) {return false;}
   try {
     return await store.discharge(id, proof);
   } catch {

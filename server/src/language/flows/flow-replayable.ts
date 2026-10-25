@@ -52,13 +52,13 @@ const escapeRegex = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g
  * Undefined when it cannot be: no words beside the number, a money check, or a `satisfies` already.
  */
 function wordLevel(contains: string, money: boolean): Predicate | undefined {
-  if (money || MONEY.test(contains)) return undefined;
+  if (money || MONEY.test(contains)) {return undefined;}
   const words = contains
     .split(NUMBER)
     .map((part) => part.trim())
     .filter((part) => WORDS.test(part))
     .sort((a, b) => b.length - a.length)[0];
-  if (words === undefined) return undefined;
+  if (words === undefined) {return undefined;}
   const pattern = contains.split(NUMBER).map(escapeRegex).join(NUMBER_PATTERN);
   return {
     kind: PredicateKind.TEXT,
@@ -88,11 +88,11 @@ function relax(predicate: Predicate, money: boolean): Predicate {
 
 /** Every leaf predicate under a composite, `not` included: a count is data-bound either way. */
 function leaves(predicate: Predicate | undefined): Predicate[] {
-  if (predicate === undefined) return [];
+  if (predicate === undefined) {return [];}
   if (PredicateKind.ALL_OF === predicate.kind || PredicateKind.ANY_OF === predicate.kind) {
     return predicate.predicates.flatMap(leaves);
   }
-  if (PredicateKind.NOT === predicate.kind) return leaves(predicate.predicate);
+  if (PredicateKind.NOT === predicate.kind) {return leaves(predicate.predicate);}
   return [predicate];
 }
 
@@ -194,9 +194,9 @@ export function replayability(flow: FlowFile): Replayability {
     ) {
       bound.push(`step ${at} acts on a control named '${anchor.name}', a live count`);
     }
-    for (const data of liveData(step.expect)) bound.push(`step ${at} expects '${data}', live data`);
+    for (const data of liveData(step.expect)) {bound.push(`step ${at} expects '${data}', live data`);}
     for (const write of own ? writesNamed(step.expect) : [])
-      writes.push(`step ${at} sends ${write}`);
+      {writes.push(`step ${at} sends ${write}`);}
     if (own && true === step.writes && 0 === writesNamed(step.expect).length) {
       writes.push(`step ${at} sent a write request when it was recorded`);
     }

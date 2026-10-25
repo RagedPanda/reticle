@@ -196,9 +196,9 @@ export const ANNOTATE_TOOLS: ToolDef[] = [
 
       const patch = outcome.patch;
       if (patch !== undefined) {
-        if (patch.dynamicAdd !== undefined) deps.annotations.addDynamic(name, patch.dynamicAdd);
-        if (patch.success !== undefined) deps.annotations.setSuccess(name, patch.success);
-        if (patch.intent !== undefined) deps.annotations.setIntent(name, patch.intent);
+        if (patch.dynamicAdd !== undefined) {deps.annotations.addDynamic(name, patch.dynamicAdd);}
+        if (patch.success !== undefined) {deps.annotations.setSuccess(name, patch.success);}
+        if (patch.intent !== undefined) {deps.annotations.setIntent(name, patch.intent);}
         if (patch.stepIndex !== undefined && patch.stepExpect !== undefined) {
           deps.annotations.setStepExpect(name, patch.stepIndex, patch.stepExpect);
         }

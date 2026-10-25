@@ -66,10 +66,10 @@ export function personasIn(flows: readonly FlowFile[]): { name: string; journey:
     // The first line only: an older drive saved the product's rules below the journey.
     const intent = (flow.intent ?? '').split('\n')[0] ?? '';
     const at = intent.indexOf(':');
-    if (at <= 0 || MAX_PERSONA_NAME < at) continue;
+    if (at <= 0 || MAX_PERSONA_NAME < at) {continue;}
     const name = intent.slice(0, at).trim();
     const journey = intent.slice(at + 1).trim();
-    if (0 < name.length && 0 < journey.length && !seen.has(name)) seen.set(name, journey);
+    if (0 < name.length && 0 < journey.length && !seen.has(name)) {seen.set(name, journey);}
   }
   return [...seen].slice(0, MAX_PERSONAS).map(([name, journey]) => ({ name, journey }));
 }
@@ -132,14 +132,14 @@ export async function proposeScript(
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
     // The platform's own reason, so a drive that goes on without a plan can say why.
-    if (!res.ok) return { refused: await refusalOf(res) };
+    if (!res.ok) {return { refused: await refusalOf(res) };}
     const body = (await res.json()) as {
       script?: unknown;
       planId?: unknown;
       creditsSpent?: unknown;
     };
     const parsed = DriveScriptSchema.safeParse(body.script);
-    if (!parsed.success || 0 < checkScript(parsed.data).length) return undefined;
+    if (!parsed.success || 0 < checkScript(parsed.data).length) {return undefined;}
     return {
       script: parsed.data,
       ...('string' === typeof body.planId ? { planId: body.planId } : {}),
@@ -171,7 +171,7 @@ export async function fetchScript(
       headers: platformHeaders(platform),
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
-    if (!res.ok) return undefined;
+    if (!res.ok) {return undefined;}
     const plan = (await res.json()) as { script?: unknown };
     const parsed = DriveScriptSchema.safeParse(plan.script);
     return parsed.success && 0 === checkScript(parsed.data).length
@@ -194,7 +194,7 @@ export function replayFirst(script: DriveScript, plan: unknown): DriveScript {
   const runs = Array.isArray(record['runs']) ? record['runs'] : [];
   const batches = [...runs.map((run) => asRecord(run)['results']), record['results']];
   for (const batch of batches) {
-    if (!Array.isArray(batch)) continue;
+    if (!Array.isArray(batch)) {continue;}
     for (const raw of batch) {
       const result = asRecord(raw);
       const id = asString(result['id']);
@@ -202,10 +202,10 @@ export function replayFirst(script: DriveScript, plan: unknown): DriveScript {
         ? result['flows'].filter((f): f is string => 'string' === typeof f && 0 < f.length)
         : [];
       if (id !== undefined && ScriptStatus.PASSED === result['status'] && 0 < flows.length)
-        passedFlows.set(id, flows);
+        {passedFlows.set(id, flows);}
     }
   }
-  if (0 === passedFlows.size) return script;
+  if (0 === passedFlows.size) {return script;}
   return {
     ...script,
     journeys: script.journeys.map((journey) => {
@@ -214,7 +214,7 @@ export function replayFirst(script: DriveScript, plan: unknown): DriveScript {
         ScriptStepKind.ACT === step.kind ? step.goal : undefined,
       );
       if (flows === undefined || journey.fallback !== undefined || goals.includes(undefined))
-        return journey;
+        {return journey;}
       return {
         ...journey,
         steps: flows.map((flow) => ({ kind: ScriptStepKind.REPLAY, flow })),
@@ -316,20 +316,20 @@ export function journeyResults(
 ): JourneyResult[] {
   const byId = new Map<string, JourneyResult>();
   for (const lane of view.lanes)
-    for (const card of lane.journeys) {
+    {for (const card of lane.journeys) {
       const seen = byId.get(card.id);
       if (seen === undefined || SEVERITY.indexOf(card.status) < SEVERITY.indexOf(seen.status))
-        byId.set(card.id, {
+        {byId.set(card.id, {
           id: card.id,
           title: card.title,
           status: card.status,
           ...(card.why === undefined ? {} : { line: card.why }),
-        });
-    }
+        });}
+    }}
   const answered = new Map(answers.map((a) => [a.id, a]));
   return [...byId.values()].map((result) => {
     const answer = answered.get(result.id);
-    if (answer === undefined) return result;
+    if (answer === undefined) {return result;}
     return {
       ...result,
       ...(answer.by === undefined ? {} : { by: answer.by }),

@@ -25,6 +25,6 @@ export function uncleanPredecessor(
   alive: boolean,
   self: number,
 ): number | null {
-  if (null === owner || owner === self || alive) return null;
+  if (null === owner || owner === self || alive) {return null;}
   return owner;
 }

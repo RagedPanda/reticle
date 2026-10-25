@@ -25,9 +25,9 @@ export async function reportAndAccumulate(
     const envelopes = await store.load();
     const report = buildDeviationReport(envelopes, segments, zThreshold);
     for (const segment of segments) {
-      if (segment.route === undefined) continue;
+      if (segment.route === undefined) {continue;}
       // Never learn from a truncated sample — its understated counts would poison the baseline.
-      if (true === segment.truncated) continue;
+      if (true === segment.truncated) {continue;}
       /*
        * Keyed on the route TEMPLATE, not the observed path. Keyed on the path, an app with ids in
        * its URLs mints one envelope per id, every envelope holds a single sample, and nothing ever

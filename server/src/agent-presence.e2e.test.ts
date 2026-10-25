@@ -44,7 +44,7 @@ async function startStack(): Promise<number> {
   const b = bridge;
   shared.attachAgentPresence((connected) => {
     presence.push(connected);
-    if (!connected) endAllSessions(b.sessions, AGENT_STOPPED_NOTICE);
+    if (!connected) {endAllSessions(b.sessions, AGENT_STOPPED_NOTICE);}
   });
   await new Promise<void>((resolve) => srv.listen(0, '127.0.0.1', resolve));
   return (srv.address() as AddressInfo).port;

@@ -59,9 +59,9 @@ interface Workflow {
 function readWorkflow(): Workflow {
   const parsed: unknown = parse(readFileSync(WORKFLOW, 'utf8'));
   if ('object' !== typeof parsed || null === parsed || !('jobs' in parsed))
-    throw new Error(`${WORKFLOW} has no jobs map`);
+    {throw new Error(`${WORKFLOW} has no jobs map`);}
   const jobs: unknown = parsed.jobs;
-  if ('object' !== typeof jobs || null === jobs) throw new Error(`${WORKFLOW} jobs is not a map`);
+  if ('object' !== typeof jobs || null === jobs) {throw new Error(`${WORKFLOW} jobs is not a map`);}
   const out: Workflow['jobs'] = {};
   for (const [name, body] of Object.entries(jobs)) {
     const needs: unknown =
@@ -80,7 +80,7 @@ function readWorkflow(): Workflow {
 
 const needsOf = (name: string): readonly string[] => {
   const needs = readWorkflow().jobs[name]?.needs;
-  if (undefined === needs) return [];
+  if (undefined === needs) {return [];}
   return 'string' === typeof needs ? [needs] : needs;
 };
 
@@ -157,7 +157,7 @@ describe('every install-gate scaffold runs in CI', () => {
   const matrixIds = (): string[] => {
     const yml = readFileSync(join(REPO, '.github/workflows/ci.yml'), 'utf8');
     const block = /^\s*ALL='([^']+)'/m.exec(yml);
-    if (null === block) return [];
+    if (null === block) {return [];}
     return (block[1] ?? '')
       .split(/\s+/)
       .map((entry) => entry.trim())

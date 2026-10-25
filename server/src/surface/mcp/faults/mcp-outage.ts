@@ -65,7 +65,7 @@ export function reportMcpOutage(
 ): void {
   const reason = outageReason(facts.reason);
   const slot = `${stage}:${isBenign(reason) ? 'benign' : 'fault'}`;
-  if (reported.has(slot)) return;
+  if (reported.has(slot)) {return;}
   reported.add(slot);
   void getTelemetry().emit(TelemetryEventKind.MCP_CONNECTION_LOST, {
     outage: {

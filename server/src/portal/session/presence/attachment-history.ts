@@ -70,7 +70,7 @@ export class AttachmentHistory {
   /** A session dropped. The gap stays open until it comes back, or the record is forgotten. */
   detached(sessionId: string): void {
     const prior = this.#records.get(sessionId);
-    if (prior === undefined) return;
+    if (prior === undefined) {return;}
     this.#records.set(sessionId, { ...prior, detachedAt: this.#now() });
   }
 
@@ -87,7 +87,7 @@ export class AttachmentHistory {
    */
   of(sessionId: string): Attachment | undefined {
     const record = this.#records.get(sessionId);
-    if (record === undefined) return undefined;
+    if (record === undefined) {return undefined;}
     return {
       connectedSinceMs: this.#now() - record.attachedAt,
       outages: record.outages,

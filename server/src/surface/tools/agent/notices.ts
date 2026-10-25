@@ -71,7 +71,7 @@ function seenFor(session: string): Set<string> {
   if (seen === undefined) {
     if (seenBySession.size >= MAX_SESSIONS) {
       const oldest = seenBySession.keys().next().value;
-      if (oldest !== undefined) seenBySession.delete(oldest);
+      if (oldest !== undefined) {seenBySession.delete(oldest);}
     }
     seen = new Set();
     seenBySession.set(session, seen);
@@ -81,15 +81,15 @@ function seenFor(session: string): Set<string> {
 
 /** First time this session sees `line`? Records it either way. */
 function firstTime(seen: Set<string>, line: string): boolean {
-  if (seen.has(line)) return false;
-  if (seen.size < MAX_LINES) seen.add(line);
+  if (seen.has(line)) {return false;}
+  if (seen.size < MAX_LINES) {seen.add(line);}
   return true;
 }
 
 /** One line from an advisory's value: a string as-is, an object by its sentence field. */
 export function noticeLine(value: unknown): string | undefined {
-  if ('string' === typeof value) return 0 === value.trim().length ? undefined : value.trim();
-  if ('object' !== typeof value || null === value) return undefined;
+  if ('string' === typeof value) {return 0 === value.trim().length ? undefined : value.trim();}
+  if ('object' !== typeof value || null === value) {return undefined;}
   const record = value as Record<string, unknown>;
   for (const field of SENTENCE_FIELDS) {
     const text = record[field];
@@ -124,12 +124,12 @@ export function foldNotices(
     ? (out[fold.notices] as unknown[]).filter((l): l is string => 'string' === typeof l)
     : [];
   for (const key of fold.advisories) {
-    if (!(key in out)) continue;
+    if (!(key in out)) {continue;}
     const line = noticeLine(out[key]);
     delete out[key];
-    if (line !== undefined && firstTime(seen, `${key}\u0000${line}`)) lines.push(line);
+    if (line !== undefined && firstTime(seen, `${key}\u0000${line}`)) {lines.push(line);}
   }
-  for (const line of extra) if (firstTime(seen, `\u0000${line}`)) lines.push(line);
+  for (const line of extra) {if (firstTime(seen, `\u0000${line}`)) {lines.push(line);}}
   const next = out[fold.next];
   if ('string' === typeof next && !firstTime(seen, `${fold.next}\u0000${next}`)) {
     delete out[fold.next];
@@ -141,16 +141,16 @@ export function foldNotices(
     !firstTime(seen, `${fold.warning}\u0000${warning}`)
   ) {
     const short = fold.onceWarnings.get(warning);
-    if (short === undefined) delete out[fold.warning];
-    else out[fold.warning] = short;
+    if (short === undefined) {delete out[fold.warning];}
+    else {out[fold.warning] = short;}
   }
   const sessions = out[SESSIONS_KEY];
   const why = out[WHY_KEY];
   if (Array.isArray(sessions) && 0 === sessions.length && 'string' === typeof why) {
     out[WHY_KEY] = firstSentenceOf(why);
   }
-  if (lines.length > 0) out[fold.notices] = lines;
-  else delete out[fold.notices];
+  if (lines.length > 0) {out[fold.notices] = lines;}
+  else {delete out[fold.notices];}
   return out;
 }
 
@@ -170,7 +170,7 @@ export function feedbackAlreadyAsked(session: string | undefined): boolean {
 
 /** Record that this session was asked. */
 export function noteFeedbackAsked(session: string | undefined): void {
-  if (session === undefined) return;
-  if (feedbackAsked.size >= MAX_SESSIONS) feedbackAsked.clear();
+  if (session === undefined) {return;}
+  if (feedbackAsked.size >= MAX_SESSIONS) {feedbackAsked.clear();}
   feedbackAsked.add(session);
 }

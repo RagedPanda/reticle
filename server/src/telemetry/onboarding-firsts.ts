@@ -35,7 +35,7 @@ const seen = { look: false, act: false, verdict: false, driven: false, verdictPr
 /** Report `step` once per process, and only if this machine + project has never reported it. */
 export function reportFirstStep(step: OnboardingStep): void {
   const ever = claimFirstEver(step.step);
-  if (FirstEver.SEEN === ever) return;
+  if (FirstEver.SEEN === ever) {return;}
   void reportOnboardingStep({ ...step, ...(FirstEver.FIRST === ever ? { firstEver: true } : {}) });
 }
 
@@ -68,9 +68,9 @@ export function noteOnboardingFirst(toolName: string): void {
  */
 export function noteActed(args: Record<string, unknown>): void {
   // A hover changes nothing and is not an action anybody drove.
-  if (args['action'] === ActionType.HOVER) return;
+  if (args['action'] === ActionType.HOVER) {return;}
   noteDriven();
-  if (seen.act) return;
+  if (seen.act) {return;}
   seen.act = true;
   reportFirstStep({
     phase: OnboardingPhase.ONBOARD,
@@ -86,7 +86,7 @@ export function noteActed(args: Record<string, unknown>): void {
  * and only the site that already decided "this was a verification" can say so. Reported from there.
  */
 export function noteFirstVerdict(): void {
-  if (seen.verdict) return;
+  if (seen.verdict) {return;}
   seen.verdict = true;
   reportFirstStep({
     phase: OnboardingPhase.ONBOARD,
@@ -108,7 +108,7 @@ export function noteFirstVerdict(): void {
  * chokepoint — a drive that is refused before its first action drove nothing and says nothing.
  */
 export function noteDriven(): void {
-  if (seen.driven) return;
+  if (seen.driven) {return;}
   seen.driven = true;
   reportFirstStep({
     phase: OnboardingPhase.FIRST_RUN,
@@ -122,7 +122,7 @@ export function noteDriven(): void {
  * took: it fired on every verdict, so a busy session put hundreds of first-run steps in the funnel.
  */
 export function noteVerdictProduced(elapsedMs: number): void {
-  if (seen.verdictProduced) return;
+  if (seen.verdictProduced) {return;}
   seen.verdictProduced = true;
   reportFirstStep({
     phase: OnboardingPhase.FIRST_RUN,
@@ -186,7 +186,7 @@ const currentProjectId = (): string =>
   (cachedProjectId ??= projectFingerprint(process.cwd()).projectId);
 
 export function claimFirstEver(step: string, projectId?: string): FirstEver {
-  if (override === undefined && !getTelemetry().enabled) return FirstEver.UNKNOWN;
+  if (override === undefined && !getTelemetry().enabled) {return FirstEver.UNKNOWN;}
   try {
     const dir = join(
       override?.dir ?? DEFAULT_DIR,

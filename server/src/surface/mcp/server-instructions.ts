@@ -77,7 +77,7 @@ DIAGNOSING a bug? Read the source first — Reticle proves what the app DOES, no
  * header warns about.
  */
 const replayFirst = (v: SurfaceVocabulary): string => {
-  if (0 === v.replayChange.length) return '';
+  if (0 === v.replayChange.length) {return '';}
   const ask =
     v.affected.length > 0 ? `${v.affected} names the saved flows covering your edits; ` : '';
   return `Changed code? Replay before you drive. ${ask}${v.replayChange} replays them for one verified + because — far cheaper than driving it again. "yes": proved, stop. "no": names the step that broke. "unknown": NO saved flow covers it, so nothing was proved — drive it, and never report it as passing. What you drive by hand is saved as a flow automatically.${driveOnce(v)}`;
@@ -120,7 +120,7 @@ To wire it for good, call ${v.sessions}. Its first call wires the app (\`init\`,
  * `init`: the agent made no Reticle call and wrote, ran and deleted a Playwright script instead.
  */
 function verifyNowFor(v: SurfaceVocabulary): string {
-  if ('' === v.zeroInstall) return '';
+  if ('' === v.zeroInstall) {return '';}
   return ` To check a change now, with no file changed: \`${v.zeroInstall}\` opens it in Reticle's own browser with Reticle's own reader (DOM, network, console, routes; no component state or source file:line). Use it instead of writing a browser script.`;
 }
 
@@ -133,7 +133,7 @@ const TELL_THE_USER =
 /** The nudge set for the AGENT's directory: a shared daemon briefs from where IT started. */
 export function localizeInstructions(instructions: string, appHere: boolean): string {
   const without = instructions.replace(TELL_THE_USER, '');
-  if (!appHere || !without.includes(UNWIRED_LEAD_END)) return without;
+  if (!appHere || !without.includes(UNWIRED_LEAD_END)) {return without;}
   return without.replace(UNWIRED_LEAD_END, `${UNWIRED_LEAD_END}${TELL_THE_USER}`);
 }
 

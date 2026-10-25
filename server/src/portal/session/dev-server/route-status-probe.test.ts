@@ -35,7 +35,7 @@ afterEach(async () => {
   server = undefined;
   seenPath = undefined;
   seenMethod = undefined;
-  if (s !== undefined) await new Promise<void>((resolve) => s.close(() => resolve()));
+  if (s !== undefined) {await new Promise<void>((resolve) => s.close(() => resolve()));}
 });
 
 describe('probeRouteStatus', () => {

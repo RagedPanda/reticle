@@ -322,7 +322,7 @@ describe('a free drive names itself on every call', () => {
       RETICLE_DRIVE_ID: 'drv_1',
     });
     expect(platform?.driveId).toBe('drv_1');
-    if (platform === undefined) return;
+    if (platform === undefined) {return;}
     await runHarness(serverDriver({ ...platform, fetch }), toolset([]));
     expect(headers.length).toBeGreaterThan(1);
     expect(new Set(headers)).toEqual(new Set(['drv_1']));

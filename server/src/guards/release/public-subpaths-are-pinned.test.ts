@@ -170,11 +170,11 @@ describe('what a published package promises by filename', () => {
         private?: boolean;
         exports?: Record<string, unknown>;
       };
-      if (true === manifest.private) continue;
+      if (true === manifest.private) {continue;}
       const wildcards = Object.keys(manifest.exports ?? {}).filter(
         (key) => key.includes('*') && key.endsWith('.js'),
       );
-      if (0 < wildcards.length) exposing.push(path.replace('/package.json', ''));
+      if (0 < wildcards.length) {exposing.push(path.replace('/package.json', ''));}
     }
     expect(
       exposing.sort(),

@@ -47,7 +47,7 @@ function depsFor(session: Session): ToolDeps {
 
 function reviewTool() {
   const t = LIVE_CONTROL_TOOLS.find((x) => x.name === ReticleTool.REVIEW);
-  if (t === undefined) throw new Error('no reticle_review tool');
+  if (t === undefined) {throw new Error('no reticle_review tool');}
   return t;
 }
 

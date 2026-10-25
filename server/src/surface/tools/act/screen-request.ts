@@ -51,7 +51,7 @@ function primitiveFields(body: string): Map<string, string> {
   const out = new Map<string, string>();
   try {
     const parsed: unknown = JSON.parse(body);
-    if ('object' !== typeof parsed || null === parsed || Array.isArray(parsed)) return out;
+    if ('object' !== typeof parsed || null === parsed || Array.isArray(parsed)) {return out;}
     for (const [key, value] of Object.entries(parsed as Record<string, unknown>)) {
       if ('string' === typeof value || 'number' === typeof value || 'boolean' === typeof value) {
         out.set(key.toLowerCase(), String(value));
@@ -78,11 +78,11 @@ export function screenRequestMismatches(
   const out: Contradiction[] = [];
   for (const request of sent) {
     const fields = primitiveFields(request.body);
-    if (0 === fields.size) continue;
+    if (0 === fields.size) {continue;}
     for (const control of controls) {
       const key = control.field.toLowerCase();
       const carried = fields.get(key);
-      if (carried === undefined || carried === control.value) continue;
+      if (carried === undefined || carried === control.value) {continue;}
       const shown =
         control.label !== undefined && control.label !== control.value
           ? `"${control.label}" (value "${control.value}")`
@@ -100,12 +100,12 @@ export function screenRequestMismatches(
 
 function sentBodies(events: readonly ReticleEvent[]): SentBody[] {
   return events.flatMap((event) => {
-    if (EventType.NET_REQUEST !== event.type) return [];
+    if (EventType.NET_REQUEST !== event.type) {return [];}
     const raw = event.data['method'];
     const method = ('string' === typeof raw ? raw : 'GET').toUpperCase();
     const body = event.data['requestBody'];
     const url = event.data['url'];
-    if (READ_METHODS.has(method) || 'string' !== typeof body || 'string' !== typeof url) return [];
+    if (READ_METHODS.has(method) || 'string' !== typeof body || 'string' !== typeof url) {return [];}
     return [{ method, url, body }];
   });
 }
@@ -116,11 +116,11 @@ async function shownControls(session: Session): Promise<ShownControl[]> {
     const res = await session.command(ReticleCommand.MATCH, {
       query: { role, attrs: ['name', 'id'] },
     });
-    if (!res.ok) continue;
+    if (!res.ok) {continue;}
     for (const el of (res.result as MatchResult | undefined)?.elements ?? []) {
       const field = el.attrs?.['name'] ?? el.attrs?.['id'];
       // No value read, or a redacted one: nothing to compare, so nothing is guessed.
-      if (field === undefined || el.value === undefined || REDACTED_VALUE === el.value) continue;
+      if (field === undefined || el.value === undefined || REDACTED_VALUE === el.value) {continue;}
       out.push({ field, value: el.value, ref: el.ref });
     }
   }
@@ -132,9 +132,9 @@ export async function screenRequestFindings(
   session: Session,
   windowEvents: readonly ReticleEvent[],
 ): Promise<Contradiction[]> {
-  if ('1' !== process.env[SCREEN_REQUEST_CHECK_ENV]) return [];
+  if ('1' !== process.env[SCREEN_REQUEST_CHECK_ENV]) {return [];}
   const sent = sentBodies(windowEvents);
-  if (0 === sent.length) return [];
+  if (0 === sent.length) {return [];}
   try {
     return screenRequestMismatches(sent, await shownControls(session));
   } catch {

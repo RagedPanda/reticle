@@ -27,7 +27,7 @@ import { ReticleTool } from '@reticlehq/core';
 function advertised(name: string, surface: ToolSurface): string {
   const tools = advertisedTools(surface);
   const tool = tools.find((t) => t.name === name);
-  if (tool === undefined) throw new Error(`${name} is not advertised on ${surface}`);
+  if (tool === undefined) {throw new Error(`${name} is not advertised on ${surface}`);}
   return advertisedConfig(tool, tools, surface).description;
 }
 
@@ -60,7 +60,7 @@ describe('the meta-tools stay self-explanatory on every surface', () => {
     const tools = advertisedTools(TOOL_SURFACE.DEFAULT);
     const snapshot = tools.find((t) => t.name === ReticleTool.SNAPSHOT);
     expect(snapshot).toBeDefined();
-    if (snapshot === undefined) return;
+    if (snapshot === undefined) {return;}
     const shown = advertisedConfig(snapshot, tools, TOOL_SURFACE.DEFAULT).description;
     expect(shown.length).toBeLessThan(snapshot.description.length);
   });

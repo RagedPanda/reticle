@@ -55,7 +55,7 @@ function harness() {
     (message, stack) => void reported.push({ message, stack }),
   );
   const fire = (event: 'uncaughtException' | 'unhandledRejection', err: unknown): void => {
-    for (const h of target.handlers.get(event) ?? []) h(err);
+    for (const h of target.handlers.get(event) ?? []) {h(err);}
   };
   return { target, stopped, reported, release, fire };
 }

@@ -55,7 +55,7 @@ describe('reticle --help', () => {
 
   it('every documented command is one the CLI runs', () => {
     const runnable = new Set([...LOCAL_COMMANDS, ...CLOUD_COMMANDS]);
-    for (const cmd of DOCUMENTED_COMMANDS) expect(runnable.has(cmd), cmd).toBe(true);
+    for (const cmd of DOCUMENTED_COMMANDS) {expect(runnable.has(cmd), cmd).toBe(true);}
   });
 
   it('no removed or renamed name is advertised', () => {
@@ -99,7 +99,7 @@ describe('renamed commands still run', () => {
 
   it('each old name is still dispatched', () => {
     const runnable = new Set([...LOCAL_COMMANDS, ...CLOUD_COMMANDS]);
-    for (const cmd of RENAMED_COMMANDS.keys()) expect(runnable.has(cmd), cmd).toBe(true);
+    for (const cmd of RENAMED_COMMANDS.keys()) {expect(runnable.has(cmd), cmd).toBe(true);}
   });
 
   it('the note is one plain line, dimmed only when asked', () => {

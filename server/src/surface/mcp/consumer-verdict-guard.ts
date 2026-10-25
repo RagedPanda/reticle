@@ -37,7 +37,7 @@ export const RESERVED_VERDICT_KEYS: ReadonlySet<string> = new Set([
  * Anything that is not a plain object claims nothing, so it passes.
  */
 export function reservedVerdictKeysIn(result: unknown): string[] {
-  if (typeof result !== 'object' || null === result || Array.isArray(result)) return [];
+  if (typeof result !== 'object' || null === result || Array.isArray(result)) {return [];}
   return Object.keys(result)
     .filter((key) => RESERVED_VERDICT_KEYS.has(key))
     .sort();

@@ -56,8 +56,8 @@ export function daemonLine(
   self: { version: string; contract: string },
 ): DaemonLine {
   const parts: string[] = [];
-  if (null !== pid) parts.push(`pid ${String(pid)}`);
-  if (peer.version !== undefined) parts.push(`v${peer.version}`);
+  if (null !== pid) {parts.push(`pid ${String(pid)}`);}
+  if (peer.version !== undefined) {parts.push(`v${peer.version}`);}
   const detail = 0 === parts.length ? '' : ` (${parts.join(', ')})`;
   const skew = describeSkew(
     { what: 'the daemon on this port', version: peer.version, contract: peer.contract, fix: FIX },

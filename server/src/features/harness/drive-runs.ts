@@ -139,7 +139,7 @@ export function startDrive(start: StartDrive): DriveRecord {
     waiters: new Set(),
     lines: [],
   };
-  if (start.sessionId !== undefined) lastWords.delete(start.sessionId);
+  if (start.sessionId !== undefined) {lastWords.delete(start.sessionId);}
   entries.set(start.runId, entry);
   byHarness.set(start.harness, entry);
   const save = (): void => {
@@ -188,10 +188,10 @@ export function driveRecord(runId: string): DriveRecord | undefined {
  */
 export function runningDrive(sessionId: string | undefined): DriveRecord | undefined {
   for (const entry of entries.values()) {
-    if (DriveStatus.RUNNING !== entry.record.status) continue;
+    if (DriveStatus.RUNNING !== entry.record.status) {continue;}
     const own = entry.record.sessionId;
     if (sessionId === undefined || own === undefined || own === sessionId)
-      return { ...entry.record };
+      {return { ...entry.record };}
   }
   return undefined;
 }
@@ -214,14 +214,14 @@ export function awaitDrive(
   onChange?: (record: DriveRecord) => void,
 ): Promise<void> {
   const entry = entries.get(runId);
-  if (entry === undefined || DriveStatus.RUNNING !== entry.record.status) return Promise.resolve();
+  if (entry === undefined || DriveStatus.RUNNING !== entry.record.status) {return Promise.resolve();}
   return new Promise((resolve) => {
     const waiter = (record: DriveRecord): void => {
       onChange?.(record);
-      if (DriveStatus.RUNNING !== record.status) done();
+      if (DriveStatus.RUNNING !== record.status) {done();}
     };
     const done = (): void => {
-      if (timer !== undefined) clearTimeout(timer);
+      if (timer !== undefined) {clearTimeout(timer);}
       entry.waiters.delete(waiter);
       signal?.removeEventListener('abort', done);
       resolve();
@@ -229,7 +229,7 @@ export function awaitDrive(
     const timer = ms === undefined ? undefined : setTimeout(done, ms);
     entry.waiters.add(waiter);
     signal?.addEventListener('abort', done, { once: true });
-    if (true === signal?.aborted) done();
+    if (true === signal?.aborted) {done();}
   });
 }
 
@@ -239,8 +239,8 @@ export function awaitDrive(
  */
 export function stopDrive(runId: string, reason?: string): boolean {
   const entry = entries.get(runId);
-  if (entry === undefined || DriveStatus.RUNNING !== entry.record.status) return false;
-  if (reason !== undefined) entry.stopReason = reason;
+  if (entry === undefined || DriveStatus.RUNNING !== entry.record.status) {return false;}
+  if (reason !== undefined) {entry.stopReason = reason;}
   entry.abort.abort();
   return true;
 }
@@ -254,7 +254,7 @@ export function noteHarnessWord(sessionId: string, said: string): void {
 /** How this drive ended, for its tab's Harness page: the run's result, and why when it fell short. */
 function noteLastWord(entry: Entry): void {
   const sessionId = entry.record.sessionId;
-  if (sessionId === undefined) return;
+  if (sessionId === undefined) {return;}
   const runUrl = entry.record.result?.['runUrl'];
   const fell =
     DriveStatus.BROKEN === entry.record.status || DriveStatus.REFUSED === entry.record.status
@@ -288,20 +288,20 @@ export function noteOwnReload(sessionId: string, at: number): void {
  * over: it is stopped, and its Harness page says why. Before, it drove on and ended "failed".
  */
 export function notePageLoaded(sessionId: string, event: ReticleEvent, at: number): void {
-  if (EventType.NET_REQUEST !== event.type) return;
+  if (EventType.NET_REQUEST !== event.type) {return;}
   const data = asRecord(event.data);
-  if (NetInitiator.DOCUMENT !== data['initiator'] || RELOAD !== data['navigationType']) return;
+  if (NetInitiator.DOCUMENT !== data['initiator'] || RELOAD !== data['navigationType']) {return;}
   const asked = ownReloads.get(sessionId);
   ownReloads.delete(sessionId);
-  if (asked !== undefined && at - asked <= OWN_RELOAD_WINDOW_MS) return;
+  if (asked !== undefined && at - asked <= OWN_RELOAD_WINDOW_MS) {return;}
   const running = runningDrive(sessionId);
-  if (running?.sessionId === sessionId) stopDrive(running.harnessRun, MSG_RELOADED);
+  if (running?.sessionId === sessionId) {stopDrive(running.harnessRun, MSG_RELOADED);}
 }
 
 /** Queue text for the driver's next turn. False when there is no such drive running. */
 export function sayToDrive(runId: string, text: string): boolean {
   const entry = entries.get(runId);
-  if (entry === undefined || DriveStatus.RUNNING !== entry.record.status) return false;
+  if (entry === undefined || DriveStatus.RUNNING !== entry.record.status) {return false;}
   entry.inbox.push(text);
   return true;
 }
@@ -309,7 +309,7 @@ export function sayToDrive(runId: string, text: string): boolean {
 /** One tool call a drive made. `harness` may be a lane's id (`<harness>-L2`). */
 export function noteDriveStep(harness: string, tool: string): void {
   const entry = entryFor(harness);
-  if (entry === undefined) return;
+  if (entry === undefined) {return;}
   entry.record.steps += 1;
   entry.record.lastLine = `step ${String(entry.record.steps)} · ${tool}`;
   changed(entry, false);
@@ -326,10 +326,10 @@ export function noteDriveStep(harness: string, tool: string): void {
 /** A line the drive narrated to the HUD. */
 export function noteDriveLine(harness: string, line: string): void {
   const entry = entryFor(harness);
-  if (entry === undefined) return;
+  if (entry === undefined) {return;}
   entry.record.lastLine = line;
   entry.lines.push(line.length > LINE_MAX ? `${line.slice(0, LINE_MAX)}…` : line);
-  if (entry.lines.length > HARNESS_LINES_MAX) entry.lines.shift();
+  if (entry.lines.length > HARNESS_LINES_MAX) {entry.lines.shift();}
   changed(entry, false);
 }
 
@@ -350,7 +350,7 @@ export function onDriveChange(listener: (record: DriveRecord) => void): () => vo
  * `except` is the run the agent is already reading, which needs no note about itself.
  */
 export function takeDriveNotes(except?: string): string[] {
-  if (except !== undefined) notes.delete(except);
+  if (except !== undefined) {notes.delete(except);}
   const taken = [...notes.values()];
   notes.clear();
   return taken;
@@ -372,8 +372,8 @@ function entryFor(harness: string): Entry | undefined {
 /** Waiters hear every change; an agent and the HUD only hear a start or an end. */
 function changed(entry: Entry, startOrEnd: boolean): void {
   const record = { ...entry.record };
-  for (const waiter of [...entry.waiters]) waiter(record);
-  if (!startOrEnd) return;
+  for (const waiter of [...entry.waiters]) {waiter(record);}
+  if (!startOrEnd) {return;}
   notes.set(record.harnessRun, noteFor(record));
   for (const listener of changeListeners) {
     try {
@@ -417,18 +417,18 @@ function noteFor(record: DriveRecord): string {
   const id = record.harnessRun;
   const tab = record.sessionId === undefined ? '' : ` on tab ${record.sessionId}`;
   if (DriveStatus.RUNNING === record.status)
-    return (
+    {return (
       `Harness drive ${id}${FROM[record.origin]} is running${tab}. Follow it: ${pollCall(id)}. ` +
       `Each call waits up to ${String(POLL_WAIT_DEFAULT_S)}s and answers the moment it ends; if you ` +
       `stop polling, the drive keeps running and this runId still reads it.`
-    );
+    );}
   return `Harness drive ${id}${FROM[record.origin]} finished (${summaryOf(record)}). Full result: ${pollCall(id)}.`;
 }
 
 function summaryOf(record: DriveRecord): string {
-  if (record.error !== undefined) return `${record.status}: ${record.error}`;
+  if (record.error !== undefined) {return `${record.status}: ${record.error}`;}
   const checks = record.result?.['checks'];
-  if ('object' !== typeof checks || null === checks) return record.status;
+  if ('object' !== typeof checks || null === checks) {return record.status;}
   const count = (key: string): string => {
     const n = (checks as Record<string, unknown>)[key];
     return String('number' === typeof n ? n : 0);
@@ -457,7 +457,7 @@ export function withRunningDrive(
   snapshot: ImpactSnapshot | undefined,
   sessionId: string,
 ): ImpactSnapshot | undefined {
-  if (snapshot === undefined) return snapshot;
+  if (snapshot === undefined) {return snapshot;}
   const running = runningDrive(sessionId);
   if (running === undefined) {
     const last = lastWords.get(sessionId);

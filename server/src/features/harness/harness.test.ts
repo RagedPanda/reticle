@@ -77,7 +77,7 @@ describe('the harness loop', () => {
     const driver: ModelDriver = {
       turn: ({ history }) => {
         const last = history[history.length - 1];
-        if ('tool' === last?.role) seen.push(JSON.stringify(last.outcomes.map((o) => o.result)));
+        if ('tool' === last?.role) {seen.push(JSON.stringify(last.outcomes.map((o) => o.result)));}
         return Promise.resolve({
           text: '',
           calls: [call(FINISH_TOOL.name, { summary: 'clicked it' })],
@@ -359,7 +359,7 @@ describe('a running drive, steered between turns', () => {
     let said = ['check the refund page too'];
     const driver: ModelDriver = {
       turn: ({ history }) => {
-        for (const entry of history) if ('user' === entry.role) heard.push(entry.text);
+        for (const entry of history) {if ('user' === entry.role) {heard.push(entry.text);}}
         return Promise.resolve(
           2 > heard.length
             ? { text: '', calls: [call('reticle_snapshot')] }

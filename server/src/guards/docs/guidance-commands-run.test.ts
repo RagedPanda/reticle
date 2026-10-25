@@ -49,9 +49,9 @@ function sourceFiles(dir: string): string[] {
       out.push(...sourceFiles(full));
       continue;
     }
-    if (!entry.endsWith('.ts')) continue;
+    if (!entry.endsWith('.ts')) {continue;}
     // Tests describe commands as often as they use them, and a test is not something a user reads.
-    if (entry.endsWith('.test.ts')) continue;
+    if (entry.endsWith('.test.ts')) {continue;}
     out.push(full);
   }
   return out;
@@ -66,7 +66,7 @@ function invocations(): Found[] {
         const rest = (match[1] ?? '').trim();
         // An interpolated command is assembled at runtime from values this guard cannot know, so
         // running it here would test the placeholder rather than the command.
-        if (rest.includes('${') || '' === rest) continue;
+        if (rest.includes('${') || '' === rest) {continue;}
         // A USAGE TEMPLATE, not an invocation. `verify <url>` names the shape of the command for a
         // reader to fill in; running it as written is supposed to fail, and reporting that as a
         // broken instruction would make this guard argue with correct documentation. The docs guard
@@ -77,15 +77,15 @@ function invocations(): Found[] {
             .slice(0, 4)
             .some((t) => t.startsWith('<'))
         )
-          continue;
+          {continue;}
         // Trailing prose: the sentence usually continues after the command. Keep the leading tokens
         // that look like arguments and stop at the first that plainly is not.
         const argv: string[] = [];
         for (const token of rest.split(/\s+/)) {
-          if (/^[a-z][a-z-]*$/.test(token) || token.startsWith('--')) argv.push(token);
-          else break;
+          if (/^[a-z][a-z-]*$/.test(token) || token.startsWith('--')) {argv.push(token);}
+          else {break;}
         }
-        if (0 === argv.length) continue;
+        if (0 === argv.length) {continue;}
         out.push({ file: relative(REPO, file), line: i + 1, argv, raw: match[0] });
       }
     }
@@ -127,7 +127,7 @@ describe('commands the product itself tells a user to run', () => {
        * and the check was wrong. Mirroring the real dispatch is what keeps this file an oracle
        * rather than an argument with correct documentation.
        */
-      if (isCloudCommand(inv.argv[0])) continue;
+      if (isCloudCommand(inv.argv[0])) {continue;}
       const parsed = parseCliArgs(inv.argv, RETICLE_DEFAULT_PORT);
       if ('error' === parsed.kind) {
         broken.push(`${inv.file}:${String(inv.line)} — \`${inv.raw.trim()}\` → ${parsed.message}`);

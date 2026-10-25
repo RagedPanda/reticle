@@ -11,7 +11,7 @@
  * rows as ordinary data, and flipping the flag for those would make it useless in the other direction.
  */
 export function resultIsError(result: unknown): boolean {
-  if (typeof result !== 'object' || null === result || Array.isArray(result)) return false;
+  if (typeof result !== 'object' || null === result || Array.isArray(result)) {return false;}
   const error = (result as { error?: unknown }).error;
   return 'string' === typeof error && error.length > 0;
 }

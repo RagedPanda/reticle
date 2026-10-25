@@ -170,7 +170,7 @@ describe('redactFeedbackText', () => {
     ['a private IP', 'connect ECONNREFUSED 10.20.30.40:5432', ['10.20.30.40']],
   ])('redacts %s', (_label, input, leaks) => {
     const out = redactFeedbackText(input, FEEDBACK_TEXT_MAX);
-    for (const leak of leaks) expect(out.text, out.text).not.toContain(leak);
+    for (const leak of leaks) {expect(out.text, out.text).not.toContain(leak);}
   });
 
   it('keeps what makes a report readable: the local app, file names, versions', () => {

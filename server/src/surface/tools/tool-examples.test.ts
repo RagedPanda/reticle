@@ -86,7 +86,7 @@ describe('cost-saving and bug-catching options are discoverable in the DEFAULT p
   const advertised = advertisedTools(TOOL_SURFACE.DEFAULT);
   const shown = (name: string): string => {
     const tool = advertised.find((t) => t.name === name);
-    if (tool === undefined) return '';
+    if (tool === undefined) {return '';}
     const config = advertisedConfig(tool, advertised, TOOL_SURFACE.DEFAULT);
     return `${config.description} ${JSON.stringify(tool.example ?? {})}`;
   };
@@ -132,7 +132,7 @@ describe('session resolution is advertised as the default, not the exception', (
   const advertised = advertisedTools(TOOL_SURFACE.DEFAULT);
   const sessionParam = (name: string): string => {
     const tool = advertised.find((t) => t.name === name);
-    if (tool === undefined) return '';
+    if (tool === undefined) {return '';}
     const shape = advertisedConfig(tool, advertised, TOOL_SURFACE.DEFAULT).inputSchema;
     return shape['sessionId']?.description ?? '';
   };
@@ -144,7 +144,7 @@ describe('session resolution is advertised as the default, not the exception', (
   it('never re-introduces the "only one session" condition that caused the hand-filtering', () => {
     for (const tool of advertised) {
       const text = sessionParam(tool.name);
-      if ('' === text) continue;
+      if ('' === text) {continue;}
       expect(text, `${tool.name} must not condition omission on a single session`).not.toMatch(
         /omit when only one/i,
       );

@@ -32,12 +32,12 @@ const INVOCATION = /(?:^|\s)npx\s+(?:-y\s+|--yes\s+)?@reticlehq\/server(?:@[\w.-
 
 /** Files a reader can copy from: the docs site, the shipped READMEs, the paste-URL, the skills. */
 function textFiles(dir: string, out: string[] = []): string[] {
-  if (!existsSync(dir)) return out;
+  if (!existsSync(dir)) {return out;}
   for (const entry of readdirSync(dir)) {
-    if ('node_modules' === entry || entry.startsWith('.')) continue;
+    if ('node_modules' === entry || entry.startsWith('.')) {continue;}
     const full = join(dir, entry);
-    if (statSync(full).isDirectory()) textFiles(full, out);
-    else if (entry.endsWith('.md') || entry.endsWith('.mdx')) out.push(full);
+    if (statSync(full).isDirectory()) {textFiles(full, out);}
+    else if (entry.endsWith('.md') || entry.endsWith('.mdx')) {out.push(full);}
   }
   return out;
 }
@@ -66,7 +66,7 @@ function sources(): string[] {
   out.push(...textFiles(join(REPO, 'docs')), ...textFiles(join(REPO, 'skills')));
   for (const dir of publishedPackageDirs()) {
     const readme = join(dir, 'README.md');
-    if (existsSync(readme)) out.push(readme);
+    if (existsSync(readme)) {out.push(readme);}
   }
   return out.filter(existsSync);
 }
@@ -129,10 +129,10 @@ function documentedCommands(): DocCommand[] {
         fence = null === fence ? (open[1] ?? '') : null;
         return;
       }
-      if (null === fence || !RUNNABLE_FENCES.has(fence) || historical) return;
+      if (null === fence || !RUNNABLE_FENCES.has(fence) || historical) {return;}
       const m = INVOCATION.exec(line.replace(/\s+#.*$/, ''));
       const rest = m?.[1];
-      if (rest === undefined || isTemplate(rest)) return;
+      if (rest === undefined || isTemplate(rest)) {return;}
       found.push({
         file: file.replace(REPO, ''),
         line: i + 1,
@@ -180,12 +180,12 @@ describe('every command the docs tell a reader to run is one the CLI still accep
     const rejected: string[] = [];
     for (const c of commands) {
       const result = parseCliArgs(c.argv, 4400);
-      if ('error' !== result.kind) continue;
+      if ('error' !== result.kind) {continue;}
       const first = result.message.split('\n')[0] ?? '';
       const name = c.argv[0] ?? '';
       const dispatchedElsewhere =
         first.startsWith('unknown command') && knownCommand(name) !== UNKNOWN_COMMAND;
-      if (dispatchedElsewhere) continue;
+      if (dispatchedElsewhere) {continue;}
       rejected.push(`${c.file}:${c.line}: ${c.raw}\n    → ${first}`);
     }
     expect(
@@ -236,12 +236,12 @@ function documentedFlags(): DocFlag[] {
         fence = null === fence ? (open[1] ?? '') : null;
         return;
       }
-      if (null === fence || !RUNNABLE_FENCES.has(fence) || historical) return;
+      if (null === fence || !RUNNABLE_FENCES.has(fence) || historical) {return;}
       const m = INVOCATION.exec(line.replace(/\s+#.*$/, ''));
       const rest = m?.[1];
-      if (rest === undefined) return;
+      if (rest === undefined) {return;}
       const command = tokenize(rest)[0] ?? '';
-      if (command.includes('<') || command.includes('[')) return;
+      if (command.includes('<') || command.includes('[')) {return;}
       for (const flag of rest.match(FLAG_NAME) ?? []) {
         found.push({
           file: file.replace(REPO, ''),
@@ -267,11 +267,11 @@ describe('every --flag the docs name is one the CLI still accepts', () => {
     const rejected: string[] = [];
     for (const f of flags) {
       const result = parseCliArgs([f.command, f.flag], 4400);
-      if ('error' !== result.kind) continue;
+      if ('error' !== result.kind) {continue;}
       const first = result.message.split('\n')[0] ?? '';
       const namesTheFlag =
         first === `unknown argument '${f.flag}'` || first.startsWith(`${f.flag} is no longer`);
-      if (!namesTheFlag) continue;
+      if (!namesTheFlag) {continue;}
       rejected.push(`${f.file}:${f.line}: ${f.raw}\n    → ${first}`);
     }
     expect(
@@ -303,10 +303,10 @@ describe('no shipped string tells a user to npx a package we do not own', () => 
 
   function sourceFiles(dir: string, out: string[] = []): string[] {
     for (const entry of readdirSync(dir)) {
-      if ('node_modules' === entry || 'dist' === entry) continue;
+      if ('node_modules' === entry || 'dist' === entry) {continue;}
       const full = join(dir, entry);
-      if (statSync(full).isDirectory()) sourceFiles(full, out);
-      else if (entry.endsWith('.ts') && !entry.endsWith('.test.ts')) out.push(full);
+      if (statSync(full).isDirectory()) {sourceFiles(full, out);}
+      else if (entry.endsWith('.ts') && !entry.endsWith('.test.ts')) {out.push(full);}
     }
     return out;
   }
@@ -327,9 +327,9 @@ describe('no shipped string tells a user to npx a package we do not own', () => 
         .split('\n')
         .forEach((line, i) => {
           // The docblock in cli-parse.ts explains this exact hazard and has to quote it to do so.
-          if (line.trimStart().startsWith('*')) return;
+          if (line.trimStart().startsWith('*')) {return;}
           if (/npx\s+reticle(?![a-z@/-])/.test(line))
-            bad.push(`${file.replace(REPO, '')}:${i + 1}: ${line.trim()}`);
+            {bad.push(`${file.replace(REPO, '')}:${i + 1}: ${line.trim()}`);}
         });
     }
     expect(

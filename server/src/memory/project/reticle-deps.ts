@@ -21,13 +21,13 @@ const RETICLE_SCOPE = '@reticlehq/';
 const SERVER_PACKAGE = '@reticlehq/server';
 
 function namesIn(section: unknown): string[] {
-  if ('object' !== typeof section || null === section) return [];
+  if ('object' !== typeof section || null === section) {return [];}
   return Object.keys(section);
 }
 
 /** The Reticle packages this project declares, from either dependency section. */
 export function reticleDepsOf(pkgJson: unknown): string[] {
-  if ('object' !== typeof pkgJson || null === pkgJson) return [];
+  if ('object' !== typeof pkgJson || null === pkgJson) {return [];}
   const manifest = pkgJson as Record<string, unknown>;
   const declared = [...namesIn(manifest['dependencies']), ...namesIn(manifest['devDependencies'])];
   return [...new Set(declared)].filter(

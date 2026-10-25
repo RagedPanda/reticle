@@ -55,9 +55,9 @@ async function capturedBodies(
   let truncated = 0;
   const skipReasons: unknown[] = [];
   for (const event of events) {
-    if (event.type !== EventType.NET_REQUEST) continue;
+    if (event.type !== EventType.NET_REQUEST) {continue;}
     const url = urlForMatch(event.data);
-    if (urlContains !== undefined && !url.includes(urlContains)) continue;
+    if (urlContains !== undefined && !url.includes(urlContains)) {continue;}
     total += 1;
     const raw = event.data['responseBody'];
     if (typeof raw !== 'string' || 0 === raw.length) {
@@ -67,10 +67,10 @@ async function capturedBodies(
     // A capped body is not an absent one. Recover the records that closed before the cut rather than
     // reporting nothing about the page with the most data on it.
     const salvaged = salvageJson(raw);
-    if (0 === salvaged.values.length) continue;
+    if (0 === salvaged.values.length) {continue;}
     bodies.push(...salvaged.values);
     withBody += 1;
-    if (salvaged.partial) truncated += 1;
+    if (salvaged.partial) {truncated += 1;}
   }
   return { bodies, withBody, total, truncated, skipReasons };
 }
@@ -199,7 +199,7 @@ export const RECONCILE_TOOLS: ToolDef[] = [
               method: 'GET',
               signal: AbortSignal.timeout(WITNESS_MS),
             });
-            if (!res.ok) throw new Error(`the observer answered ${String(res.status)}`);
+            if (!res.ok) {throw new Error(`the observer answered ${String(res.status)}`);}
             return res;
           },
           now: () => Date.now(),

@@ -250,7 +250,7 @@ describe('the block on a single replay and on a Harness drive', () => {
     const lines = block.split('\n');
     expect(lines[0]).toContain(ResultWord.PROVED);
     expect(block).toContain(`- Evidence: 5 screenshots in ${dir}`);
-    for (const s of steps) expect(block).not.toContain(s.screenshot.path);
+    for (const s of steps) {expect(block).not.toContain(s.screenshot.path);}
     // One check: the headline says it all, so no per-word tally restates it.
     expect(block).not.toContain('- Checks:');
     expect(lines.length).toBeLessThanOrEqual(5);

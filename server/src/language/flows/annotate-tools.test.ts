@@ -55,7 +55,7 @@ function fakeDeps(
 
 function tool(name: string): (typeof TOOLS)[number] {
   const t = TOOLS.find((x) => x.name === name);
-  if (t === undefined) throw new Error(`no tool ${name}`);
+  if (t === undefined) {throw new Error(`no tool ${name}`);}
   return t;
 }
 
@@ -71,7 +71,7 @@ function actStep(value: string): RecordedStep {
 function recordingWith(name: string, n: number): RecordingStore {
   const recordings = new RecordingStore();
   recordings.start(name, 0);
-  for (let i = 0; i < n; i++) recordings.capture(actStep(`step-${String(i)}`));
+  for (let i = 0; i < n; i++) {recordings.capture(actStep(`step-${String(i)}`));}
   return recordings;
 }
 
@@ -100,7 +100,7 @@ describe('reticle_annotate handler — temp dir, never touches the repo', () => 
       name: 'diff:shown',
     })) as AnnotateResult;
     expect(res.ok).toBe(true);
-    if (!res.ok) throw new Error('expected ok');
+    if (!res.ok) {throw new Error('expected ok');}
     expect(res.target).toBe(AnnotationTarget.STEP);
     expect(res.compiled).toBe('will assert signal diff:shown');
     expect(annotations.stepExpect('default').get(1)).toEqual({
@@ -143,7 +143,7 @@ describe('reticle_annotate handler — temp dir, never touches the repo', () => 
       testid: 'x',
     })) as AnnotateResult;
     expect(res.ok).toBe(false);
-    if (res.ok) throw new Error('expected not ok');
+    if (res.ok) {throw new Error('expected not ok');}
     expect(res.code).toBe(AnnotationErrorCode.NO_ACTIVE_RECORDING);
   });
 
@@ -157,7 +157,7 @@ describe('reticle_annotate handler — temp dir, never touches the repo', () => 
       name: 'x',
     })) as AnnotateResult;
     expect(res.ok).toBe(false);
-    if (res.ok) throw new Error('expected not ok');
+    if (res.ok) {throw new Error('expected not ok');}
     expect(res.code).toBe(AnnotationErrorCode.NO_STEP_TO_ANNOTATE);
   });
 
@@ -170,7 +170,7 @@ describe('reticle_annotate handler — temp dir, never touches the repo', () => 
       kind: 'frobnicate',
     })) as AnnotateResult;
     expect(res.ok).toBe(false);
-    if (res.ok) throw new Error('expected not ok');
+    if (res.ok) {throw new Error('expected not ok');}
     expect(res.code).toBe(AnnotationErrorCode.UNKNOWN_KIND);
     expect(annotations.dynamic('default')).toEqual([]);
     expect(annotations.success('default')).toBeUndefined();

@@ -43,7 +43,7 @@ export async function runServerVerify(
   sessionId: string | undefined,
   flows: string[],
 ): Promise<SuiteVerdict | null> {
-  if (cloud.verify !== VerifyMode.SERVER || null === cloud.config) return null;
+  if (cloud.verify !== VerifyMode.SERVER || null === cloud.config) {return null;}
   let previewUrl: string | undefined;
   try {
     previewUrl = deps.sessions.resolve(sessionId).url;
@@ -51,7 +51,7 @@ export async function runServerVerify(
     previewUrl = undefined;
   }
   // The server hits the URL itself; with no URL (or a localhost one it can't reach) fall back to local.
-  if (previewUrl === undefined || 0 === previewUrl.length) return null;
+  if (previewUrl === undefined || 0 === previewUrl.length) {return null;}
   // The submit blocks while the hosted runner drives a real browser, so it gets the long budget — but a
   // budget it must have: this is awaited inside the verify tool, and an unbounded wait here is an MCP
   // call that never returns. A timeout is reported and then falls back to the local replay below.
@@ -69,9 +69,9 @@ export async function runServerVerify(
       }
     },
   );
-  if (null === report) return null;
+  if (null === report) {return null;}
   // The hosted runner said it couldn't actually verify (e.g. it's not enabled yet). Never surface that as
   // a pass or a fail — fall back to the real local replay so the verdict reflects a browser that ran.
-  if (report.verdict === UNVERIFIED) return null;
+  if (report.verdict === UNVERIFIED) {return null;}
   return toSuiteVerdict(report);
 }

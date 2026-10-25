@@ -75,7 +75,7 @@ export async function takePlatformMoment(
   /** The `.reticle` of the project the verdict was about — the session's, not the daemon's. */
   rootOf: () => string,
 ): Promise<string | undefined> {
-  if (!('verified' in raw) || deps.linkedCloud === undefined) return undefined;
+  if (!('verified' in raw) || deps.linkedCloud === undefined) {return undefined;}
   try {
     const root = rootOf();
     const now = (deps.now ?? Date.now)();
@@ -88,7 +88,7 @@ export async function takePlatformMoment(
       : Verified.YES === raw['verified']
         ? await unlinkedNote(deps, root, entry)
         : undefined;
-    if (note !== undefined) await writeTold(deps, root, entry.told);
+    if (note !== undefined) {await writeTold(deps, root, entry.told);}
     return note;
   } catch {
     return undefined; // a note never costs a tool call anything
@@ -97,21 +97,21 @@ export async function takePlatformMoment(
 
 /** Where a linked project's work stands, said only when that changed. */
 function linkedNote(root: string, entry: Seen, now: number): string | undefined {
-  if (0 !== entry.statusAt && now - entry.statusAt < STATUS_EVERY_MS) return undefined;
+  if (0 !== entry.statusAt && now - entry.statusAt < STATUS_EVERY_MS) {return undefined;}
   entry.statusAt = now;
   const summary = readSyncSummary(root, true);
-  if (0 === summary.runs) return undefined;
+  if (0 === summary.runs) {return undefined;}
   const status = overallStatus(summary);
   // The key is what would change the sentence's meaning, not its numbers: a count going up is the
   // sync working, and saying so on every verdict would be noise.
   const key = [status, ...summary.refused.map((r) => r.runId), summary.lastError ?? ''].join('|');
-  if (key === entry.told.status) return undefined;
+  if (key === entry.told.status) {return undefined;}
   const first = entry.told.status === undefined;
   const wasTrouble = !first && !(entry.told.status ?? '').startsWith(SyncStatus.ON_PLATFORM);
   entry.told.status = key;
   // A backlog the next push will clear is not news unless something went wrong with it.
-  if (status === SyncStatus.PENDING && summary.lastError === undefined) return undefined;
-  if (status === SyncStatus.ON_PLATFORM && !first && !wasTrouble) return undefined;
+  if (status === SyncStatus.PENDING && summary.lastError === undefined) {return undefined;}
+  if (status === SyncStatus.ON_PLATFORM && !first && !wasTrouble) {return undefined;}
   const lead =
     status === SyncStatus.ON_PLATFORM
       ? first
@@ -140,26 +140,26 @@ async function unlinkedNote(
       (f) => RUN_FILE.test(f) && !f.endsWith(DRIVE_RECORD_SUFFIX),
     );
     if (runs.length >= LOCAL_RUNS_MOMENT)
-      return say(
+      {return say(
         Moment.LOCAL_RUNS,
         `${String(runs.length)} verified runs of this project exist only on this machine: a teammate cannot replay them and no dashboard tracks them.`,
-      );
+      );}
   }
   if (!told.has(Moment.FLAKE)) {
     const flaky = await flakyFlow(deps, root);
     if (flaky !== undefined)
-      return say(
+      {return say(
         Moment.FLAKE,
         `The flow "${flaky.name}" has failed ${String(flaky.fails)} of ${String(flaky.runs)} runs here, and that history lives only on this machine, so nobody else can see it is unreliable.`,
-      );
+      );}
   }
   if (!told.has(Moment.LARGE) && 0 === entry.verdicts % SIZE_EVERY) {
     const bytes = sizeOf(root);
     if (bytes >= LARGE_RETICLE_BYTES)
-      return say(
+      {return say(
         Moment.LARGE,
         `This project's .reticle holds ${String(Math.round(bytes / (1024 * 1024)))} MB of verification history on this machine alone.`,
-      );
+      );}
   }
   return undefined;
 }
@@ -172,7 +172,7 @@ async function flakyFlow(
     const parsed = FlakeFileSchema.safeParse(
       JSON.parse(await deps.fs.readFile(reticleDirPaths(root).flake)),
     );
-    if (!parsed.success) return undefined;
+    if (!parsed.success) {return undefined;}
     const found = Object.entries(parsed.data.flows).find(
       ([, f]) => f.runs >= FLAKY_MIN_RUNS && 0 < f.fails && f.fails < f.runs,
     );
@@ -200,7 +200,7 @@ async function readTold(deps: Pick<ToolDeps, 'fs'>, root: string): Promise<Told>
     const strings = (v: unknown): string[] =>
       Array.isArray(v) ? v.filter((m): m is string => 'string' === typeof m) : [];
     // The first version of this file was a bare list of moments.
-    if (Array.isArray(raw)) return { moments: strings(raw) };
+    if (Array.isArray(raw)) {return { moments: strings(raw) };}
     const r = raw as { moments?: unknown; status?: unknown };
     return {
       moments: strings(r.moments),
@@ -296,11 +296,11 @@ export function resetNudges(): void {
 export async function takeNudge(
   input: NudgeInput,
 ): Promise<{ kind: AgentNudgeKind; text: string } | undefined> {
-  if (input.session === undefined || input.root === undefined) return undefined;
+  if (input.session === undefined || input.root === undefined) {return undefined;}
   const scope = `${input.session}\n${input.root}`;
   const driven = ReticleTool.VERIFY_EXPLORE === input.tool ? 0 : (acts.get(scope) ?? 0);
   acts.set(scope, driven + (input.acted ? 1 : 0));
-  if (input.failed) return undefined;
+  if (input.failed) {return undefined;}
   const fresh = (kind: AgentNudgeKind): boolean => !told.has(`${scope}\n${kind}`);
   const say = (kind: AgentNudgeKind, text: string): { kind: AgentNudgeKind; text: string } => {
     told.add(`${scope}\n${kind}`);
@@ -314,15 +314,15 @@ export async function takeNudge(
       input.acted &&
       fresh(AgentNudgeKind.EXPLORE)
     )
-      return say(AgentNudgeKind.EXPLORE, NudgeText.explore());
-    if (!input.verdict) return undefined;
+      {return say(AgentNudgeKind.EXPLORE, NudgeText.explore());}
+    if (!input.verdict) {return undefined;}
     const linked = await input.linked();
     if (!linked)
-      return fresh(AgentNudgeKind.CONNECT)
+      {return fresh(AgentNudgeKind.CONNECT)
         ? say(AgentNudgeKind.CONNECT, NudgeText.CONNECT)
-        : undefined;
+        : undefined;}
     if (false === harnessOn && fresh(AgentNudgeKind.SWITCH_ON))
-      return say(AgentNudgeKind.SWITCH_ON, NudgeText.SWITCH_ON);
+      {return say(AgentNudgeKind.SWITCH_ON, NudgeText.SWITCH_ON);}
     return undefined;
   } catch {
     return undefined; // an advisory never costs a tool call anything
@@ -366,7 +366,7 @@ export async function agentNudge(input: {
     harnessOn: input.harnessOn,
     acted: HAND_TOOLS.has(input.tool),
   });
-  if (nudge === undefined) return undefined;
+  if (nudge === undefined) {return undefined;}
   getSessionMetrics().recordNudge(nudge.kind);
   return nudge.text;
 }

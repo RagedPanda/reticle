@@ -33,7 +33,7 @@ export function nearestRoleName(
   present: readonly RoleCandidate[],
 ): string | null {
   const sameRole = present.filter((candidate) => candidate.role === role);
-  if (0 === sameRole.length) return null;
+  if (0 === sameRole.length) {return null;}
   const budget = Math.floor(missing.length * MAX_CHANGED_FRACTION);
   let best: string | null = null;
   let bestDistance = Number.POSITIVE_INFINITY;
@@ -49,6 +49,6 @@ export function nearestRoleName(
     }
   }
   // A tie is a coin flip between two live controls; naming one would be inventing confidence.
-  if (null === best || tied || bestDistance > budget) return null;
+  if (null === best || tied || bestDistance > budget) {return null;}
   return best;
 }

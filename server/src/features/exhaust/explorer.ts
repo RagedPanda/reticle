@@ -145,19 +145,19 @@ export async function explore(
 
   while (queue.length > 0 && !spent()) {
     const node = queue.shift();
-    if (node === undefined) break;
+    if (node === undefined) {break;}
     if (!(await goTo(node.path))) {
-      if (!spent()) unreachable += 1;
+      if (!spent()) {unreachable += 1;}
       continue;
     }
     const here = await port.look();
     const controls = controlsOf(here.tree);
     const key = stateKey(here.route, controls);
-    if (explored.has(key)) continue;
+    if (explored.has(key)) {continue;}
     explored.add(key);
     const where = pathOf(here.route);
-    if (where !== undefined) routes.add(where);
-    for (const c of controls) seen.add(c.key);
+    if (where !== undefined) {routes.add(where);}
+    for (const c of controls) {seen.add(c.key);}
 
     // Only EMPTY fields. The first drive of the fixture typed placeholders over the login form's
     // correct pre-filled credentials, got a 401, and never left the first page.
@@ -181,7 +181,7 @@ export async function explore(
       return 0 < fills.length ? controlsOf((await port.look()).tree) : before;
     };
     const ready = await fillHere();
-    for (const c of ready) seen.add(c.key);
+    for (const c of ready) {seen.add(c.key);}
     // Every control of THIS state, once. Not filtered by what other states touched: a "Save" on
     // another screen is another control, and skipping it left reachable writes undriven.
     const untried = [
@@ -189,13 +189,13 @@ export async function explore(
     ];
 
     for (const [index, target] of untried.entries()) {
-      if (spent()) break;
+      if (spent()) {break;}
       // The first control is tried on the page already loaded and filled; every other one starts
       // over from the recorded path, because the one before it may have changed or left this state.
-      if (index > 0 && !(await goTo(node.path))) break;
+      if (index > 0 && !(await goTo(node.path))) {break;}
       const current = 0 === index ? ready : await fillHere();
       const control = current.find((c) => c.key === target);
-      if (control === undefined || spent()) continue;
+      if (control === undefined || spent()) {continue;}
       const result = await act(control.ref, 'click');
       touched.add(target);
       const path: Step[] = [...node.path, ...fills, { key: target, action: 'click' }];
@@ -234,12 +234,12 @@ export async function replayPath(
   act: (ref: string, action: 'click' | 'fill', value?: string) => Promise<{ ok: boolean }>,
   spent: () => boolean,
 ): Promise<boolean> {
-  if (!(await port.reset())) return false;
+  if (!(await port.reset())) {return false;}
   for (const step of path) {
-    if (spent()) return false;
+    if (spent()) {return false;}
     const target = controlsOf((await port.look()).tree).find((c) => c.key === step.key);
-    if (target === undefined) return false;
-    if (!(await act(target.ref, step.action, step.value)).ok) return false;
+    if (target === undefined) {return false;}
+    if (!(await act(target.ref, step.action, step.value)).ok) {return false;}
   }
   return true;
 }
@@ -253,7 +253,7 @@ function noteWrites(
 ): void {
   for (const event of events) {
     const key = writeKeyOf(event);
-    if (key === undefined || writes.has(key)) continue;
+    if (key === undefined || writes.has(key)) {continue;}
     const [method = '', urlPath = ''] = key.split(' ');
     const url = event.data['url'];
     const concrete = 'string' === typeof url ? new URL(url, 'http://localhost').pathname : urlPath;
@@ -268,19 +268,19 @@ function noteAnomalies(
 ): void {
   const list = [...events];
   for (const e of list.filter(isConsoleError))
-    anomalies.push({
+    {anomalies.push({
       kind: 'console-error',
       control,
       detail: asString(e.data['message']) ?? e.type,
-    });
+    });}
   for (const e of failedRequests(list, FAILED_STATUS))
-    anomalies.push({
+    {anomalies.push({
       kind: 'failed-request',
       control,
       detail: `${asString(e.data['method']) ?? ''} ${asString(e.data['url']) ?? ''} → ${String(asNumber(e.data['status']) ?? '')}`,
-    });
+    });}
   for (const c of findContradictions(list, { actionSince: 0 })) {
-    if (isAdvisory(c.kind) || isAbsenceDerived(c.kind)) continue;
+    if (isAdvisory(c.kind) || isAbsenceDerived(c.kind)) {continue;}
     anomalies.push({ kind: c.kind, control, detail: `${c.claim}, but ${c.counter}` });
   }
 }

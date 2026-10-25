@@ -54,7 +54,7 @@ describe('app_instrumented', () => {
 
   it('fires exactly once no matter how many sessions follow', () => {
     markInstrumentationClock(1_000);
-    for (let i = 0; i < 5; i += 1) reportAppInstrumented(facts, () => 2_000);
+    for (let i = 0; i < 5; i += 1) {reportAppInstrumented(facts, () => 2_000);}
     expect(instrumentedCalls()).toBe(1);
   });
 

@@ -68,13 +68,13 @@ describe('a retry loop does not look like engagement', () => {
 
   it('does not report a tool that was never repeated — five different calls are five calls', () => {
     const m = new SessionMetrics(() => 0);
-    for (const t of ['a', 'b', 'c', 'd', 'e']) m.recordToolCall(t);
+    for (const t of ['a', 'b', 'c', 'd', 'e']) {m.recordToolCall(t);}
     expect(m.summarize(true).consecutiveRepeats).toBeUndefined();
   });
 
   it('an interleaved call breaks the run, because that is not a retry loop', () => {
     const m = new SessionMetrics(() => 0);
-    for (const t of ['x', 'y', 'x', 'y', 'x']) m.recordToolCall(t);
+    for (const t of ['x', 'y', 'x', 'y', 'x']) {m.recordToolCall(t);}
     expect(m.summarize(true).consecutiveRepeats).toBeUndefined();
   });
 });

@@ -16,13 +16,13 @@ import {
 /** The step a replay broke at — drift takes precedence (the legible cause), else first non-ok step. */
 function failingStepNumber(steps: ReadonlyArray<FlowStepResult>): number | undefined {
   const drifted = steps.find((s) => s.drift !== undefined);
-  if (drifted !== undefined) return drifted.step;
+  if (drifted !== undefined) {return drifted.step;}
   return steps.find((s) => !s.ok)?.step;
 }
 
 /** Parse a "file:line" source coordinate. Skips page URLs (which also contain colons). */
 function parseSource(where: string | undefined): SourceLocation | undefined {
-  if (where === undefined || where.includes('://')) return undefined;
+  if (where === undefined || where.includes('://')) {return undefined;}
   const match = /^(.*):(\d+)$/.exec(where);
   if (match !== null && match[1] !== undefined && match[2] !== undefined) {
     return { file: match[1], line: Number(match[2]) };
@@ -38,8 +38,8 @@ function suggestedPrompt(
   nextAction: string | undefined,
 ): string {
   const parts = [`Fix the "${name}" flow.`, actual.endsWith('.') ? actual : `${actual}.`];
-  if (where !== undefined) parts.push(`Look at ${where}.`);
-  if (nextAction !== undefined) parts.push(nextAction);
+  if (where !== undefined) {parts.push(`Look at ${where}.`);}
+  if (nextAction !== undefined) {parts.push(nextAction);}
   return parts.join(' ');
 }
 
@@ -49,7 +49,7 @@ function suggestedPrompt(
  */
 /** The deviation report's headline when it flagged something — narrows the replay's `unknown` deviation. */
 function deviationHeadline(deviation: unknown): string | undefined {
-  if (typeof deviation !== 'object' || null === deviation) return undefined;
+  if (typeof deviation !== 'object' || null === deviation) {return undefined;}
   const d = deviation as { headline?: unknown; deviations?: unknown };
   if (Array.isArray(d.deviations) && d.deviations.length > 0 && 'string' === typeof d.headline) {
     return d.headline;
@@ -59,7 +59,7 @@ function deviationHeadline(deviation: unknown): string | undefined {
 
 export function buildRepairPacket(replay: FlowReplayResult): RepairPacket | undefined {
   if (replay.status === ReplayStatus.OK || replay.status === ReplayStatus.UNVERIFIABLE)
-    return undefined;
+    {return undefined;}
 
   const decision = replay.decision;
   const baseActual = decision?.whatChanged ?? replay.error?.message ?? 'the flow failed';

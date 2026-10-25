@@ -185,13 +185,13 @@ function discriminatorSchema(
   defaultAction: string | undefined,
 ): z.ZodTypeAny {
   const values = z.enum(actionNames as [string, ...string[]]);
-  if (defaultAction === undefined) return values.describe('Which operation to run.');
+  if (defaultAction === undefined) {return values.describe('Which operation to run.');}
   return values.describe(`Which operation to run. Omit for "${defaultAction}".`).optional();
 }
 
 export function mergeTools(spec: MergeSpec): ToolDef {
   const actionNames = Object.keys(spec.actions);
-  if (0 === actionNames.length) throw new Error(`mergeTools(${spec.name}): no actions`);
+  if (0 === actionNames.length) {throw new Error(`mergeTools(${spec.name}): no actions`);}
   // Our own action names: telemetry may report them by value rather than as `other`.
   allowParamValues(DISCRIMINATOR, actionNames);
   refuseDiscriminatorCollision(spec.name, spec.actions);

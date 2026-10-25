@@ -155,7 +155,7 @@ describe('SessionJournal — durable JSONL over a temp dir', () => {
       // Serve the bounded read (the production fast path) from the same in-memory content. Events here
       // are ASCII, so a char offset equals a byte offset.
       readFileFrom: (path, byteOffset) => {
-        if (!path.endsWith('events.jsonl')) return Promise.resolve({ text: '', size: 0 });
+        if (!path.endsWith('events.jsonl')) {return Promise.resolve({ text: '', size: 0 });}
         const size = Buffer.byteLength(fileText, 'utf8');
         const text =
           byteOffset >= size
@@ -221,7 +221,7 @@ describe('SessionJournal — a read that returns less than the file holds', () =
     return {
       ...unusedFs(),
       readFileFrom: (path, byteOffset) => {
-        if (!path.endsWith('events.jsonl')) return Promise.resolve({ text: '', size: 0 });
+        if (!path.endsWith('events.jsonl')) {return Promise.resolve({ text: '', size: 0 });}
         const bytes = Buffer.from(file(), 'utf8');
         if (byteOffset >= bytes.length) {
           return Promise.resolve({ text: '', size: bytes.length, from: byteOffset });

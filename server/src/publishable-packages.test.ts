@@ -44,8 +44,8 @@ function publishable(): { dir: string; pkg: Manifest }[] {
   const out: { dir: string; pkg: Manifest }[] = [];
   for (const rel of manifests()) {
     const pkg = JSON.parse(readFileSync(join(ROOT, rel), 'utf8')) as Manifest;
-    if (true === pkg.private) continue;
-    if (undefined === pkg.name || !pkg.name.startsWith('@reticlehq/')) continue;
+    if (true === pkg.private) {continue;}
+    if (undefined === pkg.name || !pkg.name.startsWith('@reticlehq/')) {continue;}
     out.push({ dir: dirname(join(ROOT, rel)), pkg });
   }
   return out;
@@ -54,7 +54,7 @@ function publishable(): { dir: string; pkg: Manifest }[] {
 /** Does this package compile any tests into its `dist`? */
 function hasTests(dir: string): boolean {
   const src = join(dir, 'src');
-  if (!existsSync(src)) return false;
+  if (!existsSync(src)) {return false;}
   return execFileSync('git', ['ls-files', 'src'], { cwd: dir, encoding: 'utf8' })
     .split('\n')
     .some((f) => f.includes('.test.'));
@@ -90,7 +90,7 @@ describe('a package that is published strips what must not ship', { timeout: 60_
     const wrong: string[] = [];
     for (const { dir, pkg } of publishable()) {
       const prepack = pkg.scripts?.['prepack'];
-      if (undefined === prepack) continue;
+      if (undefined === prepack) {continue;}
       for (const m of prepack.matchAll(/node ((?:\.\.\/)+scripts\/[\w-]+\.mjs)/g)) {
         const target = m[1];
         if (undefined !== target && !existsSync(resolve(dir, target))) {

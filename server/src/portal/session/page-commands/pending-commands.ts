@@ -64,7 +64,7 @@ export class PendingCommands {
   /** Resolve the command this reply belongs to. Unknown ids are ignored, never thrown on. */
   settle(result: CommandResult): void {
     const pending = this.#pending.get(result.id);
-    if (pending === undefined) return;
+    if (pending === undefined) {return;}
     clearTimeout(pending.timer);
     this.#pending.delete(result.id);
     pending.resolve(result);

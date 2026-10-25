@@ -19,7 +19,7 @@ const HASH_LENGTH = 32;
 
 /** Recursively sort object keys so serialisation is canonical. Arrays keep their order — it is data. */
 function canonical(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(canonical);
+  if (Array.isArray(value)) {return value.map(canonical);}
   if (value !== null && 'object' === typeof value) {
     return Object.fromEntries(
       Object.entries(value as Record<string, unknown>)

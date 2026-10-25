@@ -39,8 +39,8 @@ const asClientSees = (shape: z.ZodRawShape): Record<string, unknown> =>
 
 /** A schema that constrains NOTHING: `{}`, `true`, or a bare `any`. */
 function isDegenerate(schema: unknown): boolean {
-  if (true === schema) return true;
-  if ('object' !== typeof schema || null === schema) return false;
+  if (true === schema) {return true;}
+  if ('object' !== typeof schema || null === schema) {return false;}
   const keys = Object.keys(schema).filter((k) => 'description' !== k && 'title' !== k);
   return 0 === keys.length;
 }
@@ -63,13 +63,13 @@ describe('every advertised tool describes its arguments to the weakest client', 
         const properties = json['properties'];
         // A tool with no parameters is legitimate; a tool with parameters and no properties is the
         // whole grammar going missing, which is the shape this exists to catch.
-        if (0 === Object.keys(tool.inputSchema).length) continue;
+        if (0 === Object.keys(tool.inputSchema).length) {continue;}
         if ('object' !== typeof properties || null === properties) {
           empty.push(`${tool.name}: the whole input schema converted to nothing`);
           continue;
         }
         for (const [param, schema] of Object.entries(properties)) {
-          if (isDegenerate(schema)) empty.push(`${tool.name}.${param}`);
+          if (isDegenerate(schema)) {empty.push(`${tool.name}.${param}`);}
         }
       }
       expect(
@@ -91,7 +91,7 @@ describe('every advertised tool describes its arguments to the weakest client', 
       (tool) => 'until' in tool.inputSchema,
     );
     expect(withPredicate, 'no advertised tool takes an `until`').toBeDefined();
-    if (withPredicate === undefined) return;
+    if (withPredicate === undefined) {return;}
     const json = asClientSees(withPredicate.inputSchema);
     const until = (json['properties'] as Record<string, unknown> | undefined)?.['until'];
     expect(isDegenerate(until)).toBe(false);

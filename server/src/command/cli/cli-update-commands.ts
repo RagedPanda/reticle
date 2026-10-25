@@ -40,12 +40,12 @@ const MSG_SDK_LINKED =
 const LOCAL_SPEC = /^(workspace|link|file|portal):/;
 
 function linksLocally(manifest: unknown, packages: readonly string[]): boolean {
-  if ('object' !== typeof manifest || null === manifest) return false;
+  if ('object' !== typeof manifest || null === manifest) {return false;}
   const m = manifest as Record<string, unknown>;
   return packages.some((name) =>
     ['dependencies', 'devDependencies'].some((field) => {
       const deps = m[field];
-      if ('object' !== typeof deps || null === deps) return false;
+      if ('object' !== typeof deps || null === deps) {return false;}
       const spec = (deps as Record<string, unknown>)[name];
       return 'string' === typeof spec && LOCAL_SPEC.test(spec);
     }),
@@ -123,10 +123,10 @@ export async function handleUpdate(cwd: string = process.cwd()): Promise<void> {
       // branch used to return before the sync — so the one command that should fix that pair
       // answered "already on the latest version" and left the old overlay in the page.
       const installed = installedSdkVersion(cwd, readTextFile);
-      if (installed === undefined) say(MSG_NO_SDK_HERE);
+      if (installed === undefined) {say(MSG_NO_SDK_HERE);}
       // Only UP. A CLI that could not reach the registry also lands here, and an older one must
       // never pin a newer app back to itself.
-      else if (isNewerVersion(SERVER_VERSION, installed)) syncProjectSdk(SERVER_VERSION, cwd);
+      else if (isNewerVersion(SERVER_VERSION, installed)) {syncProjectSdk(SERVER_VERSION, cwd);}
       log('reticle_update', {
         ok: false,
         message: 'already on the latest version',
@@ -152,7 +152,7 @@ export async function handleUpdate(cwd: string = process.cwd()): Promise<void> {
       },
     });
     if (0 !== refreshed.updated.length)
-      log('reticle_rules_refreshed', { files: refreshed.updated, to: target });
+      {log('reticle_rules_refreshed', { files: refreshed.updated, to: target });}
     // The app's SDK FIRST, then the CLI. `reticle update` used to swap only the CLI, so the command
     // whose job is keeping an install current was itself a way to produce a version-skewed pair —
     // and the skew message told people to run it to fix an outdated SDK, which it could not do.

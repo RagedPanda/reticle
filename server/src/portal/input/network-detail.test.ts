@@ -111,7 +111,7 @@ describe('attachNetworkDetail', () => {
     const page: PageLike = {
       url: () => 'http://app.test/',
       on: (event: 'response', fn: (res: ResponseLike) => void) => {
-        if ('response' === event) handler = fn;
+        if ('response' === event) {handler = fn;}
       },
     };
     attachNetworkDetail(page, (data) => events.push(data));

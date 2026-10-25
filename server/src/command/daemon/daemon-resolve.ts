@@ -45,12 +45,12 @@ export function readDaemonRegistry(home: string): DaemonRegistryEntry[] {
   }
   const entries: DaemonRegistryEntry[] = [];
   for (const file of files) {
-    if (null === daemonRegistryPort(file)) continue;
+    if (null === daemonRegistryPort(file)) {continue;}
     try {
       const parsed = DaemonRegistryEntrySchema.safeParse(
         JSON.parse(readFileSync(join(home, file), 'utf8')),
       );
-      if (parsed.success) entries.push(parsed.data);
+      if (parsed.success) {entries.push(parsed.data);}
     } catch {
       continue;
     }
@@ -96,8 +96,8 @@ export function adoptable(
   daemonProjectId: string | undefined,
   callerProjectId: string | undefined,
 ): boolean {
-  if (daemonProjectId === undefined || 0 === daemonProjectId.length) return true;
-  if (callerProjectId === undefined || 0 === callerProjectId.length) return true;
+  if (daemonProjectId === undefined || 0 === daemonProjectId.length) {return true;}
+  if (callerProjectId === undefined || 0 === callerProjectId.length) {return true;}
   return daemonProjectId === callerProjectId;
 }
 
@@ -133,7 +133,7 @@ export function daemonsServingProjectElsewhere(
   alive: (pid: number) => boolean,
   connectedOn: (port: number) => boolean,
 ): readonly number[] {
-  if (projectId === undefined || 0 === projectId.length) return [];
+  if (projectId === undefined || 0 === projectId.length) {return [];}
   return readDaemonRegistry(home)
     .filter((entry) => entry.port !== myPort && alive(entry.pid) && connectedOn(entry.port))
     .map((entry) => entry.port)
@@ -166,7 +166,7 @@ export function projectlessNote(
   others: readonly { port: number; projectId: string }[],
 ): string | undefined {
   const first = others[0];
-  if (first === undefined) return undefined;
+  if (first === undefined) {return undefined;}
   const listed = others.map((o) => `${o.projectId} on :${String(o.port)}`).join(', ');
   return (
     `this daemon on :${String(myPort)} was started outside any project, and the projects on this ` +
@@ -185,7 +185,7 @@ export function projectlessNote(
  * since the failure is invisible precisely because both sides look healthy from where they stand.
  */
 export function splitBrainNote(myPort: number, elsewhere: readonly number[]): string | undefined {
-  if (0 === elsewhere.length) return undefined;
+  if (0 === elsewhere.length) {return undefined;}
   const listed = elsewhere.map((port) => `:${String(port)}`).join(', ');
   const first = elsewhere[0] ?? myPort;
   // The agent moves, not the app (#1546). The daemon the app is on is a working session this agent
@@ -219,7 +219,7 @@ export function wrongDaemonNote(
   inspectedPort: number,
   ownPort: number | undefined,
 ): string | undefined {
-  if (ownPort === undefined || ownPort === inspectedPort) return undefined;
+  if (ownPort === undefined || ownPort === inspectedPort) {return undefined;}
   return (
     `this is not this project's own daemon: the registry says it owns a live daemon on ` +
     `:${String(ownPort)} and this command is looking at :${String(inspectedPort)}. Two daemons for ` +
@@ -243,19 +243,19 @@ export function relocationReason(
 ): string {
   const at = `:${String(port)}`;
   if (projectId !== undefined && resolveDaemonForProject(projectId, home, alive) === port)
-    return (
+    {return (
       `this project's daemon is already running on ${at}, so the agent uses it instead of ` +
       `:${String(requested)}. To use :${String(requested)}, run \`reticle stop --port ${String(port)}\` ` +
       'and reconnect the agent.'
-    );
+    );}
   const holder = daemonProjectAt(requested, home);
   if (holder !== undefined && holder !== projectId)
-    return (
+    {return (
       `:${String(requested)} serves project "${holder}", so this one is served on ${at}. Give this ` +
       'project its own port (RETICLE_PORT, or `port` in its .reticle.json) and restart the agent.'
-    );
+    );}
   if (projectId === undefined)
-    return `no project here, and the one live project daemon is on ${at}: the agent uses it.`;
+    {return `no project here, and the one live project daemon is on ${at}: the agent uses it.`;}
   return `nothing usable answered on :${String(requested)}, so the agent is served on ${at}.`;
 }
 
@@ -289,7 +289,7 @@ export async function resolveMcpPort(
   own?: number,
 ): Promise<number> {
   const mine = resolveDaemonForProject(projectId, home, deps.alive);
-  if (mine !== undefined) return mine;
+  if (mine !== undefined) {return mine;}
   if (!(await deps.daemonPresent(preferred))) {
     // A caller outside any project (an editor's user-scope MCP, launched from $HOME) used to dial the
     // default and never see the one project that had moved off it (#1240). With exactly one project
@@ -302,13 +302,13 @@ export async function resolveMcpPort(
         : [];
     return 1 === projects.length ? (projects[0]?.port ?? preferred) : preferred;
   }
-  if (adoptable(daemonProjectAt(preferred, home), projectId)) return preferred;
+  if (adoptable(daemonProjectAt(preferred, home), projectId)) {return preferred;}
   // Moved off a port another project holds: to the one this project's app dials, when it is free or
   // already ours. A random port served nobody — the app kept dialling its own, and the agent was
   // told "wired, and a dev server is listening, but no session".
   if (own !== undefined && own !== preferred) {
-    if (!(await deps.daemonPresent(own))) return own;
-    if (adoptable(daemonProjectAt(own, home), projectId)) return own;
+    if (!(await deps.daemonPresent(own))) {return own;}
+    if (adoptable(daemonProjectAt(own, home), projectId)) {return own;}
   }
   return deps.pickPort(preferred);
 }

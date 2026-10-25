@@ -63,7 +63,7 @@ describe('the hook bus', () => {
     onHook(HookEvent.VERDICT, () => {
       throw new Error('same failure every time');
     });
-    for (let i = 0; i < 25; i += 1) emitHook(verdict());
+    for (let i = 0; i < 25; i += 1) {emitHook(verdict());}
     expect(logged.length, 'a laptop with a typo would otherwise fill the log').toBeLessThan(3);
   });
 

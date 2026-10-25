@@ -38,7 +38,7 @@ describe('verifyLicenseKey', () => {
   it('accepts a well-formed, unexpired, correctly-signed key', () => {
     const check = verifyLicenseKey(key(), publicKey, NOW);
     expect(check.status).toBe(LicenseStatus.VALID);
-    if (check.status === LicenseStatus.VALID) expect(check.payload.org).toBe('acme');
+    if (check.status === LicenseStatus.VALID) {expect(check.payload.org).toBe('acme');}
   });
 
   it('reports missing / malformed / expired distinctly', () => {
@@ -236,7 +236,7 @@ describe('reticle license is not a dead end for somebody who has no key', () => 
       // Contact is unconditional: whatever went wrong, the reader needs somebody to write to.
       expect(report.contact, `${report.status} names no contact`).toBe(LICENSE_CONTACT);
       // The feature list is for a reader who has NOT bought. See the active-licence tests below.
-      if ('active' === report.status) continue;
+      if ('active' === report.status) {continue;}
       expect(report.gated?.length, `${report.status} lists nothing as gated`).toBeGreaterThan(0);
     }
   });

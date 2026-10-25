@@ -33,7 +33,7 @@ const MATRIX = join(MATRIX_DIR, 'MATRIX.md');
 const currentVersion = (): string => {
   const pkg: unknown = JSON.parse(readFileSync(join(REPO, 'package.json'), 'utf8'));
   const version = (pkg as { version?: unknown }).version;
-  if ('string' !== typeof version) throw new Error('root package.json has no version');
+  if ('string' !== typeof version) {throw new Error('root package.json has no version');}
   return version;
 };
 
@@ -60,7 +60,7 @@ describe('the client matrix does not present stale records as current', () => {
   it('has records for the shipping minor, or says in MATRIX.md which version they are from', () => {
     const current = currentVersion();
     const versions = recordVersions();
-    if (versions.some((v) => minor(v) === minor(current))) return;
+    if (versions.some((v) => minor(v) === minor(current))) {return;}
 
     const newest = versions[0] ?? 'no version at all';
     const banner = BANNER.exec(readFileSync(MATRIX, 'utf8'));

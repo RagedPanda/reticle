@@ -105,7 +105,7 @@ function fakeDeps(
 
 function tool(name: string): (typeof TOOLS)[number] {
   const t = TOOLS.find((x) => x.name === name);
-  if (t === undefined) throw new Error(`no tool ${name}`);
+  if (t === undefined) {throw new Error(`no tool ${name}`);}
   return t;
 }
 
@@ -139,7 +139,7 @@ describe('reticle_flow_replay handler — temp dir, never touches the repo', () 
   async function saveFlow(name: string, steps: RecordedStep[]): Promise<void> {
     const store = new FlowStore(fs, root, clock);
     const res = await store.save(program(name, steps));
-    if (!res.ok) throw new Error(`save failed: ${res.code}`);
+    if (!res.ok) {throw new Error(`save failed: ${res.code}`);}
   }
 
   it('A: a flow whose testids all resolve replays with status ok', async () => {
@@ -276,7 +276,7 @@ describe('reticle_flow_replay handler — temp dir, never touches the repo', () 
     await tool(ReticleTool.FLOW_REPLAY).handler(deps, { flowName: 'green' });
     const history = await deps.project.read();
     expect(history.ok).toBe(true);
-    if (!history.ok) throw new Error('expected history');
+    if (!history.ok) {throw new Error('expected history');}
     expect(history.file.runs).toHaveLength(1);
     expect(history.file.runs[0]).toMatchObject({
       kind: RunKind.FLOW_REPLAY,
@@ -367,7 +367,7 @@ describe('reticle_flow_replay — a green that cannot go red (#341)', () => {
     annotations?: FlowAnnotations,
   ): Promise<void> {
     const res = await new FlowStore(fs, root, clock).save(program(name, steps), annotations);
-    if (!res.ok) throw new Error(`save failed: ${res.code}`);
+    if (!res.ok) {throw new Error(`save failed: ${res.code}`);}
   }
 
   function resolvingSession(): Partial<Session> {
@@ -386,7 +386,7 @@ describe('reticle_flow_replay — a green that cannot go red (#341)', () => {
       ...program('lost-start', [actStep('submit')]),
       startPath: '/login',
     });
-    if (!stored.ok) throw new Error(`save failed: ${stored.code}`);
+    if (!stored.ok) {throw new Error(`save failed: ${stored.code}`);}
     let navigated = false;
     let actions = 0;
     const session: Partial<Session> = {
@@ -396,12 +396,12 @@ describe('reticle_flow_replay — a green that cannot go red (#341)', () => {
       eventsSince: () => [],
       command: (name: string): Promise<CommandResult> => {
         if (name === ReticleCommand.QUERY)
-          return Promise.resolve({
+          {return Promise.resolve({
             kind: 'command_result',
             id: 'q',
             ok: true,
             result: { elements: [] },
-          });
+          });}
         if (name === ReticleCommand.NAVIGATE) {
           navigated = true;
           return Promise.resolve({
@@ -411,14 +411,14 @@ describe('reticle_flow_replay — a green that cannot go red (#341)', () => {
             result: { ok: true },
           });
         }
-        if (name === ReticleCommand.ACT) actions += 1;
+        if (name === ReticleCommand.ACT) {actions += 1;}
         return Promise.resolve({ kind: 'command_result', id: 'a', ok: true, result: {} });
       },
     };
     const deps = fakeDeps(fs, root, session);
     deps.sessions = {
       resolve: () => {
-        if (navigated) throw new Error('the old document disconnected');
+        if (navigated) {throw new Error('the old document disconnected');}
         return session as Session;
       },
     } as SessionManager;
@@ -463,7 +463,7 @@ describe('reticle_flow_replay — a green that cannot go red (#341)', () => {
     // apart again, which is the whole defect: two answers to one question about one flow.
     await save('asserts-nothing', [actStep('login-submit')]);
     const flow = await new FlowStore(fs, root, clock).load('asserts-nothing');
-    if (!flow.ok) throw new Error('load failed');
+    if (!flow.ok) {throw new Error('load failed');}
 
     const single = await replay('asserts-nothing');
     const suite = buildSuiteVerdict([{ replay: single, flow: flow.value }]);
@@ -602,7 +602,7 @@ describe('reticle_flow_replay — the business intent a flow discharges', () => 
       program(name, [actStep('send-checkin')]),
       annotations,
     );
-    if (!res.ok) throw new Error(`save failed: ${res.code}`);
+    if (!res.ok) {throw new Error(`save failed: ${res.code}`);}
   }
 
   function withIntent(intent: string, signal: string): FlowAnnotations {

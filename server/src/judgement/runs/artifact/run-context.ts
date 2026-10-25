@@ -56,9 +56,9 @@ const Fact = {
  */
 export function subjectOf(action: JournalAction): string | undefined {
   const ref = action.args['ref'];
-  if ('string' === typeof ref && ref.length > 0) return ref;
+  if ('string' === typeof ref && ref.length > 0) {return ref;}
   const target = action.args['target'];
-  if ('string' === typeof target && target.length > 0) return target;
+  if ('string' === typeof target && target.length > 0) {return target;}
   return undefined;
 }
 
@@ -80,8 +80,8 @@ function scopeByAction(
 ): Map<string, { doc?: string | undefined; epoch?: number | undefined }> {
   const out = new Map<string, { doc?: string | undefined; epoch?: number | undefined }>();
   for (const event of events) {
-    if (event.actionId === undefined) continue;
-    if (event.documentId === undefined && event.editEpoch === undefined) continue;
+    if (event.actionId === undefined) {continue;}
+    if (event.documentId === undefined && event.editEpoch === undefined) {continue;}
     const existing = out.get(event.actionId) ?? {};
     out.set(event.actionId, {
       doc: event.documentId ?? existing.doc,
@@ -106,19 +106,19 @@ export function establishedFromJournal(
   const scope = scopeByAction(events);
   let route: EstablishedFact | undefined;
   for (const event of events) {
-    if (EventType.ROUTE_CHANGE !== event.type) continue;
+    if (EventType.ROUTE_CHANGE !== event.type) {continue;}
     const pathname = event.data['pathname'];
     const to = 'string' === typeof pathname ? pathname : event.data['to'];
-    if ('string' !== typeof to) continue;
+    if ('string' !== typeof to) {continue;}
     route = { key: ROUTE_KEY, fact: Fact.route(to), doc: event.documentId, epoch: event.editEpoch };
   }
 
   const out: EstablishedFact[] = [];
   for (const action of actions.slice(-RUN_ESTABLISHED_CAP)) {
     const settled = action.settled;
-    if (undefined === settled) continue;
+    if (undefined === settled) {continue;}
     const key = subjectOf(action);
-    if (undefined === key) continue;
+    if (undefined === key) {continue;}
     const verb = verbOf(action);
     out.push({
       key,
@@ -129,7 +129,7 @@ export function establishedFromJournal(
       ...(scope.get(action.actionId) ?? {}),
     });
   }
-  if (route !== undefined) out.push(route);
+  if (route !== undefined) {out.push(route);}
   return out;
 }
 
@@ -148,7 +148,7 @@ export function provenFromJournal(
   const out: ProvenClaim[] = [];
   for (const action of actions.slice(-RUN_ESTABLISHED_CAP)) {
     const verdict = verdictOf(action);
-    if (undefined === verdict) continue;
+    if (undefined === verdict) {continue;}
     out.push({
       claim: verdict.claim,
       verified: verdict.verified,

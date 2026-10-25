@@ -47,8 +47,8 @@ describe('every flag a setup message names', () => {
     const unknown: string[] = [];
     for (const file of SETUP_SOURCES) {
       for (const flag of flagsIn(read(file))) {
-        if (NOT_INIT_FLAGS.has(flag)) continue;
-        if (!parser.includes(flag)) unknown.push(`${file}: ${flag}`);
+        if (NOT_INIT_FLAGS.has(flag)) {continue;}
+        if (!parser.includes(flag)) {unknown.push(`${file}: ${flag}`);}
       }
     }
     expect(unknown, 'these flags are named to users but do not exist').toEqual([]);

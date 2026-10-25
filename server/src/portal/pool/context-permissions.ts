@@ -49,7 +49,7 @@ export async function grantLeasePermissions(
   permissions: readonly string[],
   url: string,
 ): Promise<void> {
-  if (0 === permissions.length) return;
+  if (0 === permissions.length) {return;}
   if (context.grantPermissions === undefined) {
     throw new LeasePermissionError('this browser context cannot grant permissions');
   }

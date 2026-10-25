@@ -53,13 +53,13 @@ const RE_READABLE: ReadonlySet<string> = new Set([
 export function durablePart(p: Predicate): Predicate | undefined {
   if (PredicateKind.ALL_OF === p.kind) {
     const kept = p.predicates.map(durablePart).filter((c): c is Predicate => c !== undefined);
-    if (0 === kept.length) return undefined;
+    if (0 === kept.length) {return undefined;}
     return 1 === kept.length ? kept[0] : { kind: PredicateKind.ALL_OF, predicates: kept };
   }
   // Narrowing an OR to the branches that survive would change the claim, not re-check it.
   if (PredicateKind.ANY_OF === p.kind)
-    return p.predicates.every((c) => durablePart(c) === c) ? p : undefined;
-  if (PredicateKind.NOT === p.kind) return durablePart(p.predicate) === p.predicate ? p : undefined;
+    {return p.predicates.every((c) => durablePart(c) === c) ? p : undefined;}
+  if (PredicateKind.NOT === p.kind) {return durablePart(p.predicate) === p.predicate ? p : undefined;}
   return RE_READABLE.has(p.kind) ? p : undefined;
 }
 
@@ -86,10 +86,10 @@ export function durabilityOf(verdict: {
   observationLost?: boolean | undefined;
 }): Durability {
   const observed = verdict.observed === undefined ? {} : { observed: verdict.observed };
-  if (true === verdict.pass) return { held: true, ...observed };
+  if (true === verdict.pass) {return { held: true, ...observed };}
   if (verdict.inconclusive !== undefined)
-    return { inconclusive: verdict.inconclusive, ...observed };
-  if (true === verdict.observationLost) return observed;
+    {return { inconclusive: verdict.inconclusive, ...observed };}
+  if (true === verdict.observationLost) {return observed;}
   return { held: false, ...observed };
 }
 
@@ -103,7 +103,7 @@ export async function withDurability(
   decision: VerifiedVerdict,
   recheck: (part: Predicate) => Promise<Durability>,
 ): Promise<{ decision: VerifiedVerdict; durable?: Durability }> {
-  if (true !== asked || Verified.YES !== decision.verified) return { decision };
+  if (true !== asked || Verified.YES !== decision.verified) {return { decision };}
   const part = durablePart(until);
   if (part === undefined) {
     const skipped =
@@ -111,7 +111,7 @@ export async function withDurability(
     return { decision, durable: { skipped } };
   }
   const durable = await recheck(part);
-  if (true === durable.held) return { decision, durable };
+  if (true === durable.held) {return { decision, durable };}
   if (durable.inconclusive !== undefined) {
     return {
       durable,
@@ -152,7 +152,7 @@ export async function reloadAndRecheck(
   // Same floor navigate { reload } sets: nothing from the old document may answer for the new one.
   session.lastAct.markNavigated(session.elapsed());
   const sent = await session.command(ReticleCommand.REFRESH, { hard: false });
-  if (!sent.ok) return { observed: sent.error ?? 'the reload was refused' };
+  if (!sent.ok) {return { observed: sent.error ?? 'the reload was refused' };}
   const back = await waitForReconnect({
     current: () => deps.sessions.get(session.id),
     previous: session,
@@ -161,7 +161,7 @@ export async function reloadAndRecheck(
     sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
   });
   const fresh = back ? deps.sessions.get(session.id) : undefined;
-  if (fresh === undefined) return {};
+  if (fresh === undefined) {return {};}
   return durabilityOf(await waitForPredicate(fresh, part, timeoutMs, 0));
 }
 
@@ -181,8 +181,8 @@ export async function revertedAfterMatch(
   baselines: Parameters<typeof evaluatePredicate>[4],
 ): Promise<string | undefined> {
   const part = durablePart(until);
-  if (part === undefined) return undefined;
+  if (part === undefined) {return undefined;}
   const now = await evaluatePredicate(session, part, since, true, baselines);
-  if (true === now.pass || now.inconclusive !== undefined) return undefined;
+  if (true === now.pass || now.inconclusive !== undefined) {return undefined;}
   return `held, then reverted before the action finished${now.observed === undefined ? '' : ` — now ${now.observed}`}`;
 }

@@ -27,11 +27,11 @@ export function unadvertisedToolHelp(
   advertised: ReadonlySet<string>,
   known: ReadonlySet<string>,
 ): string | undefined {
-  if (advertised.has(name)) return undefined;
+  if (advertised.has(name)) {return undefined;}
   // A name that MOVED gets the move, not a profile lecture — it is not un-advertised, it is gone.
   const moved = mergedNameRedirect(name);
-  if (moved !== undefined) return mergedNameMessage(name, moved, advertised.has(moved.tool));
-  if (!known.has(name)) return undefined;
+  if (moved !== undefined) {return mergedNameMessage(name, moved, advertised.has(moved.tool));}
+  if (!known.has(name)) {return undefined;}
   /*
    * The hatch is not on every profile, and advice that names a tool this surface does not have is
    * the very failure this file exists to prevent.

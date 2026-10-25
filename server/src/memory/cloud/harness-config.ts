@@ -49,7 +49,7 @@ export function configForHud(
 ): Omit<HarnessConfigView, 'credits'> & {
   credits?: { used: number; limit: number; kind?: CreditKind | undefined; daysLeft?: number };
 } {
-  if (config.credits === undefined) return config;
+  if (config.credits === undefined) {return config;}
   const { endsAt, ...credits } = config.credits;
   return {
     ...config,
@@ -87,11 +87,11 @@ export function harnessConfigSource(
   let quiet = false;
   const listeners = new Set<() => void>();
   const notify = (): void => {
-    for (const listener of listeners) listener();
+    for (const listener of listeners) {listener();}
   };
 
   const refresh = (): void => {
-    if (inFlight) return;
+    if (inFlight) {return;}
     inFlight = true;
     const startedAtRevision = revision;
     void load()
@@ -100,15 +100,15 @@ export function harnessConfigSource(
         // one dropped request is not evidence that somebody changed their mind.
         const before = JSON.stringify(cached);
         if (startedAtRevision === revision) {
-          if (cfg !== undefined) cached = cfg;
+          if (cfg !== undefined) {cached = cfg;}
           fetchedAt = now();
         }
         // A poll that learned nothing new repaints nothing; anything else is said at once.
-        if (!quiet || before !== JSON.stringify(cached)) notify();
+        if (!quiet || before !== JSON.stringify(cached)) {notify();}
         quiet = false;
       })
       .catch(() => {
-        if (startedAtRevision === revision) fetchedAt = now();
+        if (startedAtRevision === revision) {fetchedAt = now();}
         quiet = false;
         notify();
       })
@@ -127,30 +127,30 @@ export function harnessConfigSource(
 
   return {
     read(): HarnessConfigView | undefined {
-      if (fetchedAt === undefined || FRESH_MS <= now() - fetchedAt) refresh();
+      if (fetchedAt === undefined || FRESH_MS <= now() - fetchedAt) {refresh();}
       return cached;
     },
     applyWrite(enabled: boolean): void {
       revision += 1;
-      if (cached !== undefined) cached = { ...cached, harnessEnabled: enabled };
+      if (cached !== undefined) {cached = { ...cached, harnessEnabled: enabled };}
       fetchedAt = now();
       notify();
       if (cached === undefined) {
-        if (inFlight) queuedRefresh = true;
-        else refresh();
+        if (inFlight) {queuedRefresh = true;}
+        else {refresh();}
       }
     },
     recheck(): void {
       notify(); // Roll back an optimistic HUD switch immediately, even if the GET is slow.
-      if (inFlight) queuedRefresh = true;
-      else refresh();
+      if (inFlight) {queuedRefresh = true;}
+      else {refresh();}
     },
     subscribe(listener: () => void): () => void {
       listeners.add(listener);
       return () => listeners.delete(listener);
     },
     poll(): void {
-      if (inFlight) return;
+      if (inFlight) {return;}
       quiet = true;
       refresh();
     },
@@ -201,8 +201,8 @@ export function applyHarnessSwitch(
   void envFor()
     .then((env) => writeHarnessSwitch(env, enabled))
     .then((saved) => {
-      if (saved) configs(root).applyWrite(enabled);
-      else configs(root).recheck();
+      if (saved) {configs(root).applyWrite(enabled);}
+      else {configs(root).recheck();}
     })
     .catch(() => configs(root).recheck());
 }

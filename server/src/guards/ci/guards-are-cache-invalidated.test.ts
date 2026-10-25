@@ -99,10 +99,10 @@ function packageDirectories(): string[] {
   const yaml = readFileSync(join(REPO, 'pnpm-workspace.yaml'), 'utf8');
   const out: string[] = [];
   for (const glob of workspaceGlobs(yaml)) {
-    if (glob.startsWith('apps')) continue;
+    if (glob.startsWith('apps')) {continue;}
     const [head, ...rest] = glob.split('/');
     const here = join(REPO, head ?? '');
-    if (!existsSync(here)) continue;
+    if (!existsSync(here)) {continue;}
     if (0 === rest.length) {
       out.push(head ?? '');
       continue;
@@ -133,13 +133,13 @@ function packages(): Package[] {
   for (const path of packageDirectories()) {
     const src = join(REPO, path, 'src');
     const manifest = join(REPO, path, 'package.json');
-    if (!existsSync(src) || !existsSync(manifest)) continue;
+    if (!existsSync(src) || !existsSync(manifest)) {continue;}
     const parsed = JSON.parse(readFileSync(manifest, 'utf8')) as {
       name?: string;
       scripts?: Record<string, string>;
     };
     const name = parsed.name;
-    if (undefined === name || undefined === parsed.scripts?.['test:unit']) continue;
+    if (undefined === name || undefined === parsed.scripts?.['test:unit']) {continue;}
     const half = undefined === parsed.scripts['test:guards'] ? 'test:unit' : 'test:guards';
     out.push({ name, path, src, task: `${name}#${half}` });
   }
@@ -149,10 +149,10 @@ function packages(): Package[] {
 function sourceFiles(dir: string): string[] {
   const out: string[] = [];
   for (const entry of readdirSync(dir)) {
-    if ('node_modules' === entry || 'dist' === entry || entry === SELF) continue;
+    if ('node_modules' === entry || 'dist' === entry || entry === SELF) {continue;}
     const full = join(dir, entry);
-    if (statSync(full).isDirectory()) out.push(...sourceFiles(full));
-    else if (entry.endsWith('.ts')) out.push(full);
+    if (statSync(full).isDirectory()) {out.push(...sourceFiles(full));}
+    else if (entry.endsWith('.ts')) {out.push(full);}
   }
   return out;
 }
@@ -177,18 +177,18 @@ function readsRepo(file: string): string[] {
   const paths = new Set<string>();
   for (const match of text.matchAll(/join\(\s*REPO,\s*'([^']+)'/g)) {
     const first = match[1];
-    if (first !== undefined) paths.add(first);
+    if (first !== undefined) {paths.add(first);}
   }
   for (const match of text.matchAll(/join\(\s*process\.cwd\(\),\s*'\.\.',\s*'([^']+)'/g)) {
     const sibling = match[1];
-    if (sibling !== undefined) paths.add(`packages/${sibling}`);
+    if (sibling !== undefined) {paths.add(`packages/${sibling}`);}
   }
   return [...paths];
 }
 
 function repoPathsRead(pkg: Package): Set<string> {
   const paths = new Set<string>();
-  for (const file of sourceFiles(pkg.src)) for (const path of readsRepo(file)) paths.add(path);
+  for (const file of sourceFiles(pkg.src)) {for (const path of readsRepo(file)) {paths.add(path);}}
   return paths;
 }
 
@@ -206,16 +206,16 @@ function repoPathsRead(pkg: Package): Set<string> {
  * A package's own tree is already covered by `$TURBO_DEFAULT$`, so it is never a gap.
  */
 function isCovered(path: string, inputs: readonly string[], own: string): boolean {
-  if (path.startsWith(own)) return true;
+  if (path.startsWith(own)) {return true;}
   const segments = (p: string): string[] => p.split('/').filter((s) => '' !== s && '**' !== s);
   const want = segments(path);
   return inputs.some((input) => {
-    if (!input.startsWith('$TURBO_ROOT$/')) return false;
+    if (!input.startsWith('$TURBO_ROOT$/')) {return false;}
     const have = segments(input.replace('$TURBO_ROOT$/', ''));
     // One covers the other when every segment they share matches, wildcards included.
     const shared = Math.min(have.length, want.length);
     for (let i = 0; i < shared; i++) {
-      if (have[i] !== '*' && have[i] !== want[i]) return false;
+      if (have[i] !== '*' && have[i] !== want[i]) {return false;}
     }
     return true;
   });
@@ -409,13 +409,13 @@ describe('the build cache is invalidated by the scripts that produce dist', () =
     const found: { pkg: string; scripts: string[] }[] = [];
     for (const dir of packageDirectories()) {
       const manifest = join(REPO, dir, 'package.json');
-      if (!existsSync(manifest)) continue;
+      if (!existsSync(manifest)) {continue;}
       const build = (
         JSON.parse(readFileSync(manifest, 'utf8')) as { scripts?: Record<string, string> }
       ).scripts?.build;
-      if (build === undefined) continue;
+      if (build === undefined) {continue;}
       const scripts = [...new Set(build.match(/scripts\/[\w-]+\.mjs/g) ?? [])].sort();
-      if (scripts.length > 0) found.push({ pkg: dir, scripts });
+      if (scripts.length > 0) {found.push({ pkg: dir, scripts });}
     }
     return found;
   }

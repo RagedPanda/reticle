@@ -85,7 +85,7 @@ describe('sweeping what dead servers left', () => {
     const dir = temp();
     const gone = devServerLogName('/work/gone');
     const live = devServerLogName('/work/live');
-    for (const f of [gone, `${gone}.1`, live]) writeFileSync(join(dir, f), 'x');
+    for (const f of [gone, `${gone}.1`, live]) {writeFileSync(join(dir, f), 'x');}
     recordHandOver(dir, { pid: 1, url: URL, appDir: '/work/gone' });
     recordHandOver(dir, { pid: 2, url: URL, appDir: '/work/live' });
     writeFileSync(join(dir, 'devserver-5173.json'), '{}'); // the Vite registry: not ours

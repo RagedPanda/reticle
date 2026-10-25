@@ -15,8 +15,8 @@ import { serverInitHost } from './init-host.js';
  */
 const saved = process.env[ReticleEnv.PAIRING_TOKEN_DIR];
 afterEach(() => {
-  if (saved === undefined) delete process.env[ReticleEnv.PAIRING_TOKEN_DIR];
-  else process.env[ReticleEnv.PAIRING_TOKEN_DIR] = saved;
+  if (saved === undefined) {delete process.env[ReticleEnv.PAIRING_TOKEN_DIR];}
+  else {process.env[ReticleEnv.PAIRING_TOKEN_DIR] = saved;}
 });
 
 describe('the init host', () => {

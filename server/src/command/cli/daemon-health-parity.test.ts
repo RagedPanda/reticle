@@ -15,7 +15,7 @@ async function reserveThenReleasePort(): Promise<number> {
     server.listen(0, LOOPBACK_HOST, resolve);
   });
   const address = server.address();
-  if (null === address || 'string' === typeof address) throw new Error('TCP port was not assigned');
+  if (null === address || 'string' === typeof address) {throw new Error('TCP port was not assigned');}
   await new Promise<void>((resolve, reject) => {
     server.close((error) => (undefined === error ? resolve() : reject(error)));
   });
@@ -62,8 +62,8 @@ it('doctor and status both report stopped when a live recorded pid has no daemon
   } finally {
     stdout.mockRestore();
     stderr.mockRestore();
-    if (undefined === previousStateHome) delete process.env[STATE_DIR_ENV];
-    else process.env[STATE_DIR_ENV] = previousStateHome;
+    if (undefined === previousStateHome) {delete process.env[STATE_DIR_ENV];}
+    else {process.env[STATE_DIR_ENV] = previousStateHome;}
     rmSync(stateHome, { recursive: true, force: true });
   }
 });

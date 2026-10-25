@@ -117,7 +117,7 @@ class FakeSession implements FlowReplaySession {
   }
 
   elapsed(): number {
-    if (this.elapsedReadings === undefined) return 0;
+    if (this.elapsedReadings === undefined) {return 0;}
     const value = this.elapsedReadings[this.#elapsedCall] ?? this.elapsedReadings.at(-1) ?? 0;
     this.#elapsedCall += 1;
     return value;
@@ -376,7 +376,7 @@ describe('replayFlow — anchor re-resolution + legible drift', () => {
     // The element appears on the 3rd query — an async route swap / list paint, not a regression.
     let calls = 0;
     const script = (testid: string): QueryScript => {
-      if (testid !== 'late-button') return { elements: [el(`e-${testid}`, testid)] };
+      if (testid !== 'late-button') {return { elements: [el(`e-${testid}`, testid)] };}
       calls += 1;
       return calls < 3
         ? { elements: [], hint: present(['other']) }

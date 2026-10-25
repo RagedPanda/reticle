@@ -48,7 +48,7 @@ export function liveSessionOfProject(
   projectId: string | undefined,
   requiredRuntime?: string,
 ): CandidateSession | null {
-  if (undefined === projectId || 0 === projectId.length) return null;
+  if (undefined === projectId || 0 === projectId.length) {return null;}
   const mine = sessions.filter(
     (s) =>
       projectId === s.projectId &&
@@ -96,7 +96,7 @@ export function pickSession(
       (s) =>
         undefined === requiredRuntime || undefined === s.runtime || requiredRuntime === s.runtime,
     );
-  if (0 === onUrl.length) return null;
+  if (0 === onUrl.length) {return null;}
   const fresh = onUrl.filter((s) => !before.has(s.sessionId));
   const pool = 0 < fresh.length ? fresh : onUrl;
   return pool.find(isLive) ?? [...pool].sort((a, b) => staleness(a) - staleness(b))[0] ?? null;

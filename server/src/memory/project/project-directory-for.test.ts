@@ -24,7 +24,7 @@ beforeEach(() => {
   app = join(scratch, 'acme');
   elsewhere = join(scratch, 'daemon-cwd');
   for (const dir of [join(home, ReticleDir.ROOT), app, elsewhere])
-    mkdirSync(dir, { recursive: true });
+    {mkdirSync(dir, { recursive: true });}
   writeFileSync(
     join(home, ReticleDir.ROOT, PROJECT_REGISTRY_FILE),
     JSON.stringify({ version: 1, projects: { acme: { directory: app, lastSeenAt: 1 } } }),

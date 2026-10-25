@@ -24,7 +24,7 @@ export const MSG_OPENED_MENU =
 export function claimsOnlyRoute(predicate: unknown): boolean {
   const p = asRecord(predicate);
   const kind = asString(p['kind']);
-  if (PredicateKind.ROUTE === kind) return true;
+  if (PredicateKind.ROUTE === kind) {return true;}
   return (
     PredicateKind.NOT === kind && PredicateKind.ROUTE === asString(asRecord(p['predicate'])['kind'])
   );
@@ -40,7 +40,7 @@ export const knownPagesLine = (routes: readonly string[]): string =>
 /** The route a claim names arriving at, when it names one (`not` a route names none). */
 function claimedRoute(predicate: unknown): string | undefined {
   const p = asRecord(predicate);
-  if (PredicateKind.ROUTE !== asString(p['kind'])) return undefined;
+  if (PredicateKind.ROUTE !== asString(p['kind'])) {return undefined;}
   return asString(p['pathname']) ?? asString(p['contains']);
 }
 
@@ -49,7 +49,7 @@ function claimedRoute(predicate: unknown): string | undefined {
  * by its route, or the pages the map knows. Undefined when the map knows none.
  */
 export function routeHint(predicate: unknown, routes: readonly string[]): string | undefined {
-  if (0 === routes.length) return undefined;
+  if (0 === routes.length) {return undefined;}
   const wanted = claimedRoute(predicate);
   const known = wanted === undefined ? undefined : routes.find((r) => r.includes(wanted));
   return known === undefined

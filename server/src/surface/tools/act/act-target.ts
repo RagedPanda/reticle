@@ -65,12 +65,12 @@ export async function resolveActTarget(
   if (ref !== undefined && ref.length > 0) {
     // Refused here, at the boundary, and never re-read as a `target`: guessing what an arbitrary
     // string meant is the silent re-resolution the stale-ref refusal exists to prevent.
-    if (!SESSION_REF.test(ref)) return { kind: 'error', message: unissuedRefRefusal(ref) };
+    if (!SESSION_REF.test(ref)) {return { kind: 'error', message: unissuedRefRefusal(ref) };}
     return { kind: 'ref', ref };
   }
   const target = args['target'];
   if (target === undefined) {
-    if (isGlobalPressCall(args)) return { kind: 'global', ref: '' };
+    if (isGlobalPressCall(args)) {return { kind: 'global', ref: '' };}
     return { kind: 'error', message: MISSING_ACT_TARGET };
   }
   const q = normalizeQueryArgs(asRecord(target));
@@ -101,7 +101,7 @@ export async function resolveActTarget(
       name: q['name'],
       scope: q['scope'],
     });
-    if (!out.ok) return { kind: 'error', message: out.error ?? 'target query failed' };
+    if (!out.ok) {return { kind: 'error', message: out.error ?? 'target query failed' };}
     const elements = asRecord(out.result)['elements'];
     const found = Array.isArray(elements) ? elements : [];
     const decision = appearanceDecision({
@@ -111,7 +111,7 @@ export async function resolveActTarget(
     });
     // One match, or an ambiguity: both are answered by the existing resolver, which already ranks
     // candidates inside its refusal so the next turn needs no snapshot.
-    if ('wait' !== decision.do) return resolveTargetRef(found, asRecord(out.result)['hint']);
+    if ('wait' !== decision.do) {return resolveTargetRef(found, asRecord(out.result)['hint']);}
     await new Promise((resolve) => setTimeout(resolve, decision.waitMs));
   }
 }

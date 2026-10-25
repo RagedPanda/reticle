@@ -172,15 +172,15 @@ const WS_CLOSE = {
 
 /** Parse a positive integer env override; anything else (unset, zero, junk) falls through to the default. */
 function positiveIntFromEnv(raw: string | undefined): number | undefined {
-  if (raw === undefined) return undefined;
+  if (raw === undefined) {return undefined;}
   const parsed = Number.parseInt(raw, 10);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
 }
 
 /** The flow name if this event is a panel ▶ replay request, else undefined. Pure boundary narrowing. */
 function replayRequest(event: { type: string; data: Record<string, unknown> }): string | undefined {
-  if (event.type !== EventType.HUMAN_CONTROL) return undefined;
-  if (event.data['kind'] !== HumanControlKind.REPLAY) return undefined;
+  if (event.type !== EventType.HUMAN_CONTROL) {return undefined;}
+  if (event.data['kind'] !== HumanControlKind.REPLAY) {return undefined;}
   const name = event.data['text'];
   return 'string' === typeof name && name.length > 0 ? name : undefined;
 }
@@ -225,9 +225,9 @@ interface BridgeOptions {
 
 /** Normalize ws RawData (string | Buffer | Buffer[] | ArrayBuffer) into a UTF-8 string. */
 function rawToString(raw: RawData): string {
-  if ('string' === typeof raw) return raw;
-  if (Array.isArray(raw)) return Buffer.concat(raw).toString('utf8');
-  if (raw instanceof ArrayBuffer) return Buffer.from(raw).toString('utf8');
+  if ('string' === typeof raw) {return raw;}
+  if (Array.isArray(raw)) {return Buffer.concat(raw).toString('utf8');}
+  if (raw instanceof ArrayBuffer) {return Buffer.from(raw).toString('utf8');}
   return raw.toString('utf8');
 }
 
@@ -369,7 +369,7 @@ export class Bridge {
         maxPayload: TRANSPORT_LIMITS.MAX_MESSAGE_BYTES,
         verifyClient: ({ origin }, done) => {
           const allowed = this.#originAllowed(origin) || this.#mayFollow(origin);
-          if (!allowed) this.#noteOriginRejected(origin);
+          if (!allowed) {this.#noteOriginRejected(origin);}
           done(allowed, 403, 'Forbidden');
         },
       });
@@ -397,7 +397,7 @@ export class Bridge {
         maxPayload: TRANSPORT_LIMITS.MAX_MESSAGE_BYTES,
         verifyClient: ({ origin }, done) => {
           const allowed = this.#originAllowed(origin) || this.#mayFollow(origin);
-          if (!allowed) this.#noteOriginRejected(origin);
+          if (!allowed) {this.#noteOriginRejected(origin);}
           done(allowed, 403, 'Forbidden');
         },
       });
@@ -461,12 +461,12 @@ export class Bridge {
       this.#maxMessagesPerSecond * RATE_CAP_HIGH_VALUE_RESERVE_RATIO,
     );
     const releasePending = (): void => {
-      if (!awaitingHello) return;
+      if (!awaitingHello) {return;}
       awaitingHello = false;
       this.#pendingConnections -= 1;
     };
     const helloTimer = setTimeout(() => {
-      if (!awaitingHello) return;
+      if (!awaitingHello) {return;}
       releasePending();
       socket.close(...WS_CLOSE.HELLO_TIMEOUT);
     }, this.#helloTimeoutMs);
@@ -561,7 +561,7 @@ export class Bridge {
             highValueInWindow += 1;
           } else {
             droppedByRate += 1;
-            if (session !== undefined) session.noteRateLimited(droppedByRate);
+            if (session !== undefined) {session.noteRateLimited(droppedByRate);}
             return;
           }
         }
@@ -647,11 +647,11 @@ export class Bridge {
           session = new Session(parsed, socket, this.#clock);
           session.production = admission.production;
           const drive = admission.production;
-          if (drive !== undefined) session.onEvent((event) => drive.noteEvent(event));
+          if (drive !== undefined) {session.onEvent((event) => drive.noteEvent(event));}
           // A reload keeps the session id. Its gaps describe the old page, not this one (#1655).
           forgetRecordedGaps(session.id);
           // Recorded on ACCEPTANCE, so it is evidence of what this daemon really serves.
-          if (parsed.projectId !== undefined) this.#servedProjects.add(parsed.projectId);
+          if (parsed.projectId !== undefined) {this.#servedProjects.add(parsed.projectId);}
           // Attach the durable journal (and anything else registered) before any events stream in.
           // One throwing handler must not stop the others, or the order of registration would decide
           // which features survive a bad frame.
@@ -675,7 +675,7 @@ export class Bridge {
           const replaced = this.sessions.add(session);
           this.#follower?.remember(session.id, dialled);
           if (following !== undefined)
-            log('origin_followed', { sessionId: session.id, to: following });
+            {log('origin_followed', { sessionId: session.id, to: following });}
           // Said out loud once the session is actually in the registry, never before: a hook that
           // fires on a session a consumer cannot then look up describes a moment that did not happen.
           emitSessionHook(HookEvent.SESSION_STARTED, {
@@ -773,7 +773,7 @@ export class Bridge {
           }
           return;
         }
-        if (session === undefined) return;
+        if (session === undefined) {return;}
         session.touch();
 
         if (parsed.kind === MessageKind.EVENT) {
@@ -784,18 +784,18 @@ export class Bridge {
           // test that decides whether this is a panel control at all, and calling it twice would
           // invite the two calls to disagree.
           const harness = harnessRequest(parsed.event);
-          if (replay !== undefined) this.#onReplay?.(session.id, replay);
+          if (replay !== undefined) {this.#onReplay?.(session.id, replay);}
           // Same shape as ▶ replay, and routed the same way: what to push lives in the daemon's
           // cloud wiring, which a Session cannot reach. Nothing is awaited — the panel is telling
           // us to hurry, not asking for a result.
-          else if (isSyncRequest(parsed.event)) this.#onSyncRequest?.();
+          else if (isSyncRequest(parsed.event)) {this.#onSyncRequest?.();}
           // The switch is written through to the platform by the daemon, for the same reason: the
           // Session has no cloud credential and should not grow one.
-          else if (harness !== undefined) this.#onHarnessRequest?.(harness, session);
+          else if (harness !== undefined) {this.#onHarnessRequest?.(harness, session);}
           // Signing in writes `~/.reticle`, which only the daemon may do; the panel only asks.
-          else if (isSigninRequest(parsed.event)) this.#onSigninRequest?.(session);
+          else if (isSigninRequest(parsed.event)) {this.#onSigninRequest?.(session);}
           // Pass the raw frame's byte length so the buffer doesn't re-serialize every event for accounting.
-          else session.pushEvent(parsed.event, Buffer.byteLength(text, 'utf8'));
+          else {session.pushEvent(parsed.event, Buffer.byteLength(text, 'utf8'));}
         } else if (parsed.kind === MessageKind.COMMAND_RESULT) {
           session.handleResult(parsed);
         }
@@ -861,14 +861,14 @@ export class Bridge {
     // A real browser SDK connection always carries an Origin. A missing Origin means a non-browser
     // local process (another app, a malicious npm postinstall, an extension's native host) — untrusted
     // unless a pairing token is required, in which case the HELLO token check is the real gate.
-    if (origin === undefined) return this.#token !== undefined;
+    if (origin === undefined) {return this.#token !== undefined;}
     const normalized = normalizeOrigin(origin);
-    if (null === normalized) return false;
-    if (this.#allowedOrigins.has(normalized) || this.nonces.admitsOrigin(normalized)) return true;
+    if (null === normalized) {return false;}
+    if (this.#allowedOrigins.has(normalized) || this.nonces.admitsOrigin(normalized)) {return true;}
     // A desktop webview (Electron, Tauri) or a file:// document sends an opaque Origin: no host to
     // check, so it is exactly as attributable as a missing Origin — defer to the token, as above.
     // Without this branch `new URL` throws INSIDE the WS upgrade handler, crashing the process.
-    if (isOpaqueOrigin(normalized)) return this.#token !== undefined;
+    if (isOpaqueOrigin(normalized)) {return this.#token !== undefined;}
     // `isLocalPage`, not `isLoopbackHostname` — the SAME rule the SDK applies on the page side.
     //
     // They had drifted, and the drift made a whole platform unreachable. Tauri v2 uses an opaque
@@ -963,7 +963,7 @@ export class Bridge {
 
   close(): Promise<void> {
     return new Promise((resolve) => {
-      for (const client of this.#wss.clients) client.terminate();
+      for (const client of this.#wss.clients) {client.terminate();}
       this.#wss.close(() => {
         resolve();
       });

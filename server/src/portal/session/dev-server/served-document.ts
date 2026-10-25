@@ -28,7 +28,7 @@ const requestPage: PageRequest = (url, init) => fetch(url, init);
 function loopbackDocumentUrl(raw: string): URL | undefined {
   try {
     const url = new URL(raw);
-    if (!['http:', 'https:'].includes(url.protocol)) return undefined;
+    if (!['http:', 'https:'].includes(url.protocol)) {return undefined;}
     return LOOPBACK_HOSTS.includes(url.hostname) ? url : undefined;
   } catch {
     return undefined;
@@ -57,13 +57,13 @@ export async function observeWebDocument(
   request: PageRequest = requestPage,
 ): Promise<ObservedWebDocument | undefined> {
   const url = loopbackDocumentUrl(rawUrl);
-  if (url === undefined) return undefined;
+  if (url === undefined) {return undefined;}
   try {
     const response = await request(url.href, {
       redirect: 'error',
       signal: AbortSignal.timeout(DOCUMENT_TIMEOUT_MS),
     });
-    if (!response.ok) return undefined;
+    if (!response.ok) {return undefined;}
     const policy = response.headers.get(CSP_HEADER);
     return {
       url: url.href,

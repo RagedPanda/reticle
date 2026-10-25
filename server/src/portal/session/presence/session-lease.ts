@@ -32,7 +32,7 @@ export function buildSessionLease(sessionId: string, openedAt: number): SessionL
 
 /** The age warning spliced onto session-bound results after SESSION_LEASE.WARN_AFTER_MS, else undefined. */
 export function sessionAgeWarning(sessionId: string, ageMs: number): string | undefined {
-  if (ageMs < SESSION_LEASE.WARN_AFTER_MS) return undefined;
+  if (ageMs < SESSION_LEASE.WARN_AFTER_MS) {return undefined;}
   const minutes = Math.floor(ageMs / 60_000);
   return `Session ${sessionId} has been open for ${String(minutes)} minutes. If your task is complete, call reticle_session{action:"end"} now.`;
 }

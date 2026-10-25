@@ -97,7 +97,7 @@ describe('a flow carries the business intent it discharges', () => {
       annotations({ intent: CHECKIN, success: { kind: 'signal', name: 'trip:checked-in' } }),
     );
     const loaded = await flows.load('checkin');
-    if (!loaded.ok) throw new Error('flow did not save');
+    if (!loaded.ok) {throw new Error('flow did not save');}
 
     const proved = await dischargeFlowIntent(intents, loaded.value, {
       verdictId: 'flow_replay:checkin:2000',
@@ -119,7 +119,7 @@ describe('a flow carries the business intent it discharges', () => {
     const { flows, intents } = harness();
     await flows.save(program('legacy'));
     const loaded = await flows.load('legacy');
-    if (!loaded.ok) throw new Error('flow did not save');
+    if (!loaded.ok) {throw new Error('flow did not save');}
 
     expect(
       await dischargeFlowIntent(intents, loaded.value, {
@@ -136,7 +136,7 @@ describe('a flow carries the business intent it discharges', () => {
     await flows.save(program('checkin'), annotations({ intent: CHECKIN }));
     await intents.declare([{ id: flowIntentId('checkin'), statement: 'the badge reads paid' }]);
     const loaded = await flows.load('checkin');
-    if (!loaded.ok) throw new Error('flow did not save');
+    if (!loaded.ok) {throw new Error('flow did not save');}
 
     expect(await flowIntentStatement(intents, loaded.value)).toBe('the badge reads paid');
   });
@@ -145,7 +145,7 @@ describe('a flow carries the business intent it discharges', () => {
     const { flows, intents } = harness();
     await flows.save(program('legacy'));
     const loaded = await flows.load('legacy');
-    if (!loaded.ok) throw new Error('flow did not save');
+    if (!loaded.ok) {throw new Error('flow did not save');}
 
     expect(await flowIntentStatement(intents, loaded.value)).toBeUndefined();
   });

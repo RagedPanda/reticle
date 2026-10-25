@@ -94,8 +94,8 @@ export class HudMetrics {
     // text cannot ride in on the id.
     const control =
       use.control !== undefined && isHudControl(use.control) ? use.control : undefined;
-    if (use.slide !== undefined) this.#countSlide(use.slide);
-    if (control === undefined && use.view === undefined && use.panel === undefined) return signals;
+    if (use.slide !== undefined) {this.#countSlide(use.slide);}
+    if (control === undefined && use.view === undefined && use.panel === undefined) {return signals;}
     this.#changed = true;
     if (control !== undefined) {
       const key = use.toggle === undefined ? control : `${control}:${use.toggle}`;
@@ -127,7 +127,7 @@ export class HudMetrics {
   /** The tab went into the background: its HUD stops accruing time until it is shown again. */
   hide(tabId: string): void {
     const tab = this.#tabs.get(tabId);
-    if (tab === undefined || tab.hidden) return;
+    if (tab === undefined || tab.hidden) {return;}
     tab.hidden = true;
     this.#pause(tab);
   }
@@ -135,24 +135,24 @@ export class HudMetrics {
   /** The tab is in front again: its HUD's view and panel accrue from now. */
   show(tabId: string): void {
     const tab = this.#tabs.get(tabId);
-    if (tab === undefined || !tab.hidden) return;
+    if (tab === undefined || !tab.hidden) {return;}
     tab.hidden = false;
     const at = this.#now();
-    if (tab.view !== undefined) tab.view = { ...tab.view, since: at };
-    if (tab.panel !== undefined) tab.panel = { ...tab.panel, since: at };
+    if (tab.view !== undefined) {tab.view = { ...tab.view, since: at };}
+    if (tab.panel !== undefined) {tab.panel = { ...tab.panel, since: at };}
   }
 
   /** The tab went away: whatever it had open is counted up to now and stops. */
   close(tabId: string): void {
     const tab = this.#tabs.get(tabId);
-    if (tab === undefined) return;
+    if (tab === undefined) {return;}
     this.#pause(tab);
     this.#tabs.delete(tabId);
   }
 
   #tab(tabId: string): TabState {
     const known = this.#tabs.get(tabId);
-    if (known !== undefined) return known;
+    if (known !== undefined) {return known;}
     const tab: TabState = {
       view: undefined,
       panel: undefined,
@@ -167,14 +167,14 @@ export class HudMetrics {
   #pause(tab: TabState): void {
     this.#close(tab.view, this.#viewMs);
     this.#close(tab.panel, this.#panelMs);
-    if (tab.view !== undefined) tab.view = { ...tab.view, since: undefined };
-    if (tab.panel !== undefined) tab.panel = { ...tab.panel, since: undefined };
+    if (tab.view !== undefined) {tab.view = { ...tab.view, since: undefined };}
+    if (tab.panel !== undefined) {tab.panel = { ...tab.panel, since: undefined };}
   }
 
   #countSlide(slide: string): void {
     // A slide id is Reticle's own (`notice-<id>` for the remote ones): lowercase words and dashes.
-    if (!SLIDE_ID.test(slide)) return;
-    if (!this.#slides.has(slide) && this.#slides.size >= MAX_SLIDE_IDS) return;
+    if (!SLIDE_ID.test(slide)) {return;}
+    if (!this.#slides.has(slide) && this.#slides.size >= MAX_SLIDE_IDS) {return;}
     this.#slides.set(slide, (this.#slides.get(slide) ?? 0) + 1);
     this.#changed = true;
   }
@@ -212,19 +212,19 @@ export class HudMetrics {
     this.#cut = false;
     this.#changed = false;
     for (const tab of this.#tabs.values()) {
-      if (tab.view?.since !== undefined) tab.view = { ...tab.view, since: at };
-      if (tab.panel?.since !== undefined) tab.panel = { ...tab.panel, since: at };
+      if (tab.view?.since !== undefined) {tab.view = { ...tab.view, since: at };}
+      if (tab.panel?.since !== undefined) {tab.panel = { ...tab.panel, since: at };}
     }
   }
 
   #step(entry: string): void {
-    if (this.#journey.length < HUD_JOURNEY_MAX) this.#journey.push(entry);
-    else this.#cut = true;
+    if (this.#journey.length < HUD_JOURNEY_MAX) {this.#journey.push(entry);}
+    else {this.#cut = true;}
   }
 
   /** Add an open view's time since it last started accruing; nothing while it is paused. */
   #close<K>(open: Open<K> | undefined, into: Map<K, number>): void {
-    if (open?.since === undefined) return;
+    if (open?.since === undefined) {return;}
     into.set(open.value, (into.get(open.value) ?? 0) + Math.max(0, this.#now() - open.since));
   }
 }

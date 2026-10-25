@@ -33,25 +33,25 @@ function fakePage(state: FakePageState): unknown {
     url: () => state.url,
     isClosed: () => true === state.closed,
     setViewportSize: (size: { width: number; height: number }) => {
-      if (true === state.closed) return Promise.reject(new Error(CLOSED_MESSAGE));
+      if (true === state.closed) {return Promise.reject(new Error(CLOSED_MESSAGE));}
       state.viewport = size;
       return Promise.resolve();
     },
     route: (pattern: unknown) => {
-      if (true === state.closed) return Promise.reject(new Error(CLOSED_MESSAGE));
+      if (true === state.closed) {return Promise.reject(new Error(CLOSED_MESSAGE));}
       state.routes = [...(state.routes ?? []), String(pattern)];
       return Promise.resolve();
     },
     unroute: () => Promise.resolve(),
     goto: (url: string) => {
       state.gotoCalls.push(url);
-      if (true === state.gotoThrows) return Promise.reject(new Error('goto boom'));
+      if (true === state.gotoThrows) {return Promise.reject(new Error('goto boom'));}
       state.url = url;
       return Promise.resolve(null);
     },
     waitForFunction: () => {
       state.waitForFunctionCalls += 1;
-      if (true === state.waitForFunctionThrows) return Promise.reject(new Error('no SDK on page'));
+      if (true === state.waitForFunctionThrows) {return Promise.reject(new Error('no SDK on page'));}
       return Promise.resolve(null);
     },
     evaluate: (arg: unknown) => {

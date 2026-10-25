@@ -44,9 +44,9 @@ export const CLOSE_REASON_MAX_BYTES = 123;
  * all falls back to naming both, which is vague but never actively misleading.
  */
 export const protocolSkewReason = (got: number | null, expected: number): string => {
-  if (null === got || !Number.isFinite(got)) return SKEW_UNKNOWN;
-  if (got < expected) return BROWSER_IS_OLDER;
-  if (got > expected) return DAEMON_IS_OLDER;
+  if (null === got || !Number.isFinite(got)) {return SKEW_UNKNOWN;}
+  if (got < expected) {return BROWSER_IS_OLDER;}
+  if (got > expected) {return DAEMON_IS_OLDER;}
   return SKEW_UNKNOWN;
 };
 
@@ -80,7 +80,7 @@ export function helloProtocolMismatch(text: string): number | null {
 export function peekHelloPage(text: string): RefusedPage | null {
   try {
     const json = JSON.parse(text) as { kind?: unknown; url?: unknown; projectId?: unknown };
-    if (json.kind !== MessageKind.HELLO) return null;
+    if (json.kind !== MessageKind.HELLO) {return null;}
     return {
       ...('string' === typeof json.url ? { url: json.url } : {}),
       ...('string' === typeof json.projectId ? { projectId: json.projectId } : {}),

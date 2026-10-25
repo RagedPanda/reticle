@@ -51,7 +51,7 @@ function distImports(
     const namesRaw = match[1];
     const distName = match[2];
     const distPath = match[3];
-    if (namesRaw === undefined || distName === undefined || distPath === undefined) continue;
+    if (namesRaw === undefined || distName === undefined || distPath === undefined) {continue;}
     const names = namesRaw
       .split(',')
       .map((n) => n.trim())
@@ -80,7 +80,7 @@ describe('e2e dist named imports stay exported from server source', () => {
       expect(existsSync(srcPath), srcPath).toBe(true);
       const source = readFileSync(srcPath, 'utf8');
       for (const name of names) {
-        if (!isValueExport(source, name)) missing.push(`${rel}: ${name}`);
+        if (!isValueExport(source, name)) {missing.push(`${rel}: ${name}`);}
       }
     }
     expect(missing, missing.join(', ')).toEqual([]);

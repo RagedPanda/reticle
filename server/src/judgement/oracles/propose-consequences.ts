@@ -24,7 +24,7 @@ interface ProposedConsequence {
 const TIER = { SIGNAL: 0, CONSEQUENCE: 1, PRESENCE: 2 } as const;
 
 function pathname(url: unknown): string | undefined {
-  if (typeof url !== 'string') return undefined;
+  if (typeof url !== 'string') {return undefined;}
   try {
     return new URL(url, 'http://x').pathname;
   } catch {
@@ -37,7 +37,7 @@ export function proposeConsequences(events: readonly ReticleEvent[]): ProposedCo
   const seen = new Set<string>();
   const proposals: ProposedConsequence[] = [];
   const add = (key: string, proposal: ProposedConsequence): void => {
-    if (seen.has(key)) return;
+    if (seen.has(key)) {return;}
     seen.add(key);
     proposals.push(proposal);
   };

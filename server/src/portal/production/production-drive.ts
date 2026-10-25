@@ -199,19 +199,19 @@ export class ProductionDrive {
 
   /** Learn ids from what the drive created: a 2xx POST/PUT whose JSON body names an `id`. */
   noteEvent(event: ReticleEvent): void {
-    if (event.type !== EventType.NET_REQUEST) return;
+    if (event.type !== EventType.NET_REQUEST) {return;}
     const data = event.data;
     const method = (asString(data['method']) ?? '').toUpperCase();
     const status = data['status'];
-    if ('number' !== typeof status || status < 200 || status > 299) return;
+    if ('number' !== typeof status || status < 200 || status > 299) {return;}
     // A refused request that SUCCEEDED got past every guard (no leased browser to stop it). The
     // drive cannot take it back; it stops acting and says why on the next act.
     const url = asString(data['url']) ?? '';
     const rule = requestRule(this.#policy, method, url, this.#origin);
-    if (rule !== undefined && !this.#lifted(rule, url)) this.#pending ??= productionRefusal(rule);
-    if (method !== 'POST' && method !== 'PUT') return;
+    if (rule !== undefined && !this.#lifted(rule, url)) {this.#pending ??= productionRefusal(rule);}
+    if (method !== 'POST' && method !== 'PUT') {return;}
     const body = asString(data['responseBody']);
-    if (body === undefined) return;
+    if (body === undefined) {return;}
     let parsed: unknown;
     try {
       parsed = JSON.parse(body);
@@ -222,12 +222,12 @@ export class ProductionDrive {
     const candidates = [top['id'], ...Object.values(top).map((v) => asRecord(v)['id'])];
     for (const id of candidates) {
       const text = 'number' === typeof id ? String(id) : asString(id);
-      if (text !== undefined && MIN_CREATED_ID_LENGTH <= text.length) this.#created.add(text);
+      if (text !== undefined && MIN_CREATED_ID_LENGTH <= text.length) {this.#created.add(text);}
     }
   }
 
   #createdHere(text: string): boolean {
-    for (const id of this.#created) if (text.includes(id)) return true;
+    for (const id of this.#created) {if (text.includes(id)) {return true;}}
     return false;
   }
 
@@ -238,7 +238,7 @@ export class ProductionDrive {
   /** The refusal for a request the page is about to send, or undefined to let it go. */
   refuseRequest(method: string, url: string): string | undefined {
     const rule = requestRule(this.#policy, method, url, this.#origin);
-    if (rule === undefined || this.#lifted(rule, url)) return undefined;
+    if (rule === undefined || this.#lifted(rule, url)) {return undefined;}
     const refusal = productionRefusal(rule);
     this.#pending = refusal;
     return refusal;
@@ -260,12 +260,12 @@ export class ProductionDrive {
     args: Record<string, unknown>,
     inspect: (ref: string) => Promise<unknown>,
   ): Promise<string | undefined> {
-    if (this.#expiresAt <= this.#clock()) return productionRefusal(ProductionRule.EXPIRED);
-    if (name === ReticleCommand.NAVIGATE) return this.#refuseNavigation(asString(args['url']));
-    if (READ_COMMANDS.has(name)) return undefined;
+    if (this.#expiresAt <= this.#clock()) {return productionRefusal(ProductionRule.EXPIRED);}
+    if (name === ReticleCommand.NAVIGATE) {return this.#refuseNavigation(asString(args['url']));}
+    if (READ_COMMANDS.has(name)) {return undefined;}
     const pending = this.takePending();
-    if (pending !== undefined) return pending;
-    if (this.#scope === HelloScope.OBSERVE) return productionRefusal(ProductionRule.OBSERVE_ONLY);
+    if (pending !== undefined) {return pending;}
+    if (this.#scope === HelloScope.OBSERVE) {return productionRefusal(ProductionRule.OBSERVE_ONLY);}
     const steps =
       name === ReticleCommand.ACT_SEQUENCE
         ? (Array.isArray(args['steps']) ? args['steps'] : []).map(asRecord)
@@ -274,7 +274,7 @@ export class ProductionDrive {
           : [];
     for (const step of steps) {
       const refusal = await this.#refuseStep(step, inspect);
-      if (refusal !== undefined) return refusal;
+      if (refusal !== undefined) {return refusal;}
     }
     return undefined;
   }
@@ -291,17 +291,17 @@ export class ProductionDrive {
     const inspect = async (ref: string): Promise<unknown> =>
       (await send(ReticleCommand.INSPECT, { ref })).result;
     const refusal = await this.refuseCommand(name, args, inspect);
-    if (refusal !== undefined) return refusedCommand(refusal);
+    if (refusal !== undefined) {return refusedCommand(refusal);}
     const result = await send(name, args);
-    if (READ_COMMANDS.has(name)) return result;
+    if (READ_COMMANDS.has(name)) {return result;}
     const late = this.takePending();
     return late === undefined ? result : refusedCommand(late);
   }
 
   #refuseNavigation(url: string | undefined): string | undefined {
-    if (url === undefined || this.#origin === undefined) return undefined;
+    if (url === undefined || this.#origin === undefined) {return undefined;}
     try {
-      if (new URL(url, this.#origin).origin === this.#origin) return undefined;
+      if (new URL(url, this.#origin).origin === this.#origin) {return undefined;}
     } catch {
       return undefined;
     }
@@ -313,7 +313,7 @@ export class ProductionDrive {
     inspect: (ref: string) => Promise<unknown>,
   ): Promise<string | undefined> {
     const action = asString(step['action']) ?? ActionType.CLICK;
-    if (LOOKING_ACTIONS.has(action)) return undefined;
+    if (LOOKING_ACTIONS.has(action)) {return undefined;}
     const ref = asString(step['ref']);
     const control = ref === undefined ? asRecord(step['target']) : await inspect(ref);
     const words = controlWords(control);
@@ -325,7 +325,7 @@ export class ProductionDrive {
       (formAction === undefined
         ? undefined
         : requestRule(this.#policy, 'POST', formAction, this.#origin));
-    if (rule === undefined || this.#lifted(rule, words)) return undefined;
+    if (rule === undefined || this.#lifted(rule, words)) {return undefined;}
     return productionRefusal(rule);
   }
 }
@@ -349,9 +349,9 @@ export async function assertNativeAllowed(
   action: string,
   inspected: unknown,
 ): Promise<void> {
-  if (drive === undefined) return;
+  if (drive === undefined) {return;}
   const refusal = await drive.refuseCommand(ReticleCommand.ACT, { ref: NATIVE_REF, action }, () =>
     Promise.resolve(inspected),
   );
-  if (refusal !== undefined) throw new Error(refusal);
+  if (refusal !== undefined) {throw new Error(refusal);}
 }

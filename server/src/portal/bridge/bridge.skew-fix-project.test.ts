@@ -26,7 +26,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  for (const ws of open.splice(0)) ws.close();
+  for (const ws of open.splice(0)) {ws.close();}
   await bridge.close();
 });
 
@@ -57,7 +57,7 @@ function hello(sessionId: string, projectId?: string): void {
 /** Fifteen seconds, like the bridge harness: shorter waits have failed on a loaded Windows runner. */
 async function waitForSession(sessionId: string): Promise<void> {
   for (let i = 0; i < 750; i++) {
-    if (bridge.sessions.get(sessionId) !== undefined) return;
+    if (bridge.sessions.get(sessionId) !== undefined) {return;}
     await new Promise<void>((r) => setTimeout(r, 20));
   }
   throw new Error(`session ${sessionId} never connected`);

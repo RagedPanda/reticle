@@ -124,8 +124,8 @@ const UPLOAD_MAX_BYTES = Math.floor((TRANSPORT_LIMITS.MAX_MESSAGE_BYTES / (4 / 3
  * through unchanged. `home` is injected so unit tests do not depend on the machine's real home.
  */
 function expandUserPath(rawPath: string, home: string): string {
-  if ('~' === rawPath) return home;
-  if (rawPath.startsWith('~/') || rawPath.startsWith('~\\')) return join(home, rawPath.slice(2));
+  if ('~' === rawPath) {return home;}
+  if (rawPath.startsWith('~/') || rawPath.startsWith('~\\')) {return join(home, rawPath.slice(2));}
   return rawPath;
 }
 
@@ -157,12 +157,12 @@ async function readUploadRoots(
   } catch {
     return [];
   }
-  if ('object' !== typeof parsed || null === parsed || Array.isArray(parsed)) return [];
+  if ('object' !== typeof parsed || null === parsed || Array.isArray(parsed)) {return [];}
   const listed = (parsed as Record<string, unknown>)['uploadRoots'];
-  if (!Array.isArray(listed)) return [];
+  if (!Array.isArray(listed)) {return [];}
   const roots: string[] = [];
   for (const entry of listed) {
-    if ('string' !== typeof entry || 0 === entry.trim().length) continue;
+    if ('string' !== typeof entry || 0 === entry.trim().length) {continue;}
     roots.push(resolve(expandUserPath(entry.trim(), home)));
   }
   return roots;
@@ -237,9 +237,9 @@ export async function rewriteUploadArgs(
   /** Injected for tests; production uses the process home directory. */
   home: string = homedir(),
 ): Promise<Record<string, unknown>> {
-  if (action !== ActionType.UPLOAD) return innerArgs;
+  if (action !== ActionType.UPLOAD) {return innerArgs;}
   const rawPath = asString(innerArgs['path']);
-  if (rawPath === undefined) return innerArgs; // no path → browser handles as inline upload
+  if (rawPath === undefined) {return innerArgs;} // no path → browser handles as inline upload
 
   // Project root is one level above .reticle/
   const projectRoot = resolve(join(deps.reticleRoot, '..'));
@@ -306,11 +306,11 @@ function synthetic(reason?: InputModeReason): RealActResult {
 function performArgsOf(inner: Record<string, unknown>): RealInputArgs {
   const performArgs: RealInputArgs = {};
   const value = asString(inner['value']);
-  if (value !== undefined) performArgs.value = value;
+  if (value !== undefined) {performArgs.value = value;}
   const text = asString(inner['text']);
-  if (text !== undefined) performArgs.text = text;
+  if (text !== undefined) {performArgs.text = text;}
   const key = asString(inner['key']);
-  if (key !== undefined) performArgs.key = key;
+  if (key !== undefined) {performArgs.key = key;}
   const modifiers = inner['modifiers'];
   if (Array.isArray(modifiers)) {
     performArgs.modifiers = modifiers.filter((m): m is string => 'string' === typeof m);
@@ -319,7 +319,7 @@ function performArgsOf(inner: Record<string, unknown>): RealInputArgs {
   // `holdMs` all along. Not forwarding it made the real keyboard the WEAKER of the two paths: it
   // drove the key instantly and reported a hold that never held.
   const holdMs = asNumber(inner['holdMs']);
-  if (holdMs !== undefined) performArgs.holdMs = holdMs;
+  if (holdMs !== undefined) {performArgs.holdMs = holdMs;}
   // `keys` and `code` are read but not forwarded: both are routed away by the caller — a multi-key
   // sequence and an explicit physical code have no driver spelling — so carrying them into the
   // provider would only invite it to guess at a gesture the caller did not ask for.
@@ -358,9 +358,9 @@ async function pressOnLease(
   inner: Record<string, unknown>,
 ): Promise<RealActResult | undefined> {
   const pool = deps.pool;
-  if (pool === undefined || !pool.hasKeyboard(session.id)) return undefined;
+  if (pool === undefined || !pool.hasKeyboard(session.id)) {return undefined;}
   const unspellable = unspellablePressReason('', inner);
-  if (unspellable !== undefined) return synthetic(unspellable);
+  if (unspellable !== undefined) {return synthetic(unspellable);}
   // What the focused element is called, from the focus act's own report, so the saved step can
   // find it again: the real keyboard reports no element of its own.
   let anchor: Record<string, unknown> = {};
@@ -382,7 +382,7 @@ async function pressOnLease(
     }
   }
   const performed = await pool.pressLease(session.id, performArgsOf(inner));
-  if (performed?.performed !== true) return undefined;
+  if (performed?.performed !== true) {return undefined;}
   return {
     result: {
       ...anchor,
@@ -483,14 +483,14 @@ async function hoverForReal(
   if (box === undefined) {
     throw new Error(HOVER_NEEDS_POINTER_MSG);
   }
-  if (!inView) throw new Error(HOVER_OFF_VIEWPORT_MSG);
+  if (!inView) {throw new Error(HOVER_OFF_VIEWPORT_MSG);}
 
   if (providerReady && provider !== undefined) {
     try {
       const performed = await provider.perform(session.url, ActionType.HOVER, box, {});
       // Hover always has a resolved box, so there is always a center to report: the provider's own
       // reading, or the box's if it reported none. Both are the same point, not a fabricated one.
-      if (performed.performed) return hoverSucceeded(performed.center ?? boxCenter(box), scrolled);
+      if (performed.performed) {return hoverSucceeded(performed.center ?? boxCenter(box), scrolled);}
     } catch {
       // A provider error used to fall back to synthetic dispatch. For hover that is a lie.
     }
@@ -530,7 +530,7 @@ export async function tryRealInput(
   if (provider === undefined) {
     if (action === ActionType.PRESS) {
       const leased = await pressOnLease(deps, session, ref, inner);
-      if (leased !== undefined) return leased;
+      if (leased !== undefined) {return leased;}
     }
     // Silent by default: with no provider EVERY action is synthetic, and a reason on all of them is
     // noise on the most-used tool in the product. But an agent that passed native:true asked a
@@ -542,10 +542,10 @@ export async function tryRealInput(
   // one was asked for, instead of a different gesture being sent. See `unspellablePressReason`.
   if (action === ActionType.PRESS) {
     const unspellable = unspellablePressReason(ref, inner);
-    if (unspellable !== undefined) return synthetic(unspellable);
+    if (unspellable !== undefined) {return synthetic(unspellable);}
   }
 
-  if (!isRealInputAction(action)) return synthetic(InputModeReason.NOT_POINTER); // fill/type stay synthetic
+  if (!isRealInputAction(action)) {return synthetic(InputModeReason.NOT_POINTER);} // fill/type stay synthetic
 
   // "Don't click, run the code": a click/dblclick runs the occlusion-honest SYNTHETIC path by default
   // even with a provider configured — no coordinate gesture to be intercepted by the HUD or missed
@@ -570,7 +570,7 @@ export async function tryRealInput(
   }
 
   if (!(await provider.isAvailableFor(session.url)))
-    return synthetic(InputModeReason.PAGE_NOT_CORRELATED);
+    {return synthetic(InputModeReason.PAGE_NOT_CORRELATED);}
 
   const performArgs = performArgsOf(inner);
 
@@ -578,7 +578,7 @@ export async function tryRealInput(
   if (action === ActionType.PRESS) {
     try {
       const performed = await provider.perform(session.url, action, PRESS_HAS_NO_BOX, performArgs);
-      if (!performed.performed) return synthetic(InputModeReason.PROVIDER_DECLINED);
+      if (!performed.performed) {return synthetic(InputModeReason.PROVIDER_DECLINED);}
       // No `center`: a key addresses focus, not a point. The placeholder's zero happened nowhere.
       //
       // `heldMs` IS forwarded, and it is the whole reason this object is not just the three fields
@@ -625,12 +625,12 @@ export async function tryRealInput(
   let box = asBox(inspected);
   // A box outside the viewport after the reveal is a gesture that would land on nothing. The
   // synthetic path scrolls and hit-tests on its own, so it is the honest answer.
-  if (box === undefined || !source.inView) return synthetic(InputModeReason.ELEMENT_NOT_LOCATABLE);
+  if (box === undefined || !source.inView) {return synthetic(InputModeReason.ELEMENT_NOT_LOCATABLE);}
 
   let toBox: ElementBox | undefined;
   if (action === ActionType.DRAG) {
     const toRef = asString(inner['toRef']);
-    if (toRef === undefined) return synthetic(InputModeReason.DRAG_TARGET_UNRESOLVED);
+    if (toRef === undefined) {return synthetic(InputModeReason.DRAG_TARGET_UNRESOLVED);}
     const target = await inspectRevealed(deps, session, toRef);
     const targetInspected = target.inspected;
     // A drag is judged on BOTH ends: dropping onto "Trash" is destructive however innocent the
@@ -653,11 +653,11 @@ export async function tryRealInput(
     }
   }
 
-  if (toBox !== undefined) performArgs.toBox = toBox;
+  if (toBox !== undefined) {performArgs.toBox = toBox;}
 
   try {
     const performed = await provider.perform(session.url, action, box, performArgs);
-    if (!performed.performed) return synthetic(InputModeReason.PROVIDER_DECLINED);
+    if (!performed.performed) {return synthetic(InputModeReason.PROVIDER_DECLINED);}
     return {
       result: {
         performed: true,
@@ -668,7 +668,7 @@ export async function tryRealInput(
       settled: true,
     };
   } catch {
-    if (session.versionSkew !== undefined) throw new Error(session.versionSkew);
+    if (session.versionSkew !== undefined) {throw new Error(session.versionSkew);}
     return {
       result: undefined,
       settled: false,
@@ -687,7 +687,7 @@ export async function tryRealInput(
  * A Proxy, not a copy: the session keeps private state its own methods read.
  */
 export function withLeaseKeyboard(deps: ToolDeps, session: Session): Session {
-  if (deps.realInput !== undefined || deps.pool?.hasKeyboard(session.id) !== true) return session;
+  if (deps.realInput !== undefined || deps.pool?.hasKeyboard(session.id) !== true) {return session;}
   const command: Session['command'] = async (name, args = {}, timeoutMs) => {
     if (ReticleCommand.ACT === name && ActionType.PRESS === args['action']) {
       const ref = asString(args['ref']) ?? '';
@@ -701,7 +701,7 @@ export function withLeaseKeyboard(deps: ToolDeps, session: Session): Session {
   };
   return new Proxy(session, {
     get(target, key) {
-      if ('command' === key) return command;
+      if ('command' === key) {return command;}
       const value: unknown = Reflect.get(target, key, target);
       return 'function' === typeof value
         ? (value as (...a: unknown[]) => unknown).bind(target)

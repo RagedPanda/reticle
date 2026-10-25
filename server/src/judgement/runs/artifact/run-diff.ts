@@ -42,8 +42,8 @@ function headlineFor(diff: Omit<RunDiff, 'headline'>): string {
       `${String(regressions.length)} regression${1 === regressions.length ? '' : 's'} (worst: ${worst?.name ?? ''} ${String(worst?.durationDeltaPct ?? 0)}%)`,
     );
   }
-  if (diff.newFlows.length > 0) parts.push(`+${String(diff.newFlows.length)} flow`);
-  if (diff.removedFlows.length > 0) parts.push(`-${String(diff.removedFlows.length)} flow`);
+  if (diff.newFlows.length > 0) {parts.push(`+${String(diff.newFlows.length)} flow`);}
+  if (diff.removedFlows.length > 0) {parts.push(`-${String(diff.removedFlows.length)} flow`);}
   if (diff.verdictChange !== undefined) {
     parts.push(`verdict ${diff.verdictChange.from}→${diff.verdictChange.to}`);
   }
@@ -75,7 +75,7 @@ export function diffRuns(
     const durationDeltaMs = af.durationMs - bf.durationMs;
     const durationDeltaPct = pct(bf.durationMs, durationDeltaMs);
     const statusChanged = bf.status !== af.status;
-    if (!statusChanged && Math.abs(durationDeltaPct) < noiseFloorPct) continue; // noise
+    if (!statusChanged && Math.abs(durationDeltaPct) < noiseFloorPct) {continue;} // noise
     flows.push({
       name,
       beforeMs: bf.durationMs,

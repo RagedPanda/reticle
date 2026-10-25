@@ -49,7 +49,7 @@ function projectDeps(): { cwd: string; deps: ToolDeps } {
 function record(cwd: string): Record<string, unknown> {
   const runs = join(cwd, ReticleDir.ROOT, ReticleDir.RUNS_SUBDIR);
   const file = readdirSync(runs).find((name) => name.endsWith('.drive.json'));
-  if (file === undefined) throw new Error('no drive record');
+  if (file === undefined) {throw new Error('no drive record');}
   return JSON.parse(readFileSync(join(runs, file), 'utf8')) as Record<string, unknown>;
 }
 

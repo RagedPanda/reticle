@@ -23,7 +23,7 @@ const NO_SOURCE_MAPPING = 'no-source-mapping';
 
 const tool = (name: string): ToolDef => {
   const found = TOOLS.find((t) => t.name === name);
-  if (found === undefined) throw new Error(`${name} is not on the surface`);
+  if (found === undefined) {throw new Error(`${name} is not on the surface`);}
   return found;
 };
 
@@ -156,7 +156,7 @@ describe('stampedSourceIn', () => {
 
   it('stops at a bounded depth', () => {
     let deep: unknown = button('Save', 'deep.tsx:1');
-    for (let i = 0; i < 40; i += 1) deep = { next: deep };
+    for (let i = 0; i < 40; i += 1) {deep = { next: deep };}
     expect(stampedSourceIn(deep)).toBeUndefined();
   });
 });

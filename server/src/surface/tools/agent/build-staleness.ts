@@ -34,7 +34,7 @@ export function newestJsMtime(dir: string): number {
     }
     for (const entry of entries) {
       const path = join(at, entry.name);
-      if (entry.isDirectory()) walk(path);
+      if (entry.isDirectory()) {walk(path);}
       else if (entry.name.endsWith('.js')) {
         try {
           newest = Math.max(newest, statSync(path).mtimeMs);

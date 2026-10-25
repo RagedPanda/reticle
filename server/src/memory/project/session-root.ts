@@ -68,7 +68,7 @@ export function sessionRoot(deps: ToolDeps, sessionId: string | undefined): stri
  * cannot disagree about what a resolved root is.
  */
 export function rootForTarget(deps: ToolDeps, target: ProjectTarget): string {
-  if (target.claimedRoot !== undefined) return target.claimedRoot;
+  if (target.claimedRoot !== undefined) {return target.claimedRoot;}
   return deps.artifactRootFor?.(target.projectId, target.origin).root ?? deps.reticleRoot;
 }
 
@@ -136,7 +136,7 @@ export function sessionTarget(deps: ToolDeps, sessionId: string | undefined): Pr
       ...(claimedRoot === undefined ? {} : { claimedRoot }),
     };
   } catch (cause) {
-    if (sessionId === undefined) return projectOnly(undefined);
+    if (sessionId === undefined) {return projectOnly(undefined);}
     throw unresolvedTargetRefusal(sessionId, cause);
   }
 }

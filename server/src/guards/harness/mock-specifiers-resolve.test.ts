@@ -48,7 +48,7 @@ function everyMock(): Mock[] {
     const source = readFileSync(join(REPO_ROOT, file), 'utf8');
     for (const call of source.matchAll(MOCK_CALL)) {
       const specifier = call[2];
-      if (undefined !== specifier) found.push({ file, specifier });
+      if (undefined !== specifier) {found.push({ file, specifier });}
     }
   }
   return found;

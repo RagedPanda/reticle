@@ -23,7 +23,7 @@ let port = 8700;
 
 beforeEach(async () => {
   for (const name of [KEY_ENV, URL_ENV, HOME_ENV, PAIRING_TOKEN_DIR_ENV])
-    saved.set(name, process.env[name]);
+    {saved.set(name, process.env[name]);}
   // Never read the real machine's links or keys: the exit cycle also visits other known roots.
   const home = mkdtempSync(join(tmpdir(), 'reticle-exit-sync-home-'));
   process.env[HOME_ENV] = home;
@@ -31,7 +31,7 @@ beforeEach(async () => {
   hits = 0;
   server = createServer((req, res) => {
     // Only the sync protocol counts: start() also asks the platform for its model config.
-    if (String(req.url).startsWith(SYNC_PATH)) hits += 1;
+    if (String(req.url).startsWith(SYNC_PATH)) {hits += 1;}
     res.writeHead(200, { 'content-type': 'application/json' });
     res.end('{}');
   });
@@ -42,8 +42,8 @@ beforeEach(async () => {
 
 afterEach(async () => {
   for (const [name, value] of saved)
-    if (value === undefined) delete process.env[name];
-    else process.env[name] = value;
+    {if (value === undefined) {delete process.env[name];}
+    else {process.env[name] = value;}}
   await new Promise<void>((resolve) => server.close(() => resolve()));
 });
 

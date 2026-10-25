@@ -40,8 +40,8 @@ export type PageFinding = (typeof PageFinding)[keyof typeof PageFinding];
 
 /** Pure, so the mapping is testable without a server or a browser. */
 export function readPage(probe: PageProbe): PageFinding {
-  if (true === probe.tlsRefused) return PageFinding.TLS_REFUSED;
-  if (!probe.served) return PageFinding.NOT_SERVED;
+  if (true === probe.tlsRefused) {return PageFinding.TLS_REFUSED;}
+  if (!probe.served) {return PageFinding.NOT_SERVED;}
   return probe.sdkInPage ? PageFinding.SDK_PRESENT : PageFinding.SDK_MISSING;
 }
 

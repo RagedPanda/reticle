@@ -136,7 +136,7 @@ describe('maintenance does not repeat itself', () => {
       const counting: FileSystemPort = {
         ...fs,
         readdir: (path: string) => {
-          if (path === join(root, ReticleDir.RUNS_SUBDIR)) walks += 1;
+          if (path === join(root, ReticleDir.RUNS_SUBDIR)) {walks += 1;}
           return fs.readdir(path);
         },
       };

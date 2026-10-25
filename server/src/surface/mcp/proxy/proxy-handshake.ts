@@ -69,9 +69,9 @@ export function localInitializeResponse(
   instructions = '',
 ): string | null {
   const msg = parseLine(line);
-  if (null === msg || msg.method !== 'initialize') return null;
+  if (null === msg || msg.method !== 'initialize') {return null;}
   // A notification carries no id and expects no reply; answering one is a protocol error.
-  if (msg.id === undefined || null === msg.id) return null;
+  if (msg.id === undefined || null === msg.id) {return null;}
   const proposed = msg.params?.protocolVersion;
   return JSON.stringify({
     jsonrpc: '2.0',
@@ -111,7 +111,7 @@ export function localInitializeResponse(
  * where it is honoured and costs one line where it is not.
  */
 export function toolsChangedNotification(catalogWasLocal: boolean): string | null {
-  if (!catalogWasLocal) return null;
+  if (!catalogWasLocal) {return null;}
   return JSON.stringify({ jsonrpc: '2.0', method: TOOLS_CHANGED_NOTIFICATION });
 }
 
@@ -196,7 +196,7 @@ export function drainLines(
   // that was already dropped, and only what follows it is a message again.
   if (discarding) {
     const cut = chunk.indexOf('\n');
-    if (-1 === cut) return { lines: [], rest: '', overflowed: true, discarding: true };
+    if (-1 === cut) {return { lines: [], rest: '', overflowed: true, discarding: true };}
     return {
       ...drainLines('', chunk.slice(cut + 1), maxLineBytes),
       overflowed: true,

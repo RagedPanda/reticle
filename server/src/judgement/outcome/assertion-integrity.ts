@@ -41,7 +41,7 @@ export function detectDowngrades(
   const afterByStep = new Map(after.map((s) => [s.step, s.expect]));
   const findings: DowngradeFinding[] = [];
   for (const { step, expect } of before) {
-    if (isAssertionDowngrade(expect, afterByStep.get(step))) findings.push({ step });
+    if (isAssertionDowngrade(expect, afterByStep.get(step))) {findings.push({ step });}
   }
   return findings;
 }

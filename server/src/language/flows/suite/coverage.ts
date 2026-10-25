@@ -78,7 +78,7 @@ interface FlowCoverageReport {
  */
 export function flowCoverageReport(flows: CoverageDimension): FlowCoverageReport {
   const { covered, total } = flows;
-  if (0 === total) return { covered, total, outcome: NO_FLOWS, note: NO_FLOWS_NOTE };
+  if (0 === total) {return { covered, total, outcome: NO_FLOWS, note: NO_FLOWS_NOTE };}
   return { covered, total, ...(flows.pct === undefined ? {} : { pct: flows.pct }) };
 }
 
@@ -86,7 +86,7 @@ function dimension(declared: readonly string[], exercised: ReadonlySet<string>):
   const uncovered = declared.filter((d) => !exercised.has(d));
   const covered = declared.length - uncovered.length;
   const base = { total: declared.length, covered, uncovered };
-  if (0 === declared.length) return base;
+  if (0 === declared.length) {return base;}
   return { ...base, pct: Math.round((covered / declared.length) * 100) };
 }
 
@@ -96,6 +96,6 @@ export function computeCoverage(declared: DeclaredSurface, exercised: DeclaredSu
   const flows = dimension(declared.flows, new Set(exercised.flows));
   const total = testids.total + signals.total + flows.total;
   const covered = testids.covered + signals.covered + flows.covered;
-  if (0 === total) return { testids, signals, flows };
+  if (0 === total) {return { testids, signals, flows };}
   return { testids, signals, flows, overallPct: Math.round((covered / total) * 100) };
 }

@@ -92,7 +92,7 @@ export const DOMAIN_TOOLS: ToolDef[] = [
       const flows: FlowFile[] = [];
       for (const name of names) {
         const loaded = await store.load(name, projectId);
-        if (loaded.ok) flows.push(loaded.value);
+        if (loaded.ok) {flows.push(loaded.value);}
       }
       const root = sessionRoot(deps, asString(args['sessionId']));
       const contract = await readContract(deps.fs, root);

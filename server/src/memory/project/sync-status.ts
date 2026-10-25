@@ -65,11 +65,11 @@ export function summarizeSync(input: {
       const refusal = state.refusedRuns?.[run.runId];
       const at = createdAtOf(run.payload);
       if (state.sentRunHashes?.[run.runId] === hash && (latest === undefined || at > latest.at))
-        latest = { runId: run.runId, at };
-      if (state.sentRunHashes?.[run.runId] === hash) onPlatform += 1;
+        {latest = { runId: run.runId, at };}
+      if (state.sentRunHashes?.[run.runId] === hash) {onPlatform += 1;}
       else if (refusal !== undefined && refusal.payloadHash === hash)
-        refused.push({ runId: run.runId, reason: refusal.reason });
-      else pending += 1;
+        {refused.push({ runId: run.runId, reason: refusal.reason });}
+      else {pending += 1;}
     }
   }
   return {
@@ -118,7 +118,7 @@ function linkField(reticleRoot: string, field: string): string | undefined {
     const raw: unknown = JSON.parse(
       readFileSync(join(reticleRoot, ReticleDir.CLOUD_LINK_FILE), 'utf8'),
     );
-    if ('object' !== typeof raw || null === raw) return undefined;
+    if ('object' !== typeof raw || null === raw) {return undefined;}
     const value = (raw as Record<string, unknown>)[field];
     return 'string' === typeof value && value.length > 0 ? value : undefined;
   } catch {
@@ -155,7 +155,7 @@ export function refusalSaid(body: string): string {
       'string' === typeof error.message &&
       0 < error.message.length
     )
-      return error.message;
+      {return error.message;}
   } catch {
     // Not the platform's JSON: our own sentence stands.
   }
@@ -169,7 +169,7 @@ export function keyRefusalAtLastSync(reticleRoot: string): string | undefined {
 
 /** The refusal a recorded sync error carries, in words, or undefined when it is another failure. */
 function keyRefusalIn(error: unknown): string | undefined {
-  if ('string' !== typeof error || !REFUSED_SYNC.test(error)) return undefined;
+  if ('string' !== typeof error || !REFUSED_SYNC.test(error)) {return undefined;}
   return refusalSaid(error.replace(REFUSED_PREFIX, ''));
 }
 
@@ -229,31 +229,31 @@ export function readSyncSummary(reticleRoot: string, linked: boolean): SyncSumma
 
 /** One status for the whole project: the worst thing true of it. */
 export function overallStatus(summary: SyncSummary): SyncStatus {
-  if (!summary.linked) return SyncStatus.LOCAL_ONLY;
-  if (0 < summary.refused.length) return SyncStatus.REFUSED;
-  if (0 < summary.pending || summary.lastError !== undefined) return SyncStatus.PENDING;
+  if (!summary.linked) {return SyncStatus.LOCAL_ONLY;}
+  if (0 < summary.refused.length) {return SyncStatus.REFUSED;}
+  if (0 < summary.pending || summary.lastError !== undefined) {return SyncStatus.PENDING;}
   return SyncStatus.ON_PLATFORM;
 }
 
 /** The summary in one sentence an agent can repeat to a person. */
 export function describeSync(summary: SyncSummary, now: number): string {
   if (!summary.linked)
-    return `${String(summary.runs)} run(s) exist only on this machine; nothing is synced until the project is linked (${CONNECT_COMMAND}).`;
+    {return `${String(summary.runs)} run(s) exist only on this machine; nothing is synced until the project is linked (${CONNECT_COMMAND}).`;}
   const ago =
     summary.lastPushAt === undefined
       ? 'nothing pushed yet'
       : `last push ${String(Math.max(0, Math.round((now - summary.lastPushAt) / 1000)))}s ago`;
   const parts = [`${String(summary.onPlatform)} of ${String(summary.runs)} run(s) on the platform`];
-  if (0 < summary.pending) parts.push(`${String(summary.pending)} waiting for the next push`);
+  if (0 < summary.pending) {parts.push(`${String(summary.pending)} waiting for the next push`);}
   const named = summary.refused.map((r) => `${r.runId}: ${r.reason}`);
   if (0 < named.length)
-    parts.push(
+    {parts.push(
       `refused by the platform: ${named.join('; ')}${0 < summary.refusedMore ? ` (+${String(summary.refusedMore)} more)` : ''}`,
-    );
+    );}
   const refusal = keyRefusalIn(summary.lastError);
-  if (refusal !== undefined) parts.push(`the last push was refused: ${refusal}`);
+  if (refusal !== undefined) {parts.push(`the last push was refused: ${refusal}`);}
   else if (summary.lastError !== undefined)
-    parts.push(`the last push failed: ${summary.lastError}`);
+    {parts.push(`the last push failed: ${summary.lastError}`);}
   return `${parts.join('; ')} (${ago}).`;
 }
 

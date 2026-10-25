@@ -72,7 +72,7 @@ const answers = new Map<string, Promise<Result>>();
 function run(...args: string[]): Promise<Result> {
   const key = args.join(' ');
   const existing = answers.get(key);
-  if (existing !== undefined) return existing;
+  if (existing !== undefined) {return existing;}
   const started = execFile(process.execPath, [CLI, ...args], { encoding: 'utf8' })
     .then(({ stdout, stderr }) => ({ code: 0, stdout, stderr }))
     .catch((thrown: { code?: number; stdout?: string; stderr?: string }) => ({

@@ -74,7 +74,7 @@ export function renderRunReport(run: ReticleVerificationRun): string {
       (f) => f.status === RunFlowStatus.PASS || f.status === RunFlowStatus.HEALED,
     ).length;
     out.push('', `Flows: ${passed}/${run.flows.length} passed`);
-    for (const f of run.flows) out.push(flowLine(f));
+    for (const f of run.flows) {out.push(flowLine(f));}
   }
 
   // Counted, not subtracted. `total - failed` called every undetermined check a pass, which is the
@@ -82,12 +82,12 @@ export function renderRunReport(run: ReticleVerificationRun): string {
   const provedChecks = run.checks.filter((c) => c.status === Verified.YES).length;
   if (run.checks.length > 0) {
     out.push('', `Checks: ${provedChecks}/${run.checks.length} proved`);
-    for (const c of run.checks) out.push(checkLine(c));
+    for (const c of run.checks) {out.push(checkLine(c));}
   }
 
   if (run.risks.length > 0) {
     out.push('', 'Risks:');
-    for (const r of run.risks) out.push(riskLine(r));
+    for (const r of run.risks) {out.push(riskLine(r));}
   }
 
   const packets = run.repair?.failurePackets ?? [];
@@ -104,7 +104,7 @@ export function renderRunReport(run: ReticleVerificationRun): string {
 
   if (run.verdict.status !== VerdictStatus.PASS && run.verdict.reasons.length > 0) {
     out.push('', 'Why it failed:');
-    for (const reason of run.verdict.reasons) out.push(`  - ${reason}`);
+    for (const reason of run.verdict.reasons) {out.push(`  - ${reason}`);}
   }
 
   return out.join('\n');

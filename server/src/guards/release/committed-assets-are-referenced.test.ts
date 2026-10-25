@@ -78,7 +78,7 @@ const TEXT_PATHSPECS = [
  * reading it threw ENOENT and took the whole guard down with an errno instead of an answer.
  */
 const referencedAmong = (names: readonly string[]): ReadonlySet<string> => {
-  if (0 === names.length) return new Set();
+  if (0 === names.length) {return new Set();}
   try {
     const out = execFileSync(
       'git',
@@ -98,7 +98,7 @@ const referencedAmong = (names: readonly string[]): ReadonlySet<string> => {
     return new Set(out.split('\n').filter((line) => line.length > 0));
   } catch (thrown) {
     // `git grep` exits 1 when nothing matched at all, which is an answer and not a failure.
-    if (1 === (thrown as { status?: number }).status) return new Set();
+    if (1 === (thrown as { status?: number }).status) {return new Set();}
     throw thrown;
   }
 };
@@ -112,7 +112,7 @@ describe('committed images are referenced', { timeout: 60_000 }, () => {
     const referenced = referencedAmong([...new Set(images.map((file) => basename(file)))]);
 
     const orphans = images.filter((file) => {
-      if (UNREFERENCED_BY_DESIGN.has(file)) return false;
+      if (UNREFERENCED_BY_DESIGN.has(file)) {return false;}
       return !referenced.has(basename(file));
     });
 

@@ -49,7 +49,7 @@ function uncleanLossOf(
   result: Record<string, unknown>,
   reason: VerifiedReason | undefined,
 ): CaptureLoss | undefined {
-  if (VerifiedReason.UNCLEAN_CAPTURE !== reason) return undefined;
+  if (VerifiedReason.UNCLEAN_CAPTURE !== reason) {return undefined;}
   const honesty = result['honesty'];
   const integrity =
     null !== honesty && 'object' === typeof honesty
@@ -91,7 +91,7 @@ function replayVerdict(
   toolName: string,
   status: unknown,
 ): { verified: Verified; passed: boolean } | undefined {
-  if (ReticleTool.FLOW_REPLAY !== toolName || 'string' !== typeof status) return undefined;
+  if (ReticleTool.FLOW_REPLAY !== toolName || 'string' !== typeof status) {return undefined;}
   return REPLAY_VERDICTS.get(status);
 }
 
@@ -113,14 +113,14 @@ function replayVerdict(
  * nobody could have noticed this from the data. It took reading the emit path.
  */
 function passedOf(result: Record<string, unknown>, status: unknown): boolean | undefined {
-  if ('boolean' === typeof result['pass']) return result['pass'];
+  if ('boolean' === typeof result['pass']) {return result['pass'];}
   const verdict = result['verdict'];
   if (null !== verdict && 'object' === typeof verdict) {
     const nested = (verdict as Record<string, unknown>)['pass'];
-    if ('boolean' === typeof nested) return nested;
+    if ('boolean' === typeof nested) {return nested;}
   }
-  if (status === SuiteStatus.PASS) return true;
-  if (status === SuiteStatus.FAIL) return false;
+  if (status === SuiteStatus.PASS) {return true;}
+  if (status === SuiteStatus.FAIL) {return false;}
   return undefined;
 }
 
@@ -138,15 +138,15 @@ export function verificationOf(
   /** The call ran inside a Harness drive's async context (`currentDrivenBy()`), read by the caller. */
   drivenByHarness = false,
 ): Verification | undefined {
-  if (!VERDICT_TOOLS.has(toolName)) return undefined;
+  if (!VERDICT_TOOLS.has(toolName)) {return undefined;}
   // A paused session REFUSES the call — nothing driven, nothing asserted. The refusal carries a
   // verdict field so the agent never reads undefined off it, and that field must not be mistaken
   // here for work that happened.
-  if (true === result['paused']) return undefined;
+  if (true === result['paused']) {return undefined;}
   // A wait that stopped at the per-call limit is "not yet", not a verdict: it answers `pass: false`
   // with `resume_ms`, and read here that became `verified: "no"`, so every paused wait was recorded
   // as a red and advanced the feedback-prompt counter (#1119).
-  if ('number' === typeof result['resume_ms']) return undefined;
+  if ('number' === typeof result['resume_ms']) {return undefined;}
   const replay = replayVerdict(toolName, result['status']);
   const verified =
     'string' === typeof result['verified'] ? result['verified'] : (replay?.verified ?? undefined);
@@ -156,7 +156,7 @@ export function verificationOf(
   // suite reports exactly that.
   const status = result['status'];
   const passed = passedOf(result, status) ?? replay?.passed;
-  if (verified === undefined && passed === undefined) return undefined;
+  if (verified === undefined && passed === undefined) {return undefined;}
   const reason = reasonOf(result);
   const uncleanLoss = uncleanLossOf(result, reason);
   return {

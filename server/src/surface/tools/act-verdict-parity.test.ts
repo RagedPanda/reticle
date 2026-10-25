@@ -48,7 +48,7 @@ const src = (file: string): string => readFileSync(join(import.meta.dirname, fil
 
 const tool = (name: string): ToolDef => {
   const found = TOOLS.find((t) => t.name === name);
-  if (found === undefined) throw new Error(`${name} is not on the surface`);
+  if (found === undefined) {throw new Error(`${name} is not on the surface`);}
   return found;
 };
 
@@ -192,7 +192,7 @@ describe('act_and_wait and assert see the same evidence', () => {
   });
 
   it('both paths name what kept the page busy when nothing was left in flight', () => {
-    for (const file of [act, assert]) expect(file).toMatch(/repeated: repeatedRequestLabels\(/);
+    for (const file of [act, assert]) {expect(file).toMatch(/repeated: repeatedRequestLabels\(/);}
   });
 
   it('prior is documented as learning material, so nobody later attributes findings to it', () => {

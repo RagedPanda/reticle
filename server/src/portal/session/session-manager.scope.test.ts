@@ -22,7 +22,7 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
-  for (const ws of open.splice(0)) ws.close();
+  for (const ws of open.splice(0)) {ws.close();}
   await bridge.close();
 });
 

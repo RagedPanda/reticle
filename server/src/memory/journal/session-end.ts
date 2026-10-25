@@ -308,7 +308,7 @@ export async function recordDriveRun(
 ): Promise<void> {
   // Called through the object, not lifted into a local: a lifted method loses its `this`, and the
   // real Session's reader closes over the journal it was constructed with.
-  if (session.readJournalActions === undefined) return;
+  if (session.readJournalActions === undefined) {return;}
   const actions = await session.readJournalActions();
   const root = session.artifactRoot ?? deps.reticleRoot;
   const inputs = driveRunsFrom(actions, {
@@ -324,7 +324,7 @@ export async function recordDriveRun(
     ...(session.projectId === undefined ? {} : { projectId: session.projectId }),
     projectName: basename(dirname(root)),
   });
-  if (0 === inputs.length) return;
+  if (0 === inputs.length) {return;}
   // The protocol reaching the artifact a person actually reads. Only when the session could say
   // where it was: a subject with no locator is not a weaker subject, it is a guess, and the
   // schema makes the field optional so that absence can be told from invention.
@@ -365,7 +365,7 @@ export async function recordDriveRun(
 async function saveDrivenFlow(deps: SessionEndDeps, session: SessionEndTarget): Promise<void> {
   const takeTape = deps.takeAmbientTape;
   const flows = deps.flowsAt?.(session.artifactRoot ?? deps.reticleRoot) ?? deps.flows;
-  if (takeTape === undefined || flows === undefined) return;
+  if (takeTape === undefined || flows === undefined) {return;}
   // One flow per journey the session contained, not one flow per session — see drive-flow.ts.
   const { programs, outcome } = driveFlowsFrom(takeTape(session.id));
   const author = deps.author?.();
@@ -411,7 +411,7 @@ async function dropUndrivenJournal(
 ): Promise<void> {
   try {
     const actions = await fs.readFile(journalActionsPath(root, sessionId)).catch(() => '');
-    if (actions.trim().length > 0) return;
+    if (actions.trim().length > 0) {return;}
     await fs.rm(sessionDirPath(root, sessionId));
   } catch {
     // tidying is never the reason a teardown fails

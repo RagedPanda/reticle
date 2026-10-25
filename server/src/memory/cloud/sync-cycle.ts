@@ -328,7 +328,7 @@ function heldHashes(
   const out: Record<string, string> = {};
   for (const { runId } of runs) {
     const hash = recorded[runId];
-    if (hash !== undefined) out[runId] = hash;
+    if (hash !== undefined) {out[runId] = hash;}
   }
   return out;
 }
@@ -353,7 +353,7 @@ function batchRuns<T extends { payload: unknown }>(runs: readonly T[]): T[][] {
     current.push(run);
     bytes += size;
   }
-  if (current.length > 0) batches.push(current);
+  if (current.length > 0) {batches.push(current);}
   return batches;
 }
 
@@ -369,7 +369,7 @@ export const MOVE_HISTORY_COMMAND = 'reticle sync --move-history';
  */
 function stateForLink(deps: SyncDeps): CloudSyncState {
   const { state, link } = deps;
-  if (link === undefined) return state;
+  if (link === undefined) {return state;}
   if (state.link === undefined || state.link === link) {
     const { linkedAt, ...rest } = state;
     return true === deps.moveHistory || linkedAt === undefined
@@ -481,8 +481,8 @@ export async function runSyncCycle(given: SyncDeps): Promise<SyncReport> {
     // Same rule as every record read from disk: only a string can equal a hash we computed.
     const recorded: Record<string, string> = {};
     if (isRecord(deps.state.sentRunHashes))
-      for (const [id, hash] of Object.entries(deps.state.sentRunHashes))
-        if ('string' === typeof hash) recorded[id] = hash;
+      {for (const [id, hash] of Object.entries(deps.state.sentRunHashes))
+        {if ('string' === typeof hash) {recorded[id] = hash;}}}
     /*
      * Changed means no record, or a record that differs. No record has to count: a machine upgraded
      * onto this can hold runs the server has only in an older version, and a tab that has closed
@@ -492,14 +492,14 @@ export async function runSyncCycle(given: SyncDeps): Promise<SyncReport> {
     const delivered = (run: { runId: string; payload: unknown }): boolean =>
       known.has(run.runId) && recorded[run.runId] === hashPayload(run.payload);
     const unsent = allRuns.filter((run) => {
-      if (delivered(run)) return false;
+      if (delivered(run)) {return false;}
       const prior = priorRefusals[run.runId];
       const unchanged =
         prior !== undefined &&
         'string' === typeof prior.reason &&
         refusalHolds(prior, stamp) &&
         prior.payloadHash === hashPayload(run.payload);
-      if (!unchanged) return true;
+      if (!unchanged) {return true;}
       refusedRuns[run.runId] = prior;
       notRetried.push({ runId: run.runId, reason: prior.reason });
       return false;
@@ -510,14 +510,14 @@ export async function runSyncCycle(given: SyncDeps): Promise<SyncReport> {
       (run) => linkedAt !== undefined && !((numberAt(run.payload, 'createdAt') ?? 0) >= linkedAt),
     );
     if (0 < earlier.length)
-      heldBack.push(
+      {heldBack.push(
         `${String(earlier.length)} run${1 === earlier.length ? '' : 's'} made before this folder was linked to this workspace stay${1 === earlier.length ? 's' : ''} on this machine (recorded under its previous link): run \`${MOVE_HISTORY_COMMAND}\` to send ${1 === earlier.length ? 'it' : 'them'} here`,
-      );
+      );}
     const sendable = unsent.filter((run) => {
-      if (earlier.includes(run)) return false;
+      if (earlier.includes(run)) {return false;}
       const version = numberAt(run.payload, 'schemaVersion');
       if (runVersions === undefined || version === undefined || runVersions.includes(version))
-        return true;
+        {return true;}
       heldBack.push(
         `this platform reads run versions ${runVersions.join(', ')}; run ${run.runId} is version ${String(version)} — ${RUN_VERSION_FIX}`,
       );
@@ -533,7 +533,7 @@ export async function runSyncCycle(given: SyncDeps): Promise<SyncReport> {
     const derivedHeld: DerivedKind[] = [];
     for (const { kind } of DERIVED_RECORDS) {
       const payload = deps.source.derived(kind);
-      if (payload === undefined) continue;
+      if (payload === undefined) {continue;}
       if (linkedAt !== undefined) {
         derivedHeld.push(kind);
         continue;
@@ -545,18 +545,18 @@ export async function runSyncCycle(given: SyncDeps): Promise<SyncReport> {
       // The one comparison the whole protocol rests on. Same hash, do not send it: the platform's,
       // or the one it accepted from here while it still holds the record (a null means it does not).
       const hash = hashPayload(payload);
-      if (hash === hashes[kind]) continue;
+      if (hash === hashes[kind]) {continue;}
       if ('string' === typeof hashes[kind] && hash === deps.state.sentDerivedHashes?.[kind])
-        continue;
+        {continue;}
       bundle[kind] = payload;
       derivedOffered.push(kind);
     }
     if (unsupported.length > 0)
-      heldBack.push(`this platform does not accept ${unsupported.join(', ')} yet`);
+      {heldBack.push(`this platform does not accept ${unsupported.join(', ')} yet`);}
     if (0 < derivedHeld.length)
-      heldBack.push(
+      {heldBack.push(
         `the ${derivedHeld.join(', ')} record${1 === derivedHeld.length ? '' : 's'} made under this folder's previous link stay${1 === derivedHeld.length ? 's' : ''} on this machine: run \`${MOVE_HISTORY_COMMAND}\` to send ${1 === derivedHeld.length ? 'it' : 'them'} here`,
-      );
+      );}
     // Flows and capsules are upserted by name/id, so the whole set goes whenever it differs from the
     // set the platform last answered for — and only then. Riding along with every run push re-sent
     // ~1.3 MB per push on a real repo, and a POST that size timed out and failed the run with it.
@@ -569,14 +569,14 @@ export async function runSyncCycle(given: SyncDeps): Promise<SyncReport> {
       linkedAt !== undefined && !((numberAt(flow, 'createdAt') ?? 0) >= linkedAt);
     const flowsBefore = flowsAll.filter(madeBefore);
     if (0 < flowsBefore.length)
-      heldBack.push(
+      {heldBack.push(
         `${String(flowsBefore.length)} flow${1 === flowsBefore.length ? '' : 's'} made before this folder was linked to this workspace stay${1 === flowsBefore.length ? 's' : ''} on this machine: run \`${MOVE_HISTORY_COMMAND}\` to send ${1 === flowsBefore.length ? 'it' : 'them'} here`,
-      );
+      );}
     const flows = flowsAll.filter((flow, index) => {
-      if (madeBefore(flow)) return false;
+      if (madeBefore(flow)) {return false;}
       const version = numberAt(flow, 'version');
       if (flowVersions === undefined || version === undefined || flowVersions.includes(version))
-        return true;
+        {return true;}
       heldBack.push(
         `this platform reads flow versions ${flowVersions.join(', ')}; ${flowName(flow, index)} is version ${String(version)} — ${FLOW_VERSION_FIX}`,
       );
@@ -588,9 +588,9 @@ export async function runSyncCycle(given: SyncDeps): Promise<SyncReport> {
     const priorFlowHashes: Record<string, string> = {};
     if (isRecord(deps.state.sentFlowHashes)) {
       for (const [name, hash] of Object.entries(deps.state.sentFlowHashes))
-        if ('string' === typeof hash) priorFlowHashes[name] = hash;
+        {if ('string' === typeof hash) {priorFlowHashes[name] = hash;}}
     } else if (deps.state.sentFlowsHash === hashPayload(flows))
-      for (const { flow, name } of named) priorFlowHashes[name] = hashPayload(flow);
+      {for (const { flow, name } of named) {priorFlowHashes[name] = hashPayload(flow);}}
     // Only the flows that changed since the platform last took them; the platform upserts by name.
     const pendingFlows = named.filter(
       ({ flow, name }) => priorFlowHashes[name] !== hashPayload(flow),
@@ -607,10 +607,10 @@ export async function runSyncCycle(given: SyncDeps): Promise<SyncReport> {
       size: number,
       sentHash: string | undefined,
     ): boolean => {
-      if (0 === size) return false;
+      if (0 === size) {return false;}
       const prior = priorSets[part];
       if (prior !== undefined && prior.hash === hash) {
-        if (!refusalHolds(prior, stamp)) return true;
+        if (!refusalHolds(prior, stamp)) {return true;}
         refusedSets[part] = prior;
         setsNotRetried.push({ part, count: prior.count, reason: prior.reason });
         return false;
@@ -636,12 +636,12 @@ export async function runSyncCycle(given: SyncDeps): Promise<SyncReport> {
     const flowHashes: Record<string, string> = {};
     for (const { name } of named) {
       const hash = priorFlowHashes[name];
-      if (hash !== undefined) flowHashes[name] = hash;
+      if (hash !== undefined) {flowHashes[name] = hash;}
       const v = priorVersions[name];
-      if (v !== undefined) taken[name] = v;
+      if (v !== undefined) {taken[name] = v;}
     }
     const capsules = capsulesChanged ? capsulesAll : [];
-    if (capsules.length > 0) bundle['capsules'] = capsules;
+    if (capsules.length > 0) {bundle['capsules'] = capsules;}
 
     let runsSent = 0;
     let flowsSent = 0;
@@ -661,7 +661,7 @@ export async function runSyncCycle(given: SyncDeps): Promise<SyncReport> {
     for (let i = 0; i < requests; i += 1) {
       const batch = batches[i] ?? [];
       const body: Record<string, unknown> = 0 === i ? { ...bundle } : {};
-      if (batch.length > 0) body['runs'] = batch.map((r) => r.payload);
+      if (batch.length > 0) {body['runs'] = batch.map((r) => r.payload);}
       // The flows ride here too: a default flag stays out of them, as on disk.
       const pushed = await call(SYNC_PATH, {
         method: 'POST',
@@ -689,13 +689,13 @@ export async function runSyncCycle(given: SyncDeps): Promise<SyncReport> {
         if (reason === undefined) {
           known.add(run.runId);
           recorded[run.runId] = hashPayload(run.payload);
-        } else refusedRuns[run.runId] = { reason, payloadHash: hashPayload(run.payload), ...stamp };
+        } else {refusedRuns[run.runId] = { reason, payloadHash: hashPayload(run.payload), ...stamp };}
       });
       runsRejected.push(
         ...runs.rejected.map((r) => ({ index: r.index + offset, reason: r.reason })),
       );
       offset += batch.length;
-      if (0 !== i) continue;
+      if (0 !== i) {continue;}
       // Absent means the server said nothing about a part — an older one that does not know the
       // field. Read as zero accepted, never as an error: an added field must not break a sync.
       const flowsPart = partResult(answer, 'flows');
@@ -705,19 +705,19 @@ export async function runSyncCycle(given: SyncDeps): Promise<SyncReport> {
       const refusedFlows = new Set(flowsPart.rejected.map((r) => r.index));
       const answered = isRecord(answer['flows']) ? answer['flows']['versions'] : undefined;
       if (flowsChanged)
-        pendingFlows.forEach(({ flow, name }, index) => {
-          if (refusedFlows.has(index)) return;
+        {pendingFlows.forEach(({ flow, name }, index) => {
+          if (refusedFlows.has(index)) {return;}
           flowHashes[name] = hashPayload(flow);
           const v = isRecord(answered) ? answered[name] : undefined;
-          if ('string' === typeof v) taken[name] = v;
-        });
+          if ('string' === typeof v) {taken[name] = v;}
+        });}
       // Another machine saved over the version this edit was based on: keep both, take theirs.
       flowsPart.rejected = flowsPart.rejected.filter((r) => {
         const name = pendingFlows[r.index]?.name;
         const theirs = conflictOf(r);
-        if (name === undefined || theirs === undefined) return true;
+        if (name === undefined || theirs === undefined) {return true;}
         const copy = deps.sink.resolveFlowConflict?.(name, theirs.flow);
-        if (copy === undefined) return true;
+        if (copy === undefined) {return true;}
         conflictCopies.push(copy);
         flowHashes[name] = hashPayload(theirs.flow);
         taken[name] = theirs.version;
@@ -734,23 +734,23 @@ export async function runSyncCycle(given: SyncDeps): Promise<SyncReport> {
         });
       }
       for (const r of capsulesPart.rejected)
-        refused.push({ part: 'capsule', reason: `capsule #${String(r.index)}: ${r.reason}` });
+        {refused.push({ part: 'capsule', reason: `capsule #${String(r.index)}: ${r.reason}` });}
       const firstOf = (part: SetPart): string =>
         refused.find((r) => r.part === part)?.reason ?? 'no reason given';
       if (flowsPart.rejected.length > 0)
-        refusedSets.flow = {
+        {refusedSets.flow = {
           hash: flowsHash,
           ...stamp,
           count: flowsPart.rejected.length,
           reason: firstOf('flow'),
-        };
+        };}
       if (capsulesPart.rejected.length > 0)
-        refusedSets.capsule = {
+        {refusedSets.capsule = {
           hash: capsulesHash,
           ...stamp,
           count: capsulesPart.rejected.length,
           reason: firstOf('capsule'),
-        };
+        };}
       // `state` has a key per record sent: "accepted", or the message that refused it.
       const state = isRecord(answer['state']) ? answer['state'] : {};
       for (const kind of derivedOffered) {
@@ -762,7 +762,7 @@ export async function runSyncCycle(given: SyncDeps): Promise<SyncReport> {
             [kind]: hashPayload(bundle[kind]),
           };
         } else if ('string' === typeof verdict)
-          refused.push({ part: kind, reason: `${kind}: ${verdict}` });
+          {refused.push({ part: kind, reason: `${kind}: ${verdict}` });}
       }
     }
     // A flow the platform took from here and that is gone from disk is deleted there by name: it
@@ -778,9 +778,9 @@ export async function runSyncCycle(given: SyncDeps): Promise<SyncReport> {
         `${FLOWS_PATH}/${encodeURIComponent(name)}?projectId=${encodeURIComponent(deps.projectId ?? '')}`,
         { method: 'DELETE' },
       );
-      if (2 !== Math.floor(gone.status / 100) && 404 !== gone.status) kept.push(name);
+      if (2 !== Math.floor(gone.status / 100) && 404 !== gone.status) {kept.push(name);}
     }
-    if (deps.projectId !== undefined) nextState.sentFlowNames = kept;
+    if (deps.projectId !== undefined) {nextState.sentFlowNames = kept;}
     // Every cycle, so a flow gone from here is forgotten too: saved again, it goes again.
     nextState.sentFlowHashes = flowHashes;
     nextState.flowVersions = taken;
@@ -796,8 +796,8 @@ export async function runSyncCycle(given: SyncDeps): Promise<SyncReport> {
       // The platform answered for these sets, refusals included (reported above, and not re-offered
       // until the set changes — the same rule as a refused run).
       if (flowsChanged && deps.projectId !== undefined)
-        nextState.sentFlowNames = [...new Set([...kept, ...flows.map(flowName)])];
-      if (capsules.length > 0) nextState.sentCapsulesHash = capsulesHash;
+        {nextState.sentFlowNames = [...new Set([...kept, ...flows.map(flowName)])];}
+      if (capsules.length > 0) {nextState.sentCapsulesHash = capsulesHash;}
     }
     nextState.refusedRuns = refusedRuns;
     nextState.refusedSets = refusedSets;
@@ -840,7 +840,7 @@ export async function runSyncCycle(given: SyncDeps): Promise<SyncReport> {
       });
       screenshotsSent = shots.sent;
       Object.assign(nextState, shots.state);
-      if (shots.error !== undefined) heldBack.push(shots.error);
+      if (shots.error !== undefined) {heldBack.push(shots.error);}
     }
 
     // 3. COLLECT — always, even when there was nothing to send.
@@ -882,7 +882,7 @@ export async function runSyncCycle(given: SyncDeps): Promise<SyncReport> {
       deps.sink.writeIssues({ triage });
     }
     // The cursor is written even on an empty page: it is the server's, and it never goes backwards.
-    if ('string' === typeof pulled.cursor) nextState.cursor = pulled.cursor;
+    if ('string' === typeof pulled.cursor) {nextState.cursor = pulled.cursor;}
     nextState.lastPullAt = deps.now();
 
     const report: SyncReport = {
@@ -920,8 +920,8 @@ export async function runSyncCycle(given: SyncDeps): Promise<SyncReport> {
      * A refusal is kept as the last error rather than cleared by a completed exchange: it is what
      * `reticle whoami` shows, and "the transfer worked" is not "the dashboard has it".
      */
-    if (report.ok) delete nextState.lastError;
-    else nextState.lastError = problemsOf(report).join('; ');
+    if (report.ok) {delete nextState.lastError;}
+    else {nextState.lastError = problemsOf(report).join('; ');}
     deps.sink.writeState(nextState);
     return report;
   } catch (error: unknown) {

@@ -10,7 +10,7 @@ async function listenOn(host: string): Promise<{ port: number; close: () => Prom
     server.listen(0, host, resolve);
   });
   const addr = server.address();
-  if (null === addr || 'string' === typeof addr) throw new Error('no port');
+  if (null === addr || 'string' === typeof addr) {throw new Error('no port');}
   return {
     port: addr.port,
     close: () =>

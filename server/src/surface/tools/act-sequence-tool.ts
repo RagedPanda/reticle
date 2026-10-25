@@ -244,7 +244,7 @@ export const ACT_SEQUENCE_TOOL: ToolDef = {
   handler: async (deps, args) => {
     const session = deps.sessions.resolve(sessionIdFromArgs(args));
     const paused = pausedShortCircuit(session);
-    if (paused !== undefined) return paused;
+    if (paused !== undefined) {return paused;}
     const since = session.elapsed();
     const pageBefore = pathOf(session.url);
     session.beginAction(ReticleTool.ACT_SEQUENCE, asRecord(args));
@@ -294,7 +294,7 @@ export const ACT_SEQUENCE_TOOL: ToolDef = {
           const outcome = await runStepWithStaleRetry(
             async () => {
               const resolved = await resolveActTarget(session, step, perStepTimeout);
-              if ('error' === resolved.kind) return { ok: false, error: resolved.message };
+              if ('error' === resolved.kind) {return { ok: false, error: resolved.message };}
               // In burst mode every step carries a zero settle budget, so step N+1 is dispatched
               // while step N is still in flight. That overlap IS the test — see `burst` above.
               return actCommand(
@@ -334,7 +334,7 @@ export const ACT_SEQUENCE_TOOL: ToolDef = {
           if (burstGapMs !== undefined && i < inputSteps.length - 1) {
             const elapsed = session.elapsed() - stepSince;
             const remaining = burstGapMs - elapsed;
-            if (remaining > 0) await new Promise((r) => setTimeout(r, remaining));
+            if (remaining > 0) {await new Promise((r) => setTimeout(r, remaining));}
           }
           if (!outcome.ok) {
             stalledAt = i;
@@ -450,7 +450,7 @@ export const ACT_SEQUENCE_TOOL: ToolDef = {
             });
             if (!held) {
               stoppedAt ??= i;
-              if (DeviationMode.HALT === onDeviation) break;
+              if (DeviationMode.HALT === onDeviation) {break;}
             }
           }
         } catch (err: unknown) {
@@ -506,7 +506,7 @@ export const ACT_SEQUENCE_TOOL: ToolDef = {
             { count: completed, steps: stepResults.slice(0, completed) },
           );
           // The journey sent a write request: saved `writes`, so a replay does not repeat it unasked.
-          if (wroteSince(session, since)) step.writes = true;
+          if (wroteSince(session, since)) {step.writes = true;}
           return step;
         };
         const recorded = compiled(proved);
@@ -516,7 +516,7 @@ export const ACT_SEQUENCE_TOOL: ToolDef = {
         // Every step was on Reticle's own panel: nothing of the app's journey to record.
         const onApp = asRecord(recorded.args)['steps'];
         if (Array.isArray(onApp) && 0 < onApp.length)
-          deps.recordings.capture(onPage(compiled(ran)), undefined, session.id, onPage(recorded));
+          {deps.recordings.capture(onPage(compiled(ran)), undefined, session.id, onPage(recorded));}
         deps.recordings.markEnded(pathOf(session.url), session.id);
       }
       /*

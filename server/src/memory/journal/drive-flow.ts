@@ -186,7 +186,7 @@ function segmentsByRoute(steps: readonly TapeStep[]): { route?: string; steps: T
  */
 function typesASecret(step: TapeStep): boolean {
   const action = step.args['action'];
-  if (ActionType.FILL !== action && ActionType.TYPE !== action) return false;
+  if (ActionType.FILL !== action && ActionType.TYPE !== action) {return false;}
   const by = step.args['by'];
   const field = QueryBy.TESTID === by ? step.args['value'] : step.args['name'];
   return 'string' === typeof field && defaultIsSensitiveKey(field);
@@ -201,10 +201,10 @@ function typesASecret(step: TapeStep): boolean {
 function withoutRetries(steps: readonly TapeStep[]): TapeStep[] {
   return steps.filter((step, i) => {
     const next = steps[i + 1];
-    if (next === undefined || step.expect !== undefined || next.expect === undefined) return true;
+    if (next === undefined || step.expect !== undefined || next.expect === undefined) {return true;}
     // Tried again where it was tried: a page later it is a step of the journey, not a retry.
     if (step.route !== next.route || step.page !== next.page || step.mocked !== next.mocked)
-      return true;
+      {return true;}
     const { expect: _declared, ...again } = next.args;
     const { expect: _none, ...first } = step.args;
     return step.tool !== next.tool || JSON.stringify(first) !== JSON.stringify(again);
@@ -215,7 +215,7 @@ function withoutRetries(steps: readonly TapeStep[]): TapeStep[] {
 export function driveFlowsFrom(
   tape: { steps: readonly TapeStep[]; startPath?: string } | undefined,
 ): { programs: DriveProgram[]; outcome: DriveFlowOutcome } {
-  if (tape === undefined || 0 === tape.steps.length) return { programs: [], outcome: {} };
+  if (tape === undefined || 0 === tape.steps.length) {return { programs: [], outcome: {} };}
   const programs: DriveProgram[] = [];
   let unproven = 0;
   let mocked = 0;

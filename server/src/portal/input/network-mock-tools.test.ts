@@ -11,7 +11,7 @@ import { RecordingStore } from '@/language/flows/recording/tape/recordings.js';
 
 function tool() {
   const t = NETWORK_MOCK_TOOLS.find((x) => x.name === ReticleTool.NETWORK_MOCK);
-  if (t === undefined) throw new Error('no reticle_network_mock tool');
+  if (t === undefined) {throw new Error('no reticle_network_mock tool');}
   return t;
 }
 
@@ -155,7 +155,7 @@ describe('the mocks description names the rule shape (#345)', () => {
   function advertisedFields(description: string): string[] {
     const shape = /\{([^}]*)\}/.exec(description);
     const inner = shape?.[1];
-    if (undefined === inner) return [];
+    if (undefined === inner) {return [];}
     return inner
       .split(',')
       .map((f) => f.trim().replace(/\?$/, ''))
@@ -164,7 +164,7 @@ describe('the mocks description names the rule shape (#345)', () => {
 
   function mocksSchema(): z.ZodTypeAny {
     const schema = tool().inputSchema['mocks'];
-    if (undefined === schema) throw new Error('no mocks param');
+    if (undefined === schema) {throw new Error('no mocks param');}
     return schema;
   }
 
@@ -176,11 +176,11 @@ describe('the mocks description names the rule shape (#345)', () => {
   function ruleFields(): string[] {
     const mocks = mocksSchema();
     const array: unknown = mocks instanceof z.ZodOptional ? mocks.unwrap() : mocks;
-    if (!(array instanceof z.ZodArray)) throw new Error('mocks is no longer an array schema');
+    if (!(array instanceof z.ZodArray)) {throw new Error('mocks is no longer an array schema');}
     const element: unknown = array.element;
-    if (!(element instanceof z.ZodObject)) throw new Error('mocks elements are no longer objects');
+    if (!(element instanceof z.ZodObject)) {throw new Error('mocks elements are no longer objects');}
     const shape: unknown = element.shape;
-    if (null === shape || 'object' !== typeof shape) throw new Error('rule schema has no shape');
+    if (null === shape || 'object' !== typeof shape) {throw new Error('rule schema has no shape');}
     return Object.keys(shape);
   }
 

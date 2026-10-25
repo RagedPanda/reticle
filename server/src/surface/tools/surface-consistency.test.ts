@@ -67,10 +67,10 @@ describe('every tool speaks the whole synonym group, not half of it', () => {
     it(`{ ${group.names.join(' | ')} } is accepted wherever any of it is`, () => {
       const offenders: string[] = [];
       for (const tool of TOOLS) {
-        if (group.except?.[tool.name] !== undefined) continue;
+        if (group.except?.[tool.name] !== undefined) {continue;}
         const keys = new Set(Object.keys(tool.inputSchema));
         const present = group.names.filter((name) => keys.has(name));
-        if (0 === present.length) continue;
+        if (0 === present.length) {continue;}
         const missing = group.names.filter((name) => !keys.has(name));
         if (missing.length > 0) {
           offenders.push(

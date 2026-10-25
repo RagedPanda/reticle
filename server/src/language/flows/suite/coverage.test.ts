@@ -107,7 +107,7 @@ describe('setup advice names only tools on the default surface', () => {
     for (const text of literalsOf(path)) {
       for (const match of text.matchAll(TOOL)) {
         const before = text.slice(0, match.index);
-        if (!callable.has(match[0]) && !HATCHED.test(before)) unreachable.push(match[0]);
+        if (!callable.has(match[0]) && !HATCHED.test(before)) {unreachable.push(match[0]);}
       }
     }
     expect(unreachable, 'named bare, but not on the default surface').toEqual([]);

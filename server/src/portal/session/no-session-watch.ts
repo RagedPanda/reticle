@@ -202,7 +202,7 @@ export function startNoSessionWatch(options: NoSessionWatchOptions): () => void 
    */
   const projectScopeFacts = (): ProjectScopeFacts => {
     const initialized = isWired();
-    if (initialized) return { initialized };
+    if (initialized) {return { initialized };}
     const discovery = discoverProjectConfigs(directory);
     const elsewhere = discovery.found.filter((config) => config.directory !== directory);
     if (elsewhere.length > 0) {
@@ -312,17 +312,17 @@ export function startNoSessionWatch(options: NoSessionWatchOptions): () => void 
    */
   const scanPorts = (): readonly number[] => {
     const ports = new Set<number>(DEV_SERVER_PORTS);
-    for (const port of ownDevServerPorts()) ports.add(port);
+    for (const port of ownDevServerPorts()) {ports.add(port);}
     const pinned = detectDevCommandInProject(directory)?.port;
-    if (pinned !== undefined) ports.add(pinned);
+    if (pinned !== undefined) {ports.add(pinned);}
     const known = options.sessions.lastKnown?.();
     const knownPort = known === undefined ? undefined : portOfUrl(known.url);
-    if (knownPort !== undefined) ports.add(knownPort);
+    if (knownPort !== undefined) {ports.add(knownPort);}
     // Every departed project, not only the newest. B can still be serving on :3005 after A leaves
     // on :5173, and a scan that never asked :3005 would report B's app as stopped.
     for (const url of options.sessions.tombstoneUrls?.() ?? []) {
       const port = portOfUrl(url);
-      if (port !== undefined) ports.add(port);
+      if (port !== undefined) {ports.add(port);}
     }
     return [...ports];
   };
@@ -333,7 +333,7 @@ export function startNoSessionWatch(options: NoSessionWatchOptions): () => void 
    * browser is worse than the sentence the diagnosis already writes about the ports it saw.
    */
   const attributable = (port: number): boolean => {
-    if (ownDevServerPorts().includes(port)) return true;
+    if (ownDevServerPorts().includes(port)) {return true;}
     const known = options.sessions.lastKnown?.();
     const projectId = readProjectId(directory);
     if (known === undefined || projectId === undefined || known.projectId !== projectId) {
@@ -348,12 +348,12 @@ export function startNoSessionWatch(options: NoSessionWatchOptions): () => void 
 
   const autoAttach = async (ports: readonly number[]): Promise<void> => {
     const attach = options.attach;
-    if (attach === undefined) return;
-    if (1 !== ports.length) return;
+    if (attach === undefined) {return;}
+    if (1 !== ports.length) {return;}
     const [only] = ports;
-    if (only === undefined || attempted.has(only)) return;
-    if (!isWired()) return;
-    if (!attributable(only)) return;
+    if (only === undefined || attempted.has(only)) {return;}
+    if (!isWired()) {return;}
+    if (!attributable(only)) {return;}
     attempted.add(only);
     try {
       await attach(`${LOCALHOST}:${String(only)}`);
@@ -368,8 +368,8 @@ export function startNoSessionWatch(options: NoSessionWatchOptions): () => void 
   const refresh = (): void => {
     // Nothing to diagnose while a session is live, and no reason to scan. What the last scan saw
     // predates this session, so it is no observation of where the session goes on to depart from.
-    if (options.sessions.count() > 0) probed = new Set();
-    if (running || options.sessions.count() > 0) return;
+    if (options.sessions.count() > 0) {probed = new Set();}
+    if (running || options.sessions.count() > 0) {return;}
     running = true;
     const candidates = scanPorts();
     void (
@@ -394,7 +394,7 @@ export function startNoSessionWatch(options: NoSessionWatchOptions): () => void 
         const known = options.sessions.lastKnown?.();
         if (known !== undefined && lastKnownStatus?.url !== known.url) {
           const status = await routeStatus(known.url);
-          if (status !== undefined) lastKnownStatus = { url: known.url, status };
+          if (status !== undefined) {lastKnownStatus = { url: known.url, status };}
         }
         await autoAttach(ports);
       })
@@ -441,8 +441,8 @@ export function startNoSessionWatch(options: NoSessionWatchOptions): () => void 
    */
   const currentHelloRefusal = (): NoSessionFacts['helloRefused'] => {
     const closure = options.sessions.lastClosure?.();
-    if (closure?.page === undefined || isAuthRefusalReason(closure.reason)) return undefined;
-    if (true === options.sessions.connectedSinceLastClosure?.()) return undefined;
+    if (closure?.page === undefined || isAuthRefusalReason(closure.reason)) {return undefined;}
+    if (true === options.sessions.connectedSinceLastClosure?.()) {return undefined;}
     return { reason: closure.reason, ...closure.page };
   };
 
@@ -476,13 +476,13 @@ export function startNoSessionWatch(options: NoSessionWatchOptions): () => void 
     );
     if (known !== undefined) {
       const port = portOfUrl(known.url);
-      if (port !== undefined) ownPorts.add(port);
+      if (port !== undefined) {ownPorts.add(port);}
     }
     const heard = listening.filter((port) => ownPorts.has(port));
     // Not in the last scan means we have not looked, not that the server stopped. Treating the
     // gap as "down" is what tells a still-running app to start a second one.
     for (const port of ownPorts) {
-      if (!probed.has(port) && !heard.includes(port)) heard.push(port);
+      if (!probed.has(port) && !heard.includes(port)) {heard.push(port);}
     }
     const slow = slowListeners.filter((port) => ownPorts.has(port));
     const closure = options.sessions.lastClosure?.();
@@ -578,7 +578,7 @@ export function startNoSessionWatch(options: NoSessionWatchOptions): () => void 
    */
   const callerAnswer = (): { facts: NoSessionFacts; next: NoSessionNextAction } | undefined => {
     const caller = callingClientDirectory();
-    if (caller === undefined) return undefined;
+    if (caller === undefined) {return undefined;}
     return diagnosisFor(caller);
   };
 
@@ -617,7 +617,7 @@ export function startNoSessionWatch(options: NoSessionWatchOptions): () => void 
       // command and the sentence beside it name the same page.
       ...(() => {
         const known = options.sessions.lastKnown?.();
-        if (known === undefined) return {};
+        if (known === undefined) {return {};}
         return {
           lastKnownUrl: known.url,
           ...(known.departedTo === undefined ? {} : { departedTo: known.departedTo }),
@@ -641,7 +641,7 @@ export function startNoSessionWatch(options: NoSessionWatchOptions): () => void 
   // calls a moment apart can genuinely disagree (#615).
   const explain = (): { reason: NoSessionReason; message: string; detail?: string } => {
     const caller = callerAnswer();
-    if (caller !== undefined) return explainNoSession(caller.facts);
+    if (caller !== undefined) {return explainNoSession(caller.facts);}
     const scope = projectScopeFacts();
     return explainNoSession({
       everConnected: options.sessions.everConnected(),
@@ -691,7 +691,7 @@ export function startNoSessionWatch(options: NoSessionWatchOptions): () => void 
       // has none to name.
       ...(() => {
         const known = options.sessions.lastKnown?.();
-        if (undefined === known) return {};
+        if (undefined === known) {return {};}
         // The status rides only when it was fetched for THIS url. A departure since the fetch
         // means the cached answer is about a route nobody is asking about.
         const status =
@@ -773,7 +773,7 @@ export function wireSessionScope(
   /** Opens a URL in a Reticle-owned browser (the pool). Omitted ⇒ auto-attach is off. */
   attach?: (url: string) => Promise<unknown>,
 ): () => void {
-  if (activeProjectId !== undefined) sessions.setDefaultScope({ projectId: activeProjectId });
+  if (activeProjectId !== undefined) {sessions.setDefaultScope({ projectId: activeProjectId });}
   return startNoSessionWatch({
     sessions,
     port,

@@ -97,7 +97,7 @@ const HELP_FLAGS: ReadonlySet<string> = new Set(['--help', '-h']);
  */
 export function renamedCommandFor(argv: readonly string[]): string | undefined {
   const name = argv[0];
-  if (name === undefined || argv.some((arg) => HELP_FLAGS.has(arg))) return undefined;
+  if (name === undefined || argv.some((arg) => HELP_FLAGS.has(arg))) {return undefined;}
   return RENAMED_COMMANDS.get(name);
 }
 

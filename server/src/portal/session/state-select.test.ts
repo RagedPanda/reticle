@@ -66,7 +66,7 @@ function fakeDeps(stateResult: unknown): ToolDeps {
 
 function stateTool() {
   const tool = TOOLS.find((t) => t.name === ReticleTool.STATE);
-  if (tool === undefined) throw new Error('no reticle_state tool');
+  if (tool === undefined) {throw new Error('no reticle_state tool');}
   return tool;
 }
 

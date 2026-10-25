@@ -30,7 +30,7 @@ export const PAIRING_TOKEN_DIR_ENV = ReticleEnv.PAIRING_TOKEN_DIR;
 /** The default directory that holds the token — the per-user ~/.reticle so it's shared across projects. */
 export function defaultPairingTokenDir(): string {
   const override = process.env[PAIRING_TOKEN_DIR_ENV];
-  if (override !== undefined && override.length > 0) return override;
+  if (override !== undefined && override.length > 0) {return override;}
   return join(homedir(), ReticleDir.ROOT);
 }
 
@@ -53,11 +53,11 @@ export function pairingTokenSource(input: {
 }): 'explicit' | 'env:RETICLE_TOKEN' | 'env:RETICLE_PAIRING_TOKEN_DIR' | 'default' {
   // Same precedence the resolver applies, deliberately: a source that did not decide the value is a
   // misdirection, and this exists to stop one.
-  if (input.explicit) return 'explicit';
+  if (input.explicit) {return 'explicit';}
   const token = input.env[ReticleEnv.TOKEN];
-  if (token !== undefined && 0 < token.length) return `env:${ReticleEnv.TOKEN}`;
+  if (token !== undefined && 0 < token.length) {return `env:${ReticleEnv.TOKEN}`;}
   const dir = input.env[PAIRING_TOKEN_DIR_ENV];
-  if (dir !== undefined && 0 < dir.length) return `env:${PAIRING_TOKEN_DIR_ENV}`;
+  if (dir !== undefined && 0 < dir.length) {return `env:${PAIRING_TOKEN_DIR_ENV}`;}
   return 'default';
 }
 
@@ -74,9 +74,9 @@ export async function configuredPairingToken(
   deps: PairingTokenDeps,
 ): Promise<string | undefined> {
   const token = env[ReticleEnv.TOKEN]?.trim();
-  if (token !== undefined && 0 < token.length) return token;
+  if (token !== undefined && 0 < token.length) {return token;}
   const dir = env[PAIRING_TOKEN_DIR_ENV];
-  if (dir === undefined || 0 === dir.length) return undefined;
+  if (dir === undefined || 0 === dir.length) {return undefined;}
   return readOrCreatePairingToken(dir, deps);
 }
 
@@ -112,13 +112,13 @@ export async function readOrCreatePairingToken(
   const path = pairingTokenPath(dir);
   try {
     const existing = (await deps.readFile(path)).trim();
-    if (existing.length > 0) return existing;
+    if (existing.length > 0) {return existing;}
   } catch {
     // Missing/unreadable — fall through to create one.
   }
   try {
     const token = deps.randomToken().trim();
-    if (0 === token.length) return undefined;
+    if (0 === token.length) {return undefined;}
     await deps.mkdir(dir);
     await deps.writeFile(path, token);
     return token;
@@ -135,13 +135,13 @@ export function readOrCreatePairingTokenSync(dir: string): string | undefined {
   const path = pairingTokenPath(dir);
   try {
     const existing = readFileSync(path, 'utf8').trim();
-    if (existing.length > 0) return existing;
+    if (existing.length > 0) {return existing;}
   } catch {
     /* missing or unreadable — fall through and create one */
   }
   try {
     const token = randomBytes(TOKEN_BYTES).toString('hex');
-    if (0 === token.length) return undefined;
+    if (0 === token.length) {return undefined;}
     mkdirSync(dir, { recursive: true, mode: 0o700 });
     writeFileSync(path, token, { encoding: 'utf8', mode: 0o600 });
     chmodSync(path, 0o600);

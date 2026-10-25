@@ -45,7 +45,7 @@ export function siblingListenerNote(
   boundPort: number,
   occupiedSiblings: readonly number[],
 ): string | undefined {
-  if (0 === occupiedSiblings.length) return undefined;
+  if (0 === occupiedSiblings.length) {return undefined;}
   const listed = occupiedSiblings.map((port) => `:${String(port)}`).join(', ');
   return (
     `something is listening on ${listed}, which this daemon is not` +
@@ -65,7 +65,7 @@ export async function findOccupiedSiblings(
 ): Promise<readonly number[]> {
   const occupied: number[] = [];
   for (const port of siblingPorts(boundPort)) {
-    if (await isListening(port)) occupied.push(port);
+    if (await isListening(port)) {occupied.push(port);}
   }
   return occupied;
 }

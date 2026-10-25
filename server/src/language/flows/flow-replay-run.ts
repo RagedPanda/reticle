@@ -81,9 +81,9 @@ export function latestRecordedFlow(
 ): { name: string; flow: import('@reticlehq/core').FlowFile } | undefined {
   for (let i = events.length - 1; i >= 0; i--) {
     const event = events[i];
-    if (event?.type !== EventType.FLOW_RECORDED) continue;
+    if (event?.type !== EventType.FLOW_RECORDED) {continue;}
     const parsed = RecordedFlowSchema.safeParse(event.data);
-    if (parsed.success) return { name: parsed.data.name, flow: parsed.data.flow };
+    if (parsed.success) {return { name: parsed.data.name, flow: parsed.data.flow };}
   }
   return undefined;
 }
@@ -134,7 +134,7 @@ async function recordReplayRun(
   // it was worse here: a replay outcome that should have reached the dashboard silently did not,
   // because the daemon's own directory has no link file.
   const cloud = await resolveProjectCloud(deps.fs, recordRoot, homedir(), process.env);
-  if (null === cloud.config || !cloud.policy.memory) return; // not attached / memory disabled → local only
+  if (null === cloud.config || !cloud.policy.memory) {return;} // not attached / memory disabled → local only
   const result = await syncRunRecordToCloud(
     { kind: RunKind.FLOW_REPLAY, name, status: runStatus, at: deps.now(), durationMs },
     projectId,
@@ -175,8 +175,8 @@ function currentPathOf(session: StartPathSession): string | undefined {
   // carry it, which keeps a real difference visible and stops the false one.
   // Reticle's own params dropped, as the recording drops them from `startPath` (#1411).
   const observed = last === undefined ? undefined : routeOfEvent(last);
-  if (observed !== undefined) return navigablePath(observed);
-  if (session.url === undefined) return undefined;
+  if (observed !== undefined) {return navigablePath(observed);}
+  if (session.url === undefined) {return undefined;}
   const fromUrl = routeOfUrl(session.url);
   return fromUrl === undefined ? undefined : navigablePath(fromUrl);
 }
@@ -199,11 +199,11 @@ async function consultProjectMemory(
   root: string,
 ): Promise<ConsultedMemory[] | undefined> {
   const subject = consultSubjectFor(flow);
-  if (subject === undefined) return undefined;
+  if (subject === undefined) {return undefined;}
   try {
     // The APP's root, not the daemon's (wherever it was launched): its link file is this project's.
     const cloud = await resolveProjectCloud(deps.fs, root, homedir(), process.env);
-    if (null === cloud.config || !cloud.policy.memory) return undefined;
+    if (null === cloud.config || !cloud.policy.memory) {return undefined;}
     // Scoped to the linked project. The key covers a whole workspace, so a read that named no
     // project could be answered with ANOTHER repo's knowledge and this replay would carry it into a
     // verdict as if it were this app's — see `memory-scope.ts` for the whole shape.
@@ -220,11 +220,11 @@ async function consultProjectMemory(
         return 200 === res.status ? await res.json() : undefined;
       },
     );
-    if (body === undefined) return undefined;
+    if (body === undefined) {return undefined;}
     // `undefined`: the response could not be shown to be this project's, so nothing is attached —
     // a verdict carrying another repo's "established knowledge" is worse than none. See memory-scope.
     const entries = scopedMemoryEntries(body, cloud.projectId);
-    if (entries === undefined) return undefined;
+    if (entries === undefined) {return undefined;}
     const picked = selectConsulted(entries as { statement?: unknown; status?: unknown }[]);
     return 0 === picked.length ? undefined : picked;
   } catch {
@@ -247,9 +247,9 @@ export function startPathMismatchHint(
   session: StartPathSession,
 ): string | undefined {
   const startPath = flow.startPath;
-  if (startPath === undefined || 0 === startPath.length) return undefined;
+  if (startPath === undefined || 0 === startPath.length) {return undefined;}
   const current = currentPathOf(session);
-  if (current === undefined || samePath(current, startPath)) return undefined;
+  if (current === undefined || samePath(current, startPath)) {return undefined;}
   return `this flow's journey starts on ${startPath} but the tab is on ${current} — navigate there (reticle_navigate { url: "${startPath}" }), then replay`;
 }
 
@@ -280,9 +280,9 @@ function arrivedSuccessor(
     const candidate = sessions.resolve(oldId);
     // A reload can return the dying handle on the same path. Compare instances, not ids: a leased
     // tab can reconnect under the same id. A redirect counts only on a new instance.
-    if (isReload && candidate === issuedBy) return undefined;
+    if (isReload && candidate === issuedBy) {return undefined;}
     const path = currentPathOf(candidate);
-    if (path === undefined) return undefined;
+    if (path === undefined) {return undefined;}
     const matches = samePath(path, target);
     // A still-connected old tab on the wrong route is not a redirected successor.
     return matches || candidate !== issuedBy ? { session: candidate, matches } : undefined;
@@ -312,9 +312,9 @@ async function firstStepResolvesHere(
   flow: FlowFile,
 ): Promise<boolean> {
   const first = flow.steps?.[0];
-  if (first === undefined) return false;
+  if (first === undefined) {return false;}
   const args = anchorQueryArgs(first.anchor);
-  if (null === args) return false;
+  if (null === args) {return false;}
   try {
     return 0 < queryRefs(await session.command(ReticleCommand.QUERY, args)).length;
   } catch {
@@ -366,16 +366,16 @@ export async function arriveAtStartPath(
   clock: ArrivalClock = REAL_ARRIVAL_CLOCK,
 ): Promise<StartPathArrival> {
   const target = flow.startPath;
-  if (target === undefined || 0 === target.length) return {};
+  if (target === undefined || 0 === target.length) {return {};}
   const current = currentPathOf(session);
-  if (current === undefined) return {};
+  if (current === undefined) {return {};}
   // The declared opt-out, both directions. See above.
-  if (0 < establishedState(flow).length) return {};
+  if (0 < establishedState(flow).length) {return {};}
   const here = samePath(current, target);
   // A route mismatch that step 1 can start from anyway is not worth a page load: navigating away
   // from a persistent anchor could only hurt, and did. Arriving is the goal; resetting a tab that is
   // ALREADY here is a different decision, taken above, and this must not override it.
-  if (!here && (await firstStepResolvesHere(session, flow))) return {};
+  if (!here && (await firstStepResolvesHere(session, flow))) {return {};}
   let destination: string;
   try {
     // startPath is a pathname (a host belongs to the machine, not the journey) — resolve it
@@ -408,7 +408,7 @@ export async function arriveAtStartPath(
         `or backgrounded tab can take longer to come back: bring it to the front and replay`,
     };
   }
-  if ('refused' === outcome.kind) return {};
+  if ('refused' === outcome.kind) {return {};}
   if ('redirected' === outcome.kind) {
     const path = currentPathOf(outcome.session) ?? 'another route';
     return {
@@ -417,7 +417,7 @@ export async function arriveAtStartPath(
     };
   }
   const arrived = outcome.session;
-  if (!resolvedBefore || (await firstStepResolvesHere(arrived, flow))) return { session: arrived };
+  if (!resolvedBefore || (await firstStepResolvesHere(arrived, flow))) {return { session: arrived };}
   return {
     session: arrived,
     resetCost: resetCostHint(flow, target),
@@ -481,23 +481,23 @@ export async function navigateAndAwait(
   const url = carryReticleIdentity(session.url, destination);
   try {
     const outcome = await session.command(ReticleCommand.NAVIGATE, { url });
-    if (!outcome.ok || true !== asRecord(outcome.result)['ok']) return { kind: 'refused' };
+    if (!outcome.ok || true !== asRecord(outcome.result)['ok']) {return { kind: 'refused' };}
   } catch (error: unknown) {
     // A navigation that unloads the page rejects the very command that asked for it — the transport
     // dies with the document. Reading that as "the navigate failed" skipped the arrival poll below
     // and left replay driving a handle that could never answer again, which is how a flow with a
     // startPath died at step 1 on an app that had loaded perfectly. Anything else is a real refusal.
-    if (!isDocumentGoneError(error)) return { kind: 'refused' };
+    if (!isDocumentGoneError(error)) {return { kind: 'refused' };}
   }
   const deadline = clock.now() + timeoutMs;
   for (;;) {
     const arrived = arrivedSuccessor(sessions, session.id, expectedPath, session, isReload);
-    if (true === arrived?.matches) return { kind: 'arrived', session: arrived.session };
+    if (true === arrived?.matches) {return { kind: 'arrived', session: arrived.session };}
     // A live redirect is a different result from no SDK reconnection at all.
     if (clock.now() >= deadline)
-      return arrived === undefined
+      {return arrived === undefined
         ? { kind: 'lost' }
-        : { kind: 'redirected', session: arrived.session };
+        : { kind: 'redirected', session: arrived.session };}
     await clock.sleep(START_PATH_POLL_MS);
   }
 }
@@ -526,13 +526,13 @@ async function loadInvokedFlows(
   const seen = new Set<string>([flow.name]);
   while (queue.length > 0) {
     const current = queue.shift();
-    if (current === undefined) continue;
+    if (current === undefined) {continue;}
     for (const step of flattenSteps(current.steps)) {
       const name = step.invoke;
-      if (name === undefined || seen.has(name)) continue;
+      if (name === undefined || seen.has(name)) {continue;}
       seen.add(name);
       const sub = await flowsForSession(deps, target).flows.load(name, target.projectId);
-      if (!sub.ok) continue;
+      if (!sub.ok) {continue;}
       out.set(name, sub.value);
       queue.push(sub.value);
     }
@@ -563,7 +563,7 @@ async function firstUnmetPrecondition(
     try {
       drift = await assertStepExpect(session, claim, waitForPredicate, 0, since);
     } catch (error: unknown) {
-      if (!isDocumentGoneError(error)) throw error;
+      if (!isDocumentGoneError(error)) {throw error;}
       return `the page went away while this flow's preconditions were being checked, so nothing ran and nothing was proved. Replay again once the page is back.`;
     }
     if (drift !== undefined) {
@@ -775,12 +775,12 @@ export async function replayNamedFlow(
       },
     );
   } catch (error: unknown) {
-    if (!(error instanceof DocumentLostDuringReplay)) throw error;
+    if (!(error instanceof DocumentLostDuringReplay)) {throw error;}
     return lostDocumentResult(name, error);
   }
   // Only part of the journey was driven here: its steps were checked, nothing about the whole flow.
   if (0 < (continueAt ?? 0) || (to !== undefined && to < loaded.value.steps.length))
-    return { name, status: partialStatus(steps), steps };
+    {return { name, status: partialStatus(steps), steps };}
   // Computed HERE, before the synthetic success row is appended below: once that row is pushed,
   // `steps.length` no longer counts only the flow's own steps and the arithmetic is wrong.
   const halted = haltedFrom(steps, loaded.value.steps.length);
@@ -824,7 +824,7 @@ export async function replayNamedFlow(
     steps.push(row);
   }
   const staleTarget = staleTargetResult(name, steps);
-  if (staleTarget !== undefined) return staleTarget;
+  if (staleTarget !== undefined) {return staleTarget;}
   const driftSteps = steps.filter((s) => s.drift !== undefined).length;
   const allOk = steps.every((s) => s.ok);
   const status = driftSteps > 0 ? ReplayStatus.DRIFT : allOk ? ReplayStatus.OK : ReplayStatus.ERROR;
@@ -885,25 +885,25 @@ export async function replayNamedFlow(
     };
     errored.decision = buildDecision(errored, loaded.value, intentSaid, invokedFlows);
     applyStartPathHint(errored, startPathHint);
-    if (deviation !== undefined) errored.deviation = deviation;
-    if (knows !== undefined) errored.knows = knows;
-    if (crossStep.length > 0) errored.crossStep = crossStep;
+    if (deviation !== undefined) {errored.deviation = deviation;}
+    if (knows !== undefined) {errored.knows = knows;}
+    if (crossStep.length > 0) {errored.crossStep = crossStep;}
     return errored;
   }
   const result: FlowReplayResult = { name, status, steps };
-  if (halted !== undefined) result.halted = halted;
-  if (knows !== undefined) result.knows = knows;
+  if (halted !== undefined) {result.halted = halted;}
+  if (knows !== undefined) {result.knows = knows;}
   // A green that cannot go red is not a pass: the same judgement `reticle_flow_verify` makes.
   const cannotFail =
     status === ReplayStatus.OK ? unverifiableReason(loaded.value, invokedFlows) : undefined;
-  if (cannotFail !== undefined) result.unverifiable = { reason: cannotFail };
+  if (cannotFail !== undefined) {result.unverifiable = { reason: cannotFail };}
   // One check of the session that ran it, so its end does not say "nothing was checked".
   noteReplayCheck(session, name, status, cannotFail !== undefined);
   if (status !== ReplayStatus.OK)
-    result.decision = buildDecision(result, loaded.value, intentSaid, invokedFlows);
+    {result.decision = buildDecision(result, loaded.value, intentSaid, invokedFlows);}
   applyStartPathHint(result, startPathHint);
-  if (deviation !== undefined) result.deviation = deviation;
-  if (crossStep.length > 0) result.crossStep = crossStep;
+  if (deviation !== undefined) {result.deviation = deviation;}
+  if (crossStep.length > 0) {result.crossStep = crossStep;}
   /*
    * What this run taught the flow.
    *
@@ -942,8 +942,8 @@ export async function replayNamedFlow(
     observed: steps.some((step) => step.digest !== undefined),
   });
   result.learned = learning.guards;
-  if (learning.promoted.length > 0) result.promoted = learning.promoted;
-  if (learning.regressed.length > 0) result.regressed = learning.regressed;
+  if (learning.promoted.length > 0) {result.promoted = learning.promoted;}
+  if (learning.regressed.length > 0) {result.regressed = learning.regressed;}
   /*
    * Write it back, or none of the above compounds.
    *
@@ -972,7 +972,7 @@ async function computeReplayDeviation(
 ): Promise<DeviationReport | undefined> {
   try {
     const segments = computeSegments(session.eventsSince(floor));
-    if (0 === segments.length) return undefined;
+    if (0 === segments.length) {return undefined;}
     return await reportAndAccumulate(new EnvelopeStore(deps.fs, root), segments);
   } catch {
     return undefined;
@@ -981,7 +981,7 @@ async function computeReplayDeviation(
 
 /** Fold a start-page-mismatch hint onto a non-passing replay's decision (the actionable next move). */
 function applyStartPathHint(result: FlowReplayResult, hint: string | undefined): void {
-  if (hint === undefined || result.decision === undefined) return;
+  if (hint === undefined || result.decision === undefined) {return;}
   result.decision.suggestedFix = hint;
   result.decision.nextAction = hint;
 }

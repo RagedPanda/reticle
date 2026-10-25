@@ -24,8 +24,8 @@ const bridges: Bridge[] = [];
 const sockets: WebSocket[] = [];
 
 afterEach(async () => {
-  for (const s of sockets.splice(0)) s.close();
-  for (const b of bridges.splice(0)) await b.close();
+  for (const s of sockets.splice(0)) {s.close();}
+  for (const b of bridges.splice(0)) {await b.close();}
 });
 
 const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
@@ -53,7 +53,7 @@ async function burstThenQuiet(): Promise<Bridge> {
       hasCapabilities: false,
     }),
   );
-  for (let i = 0; i < 100 && 0 === bridge.sessions.count(); i += 1) await sleep(10);
+  for (let i = 0; i < 100 && 0 === bridge.sessions.count(); i += 1) {await sleep(10);}
   // A DOM storm far past the cap, as a live chart produces.
   for (let i = 0; i < 40; i += 1) {
     socket.send(
@@ -64,7 +64,7 @@ async function burstThenQuiet(): Promise<Bridge> {
     );
   }
   for (let i = 0; i < 100; i += 1) {
-    if ((bridge.sessions.get('burst')?.blindSpots()[BlindSpotKind.RATE_LIMITED] ?? 0) > 0) break;
+    if ((bridge.sessions.get('burst')?.blindSpots()[BlindSpotKind.RATE_LIMITED] ?? 0) > 0) {break;}
     await sleep(10);
   }
   return bridge;
@@ -77,7 +77,7 @@ async function assertQuiet(bridge: Bridge, since: number): Promise<Record<string
     now: () => 0,
   } as unknown as ToolDeps;
   const tool = TOOLS.find((t) => t.name === ReticleTool.ASSERT);
-  if (tool === undefined) throw new Error('no assert tool');
+  if (tool === undefined) {throw new Error('no assert tool');}
   return (await tool.handler(deps, {
     predicate: { kind: 'console', level: 'error', absent: true },
     since,

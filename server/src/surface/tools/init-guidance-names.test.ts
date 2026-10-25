@@ -71,7 +71,7 @@ describe('init writes guidance an agent can actually follow', () => {
            * anywhere. The name in the guidance is reachable; only the argument list changed. The
            * first draft of this guard failed on five correct lines for that reason.
            */
-          if (redirect === undefined || redirect.tool === name) continue;
+          if (redirect === undefined || redirect.tool === name) {continue;}
           retired.push(`${file}:${number} ${name} -> ${redirect.tool}`);
         }
       }

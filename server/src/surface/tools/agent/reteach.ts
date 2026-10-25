@@ -42,15 +42,15 @@ export function reteachFor(
     args['until'] === undefined &&
     args['predicate'] === undefined
   ) {
-    if (Verified.NO_FAULT === result['verified']) lines.push(ReteachLine.NO_UNTIL);
+    if (Verified.NO_FAULT === result['verified']) {lines.push(ReteachLine.NO_UNTIL);}
   }
   if (Array.isArray(result['normalized']) && result['normalized'].length > 0)
-    lines.push(ReteachLine.ALIAS);
+    {lines.push(ReteachLine.ALIAS);}
   const verdict =
     'object' === typeof result['verdict'] && null !== result['verdict']
       ? asRecord(result['verdict'])
       : result;
-  if (true === verdict['caseOnlyMiss']) lines.push(ReteachLine.CASE);
+  if (true === verdict['caseOnlyMiss']) {lines.push(ReteachLine.CASE);}
   const listing =
     ReticleTool.SESSIONS === tool ||
     (ReticleTool.SESSION === tool && (args['action'] === undefined || 'list' === args['action']));
@@ -58,7 +58,7 @@ export function reteachFor(
     const seen = (listCounts.get(session) ?? 0) + 1;
     listCounts.set(session, seen);
     // The third listing in one session: the first two are orientation, a third is a lost thread.
-    if (seen >= 3) lines.push(ReteachLine.RELIST, ReteachLine.COMPACTED);
+    if (seen >= 3) {lines.push(ReteachLine.RELIST, ReteachLine.COMPACTED);}
   }
   return lines;
 }

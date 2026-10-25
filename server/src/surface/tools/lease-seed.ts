@@ -5,7 +5,7 @@
 import { REDACTED_VALUE, scrubKnownSecrets, type SeedStorage } from '@reticlehq/core';
 
 function redactExactValue(text: string, value: string): string {
-  if (0 === value.length) return text;
+  if (0 === value.length) {return text;}
   const escaped = value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   return text.replace(
     new RegExp(`(^|[^a-zA-Z0-9])${escaped}(?=$|[^a-zA-Z0-9])`, 'g'),
@@ -81,8 +81,8 @@ export function cleanNavError(err: unknown, seed?: SeedStorage): string {
   const ansi = new RegExp(`${String.fromCharCode(27)}\\[[0-9;]*m`, 'g');
   const firstLine = (msg.split('\n')[0] ?? msg).replace(ansi, '');
   const netCode = /net::[A-Z_]+/.exec(firstLine);
-  if (netCode !== null) return netCode[0];
-  if (/timeout/i.test(firstLine)) return NAV_TIMED_OUT;
+  if (netCode !== null) {return netCode[0];}
+  if (/timeout/i.test(firstLine)) {return NAV_TIMED_OUT;}
   return firstLine
     .replace(/^page\.goto:\s*/, '')
     .replace(/\s+at\s+https?:\/\/\S+.*$/, '')
@@ -129,8 +129,8 @@ export function navFailureMessage(url: string, err: unknown, seed?: SeedStorage)
   // A certificate the browser refused is not an app that is down: the server answered, with a cert
   // no CA here vouches for (a self-signed or mkcert dev certificate). Asking "is the app running?"
   // sent the caller to restart a dev server that was fine (#1255).
-  if (CERT_ERROR.test(reason)) return `could not open ${url} — ${NAV_CERT_REFUSED} (${reason})`;
-  if (NAV_TIMED_OUT !== reason) return `could not open ${url} — ${NAV_FAILED_QUESTION} (${reason})`;
+  if (CERT_ERROR.test(reason)) {return `could not open ${url} — ${NAV_CERT_REFUSED} (${reason})`;}
+  if (NAV_TIMED_OUT !== reason) {return `could not open ${url} — ${NAV_FAILED_QUESTION} (${reason})`;}
   const rawMsg = err instanceof Error ? err.message : String(err);
   const budgetMs = PLAYWRIGHT_TIMEOUT.exec(rawMsg)?.[1];
   const within =
@@ -159,7 +159,7 @@ export function evaluateSeedPrecondition(
   if (401 === navStatus || 403 === navStatus) {
     return `HTTP ${navStatus} returned on initial seeded navigation to ${requestedUrl}`;
   }
-  if (actualUrl === undefined || '' === actualUrl.trim()) return undefined;
+  if (actualUrl === undefined || '' === actualUrl.trim()) {return undefined;}
 
   let reqParsed: URL | undefined;
   let actParsed: URL | undefined;

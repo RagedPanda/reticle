@@ -73,7 +73,7 @@ export function reportToolRefused(tool: string, reason: RefusalReason): void {
   // sitting would attach itself to an unrelated refusal later in the session.
   const noSessionReason = pendingNoSessionReason;
   pendingNoSessionReason = undefined;
-  if (sent >= MAX_REFUSALS_PER_SESSION) return;
+  if (sent >= MAX_REFUSALS_PER_SESSION) {return;}
   sent += 1;
   void getTelemetry().emit(TelemetryEventKind.TOOL_REFUSED, {
     actor: TelemetryActor.AGENT,

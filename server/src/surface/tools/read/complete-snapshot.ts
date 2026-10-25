@@ -91,7 +91,7 @@ export async function readCompleteTree(
       }
       const parsed = SnapshotShape.safeParse(await read(scope));
       reads += 1;
-      if (!parsed.success) return stop('a snapshot came back in a shape this read cannot trust');
+      if (!parsed.success) {return stop('a snapshot came back in a shape this read cannot trust');}
       if (true === parsed.data.scopeMissing) {
         return stop(
           `\`${scope ?? ''}\` matched no element when it was read, so nothing under it was seen`,
@@ -105,7 +105,7 @@ export async function readCompleteTree(
       }
       next.push(...(parsed.data.unread ?? []));
     }
-    if (0 === next.length) return { tree: parts.join('\n'), complete: true, reads };
+    if (0 === next.length) {return { tree: parts.join('\n'), complete: true, reads };}
     frontier = next;
   }
   return stop(

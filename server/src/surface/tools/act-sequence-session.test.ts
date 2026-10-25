@@ -25,7 +25,7 @@ const ROOT = '/tmp/reticle-act-sequence-session/.reticle';
 
 function fakeSession(id: string, acts: string[]): Session {
   const command = (name: string): Promise<CommandResult> => {
-    if ('act' === name) acts.push(id);
+    if ('act' === name) {acts.push(id);}
     return Promise.resolve({
       kind: 'command_result',
       id: 'c',
@@ -56,9 +56,9 @@ function fakeDeps(lease: Session, human: Session, resolveCalls: (string | undefi
   const sessions: Partial<SessionManager> = {
     resolve: (id?: string) => {
       resolveCalls.push(id);
-      if (id === undefined) return human;
-      if (id === lease.id) return lease;
-      if (id === human.id) return human;
+      if (id === undefined) {return human;}
+      if (id === lease.id) {return lease;}
+      if (id === human.id) {return human;}
       throw new Error(`no connected session with id '${id}'`);
     },
     list: () =>
@@ -81,7 +81,7 @@ function fakeDeps(lease: Session, human: Session, resolveCalls: (string | undefi
 
 function sequenceTool() {
   const found = TOOLS.find((t) => t.name === ReticleTool.ACT_SEQUENCE);
-  if (found === undefined) throw new Error('no reticle_act_sequence tool');
+  if (found === undefined) {throw new Error('no reticle_act_sequence tool');}
   return found;
 }
 

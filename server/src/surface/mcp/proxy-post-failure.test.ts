@@ -78,7 +78,7 @@ function startFakeDaemon(): Promise<FakeDaemon> {
         posts,
         close: () =>
           new Promise<void>((done) => {
-            for (const stream of streams) stream.socket?.destroy();
+            for (const stream of streams) {stream.socket?.destroy();}
             server.close(() => done());
           }),
       });
@@ -90,7 +90,7 @@ describe('a dead POST leg is not an outage', () => {
   const cleanups: (() => Promise<void> | void)[] = [];
 
   afterEach(async () => {
-    for (const cleanup of cleanups.splice(0).reverse()) await cleanup();
+    for (const cleanup of cleanups.splice(0).reverse()) {await cleanup();}
     vi.restoreAllMocks();
     vi.unstubAllEnvs();
     resetOutageReporting();

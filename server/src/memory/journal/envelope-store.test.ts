@@ -41,7 +41,7 @@ describe('EnvelopeStore', () => {
   it('round-trips envelopes across save/load', async () => {
     const store = new EnvelopeStore(fs, root);
     let env = emptyEnvelope('/checkout');
-    for (const d of [100, 110, 95]) env = addSegmentToEnvelope(env, seg('/checkout', d));
+    for (const d of [100, 110, 95]) {env = addSegmentToEnvelope(env, seg('/checkout', d));}
     await store.save(new Map([['/checkout', env]]));
 
     const loaded = await store.load();

@@ -48,8 +48,8 @@ function optionalText(args: Record<string, unknown>, key: string): Record<string
  */
 function optionalRating(args: Record<string, unknown>): Record<string, number> {
   const value = asNumber(args['rating']);
-  if (value === undefined || !Number.isInteger(value)) return {};
-  if (value < FEEDBACK_RATING_MIN || value > FEEDBACK_RATING_MAX) return {};
+  if (value === undefined || !Number.isInteger(value)) {return {};}
+  if (value < FEEDBACK_RATING_MIN || value > FEEDBACK_RATING_MAX) {return {};}
   return { rating: value };
 }
 
@@ -88,7 +88,7 @@ const NO_BODY_REASON =
 /** `text`, or the `summary` alias, whichever arrived. Empty when neither did — the handler refuses. */
 function feedbackBody(args: Record<string, unknown>): string {
   const text = asString(args['text'])?.trim();
-  if (text !== undefined && '' !== text) return text;
+  if (text !== undefined && '' !== text) {return text;}
   return asString(args['summary'])?.trim() ?? '';
 }
 
@@ -320,9 +320,9 @@ let verificationsSincePrompt = 0;
  * collect is worse than not asking: it spends their attention on a message with nowhere to go.
  */
 export function takeFeedbackPrompt(toolName: string): typeof FEEDBACK_PROMPT | undefined {
-  if (!VERDICT_TOOLS.has(toolName)) return undefined;
-  if (feedbackDisabled() || !getTelemetry().enabled) return undefined;
-  if (promptsDelivered >= MAX_PROMPTS_PER_PROCESS) return undefined;
+  if (!VERDICT_TOOLS.has(toolName)) {return undefined;}
+  if (feedbackDisabled() || !getTelemetry().enabled) {return undefined;}
+  if (promptsDelivered >= MAX_PROMPTS_PER_PROCESS) {return undefined;}
   // The very first verification asks immediately; later ones only after another run of work, so the
   // ask always arrives attached to something the human just saw happen.
   if (promptsDelivered > 0 && verificationsSincePrompt < PROMPT_REARM_AFTER_VERIFICATIONS) {

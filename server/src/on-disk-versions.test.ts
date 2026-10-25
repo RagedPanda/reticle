@@ -118,7 +118,7 @@ function declaredVersions(): Record<string, string> {
         .replace(/^\[\s*/, '')
         .trim(),
     );
-    if (matches.length > 0) found[file] = matches.join(',');
+    if (matches.length > 0) {found[file] = matches.join(',');}
   }
   return found;
 }

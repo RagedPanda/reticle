@@ -96,7 +96,7 @@ function capped(value: unknown): { value: unknown; cut: boolean } {
 
 function effectOf(events: readonly ReticleEvent[]): Record<string, unknown> {
   const counts: Record<string, number> = {};
-  for (const e of events) counts[e.type] = (counts[e.type] ?? 0) + 1;
+  for (const e of events) {counts[e.type] = (counts[e.type] ?? 0) + 1;}
   const seqs = events.map((e) => e.seq).filter((s): s is number => s !== undefined);
   return {
     counts,
@@ -156,7 +156,7 @@ export function createEpisodeLog(deps: EpisodeLogDeps): EpisodeLog {
   };
   return {
     record: (call) => {
-      if (false === deps.enabled) return;
+      if (false === deps.enabled) {return;}
       n += 1;
       if (1 === n) {
         // The start is taken at the first call: that is when the agent began working through us.
@@ -223,7 +223,7 @@ export function recordEpisodeCall(
   now: () => number,
   call: EpisodeCallInput,
 ): void {
-  if (!enabledInDaemon) return;
+  if (!enabledInDaemon) {return;}
   const episodeId = attachId ?? UNATTACHED_EPISODE;
   const key = `${root}\n${episodeId}`;
   let log = open.get(key);

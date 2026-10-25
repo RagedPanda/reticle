@@ -28,7 +28,7 @@ function seg(over: Partial<SegmentRollup> = {}): SegmentRollup {
 describe('MetricStats (Welford)', () => {
   it('computes a running mean and sample stddev', () => {
     let s = emptyStats();
-    for (const x of [2, 4, 4, 4, 5, 5, 7, 9]) s = addStat(s, x);
+    for (const x of [2, 4, 4, 4, 5, 5, 7, 9]) {s = addStat(s, x);}
     expect(s.mean).toBe(5);
     expect(stddev(s)).toBeCloseTo(2.138, 2);
     expect(s.max).toBe(9);
@@ -36,7 +36,7 @@ describe('MetricStats (Welford)', () => {
 
   it('reports z=0 when there is no spread', () => {
     let s = emptyStats();
-    for (const x of [100, 100, 100]) s = addStat(s, x);
+    for (const x of [100, 100, 100]) {s = addStat(s, x);}
     expect(zScore(s, 100)).toBe(0);
   });
 });
@@ -54,7 +54,7 @@ describe('RouteEnvelope', () => {
   it('flags a duration regression once the envelope is established', () => {
     let env = emptyEnvelope('/checkout');
     for (const d of [100, 110, 95, 105, 100])
-      env = addSegmentToEnvelope(env, seg({ durationMs: d }));
+      {env = addSegmentToEnvelope(env, seg({ durationMs: d }));}
     const deviations = compareSegment(env, seg({ durationMs: 900 }));
     expect(deviations).toHaveLength(1);
     expect(deviations[0]?.metric).toBe('durationMs');
@@ -64,7 +64,7 @@ describe('RouteEnvelope', () => {
   it('does not flag a segment doing LESS than expected (only increases matter)', () => {
     let env = emptyEnvelope('/checkout');
     for (const d of [500, 520, 480, 510, 500])
-      env = addSegmentToEnvelope(env, seg({ durationMs: d }));
+      {env = addSegmentToEnvelope(env, seg({ durationMs: d }));}
     expect(compareSegment(env, seg({ durationMs: 50 }))).toEqual([]);
   });
 

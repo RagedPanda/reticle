@@ -133,7 +133,7 @@ export function compareSegment(
   segment: SegmentRollup,
   zThreshold: number = DEFAULT_Z_THRESHOLD,
 ): Deviation[] {
-  if (envelope.samples < MIN_ENVELOPE_SAMPLES) return [];
+  if (envelope.samples < MIN_ENVELOPE_SAMPLES) {return [];}
   const deviations: Deviation[] = [];
   for (const metric of ENVELOPE_METRICS) {
     const stats = envelope.stats[metric];

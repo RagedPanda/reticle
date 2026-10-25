@@ -14,8 +14,8 @@ const bridges: Bridge[] = [];
 const clients: PanelClient[] = [];
 
 afterEach(async () => {
-  for (const c of clients.splice(0)) c.close();
-  for (const b of bridges.splice(0)) await b.close();
+  for (const c of clients.splice(0)) {c.close();}
+  for (const b of bridges.splice(0)) {await b.close();}
 });
 
 /** A minimal browser stand-in: HELLOs to register a session, then emits panel control events. */
@@ -64,8 +64,8 @@ function waitUntil(cond: () => boolean, timeoutMs = 2000): Promise<void> {
   return new Promise((resolve, reject) => {
     const start = Date.now();
     const tick = (): void => {
-      if (cond()) return resolve();
-      if (Date.now() - start > timeoutMs) return reject(new Error('waitUntil timed out'));
+      if (cond()) {return resolve();}
+      if (Date.now() - start > timeoutMs) {return reject(new Error('waitUntil timed out'));}
       setTimeout(tick, 10);
     };
     tick();
@@ -125,7 +125,7 @@ describe('replay-from-panel wiring (bridge)', () => {
     const { bridge, client } = await connect('panel-h1');
     const seen: boolean[] = [];
     bridge.attachHarnessRequest((r) => {
-      if (HumanControlKind.HARNESS === r.kind) seen.push(r.enabled);
+      if (HumanControlKind.HARNESS === r.kind) {seen.push(r.enabled);}
     });
     client.emitControl({ kind: HumanControlKind.HARNESS, text: 'off' });
     await waitUntil(() => 1 === seen.length);
@@ -136,7 +136,7 @@ describe('replay-from-panel wiring (bridge)', () => {
     const { bridge, client } = await connect('panel-h2');
     const seen: boolean[] = [];
     bridge.attachHarnessRequest((r) => {
-      if (HumanControlKind.HARNESS === r.kind) seen.push(r.enabled);
+      if (HumanControlKind.HARNESS === r.kind) {seen.push(r.enabled);}
     });
     // A double-click on a flaky connection sends two. Carrying the DESIRED state rather than
     // meaning "toggle" is what makes the second one harmless.
@@ -150,7 +150,7 @@ describe('replay-from-panel wiring (bridge)', () => {
     const { bridge, client } = await connect('panel-h3');
     const seen: boolean[] = [];
     bridge.attachHarnessRequest((r) => {
-      if (HumanControlKind.HARNESS === r.kind) seen.push(r.enabled);
+      if (HumanControlKind.HARNESS === r.kind) {seen.push(r.enabled);}
     });
     client.emitControl({ kind: HumanControlKind.HARNESS, text: 'maybe' });
     await new Promise((r) => setTimeout(r, 60));

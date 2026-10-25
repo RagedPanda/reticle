@@ -17,7 +17,7 @@ const tracked = new Map<string, boolean>();
  */
 export function gitTracks(path: string): boolean {
   const known = tracked.get(path);
-  if (known !== undefined) return known;
+  if (known !== undefined) {return known;}
   const result = spawnSync('git', ['check-ignore', '-q', path], {
     cwd: existingAncestor(path),
     stdio: 'ignore',
@@ -31,6 +31,6 @@ export function gitTracks(path: string): boolean {
 /** `path`, or the nearest directory above it that exists: git needs a real working directory. */
 function existingAncestor(path: string): string {
   let dir = dirname(path);
-  while (!existsSync(dir) && dirname(dir) !== dir) dir = dirname(dir);
+  while (!existsSync(dir) && dirname(dir) !== dir) {dir = dirname(dir);}
   return dir;
 }

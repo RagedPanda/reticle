@@ -37,12 +37,12 @@ function parseLiteral(text: string): { value: Literal; end: number } {
   const next = (): string => tokens[i++]?.t ?? '';
   const value = (): Literal => {
     const t = next();
-    if ('{' === t) return object();
+    if ('{' === t) {return object();}
     if ('[' === t) {
       const items: Literal[] = [];
       while ('' !== peek() && ']' !== peek()) {
-        if (',' === peek()) next();
-        else items.push(value());
+        if (',' === peek()) {next();}
+        else {items.push(value());}
       }
       next();
       return items;
@@ -57,7 +57,7 @@ function parseLiteral(text: string): { value: Literal; end: number } {
     const out: { [key: string]: Literal } = {};
     while ('' !== peek() && '}' !== peek()) {
       const t = next();
-      if (',' === t || '...' === t || '…' === t) continue;
+      if (',' === t || '...' === t || '…' === t) {continue;}
       const key = t.startsWith('"') ? String(JSON.parse(t)) : t;
       if (':' === peek()) {
         next();
@@ -69,7 +69,7 @@ function parseLiteral(text: string): { value: Literal; end: number } {
     next();
     return out;
   };
-  if ('{' !== next()) throw new Error(`not an object literal: ${text.slice(0, 40)}`);
+  if ('{' !== next()) {throw new Error(`not an object literal: ${text.slice(0, 40)}`);}
   const parsed = object();
   return { value: parsed, end: tokens[i - 1]?.end ?? text.length };
 }
@@ -92,8 +92,8 @@ const isObject = (v: Literal): v is { [key: string]: Literal } =>
 
 /** The literal with every placeholder dropped, so only what the example states is validated. */
 function stated(v: Literal): unknown {
-  if (Array.isArray(v)) return v.filter((x) => PLACEHOLDER !== x).map(stated);
-  if (!isObject(v)) return v;
+  if (Array.isArray(v)) {return v.filter((x) => PLACEHOLDER !== x).map(stated);}
+  if (!isObject(v)) {return v;}
   return Object.fromEntries(
     Object.entries(v)
       .filter(([, x]) => PLACEHOLDER !== x)
@@ -127,20 +127,20 @@ describe('the reticle_run calls our hints tell an agent to make', () => {
     '%s: %s',
     (_where, source, value) => {
       expect(isObject(value), source).toBe(true);
-      if (!isObject(value) || undefined === run) return;
+      if (!isObject(value) || undefined === run) {return;}
       const allowed = Object.keys(run.inputSchema);
-      for (const key of Object.keys(value)) expect(allowed, `${source}: ${key}`).toContain(key);
+      for (const key of Object.keys(value)) {expect(allowed, `${source}: ${key}`).toContain(key);}
       const tool = value['tool'];
-      if ('string' !== typeof tool) return; // `{ tool, args }` names the shape, not a call
+      if ('string' !== typeof tool) {return;} // `{ tool, args }` names the shape, not a call
       expect(z.object(run.inputSchema).strict().safeParse(stated(value)).success, source).toBe(
         true,
       );
       const target = byName.get(tool);
       expect(target, `${source}: no tool named ${tool}`).toBeDefined();
       const args = value['args'];
-      if (undefined === target || undefined === args || !isObject(args)) return;
+      if (undefined === target || undefined === args || !isObject(args)) {return;}
       const params = Object.keys(target.inputSchema);
-      for (const key of Object.keys(args)) expect(params, `${source}: args.${key}`).toContain(key);
+      for (const key of Object.keys(args)) {expect(params, `${source}: args.${key}`).toContain(key);}
     },
   );
 });

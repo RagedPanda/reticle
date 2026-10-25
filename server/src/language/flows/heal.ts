@@ -32,12 +32,12 @@ import { editDistance } from './flow-anchor.js';
  * above 1 — so a present-but-distant testid is still legibly scored (below the floor), not dropped.
  */
 export function confidenceFor(from: string, to: string): number {
-  if (from === to) return 1;
+  if (from === to) {return 1;}
   const span = Math.max(from.length, to.length);
-  if (0 === span) return 1;
+  if (0 === span) {return 1;}
   const raw = 1 - editDistance(from, to) / span;
-  if (raw >= 1) return 1;
-  if (raw <= 0) return Number.EPSILON;
+  if (raw >= 1) {return 1;}
+  if (raw <= 0) {return Number.EPSILON;}
   return raw;
 }
 
@@ -60,7 +60,7 @@ export function applyHealChanges(
   now?: () => number,
 ): { flow: FlowFile; applied: HealChange[] } {
   const byStep = new Map<number, HealChange>();
-  for (const change of changes) byStep.set(change.step, change);
+  for (const change of changes) {byStep.set(change.step, change);}
   const applied: HealChange[] = [];
   const steps = flow.steps.map((step, index): FlowStep => {
     const change = byStep.get(index);
@@ -97,15 +97,15 @@ function proposeRebindWith(
   step: number,
   minConfidence: number,
 ): HealProposal | undefined {
-  if (drift.reasonKind !== DriftReason.TESTID_NOT_FOUND) return undefined;
+  if (drift.reasonKind !== DriftReason.TESTID_NOT_FOUND) {return undefined;}
   // Never auto-heal an ambiguous drift: when two present testids tie at the minimum distance, the
   // `nearest` pick is arbitrary, so a rebind would be a coin-flip that can land on the wrong element
   // and ship a bug green. Surface it (the drift still carries `nearest`) and defer to a human.
-  if (true === drift.ambiguous) return undefined;
+  if (true === drift.ambiguous) {return undefined;}
   const to = drift.nearest;
-  if (null === to) return undefined;
+  if (null === to) {return undefined;}
   const confidence = confidenceFor(drift.anchor, to);
-  if (confidence < minConfidence) return undefined;
+  if (confidence < minConfidence) {return undefined;}
   return { step, from: drift.anchor, to, confidence };
 }
 
@@ -128,9 +128,9 @@ export function collectProposals(
 ): HealProposal[] {
   const proposals: HealProposal[] = [];
   for (const step of steps) {
-    if (step.drift === undefined) continue;
+    if (step.drift === undefined) {continue;}
     const proposal = proposeRebindWith(step.drift, step.step, minConfidence);
-    if (proposal !== undefined) proposals.push(proposal);
+    if (proposal !== undefined) {proposals.push(proposal);}
   }
   return proposals;
 }

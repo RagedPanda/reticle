@@ -144,8 +144,8 @@ export function applyAgentSkills(
   const join = joinFor(where.platform);
   for (const client of AGENT_CLIENTS) {
     const dir = client.skillDir;
-    if (undefined === dir) continue;
-    if (!io.exists(join(where.home, client.marker[where.platform]))) continue;
+    if (undefined === dir) {continue;}
+    if (!io.exists(join(where.home, client.marker[where.platform]))) {continue;}
     try {
       const target = join(where.home, dir);
       io.mkdirp(target);

@@ -71,11 +71,11 @@ export class SessionNonces {
    * sends a new HELLO); a second tab, or a replay under another id, may not.
    */
   redeem(token: string | undefined, sessionId: string): NonceGrant | undefined {
-    if (token === undefined) return undefined;
+    if (token === undefined) {return undefined;}
     this.#sweep();
     const entry = this.#entries.get(token);
-    if (entry === undefined) return undefined;
-    if (entry.boundTo !== undefined && entry.boundTo !== sessionId) return undefined;
+    if (entry === undefined) {return undefined;}
+    if (entry.boundTo !== undefined && entry.boundTo !== sessionId) {return undefined;}
     entry.boundTo = sessionId;
     return entry;
   }
@@ -83,14 +83,14 @@ export class SessionNonces {
   /** True while a live nonce was minted for this origin. */
   admitsOrigin(origin: string): boolean {
     this.#sweep();
-    for (const entry of this.#entries.values()) if (entry.origin === origin) return true;
+    for (const entry of this.#entries.values()) {if (entry.origin === origin) {return true;}}
     return false;
   }
 
   #sweep(): void {
     const now = this.#clock();
     for (const [nonce, entry] of this.#entries) {
-      if (entry.expiresAt <= now) this.#entries.delete(nonce);
+      if (entry.expiresAt <= now) {this.#entries.delete(nonce);}
     }
   }
 }

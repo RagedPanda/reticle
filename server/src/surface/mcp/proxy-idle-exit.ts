@@ -57,13 +57,13 @@ export class ProxyIdleExit {
 
   /** Record bytes moving across the client-facing stdio link. */
   noteTraffic(): void {
-    if (this.#fired) return;
+    if (this.#fired) {return;}
     this.#lastTrafficAt = this.#clock();
   }
 
   /** Run one idle check. Exposed so tests can drive the decision with an injected clock. */
   check(): void {
-    if (this.#fired || this.#graceMs <= 0) return;
+    if (this.#fired || this.#graceMs <= 0) {return;}
     const now = this.#clock();
     const busy = this.#isBusy();
     if (busy) {
@@ -79,19 +79,19 @@ export class ProxyIdleExit {
       return;
     }
     const idleMs = now - this.#lastTrafficAt;
-    if (idleMs < this.#graceMs) return;
+    if (idleMs < this.#graceMs) {return;}
     this.#fired = true;
     this.#onExit(idleMs);
   }
 
   start(): void {
-    if (this.#graceMs <= 0 || this.#timer !== undefined) return;
+    if (this.#graceMs <= 0 || this.#timer !== undefined) {return;}
     this.#timer = setInterval(() => this.check(), this.#checkIntervalMs);
     this.#timer.unref();
   }
 
   stop(): void {
-    if (this.#timer === undefined) return;
+    if (this.#timer === undefined) {return;}
     clearInterval(this.#timer);
     this.#timer = undefined;
   }
@@ -102,8 +102,8 @@ export class ProxyIdleExit {
  * zero as the explicit opt-out. Invalid values retain the conservative one-day default.
  */
 export function resolveProxyIdleExitMs(raw: string | undefined): number {
-  if (raw === undefined || '' === raw.trim()) return PROXY_IDLE_EXIT_MS;
+  if (raw === undefined || '' === raw.trim()) {return PROXY_IDLE_EXIT_MS;}
   const value = Number(raw);
-  if (!Number.isFinite(value) || value < 0) return PROXY_IDLE_EXIT_MS;
+  if (!Number.isFinite(value) || value < 0) {return PROXY_IDLE_EXIT_MS;}
   return Math.floor(value);
 }

@@ -21,8 +21,8 @@ const normalizeUrl = (url: string): string => url.replace(/\/+$/, '');
 
 /** The key held in a slot, whether it is a bare string or the stamped `{ key, url }` shape. */
 const heldKeyOf = (held: unknown): string | undefined => {
-  if ('string' === typeof held) return held.length > 0 ? held : undefined;
-  if ('object' !== typeof held || null === held) return undefined;
+  if ('string' === typeof held) {return held.length > 0 ? held : undefined;}
+  if ('object' !== typeof held || null === held) {return undefined;}
   const key = (held as Record<string, unknown>)['key'];
   return 'string' === typeof key && key.length > 0 ? key : undefined;
 };
@@ -39,21 +39,21 @@ export const findCredential = (
   url: string,
   orgId: string | undefined,
 ): string | undefined => {
-  if ('object' !== typeof raw || null === raw) return undefined;
+  if ('object' !== typeof raw || null === raw) {return undefined;}
   const store = raw as Record<string, unknown>;
   const orgScoped = orgId === undefined ? undefined : store[credentialSlot(url, projectId, orgId)];
-  if ('string' === typeof orgScoped && orgScoped.length > 0) return orgScoped;
+  if ('string' === typeof orgScoped && orgScoped.length > 0) {return orgScoped;}
   const composite = store[credentialSlot(url, projectId)];
-  if ('string' === typeof composite && composite.length > 0) return composite;
+  if ('string' === typeof composite && composite.length > 0) {return composite;}
   const found = store[projectId];
-  if ('string' === typeof found) return found.length > 0 ? found : undefined;
-  if ('object' !== typeof found || null === found) return undefined;
+  if ('string' === typeof found) {return found.length > 0 ? found : undefined;}
+  if ('object' !== typeof found || null === found) {return undefined;}
   const record = found as Record<string, unknown>;
   const key = heldKeyOf(record);
   const forUrl = record['url'];
-  if (key === undefined) return undefined;
+  if (key === undefined) {return undefined;}
   // A credential stamped with a DIFFERENT cloud is not this project's, however much the ids match.
-  if ('string' === typeof forUrl && normalizeUrl(forUrl) !== normalizeUrl(url)) return undefined;
+  if ('string' === typeof forUrl && normalizeUrl(forUrl) !== normalizeUrl(url)) {return undefined;}
   return key;
 };
 
@@ -90,15 +90,15 @@ export const applyCredential = (
   write: CredentialWrite,
 ): Record<string, unknown> => {
   const { projectId, url, key, orgId, priorKey, priorIsForeign } = write;
-  if (orgId !== undefined) store[credentialSlot(url, projectId, orgId)] = key;
+  if (orgId !== undefined) {store[credentialSlot(url, projectId, orgId)] = key;}
   const mayOverwrite = (slot: string): boolean => {
     const held = heldKeyOf(store[slot]);
-    if (held === undefined) return true; // free
-    if (held === key) return true; // already ours
+    if (held === undefined) {return true;} // free
+    if (held === key) {return true;} // already ours
     return held === priorKey && !priorIsForeign; // our own stale key, not somebody else's
   };
   const cloudSlot = credentialSlot(url, projectId);
-  if (!priorIsForeign && mayOverwrite(cloudSlot)) store[cloudSlot] = key;
-  if (!priorIsForeign && mayOverwrite(projectId)) store[projectId] = { key, url };
+  if (!priorIsForeign && mayOverwrite(cloudSlot)) {store[cloudSlot] = key;}
+  if (!priorIsForeign && mayOverwrite(projectId)) {store[projectId] = { key, url };}
   return store;
 };

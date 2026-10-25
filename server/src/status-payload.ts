@@ -103,7 +103,7 @@ export function verifyEndpointMismatch(status: unknown, wantedPort: number): str
     'object' === typeof status && status !== null
       ? (status as Record<string, unknown>)['verifyPort']
       : undefined;
-  if (served === wantedPort) return undefined;
+  if (served === wantedPort) {return undefined;}
   const fix = 'stop it (`reticle stop`) and run `reticle serve --http` again';
   return 'number' === typeof served
     ? `the daemon already running serves the verify HTTP endpoint on :${String(served)}, not :${String(wantedPort)} — ${fix}`
@@ -127,7 +127,7 @@ export function strandedClientsNote(status: unknown, next = SERVER_VERSION): str
   const peers = Array.isArray(raw) ? raw.filter((v): v is string => 'string' === typeof v) : [];
   const behind = [...new Set(peers.filter((v) => v !== next))];
   const pin = behind[0];
-  if (pin === undefined) return undefined;
+  if (pin === undefined) {return undefined;}
   return (
     `warning: ${String(peers.length)} agent MCP server(s) are attached at ${behind.join(', ')}, ` +
     `and this restart runs the daemon at ${next}. They stay attached to a daemon they no longer ` +

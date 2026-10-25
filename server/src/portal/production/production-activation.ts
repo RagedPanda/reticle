@@ -96,7 +96,7 @@ export async function activateProduction(input: ActivationInput): Promise<Activa
     throw new Error(PRODUCTION_MODE_NO_BRIDGE);
   }
   const cloud = await input.cloud();
-  if (null === cloud) throw new Error(PRODUCTION_MODE_NOT_LINKED);
+  if (null === cloud) {throw new Error(PRODUCTION_MODE_NOT_LINKED);}
   const origin = new URL(input.url).origin;
   const minted = input.nonces.mint({
     origin,
@@ -107,7 +107,7 @@ export async function activateProduction(input: ActivationInput): Promise<Activa
     },
   });
   const drive = minted.production;
-  if (drive === undefined) throw new Error(PRODUCTION_MODE_NO_BRIDGE);
+  if (drive === undefined) {throw new Error(PRODUCTION_MODE_NO_BRIDGE);}
   const ticket = await requestTicket(
     cloud,
     {
@@ -122,7 +122,7 @@ export async function activateProduction(input: ActivationInput): Promise<Activa
     },
     input.fetch,
   );
-  if (ticket.policy !== undefined) drive.setPolicy(ticket.policy);
+  if (ticket.policy !== undefined) {drive.setPolicy(ticket.policy);}
   const target = new URL(input.url);
   target.searchParams.set(PRODUCTION_ACTIVATE_PARAM, ticket.ticket);
   return { url: target.toString(), drive, scope: ask.scope, expiresAt: minted.expiresAt };
@@ -144,7 +144,7 @@ async function requestTicket(
       body: JSON.stringify(request),
       signal: controller.signal,
     });
-    if (404 === res.status) throw new Error(PRODUCTION_MODE_NOT_OFFERED);
+    if (404 === res.status) {throw new Error(PRODUCTION_MODE_NOT_OFFERED);}
     const body: unknown = await res.json().catch(() => undefined);
     if (!res.ok) {
       const reason = z.object({ error: z.string() }).safeParse(body);
@@ -199,7 +199,7 @@ export function activationFor(
   url: string,
   root: string | undefined,
 ): Promise<Activation | undefined> {
-  if (asked === undefined) return Promise.resolve(undefined);
+  if (asked === undefined) {return Promise.resolve(undefined);}
   return activateProduction({
     production: asked,
     url,
@@ -223,7 +223,7 @@ export async function guardedForProduction<L extends { isLoading?: () => Promise
   lease: L & { sessionId: string },
   activated: Activation | undefined,
 ): Promise<L | { isLoading?: () => Promise<boolean> }> {
-  if (activated === undefined) return lease;
+  if (activated === undefined) {return lease;}
   const { drive } = activated;
   await pool.guardLease(lease.sessionId, (method, url) => drive.refuseRequest(method, url));
   return leaseWithoutInjection(lease);
@@ -266,7 +266,7 @@ export function leasePermissions(
   asked: readonly string[] | undefined,
   production: unknown,
 ): readonly string[] | undefined {
-  if (production === undefined) return asked;
+  if (production === undefined) {return asked;}
   const granted = asked ?? [];
   return granted.includes(LOCAL_NETWORK_ACCESS) ? granted : [...granted, LOCAL_NETWORK_ACCESS];
 }

@@ -61,7 +61,7 @@ describe('SessionMetrics — one event instead of hundreds', () => {
 
   it('bounds the breadcrumb to the recent past rather than the whole session', () => {
     const m = new SessionMetrics(clock());
-    for (let i = 0; i < 50; i += 1) m.recordToolCall(`reticle_tool_${i}`);
+    for (let i = 0; i < 50; i += 1) {m.recordToolCall(`reticle_tool_${i}`);}
     expect(m.trail.breadcrumb.length).toBeLessThanOrEqual(12);
     expect(m.trail.breadcrumb.at(-1)).toBe('reticle_tool_49');
   });
@@ -69,7 +69,7 @@ describe('SessionMetrics — one event instead of hundreds', () => {
   it('bounds the distinct error shapes it will hold, so a pathological loop cannot grow memory', () => {
     const m = new SessionMetrics(clock());
     for (let i = 0; i < 500; i += 1)
-      m.recordToolError(`unique failure kind ${String.fromCharCode(i)}`);
+      {m.recordToolError(`unique failure kind ${String.fromCharCode(i)}`);}
     expect((m.summarize(true).errors ?? []).length).toBeLessThanOrEqual(40);
   });
 
@@ -261,7 +261,7 @@ describe('recordBug reports whether this KIND is new to the session', () => {
 
   it('keeps answering correctly past the kind-map cap, where a naive has() check would not', () => {
     const m = new SessionMetrics(clock());
-    for (let i = 0; i < 60; i += 1) m.recordBug(`filler-kind-${String(i)}`);
+    for (let i = 0; i < 60; i += 1) {m.recordBug(`filler-kind-${String(i)}`);}
     expect(m.recordBug('filler-kind-59')).toBe(false);
     expect(m.recordBug('a-genuinely-new-kind')).toBe(true);
     expect(m.recordBug('a-genuinely-new-kind')).toBe(false);
@@ -396,7 +396,7 @@ describe('every event is windowed, so summing a session never double counts', ()
  */
 describe('the agent is asked for a verdict once it has acted without one', () => {
   const drive = (m: SessionMetrics, n: number) => {
-    for (let i = 0; i < n; i += 1) m.recordAction();
+    for (let i = 0; i < n; i += 1) {m.recordAction();}
   };
 
   it('says nothing until enough actions have gone unverified', () => {
@@ -549,7 +549,7 @@ describe('an unknown tool records WHAT the agent reached for', () => {
 
   it('stops growing at a cap, so a pathological loop cannot balloon the payload', () => {
     const m = new SessionMetrics(() => 0);
-    for (let i = 0; i < 200; i += 1) m.recordUnknownTool(`guess_${String(i)}`);
+    for (let i = 0; i < 200; i += 1) {m.recordUnknownTool(`guess_${String(i)}`);}
     expect(Object.keys(m.summarize(true).unknownTools ?? {}).length).toBeLessThanOrEqual(40);
   });
 });

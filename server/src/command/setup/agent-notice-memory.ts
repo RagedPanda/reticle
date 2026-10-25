@@ -42,7 +42,7 @@ export function unsaidNotices(
   const out: ManualNotice[] = [];
   for (const n of notices) {
     const key = noticeKey(n);
-    if (seen.has(key)) continue;
+    if (seen.has(key)) {continue;}
     seen.add(key);
     out.push(n);
   }
@@ -54,7 +54,7 @@ export function readSaid(stateHome: string): string[] {
   try {
     const raw = readFileSync(join(stateHome, NOTICE_MEMORY_BASENAME), 'utf8');
     const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
+    if (!Array.isArray(parsed)) {return [];}
     return parsed.filter((k): k is string => 'string' === typeof k);
   } catch {
     return [];
@@ -63,7 +63,7 @@ export function readSaid(stateHome: string): string[] {
 
 /** Record these keys beside whatever was there. A failed write costs a repeated line, nothing more. */
 export function rememberSaid(stateHome: string, keys: readonly string[]): void {
-  if (0 === keys.length) return;
+  if (0 === keys.length) {return;}
   const merged = [...new Set([...readSaid(stateHome), ...keys])];
   try {
     mkdirSync(stateHome, { recursive: true });

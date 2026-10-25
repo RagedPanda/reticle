@@ -31,10 +31,10 @@ export function coverageLines(status: unknown): string[] {
     'object' === typeof status && null !== status
       ? (status as Record<string, unknown>)['coverage']
       : undefined;
-  if (!Array.isArray(list)) return [];
+  if (!Array.isArray(list)) {return [];}
   return list.flatMap((raw: unknown) => {
     const tab = ('object' === typeof raw && null !== raw ? raw : {}) as TabCoverage;
-    if ('number' !== typeof tab.covered || 'number' !== typeof tab.total) return [];
+    if ('number' !== typeof tab.covered || 'number' !== typeof tab.total) {return [];}
     const missing = capabilitiesIn(tab.missing);
     const notSeen = capabilitiesIn(tab.notSeenYet);
     const parts = [

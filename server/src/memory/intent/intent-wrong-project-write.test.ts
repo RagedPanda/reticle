@@ -63,7 +63,7 @@ function scene(options: { liveId?: string; connected?: boolean }) {
     now: () => 1_000,
     sessions: {
       resolve: (sessionId?: string) => {
-        if (false === options.connected) throw new Error('no browser session connected');
+        if (false === options.connected) {throw new Error('no browser session connected');}
         if (sessionId !== undefined && sessionId !== session.id) {
           throw new Error(`no connected session with id '${sessionId}'`);
         }

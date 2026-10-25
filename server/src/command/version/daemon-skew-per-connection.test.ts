@@ -39,7 +39,7 @@ function connection(version: string, contract: string): ToolDeps {
 
 const sessions = (deps: ToolDeps): Promise<{ version_skew?: { pair: string; action: string } }> => {
   const tool = TOOLS.find((t) => 'reticle_sessions' === t.name);
-  if (tool === undefined) throw new Error('no reticle_sessions');
+  if (tool === undefined) {throw new Error('no reticle_sessions');}
   return runTool(tool, deps, {}) as Promise<{ version_skew?: { pair: string; action: string } }>;
 };
 

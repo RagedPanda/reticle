@@ -62,7 +62,7 @@ describe('every name the merged surface drops still says where it went', () => {
     const broken: string[] = [];
     for (const tool of tableForSurface(TOOL_SURFACE.DEFAULT)) {
       const moved = mergedNameRedirect(tool.name);
-      if (moved === undefined) continue;
+      if (moved === undefined) {continue;}
       if (!names.has(moved.tool) && !mergedNames.has(moved.tool)) {
         broken.push(`${tool.name} -> ${moved.tool}`);
       }

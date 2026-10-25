@@ -19,7 +19,7 @@ const IPV4_MAPPED_PREFIX = /^::ffff:/i;
  * length mismatch — and the guard itself is not a timing oracle (length is not the secret).
  */
 export function tokensMatch(expected: string, received: string | undefined): boolean {
-  if (received === undefined) return false;
+  if (received === undefined) {return false;}
   const expectedBytes = Buffer.from(expected);
   const receivedBytes = Buffer.from(received);
   return (
@@ -39,7 +39,7 @@ export function requestToken(req: IncomingMessage, url: URL): string | undefined
 
 /** True when the request peer is a loopback address — the local-trust tier that needs no token. */
 export function isLoopbackPeer(remoteAddress: string | undefined): boolean {
-  if (remoteAddress === undefined) return false;
+  if (remoteAddress === undefined) {return false;}
   return isLoopbackHostname(remoteAddress.replace(IPV4_MAPPED_PREFIX, ''));
 }
 
@@ -60,7 +60,7 @@ function hostnameOf(value: string): string | undefined {
  * Missing Host is untrusted — every real HTTP/1.1 client (incl. `reticle status`, the stdio proxy) sends it.
  */
 export function isLoopbackHost(hostHeader: string | undefined): boolean {
-  if (hostHeader === undefined) return false;
+  if (hostHeader === undefined) {return false;}
   const hostname = hostnameOf(hostHeader);
   return hostname !== undefined && isLoopbackHostname(hostname);
 }
@@ -72,9 +72,9 @@ export function isLoopbackHost(hostHeader: string | undefined): boolean {
  */
 export function isLocalWebOrigin(origin: string | undefined, referer: string | undefined): boolean {
   for (const value of [origin, referer]) {
-    if (value === undefined) continue;
+    if (value === undefined) {continue;}
     const hostname = hostnameOf(value);
-    if (hostname === undefined || !isLoopbackHostname(hostname)) return false;
+    if (hostname === undefined || !isLoopbackHostname(hostname)) {return false;}
   }
   return true;
 }

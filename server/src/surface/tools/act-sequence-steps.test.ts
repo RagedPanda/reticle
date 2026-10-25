@@ -187,7 +187,7 @@ describe('reticle_act_sequence handler with string args (#1230)', () => {
       now: () => 0,
     };
     const tool = TOOLS.find((t) => t.name === ReticleTool.ACT_SEQUENCE);
-    if (tool === undefined) throw new Error('no reticle_act_sequence tool');
+    if (tool === undefined) {throw new Error('no reticle_act_sequence tool');}
     await tool.handler(deps as never, { steps });
     return sent.map((c) => (c['args'] ?? {}) as Record<string, unknown>);
   }

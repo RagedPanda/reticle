@@ -59,7 +59,7 @@ export function buildDeviationReport(
   let nominal = 0;
   let truncated = 0;
   for (const segment of segments) {
-    if (segment.route === undefined) continue;
+    if (segment.route === undefined) {continue;}
     // A truncated segment's counts understate reality — judging it could read a false "nominal".
     if (true === segment.truncated) {
       truncated += 1;
@@ -68,11 +68,11 @@ export function buildDeviationReport(
     // The SAME key the service accumulates under — a lookup on the observed path would miss every
     // envelope on an app with ids in its URLs, which is the case this templating exists for.
     const envelope = envelopes.get(routeTemplate(segment.route));
-    if (envelope === undefined || envelope.samples < MIN_ENVELOPE_SAMPLES) continue;
+    if (envelope === undefined || envelope.samples < MIN_ENVELOPE_SAMPLES) {continue;}
     judged += 1;
     const segDeviations = compareSegment(envelope, segment, zThreshold);
-    if (0 === segDeviations.length) nominal += 1;
-    else deviations.push(...segDeviations);
+    if (0 === segDeviations.length) {nominal += 1;}
+    else {deviations.push(...segDeviations);}
   }
   deviations.sort((a, b) => b.z - a.z);
   const base = {

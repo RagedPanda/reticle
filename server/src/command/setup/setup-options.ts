@@ -68,9 +68,9 @@ export const DEFAULT_SETUP_OPTIONS: SetupOptions = {
 /** One `KEY=VALUE`, as an agent would pass it. Everything after the first `=` is the value. */
 export function parseEnvAssignment(pair: string): { key: string; value: string } | null {
   const at = pair.indexOf('=');
-  if (0 >= at) return null;
+  if (0 >= at) {return null;}
   const key = pair.slice(0, at).trim();
-  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(key)) return null;
+  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(key)) {return null;}
   return { key, value: pair.slice(at + 1) };
 }
 
@@ -84,7 +84,7 @@ export function collectEnv(pairs: readonly string[]): Record<string, string> {
   const env: Record<string, string> = {};
   for (const pair of pairs) {
     const parsed = parseEnvAssignment(pair);
-    if (null !== parsed) env[parsed.key] = parsed.value;
+    if (null !== parsed) {env[parsed.key] = parsed.value;}
   }
   return env;
 }

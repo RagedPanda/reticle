@@ -115,8 +115,8 @@ export function createSharedServer(options: { token?: string } = {}): SharedServ
       isLoopbackPeer(req.socket.remoteAddress) &&
       isLoopbackHost(req.headers.host) &&
       isLocalWebOrigin(req.headers.origin, req.headers.referer);
-    if (localClient) return true;
-    if (token === undefined) return false;
+    if (localClient) {return true;}
+    if (token === undefined) {return false;}
     return tokensMatch(token, requestToken(req, url));
   };
 
@@ -243,8 +243,8 @@ export function createSharedServer(options: { token?: string } = {}): SharedServ
       transports.set(sid, transport);
       sseStreams.set(sid, res);
       const peerVersion = url.searchParams.get(PEER_VERSION_PARAM);
-      if (null !== peerVersion && 0 < peerVersion.length) peerVersions.set(sid, peerVersion);
-      if (1 === transports.size) agentPresence?.(true); // first agent attached
+      if (null !== peerVersion && 0 < peerVersion.length) {peerVersions.set(sid, peerVersion);}
+      if (1 === transports.size) {agentPresence?.(true);} // first agent attached
       res.on('close', () => {
         transports.delete(sid);
         sseStreams.delete(sid);
@@ -259,7 +259,7 @@ export function createSharedServer(options: { token?: string } = {}): SharedServ
         } catch {
           /* a counter must never affect a disconnect path */
         }
-        if (0 === transports.size) agentPresence?.(false); // last agent detached → it's the human's turn
+        if (0 === transports.size) {agentPresence?.(false);} // last agent detached → it's the human's turn
       });
       mcpServer
         .connect(transport)
@@ -362,7 +362,7 @@ export function createSharedServer(options: { token?: string } = {}): SharedServ
           'ERR_SERVER_NOT_RUNNING' !== (err as NodeJS.ErrnoException).code
         ) {
           reject(err);
-        } else resolve();
+        } else {resolve();}
       });
     });
   }
@@ -408,7 +408,7 @@ function isJsonRequest(req: http.IncomingMessage): boolean {
   // Read through the typed accessor rather than indexing the header bag: the index signature is
   // `any`-shaped, and narrowing after an unsafe read is narrowing a lie.
   const value = req.headersDistinct['content-type']?.[0];
-  if (undefined === value) return false;
+  if (undefined === value) {return false;}
   return JSON_MEDIA_TYPE === value.split(';')[0]?.trim().toLowerCase();
 }
 
@@ -459,7 +459,7 @@ function schemeOf(url: string): string | undefined {
 
 function driveSchemeRefusal(url: string): string | undefined {
   const scheme = schemeOf(url);
-  if (scheme !== undefined && DRIVEABLE_SCHEMES.includes(scheme)) return undefined;
+  if (scheme !== undefined && DRIVEABLE_SCHEMES.includes(scheme)) {return undefined;}
   // Names what it got, because the caller is a CLI printing this to somebody who typed the url and
   // needs to see which part of it was the problem.
   return (
@@ -475,7 +475,7 @@ function urlFromDriveRequest(body: string): string | undefined {
   } catch {
     return undefined;
   }
-  if (typeof parsed !== 'object' || null === parsed) return undefined;
+  if (typeof parsed !== 'object' || null === parsed) {return undefined;}
   const url = (parsed as Record<string, unknown>)['url'];
   return 'string' === typeof url && url.length > 0 ? url : undefined;
 }

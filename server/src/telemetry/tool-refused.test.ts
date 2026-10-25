@@ -72,7 +72,7 @@ describe('tool_refused', () => {
    */
   it('stops sending past the session cap', () => {
     const sent = captureEmits();
-    for (let i = 0; i < 60; i += 1) reportToolRefused('reticle_act', RefusalReason.NO_MATCH);
+    for (let i = 0; i < 60; i += 1) {reportToolRefused('reticle_act', RefusalReason.NO_MATCH);}
     expect(sent.length).toBe(50);
   });
 });

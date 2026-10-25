@@ -22,7 +22,7 @@ function stateDeps(result: unknown): ToolDeps {
 
 function stateTool() {
   const t = READ_TOOLS.find((x) => x.name === ReticleTool.STATE);
-  if (t === undefined) throw new Error('no reticle_state tool');
+  if (t === undefined) {throw new Error('no reticle_state tool');}
   return t;
 }
 

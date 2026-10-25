@@ -26,7 +26,7 @@ const FNV_PRIME = 0x01000193;
  */
 export function projectPortFor(seed: string): number {
   let hash = FNV_OFFSET;
-  for (let i = 0; i < seed.length; i++) hash = Math.imul(hash ^ seed.charCodeAt(i), FNV_PRIME);
+  for (let i = 0; i < seed.length; i++) {hash = Math.imul(hash ^ seed.charCodeAt(i), FNV_PRIME);}
   return PROJECT_PORT_FIRST + ((hash >>> 0) % PROJECT_PORT_SPAN);
 }
 
@@ -40,7 +40,7 @@ export function projectPortFor(seed: string): number {
  */
 export function portFromEnv(env: Readonly<Record<string, string | undefined>>): number | undefined {
   const raw = env[ReticleEnv.PORT];
-  if (undefined === raw || !/^\d+$/.test(raw)) return undefined;
+  if (undefined === raw || !/^\d+$/.test(raw)) {return undefined;}
   const port = Number(raw);
   return 0 < port && port <= MAX_PORT ? port : undefined;
 }
@@ -60,21 +60,21 @@ export async function portForInit(
   /** The project's directory: the port's seed when the project has no id yet. */
   dir?: string,
 ): Promise<number | undefined> {
-  if (explicit !== undefined) return explicit;
-  if (configured !== undefined) return configured;
+  if (explicit !== undefined) {return explicit;}
+  if (configured !== undefined) {return configured;}
   // Undefined, not the default's number: an explicit default would be written into every generated
   // config as a `port` nobody chose.
-  if (!(await deps.daemonPresent(RETICLE_DEFAULT_PORT))) return undefined;
+  if (!(await deps.daemonPresent(RETICLE_DEFAULT_PORT))) {return undefined;}
   // Started here — by this project's own editor MCP, typically — so it is ours whatever project id
   // it recorded. Moving off it strands that agent: an MCP resolves its port once, at startup.
-  if (true === deps.daemonStartedHere?.(RETICLE_DEFAULT_PORT)) return undefined;
+  if (true === deps.daemonStartedHere?.(RETICLE_DEFAULT_PORT)) {return undefined;}
   // A daemon that serves other projects, one or several, is somebody else's: it is rooted in their
   // directory and linked to their cloud project, even when its bridge would accept this page. A
   // daemon serving nobody, or this project among others, is kept. A project that has never been
   // through init has no id yet, so every named holder is somebody else.
   const holders = await deps.daemonProjects(RETICLE_DEFAULT_PORT);
   if (0 === holders.length || (projectId !== undefined && holders.includes(projectId)))
-    return undefined;
+    {return undefined;}
   const seed = projectId ?? dir;
   return deps.pickPort(seed === undefined ? PROJECT_PORT_FIRST : projectPortFor(seed));
 }

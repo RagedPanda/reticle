@@ -78,21 +78,21 @@ export function computeVerdict(raw: VerificationRunInput): RunVerdict {
     }
   }
   for (const c of input.checks) {
-    if (c.status === Verified.NO) reasons.push(`check failed: ${c.predicate}`);
+    if (c.status === Verified.NO) {reasons.push(`check failed: ${c.predicate}`);}
   }
   for (const r of input.risks) {
-    if (r.gated) reasons.push(`blocked: ${r.surface} risk — ${r.detail}`);
+    if (r.gated) {reasons.push(`blocked: ${r.surface} risk — ${r.detail}`);}
   }
 
   let status: VerdictStatus;
-  if (blockingRisks > 0) status = VerdictStatus.FAIL;
+  if (blockingRisks > 0) {status = VerdictStatus.FAIL;}
   // A failure beside things that passed is a fail, not a partial: the result block, the CLI and the
   // platform's grade all call it that, and a "partial" beside "Reticle result: failed" was one run
   // with two verdicts. A partial is only ever a pass with something skipped or undecided beside it.
-  else if (fails > 0) status = VerdictStatus.FAIL;
+  else if (fails > 0) {status = VerdictStatus.FAIL;}
   else if ((skippedFlows > 0 || undecidedChecks > 0) && passes > 0) {
     status = VerdictStatus.PARTIAL;
-    if (0 < undecidedChecks) reasons.push(`${String(undecidedChecks)} check(s) undecided`);
+    if (0 < undecidedChecks) {reasons.push(`${String(undecidedChecks)} check(s) undecided`);}
   } else if (0 === passes) {
     // Nothing passed and nothing failed, so nothing was proved -- an empty run, or one whose every
     // flow was skipped. Reporting that as PASS is the false green this whole file exists to prevent:
@@ -100,14 +100,14 @@ export function computeVerdict(raw: VerificationRunInput): RunVerdict {
     // confidence field would never reach the person deciding whether to ship.
     status = VerdictStatus.UNKNOWN;
     reasons.push('nothing ran, so nothing was proved');
-  } else status = VerdictStatus.PASS;
+  } else {status = VerdictStatus.PASS;}
 
   const ran = input.flows.length + input.checks.length;
   let confidence: RunConfidence;
-  if (0 === ran) confidence = RunConfidence.LOW;
+  if (0 === ran) {confidence = RunConfidence.LOW;}
   else if (input.flows.some((f) => f.oracle !== undefined) || input.checks.length > 0)
-    confidence = RunConfidence.HIGH;
-  else confidence = RunConfidence.MEDIUM;
+    {confidence = RunConfidence.HIGH;}
+  else {confidence = RunConfidence.MEDIUM;}
 
   return { status, reasons, confidence, blockingRisks };
 }

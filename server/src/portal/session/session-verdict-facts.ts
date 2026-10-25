@@ -30,7 +30,7 @@ export interface VerdictRelevantSession {
 export function sessionVerdictFacts(session: VerdictRelevantSession): SessionVerdictFacts {
   const facts: { sdkVersion?: string; versionSkew?: string } = {};
   // So the unread-body remedy can check it applies to THIS page.
-  if (session.sdkVersion !== undefined) facts.sdkVersion = session.sdkVersion;
+  if (session.sdkVersion !== undefined) {facts.sdkVersion = session.sdkVersion;}
   /*
    * An empty string is NOT a skew. The bridge sets this only on a real mismatch, but a defaulted
    * or cleared field reaching the verdict would cost every call a `yes` it had earned — which is a

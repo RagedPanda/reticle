@@ -21,7 +21,7 @@ export function claudeTranscriptExists(sessionId: string): boolean {
   ]) {
     try {
       for (const project of readdirSync(base)) {
-        if (existsSync(join(base, project, `${sessionId}.jsonl`))) return true;
+        if (existsSync(join(base, project, `${sessionId}.jsonl`))) {return true;}
       }
     } catch {
       /* that history directory does not exist on this machine */

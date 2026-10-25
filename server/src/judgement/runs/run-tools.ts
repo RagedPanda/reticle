@@ -93,8 +93,8 @@ export const RUN_TOOLS: ToolDef[] = [
         run = latest;
       }
       const format = asString(args['format']);
-      if ('report' === format) return { report: renderRunReport(run) };
-      if ('open-verification' === format) return { artifact: toArtifact(run) };
+      if ('report' === format) {return { report: renderRunReport(run) };}
+      if ('open-verification' === format) {return { artifact: toArtifact(run) };}
       return { run };
     },
   },

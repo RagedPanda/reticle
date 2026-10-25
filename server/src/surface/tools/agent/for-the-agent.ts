@@ -34,11 +34,11 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 export function forTheAgent(answer: AgentAnswer): unknown {
   const { name, args, attach, root } = answer;
   const shaped = shapeForAgent(name, args, answer.result, attach !== undefined);
-  if (attach === undefined || ReticleTool.RUN === name || !isRecord(shaped)) return shaped;
+  if (attach === undefined || ReticleTool.RUN === name || !isRecord(shaped)) {return shaped;}
   // A corrected failure that just passed becomes an app note: a hint for the next session.
   const learned = learnFromVerdict(attach, args, shaped);
-  if (learned !== undefined && root !== undefined) addAppNote(root, learned);
-  if (wantsFull(args)) return shaped;
+  if (learned !== undefined && root !== undefined) {addAppNote(root, learned);}
+  if (wantsFull(args)) {return shaped;}
   const notes = root === undefined ? [] : readAppNotes(root).map((note) => `App note: ${note}`);
   const stale = staleBuildNotice();
   const project = root === undefined ? undefined : dirname(root);

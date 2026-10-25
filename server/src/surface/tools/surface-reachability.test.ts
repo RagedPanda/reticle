@@ -66,8 +66,8 @@ describe('tool reachability across profiles', () => {
       for (const tool of filterTools(TOOLS, profile)) {
         // Every reticle_* token mentioned in this tool's description.
         for (const mentioned of tool.description.match(/reticle_[a-z_]+/g) ?? []) {
-          if (!ALL_NAMES.has(mentioned as ReticleTool)) continue; // prose, not a real tool name
-          if (!canCall.has(mentioned)) offenders.push(`${tool.name} -> ${mentioned}`);
+          if (!ALL_NAMES.has(mentioned as ReticleTool)) {continue;} // prose, not a real tool name
+          if (!canCall.has(mentioned)) {offenders.push(`${tool.name} -> ${mentioned}`);}
         }
       }
       expect(offenders).toEqual([]);

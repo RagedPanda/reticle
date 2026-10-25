@@ -60,15 +60,15 @@ export function writeLicenseKey(dir: string, key: string, io: LicenseIo): Licens
   const already = -1 !== at && lines[at]?.trim() === `${ENV_VAR}=${key}`;
 
   let action: LicenseWrite = LicenseWrite.WRITTEN;
-  if (already) action = LicenseWrite.ALREADY;
+  if (already) {action = LicenseWrite.ALREADY;}
   else if (-1 !== at) {
     lines[at] = `${ENV_VAR}=${key}`;
     action = LicenseWrite.REPLACED;
   } else {
-    if (0 < lines.length && '' !== lines[lines.length - 1]) lines.push('');
+    if (0 < lines.length && '' !== lines[lines.length - 1]) {lines.push('');}
     lines.push(`${ENV_VAR}=${key}`, '');
   }
-  if (LicenseWrite.ALREADY !== action) io.writeFile(envPath, lines.join('\n'));
+  if (LicenseWrite.ALREADY !== action) {io.writeFile(envPath, lines.join('\n'));}
 
   // The order matters: a key in git is leaked whether or not the file is later removed.
   const ignorePath = joinPath(dir, GITIGNORE);

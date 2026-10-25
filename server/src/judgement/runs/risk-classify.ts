@@ -89,7 +89,7 @@ export function buildRisks(
   const risks: RunRisk[] = [];
   for (const { surface } of RISK_PATTERNS) {
     const files = filesBySurface.get(surface);
-    if (files === undefined || 0 === files.length) continue;
+    if (files === undefined || 0 === files.length) {continue;}
     risks.push({
       surface,
       severity: SURFACE_SEVERITY[surface],

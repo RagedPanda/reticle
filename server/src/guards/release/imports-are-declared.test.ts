@@ -135,9 +135,9 @@ describe('published packages import only what they declare', () => {
           for (const m of text.matchAll(re)) {
             const specifier = m[1] ?? '';
             // A template placeholder or prose is not a module specifier.
-            if (/[\s$]/.test(specifier)) continue;
+            if (/[\s$]/.test(specifier)) {continue;}
             const pkg = packageOf(specifier);
-            if (BUILTINS.has(pkg) || pkg.startsWith('node:') || declared.has(pkg)) continue;
+            if (BUILTINS.has(pkg) || pkg.startsWith('node:') || declared.has(pkg)) {continue;}
             undeclared.add(`${pkg} (${file})`);
           }
         }

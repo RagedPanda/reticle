@@ -25,9 +25,12 @@ import { ReticleEnv } from '@reticlehq/core';
 import { discoverProjectConfigs } from '@/command/cli/config/config-discovery.js';
 import { projectSetting } from '@/memory/intent/record-request.js';
 import { capturePrompt, hookAck } from './prompt-hook.js';
+import { captureToolCall } from './tool-hook.js';
 
 const HookAction = {
   PROMPT: 'prompt',
+  /** What the agent's post-tool hook runs: one of the agent's own tool calls. */
+  TOOL: 'tool',
   INSTALL: 'install',
   UNINSTALL: 'uninstall',
   STATUS: 'status',
@@ -142,14 +145,14 @@ function uninstall(cwd: string, print: (line: string) => void): number {
     for (const rel of spec.paths) {
       const path = join(projectDir, rel);
       const out = uninstallPromptHook(spec, readText(path));
-      if (!out.changed) continue;
+      if (!out.changed) {continue;}
       removed++;
-      if (null === out.content) rmSync(path, { force: true });
-      else writeFileSync(path, out.content);
+      if (null === out.content) {rmSync(path, { force: true });}
+      else {writeFileSync(path, out.content);}
       print(`✓ ${spec.label}: removed (${path})`);
     }
   }
-  if (0 === removed) print('No prompt-capture hook was installed here.');
+  if (0 === removed) {print('No prompt-capture hook was installed here.');}
   return 0;
 }
 
@@ -166,13 +169,21 @@ export async function handleHook(
     process.stdout.write(hookAck(agent));
     return 0;
   }
-  if (HookAction.INSTALL === action) return install(cwd, print);
-  if (HookAction.UNINSTALL === action) return uninstall(cwd, print);
-  if (HookAction.STATUS === action) {
-    const rows = promptCaptureRows(projectDirOf(cwd), process.env, claudeCliHere());
-    for (const row of rows) print(row);
+  if (HookAction.TOOL === action) {
+    const at = argv.indexOf(AGENT_FLAG);
+    const agent = (-1 === at ? undefined : argv[at + 1]) ?? DEFAULT_AGENT;
+    captureToolCall(agent, await readStdin(), { cwd, env: process.env, now: () => Date.now() });
     return 0;
   }
-  print(`unknown hook action: ${action}. Use install, uninstall, status or prompt --agent <id>.`);
+  if (HookAction.INSTALL === action) {return install(cwd, print);}
+  if (HookAction.UNINSTALL === action) {return uninstall(cwd, print);}
+  if (HookAction.STATUS === action) {
+    const rows = promptCaptureRows(projectDirOf(cwd), process.env, claudeCliHere());
+    for (const row of rows) {print(row);}
+    return 0;
+  }
+  print(
+    `unknown hook action: ${action}. Use install, uninstall, status, prompt --agent <id> or tool --agent <id>.`,
+  );
   return 1;
 }

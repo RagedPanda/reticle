@@ -46,13 +46,13 @@ function labelsInSampleBlocks(markdown: string): string[] {
   const blocks = markdown.split('```');
   for (let index = 1; index < blocks.length; index += 2) {
     const block = blocks[index];
-    if (undefined === block || !block.includes('reticle doctor')) continue;
+    if (undefined === block || !block.includes('reticle doctor')) {continue;}
     for (const line of block.split('\n')) {
       // A row is two spaces, the label, then at least two spaces before its value. The lazy
       // quantifier stops the label swallowing the padding.
       const match = /^ {2}([a-z][a-z ]*?) {2,}\S/.exec(line);
       const label = match?.[1];
-      if (undefined !== label) found.push(label);
+      if (undefined !== label) {found.push(label);}
     }
   }
   return found;

@@ -19,7 +19,7 @@ describe('resolving a target query to one ref', () => {
       { ref: 'e9', role: 'button', name: 'Save', visible: true },
     ]);
     expect(r.kind).toBe('error');
-    if (r.kind !== 'error') return;
+    if (r.kind !== 'error') {return;}
     expect(r.message).toContain('2 elements');
     expect(r.message, 'names the candidates so the caller can narrow').toContain('e3');
     expect(r.message).toContain('e9');
@@ -42,7 +42,7 @@ describe('resolving a target query to one ref', () => {
   it('says nothing matched, and says no verdict is possible', () => {
     const r = resolveTargetRef([]);
     expect(r.kind).toBe('error');
-    if (r.kind !== 'error') return;
+    if (r.kind !== 'error') {return;}
     expect(r.message).toContain('no element');
     expect(r.message.toLowerCase()).toContain('no verdict');
   });
@@ -76,7 +76,7 @@ describe('an ambiguous refusal ranks the candidates it already has', () => {
       },
     ]);
     expect(r.kind).toBe('error');
-    if (r.kind !== 'error') return;
+    if (r.kind !== 'error') {return;}
     const e1 = r.message.indexOf('e1');
     const e2 = r.message.indexOf('e2');
     expect(e1, 'in-viewport candidate leads').toBeGreaterThanOrEqual(0);
@@ -92,7 +92,7 @@ describe('an ambiguous refusal ranks the candidates it already has', () => {
       { ref: 'e1309', role: 'button', name: 'New bill', visible: true },
     ]);
     expect(r.kind).toBe('error');
-    if (r.kind !== 'error') return;
+    if (r.kind !== 'error') {return;}
     expect(r.message.indexOf('e1309')).toBeLessThan(r.message.indexOf('e1310'));
   });
 
@@ -118,7 +118,7 @@ describe('an ambiguous refusal ranks the candidates it already has', () => {
   it('names what that role is really called when an exact name just missed', () => {
     const r = resolveTargetRef([], { nameNearMiss: ['billing Last run 1 minute ago'] });
     expect(r.kind).toBe('error');
-    if (r.kind !== 'error') return;
+    if (r.kind !== 'error') {return;}
     expect(r.message).toContain('"billing Last run 1 minute ago"');
     expect(r.message).toMatch(/testid|text/);
   });

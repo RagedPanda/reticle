@@ -80,7 +80,7 @@ describe('flow replay resolves an upload path against the session project', () =
       id: 'wt-b',
       url: 'http://localhost:15999/',
       command: (name, args): Promise<CommandResult> => {
-        if (ReticleCommand.ACT === name) uploads.push(asRecord(asRecord(args)['args']));
+        if (ReticleCommand.ACT === name) {uploads.push(asRecord(asRecord(args)['args']));}
         const result = ReticleCommand.QUERY === name ? QUERY_RESULT : {};
         return Promise.resolve({ kind: 'command_result', id: 'c', ok: true, result });
       },

@@ -26,7 +26,7 @@ import { witnessDisagreement } from '@reticlehq/engine/disagreement/witness-disa
  */
 const reconcile = (): (typeof RECONCILE_TOOLS)[number] => {
   const tool = RECONCILE_TOOLS.find((t) => t.name === ReticleTool.RECONCILE);
-  if (tool === undefined) throw new Error('reticle_reconcile is not on the surface');
+  if (tool === undefined) {throw new Error('reticle_reconcile is not on the surface');}
   return tool;
 };
 

@@ -24,7 +24,7 @@ function rootWith(runIds: readonly string[], sent: readonly string[] = []): stri
   const root = join(mkdtempSync(join(tmpdir(), 'reticle-unsynced-')), ReticleDir.ROOT);
   mkdirSync(join(root, ReticleDir.RUNS_SUBDIR), { recursive: true });
   for (const id of runIds)
-    writeFileSync(join(root, ReticleDir.RUNS_SUBDIR, `${id}.json`), JSON.stringify({ runId: id }));
+    {writeFileSync(join(root, ReticleDir.RUNS_SUBDIR, `${id}.json`), JSON.stringify({ runId: id }));}
   writeFileSync(
     join(root, ReticleDir.CLOUD_STATE_FILE),
     JSON.stringify({ sentRunHashes: Object.fromEntries(sent.map((id) => [id, 'h'])) }),
@@ -35,7 +35,7 @@ function rootWith(runIds: readonly string[], sent: readonly string[] = []): stri
 function withFlows(root: string, names: readonly string[]): string {
   mkdirSync(join(root, ReticleDir.FLOWS_SUBDIR), { recursive: true });
   for (const name of names)
-    writeFileSync(join(root, ReticleDir.FLOWS_SUBDIR, `${name}.json`), JSON.stringify({ name }));
+    {writeFileSync(join(root, ReticleDir.FLOWS_SUBDIR, `${name}.json`), JSON.stringify({ name }));}
   return root;
 }
 

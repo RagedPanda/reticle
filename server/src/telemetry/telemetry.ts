@@ -174,16 +174,16 @@ const Env = {
 
 const isDisabled = (env: NodeJS.ProcessEnv, cwd: string = process.cwd()): boolean => {
   const off = new Set(['0', 'false', 'off', 'no']);
-  if (off.has((env[Env.DISABLE] ?? '').toLowerCase())) return true;
+  if (off.has((env[Env.DISABLE] ?? '').toLowerCase())) {return true;}
   // Recording to a local file is not "phoning home", and the guards below exist to stop us phoning
   // home. Chief among them is the source-checkout rule — which is exactly where a release sweep is
   // driven from, so a sink that inherited it would record nothing and look like it had worked.
-  if ((env[Env.FILE] ?? '') !== '') return false;
-  if (env[Env.VITEST] !== undefined) return true; // a test run is not a user
+  if ((env[Env.FILE] ?? '') !== '') {return false;}
+  if (env[Env.VITEST] !== undefined) {return true;} // a test run is not a user
   // Developing Reticle is not using Reticle. The `.env` carrying RETICLE_TELEMETRY=0 is gitignored,
   // so it only exists on the machine that made it — a fresh clone would phone home on a
   // contributor's first `reticle serve`. The repo marker is committed, so this guarantee travels.
-  if (isReticleSourceCheckout(cwd)) return true;
+  if (isReticleSourceCheckout(cwd)) {return true;}
   const dnt = env[Env.DO_NOT_TRACK];
   return 'string' === typeof dnt && dnt !== '' && dnt !== '0';
 };
@@ -230,15 +230,15 @@ export const resolveIdentity = (
 ): { anonymousId: string; firstRun: boolean; ephemeral?: true } => {
   try {
     const existing = readIdFile(file);
-    if (existing !== undefined) return { anonymousId: existing, firstRun: false };
+    if (existing !== undefined) {return { anonymousId: existing, firstRun: false };}
     const id = randomUUID();
     mkdirSync(dirname(file), { recursive: true });
     try {
       writeFileSync(file, id, { encoding: 'utf8', flag: 'wx' });
     } catch (error) {
-      if (!isAlreadyThere(error)) throw error;
+      if (!isAlreadyThere(error)) {throw error;}
       const raced = readIdFile(file);
-      if (raced !== undefined) return { anonymousId: raced, firstRun: false };
+      if (raced !== undefined) {return { anonymousId: raced, firstRun: false };}
       // An empty file left by a crash: replace it, as the old code did.
       writeFileSync(file, id, 'utf8');
     }
@@ -291,9 +291,9 @@ const packageRoot = (cwd: string): string | null => {
   // Same bound as the git walk: deep monorepos are well inside 20, and an unbounded loop on a
   // pathological path would hang the CLI's startup.
   for (let depth = 0; depth < 20; depth += 1) {
-    if (existsSync(join(dir, 'package.json'))) return dir;
+    if (existsSync(join(dir, 'package.json'))) {return dir;}
     const parent = dirname(dir);
-    if (parent === dir) return null;
+    if (parent === dir) {return null;}
     dir = parent;
   }
   return null;
@@ -464,14 +464,14 @@ export const createTelemetry = (opts: {
   const cwd = opts.cwd ?? process.cwd();
   // A source checkout silences metrics but must not silence FEEDBACK — see onlyBlockedBySourceCheckout.
   const feedbackOnly = onlyBlockedBySourceCheckout(env, cwd);
-  if (isDisabled(env, cwd) && !feedbackOnly) return NOOP;
+  if (isDisabled(env, cwd) && !feedbackOnly) {return NOOP;}
   try {
-    if (existsSync(join(reticleDir, OPT_OUT_FILE_NAME))) return NOOP; // the persistent `reticle telemetry disable` opt-out
+    if (existsSync(join(reticleDir, OPT_OUT_FILE_NAME))) {return NOOP;} // the persistent `reticle telemetry disable` opt-out
   } catch {
     /* unreadable home dir — fall through; the env-var opt-outs above still apply */
   }
   const apiKey = env[Env.KEY] ?? POSTHOG_KEY;
-  if ('' === apiKey) return NOOP; // no key baked in (dev/test build) — nowhere to send, stay silent
+  if ('' === apiKey) {return NOOP;} // no key baked in (dev/test build) — nowhere to send, stay silent
 
   const now = opts.now ?? (() => Date.now());
   const doFetch = opts.fetchImpl ?? fetch;
@@ -507,7 +507,7 @@ export const createTelemetry = (opts: {
   // How this process was launched: a property of the process, so read once. Only the bucket leaves.
   const launch = launchMethodOf(process.argv[1]);
   const home = opts.home ?? homedir();
-  if (!feedbackOnly) showNoticeOnce(reticleDir);
+  if (!feedbackOnly) {showNoticeOnce(reticleDir);}
 
   const spawnDetached =
     opts.spawnImpl ??
@@ -531,7 +531,7 @@ export const createTelemetry = (opts: {
   const emit = async (kind: TelemetryEventKind, extra?: TelemetryExtra): Promise<boolean> => {
     // In a Reticle source checkout the emitter carries FEEDBACK and nothing else: somebody typed the
     // feedback, and no metric is worth phoning home from a contributor's clone.
-    if (feedbackOnly && TelemetryEventKind.FEEDBACK_SUBMITTED !== kind) return false;
+    if (feedbackOnly && TelemetryEventKind.FEEDBACK_SUBMITTED !== kind) {return false;}
     // One clock read for the whole event: `ts` and the licence check must agree, and two calls to
     // now() can straddle an expiry.
     const eventTs = now();
@@ -728,7 +728,7 @@ export const createTelemetry = (opts: {
           // connection reset) goes round again.
           return response.ok !== false;
         } catch (error) {
-          if (attempt === attempts - 1) throw error;
+          if (attempt === attempts - 1) {throw error;}
         }
       }
       return false;
@@ -750,7 +750,7 @@ export const droppedInvalidEvents = (): number => invalidDropped;
 
 /** `RETICLE_INTERNAL=1`, or the machine-wide marker file. Unreadable home → not internal. */
 const isInternal = (env: NodeJS.ProcessEnv, dir: string): boolean => {
-  if ('1' === env[Env.INTERNAL] || 'true' === env[Env.INTERNAL]) return true;
+  if ('1' === env[Env.INTERNAL] || 'true' === env[Env.INTERNAL]) {return true;}
   try {
     return existsSync(join(dir, INTERNAL_MARKER_FILE));
   } catch {

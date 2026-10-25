@@ -16,7 +16,7 @@ vi.mock('playwright', () => ({
   chromium: {
     launch: vi.fn((opts: unknown) => {
       launchCalls.push(opts);
-      if (launchFailure !== undefined) return Promise.reject(launchFailure);
+      if (launchFailure !== undefined) {return Promise.reject(launchFailure);}
       return Promise.resolve({
         isConnected: () => true,
         newContext: () => Promise.reject(new Error('not reached in this test')),

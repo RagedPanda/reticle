@@ -44,7 +44,7 @@ let storeOpts: {
 /** Get-or-create the store for one root. */
 function storeFor(root: string | undefined): ImpactStore | undefined {
   const key = root ?? defaultRoot;
-  if (key === undefined || 0 === key.length) return undefined;
+  if (key === undefined || 0 === key.length) {return undefined;}
   let found = stores.get(key);
   if (found === undefined) {
     const { configForRoot, coverageForRoot, ...opts } = storeOpts;
@@ -88,7 +88,7 @@ export function initImpact(opts: {
 }): ImpactStore | undefined {
   // No root, no record. Programmatic callers and test doubles build their own deps and are not
   // obliged to carry one, and a courtesy counter must never be the reason a tool call throws.
-  if (opts.reticleRoot === undefined || 0 === opts.reticleRoot.length) return storeFor(undefined);
+  if (opts.reticleRoot === undefined || 0 === opts.reticleRoot.length) {return storeFor(undefined);}
   if (defaultRoot === undefined) {
     defaultRoot = opts.reticleRoot;
     const { projectName, now, config, configForRoot, coverageForRoot, globalRoot, sdkVersion } =
@@ -187,7 +187,7 @@ export function deltaForToolResult(
  * cannot disagree with the verdict it describes.
  */
 export function defectForToolResult(raw: unknown, at: number): ImpactDefect | undefined {
-  if (!isRecord(raw) || raw['verified'] !== Verified.NO) return undefined;
+  if (!isRecord(raw) || raw['verified'] !== Verified.NO) {return undefined;}
 
   const effect = isRecord(raw['effect']) ? raw['effect'] : undefined;
   const verdict = isRecord(raw['verdict']) ? raw['verdict'] : undefined;
@@ -200,14 +200,14 @@ export function defectForToolResult(raw: unknown, at: number): ImpactDefect | un
     // sentence somebody can act on; "a verdict failed" is not.
     title: named === undefined ? (why ?? 'a declared consequence did not hold') : named,
   };
-  if (named !== undefined && why !== undefined) defect.detail = why;
+  if (named !== undefined && why !== undefined) {defect.detail = why;}
   const source = text(raw['source']);
-  if (source !== undefined) defect.source = source;
+  if (source !== undefined) {defect.source = source;}
   return defect;
 }
 
 function text(value: unknown): string | undefined {
-  if ('string' !== typeof value) return undefined;
+  if ('string' !== typeof value) {return undefined;}
   const trimmed = value.trim();
   return 0 === trimmed.length ? undefined : trimmed;
 }

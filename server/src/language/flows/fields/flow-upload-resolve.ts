@@ -41,7 +41,7 @@ export async function resolveFlowUploads(
   };
   // Untouched flows are returned as-is so the common journey allocates nothing and the on-disk file
   // and the replayed one stay the same object to compare.
-  if (!hasUpload(flow.steps)) return flow;
+  if (!hasUpload(flow.steps)) {return flow;}
   return { ...flow, steps: await Promise.all(flow.steps.map(resolveStep)) };
 }
 

@@ -65,21 +65,21 @@ async function linked(
   const cloud = await resolveProjectCloud(fs, root, homedir(), process.env);
   const { config } = cloud;
   if (null === config)
-    return {
+    {return {
       ok: false,
       answer: {
         ...unavailable(MemoryUnavailable.NOT_LINKED, 'this project is not linked to the platform'),
         advice: MEMORY_NOT_LINKED_ADVICE,
       },
-    };
+    };}
   if (!allowed(cloud))
-    return {
+    {return {
       ok: false,
       answer: unavailable(
         MemoryUnavailable.DISABLED,
         'this kind of sync is off in .reticle/cloud.json',
       ),
-    };
+    };}
   return { ok: true, cloud: { ...cloud, config } };
 }
 
@@ -98,7 +98,7 @@ export async function fetchPlatformFlow(
   name: string,
 ): Promise<PlatformAnswer> {
   const link = await linked(fs, root, (c) => c.policy.flows);
-  if (!link.ok) return link.answer;
+  if (!link.ok) {return link.answer;}
   const { config, projectId } = link.cloud;
   try {
     const res = await cloudFetch(
@@ -106,8 +106,8 @@ export async function fetchPlatformFlow(
       { method: 'GET', headers: headers(config.apiKey) },
     );
     if (HTTP_NOT_FOUND === res.status)
-      return unavailable(NOT_FOUND, `the platform holds no flow named "${name}" for this project`);
-    if (200 !== res.status) return UNREACHABLE;
+      {return unavailable(NOT_FOUND, `the platform holds no flow named "${name}" for this project`);}
+    if (200 !== res.status) {return UNREACHABLE;}
     const flow: unknown = await res.json();
     return { flow };
   } catch {
@@ -122,7 +122,7 @@ export async function addMemoryStatement(
   entry: { subject: string; statement: string; flowName?: string | undefined },
 ): Promise<PlatformAnswer> {
   const link = await linked(fs, root, (c) => c.policy.memory);
-  if (!link.ok) return link.answer;
+  if (!link.ok) {return link.answer;}
   const { config, projectId } = link.cloud;
   try {
     const res = await cloudFetch(`${config.url}${MEMORY_PATH}`, {
@@ -135,7 +135,7 @@ export async function addMemoryStatement(
         ...(null === projectId ? {} : { projectId }),
       }),
     });
-    if (res.status >= 300) return UNREACHABLE;
+    if (res.status >= 300) {return UNREACHABLE;}
     const added: unknown = await res.json();
     return { added };
   } catch {
@@ -151,7 +151,7 @@ export async function pushFlow(
   projectId: string | undefined,
 ): Promise<PlatformAnswer> {
   const link = await linked(fs, root, (c) => c.policy.flows);
-  if (!link.ok) return link.answer;
+  if (!link.ok) {return link.answer;}
   const result = await syncFlowToCloud(flow, link.cloud.config, projectId, cloudFetch);
   return SyncOutcome.SYNCED === result.outcome ? { pushed: flow.name } : UNREACHABLE;
 }
@@ -167,7 +167,7 @@ export async function setAsideStatement(
   intentId: string,
 ): Promise<PlatformAnswer> {
   const link = await linked(fs, root, (c) => c.policy.memory);
-  if (!link.ok) return link.answer;
+  if (!link.ok) {return link.answer;}
   const { config } = link.cloud;
   try {
     const res = await cloudFetch(`${config.url}${MEMORY_PATH}/${encodeURIComponent(intentId)}`, {
@@ -176,21 +176,21 @@ export async function setAsideStatement(
       body: JSON.stringify({ status: STALE }),
     });
     if (HTTP_NOT_FOUND === res.status)
-      return unavailable(
+      {return unavailable(
         SetAsideRefused.NO_SUCH_STATEMENT,
         `the platform holds no statement "${intentId}" in this project. Read reticle_memory again for the current ids.`,
-      );
+      );}
     if (HTTP_FORBIDDEN === res.status)
-      return unavailable(
+      {return unavailable(
         SetAsideRefused.NOT_ALLOWED,
         'the platform refused: the teammate who made this project’s key may not change flows or memory. Ask the user to set it aside on the dashboard (Memory), and meanwhile do not rely on it.',
-      );
+      );}
     if (HTTP_BAD_REQUEST === res.status)
-      return unavailable(
+      {return unavailable(
         SetAsideRefused.REFUSED,
         'the platform refused the change: with a project key a statement can only be set aside.',
-      );
-    if (res.status >= 300) return UNREACHABLE;
+      );}
+    if (res.status >= 300) {return UNREACHABLE;}
     return { setAside: intentId };
   } catch {
     return UNREACHABLE;

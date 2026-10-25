@@ -46,7 +46,7 @@ const reported = new Set<string>();
 function reportOnce(context: string, error: unknown): void {
   const message = error instanceof Error ? error.message : String(error);
   const key = `${context}:${message}`;
-  if (reported.has(key)) return;
+  if (reported.has(key)) {return;}
   reported.add(key);
   log(`hook failed (${context}): ${message}`);
 }

@@ -117,7 +117,7 @@ export function summarizeStatus(payload: unknown): {
   /** The same diagnosis without the differential, for a surface a person reads. */
   whyLead?: string;
 } {
-  if (typeof payload !== 'object' || null === payload) return { sessionCount: 0, sessions: [] };
+  if (typeof payload !== 'object' || null === payload) {return { sessionCount: 0, sessions: [] };}
   const obj = payload as Record<string, unknown>;
   // Carried through to the printed line: with no sessions this is the whole answer, and dropping it
   // here would silently undo the reason it is on the wire.
@@ -127,10 +127,10 @@ export function summarizeStatus(payload: unknown): {
   const raw = Array.isArray(obj['sessions']) ? obj['sessions'] : [];
   const sessions = raw
     .map((s): StatusSession | null => {
-      if (typeof s !== 'object' || null === s) return null;
+      if (typeof s !== 'object' || null === s) {return null;}
       const r = s as Record<string, unknown>;
       const sessionId = 'string' === typeof r['sessionId'] ? r['sessionId'] : '';
-      if ('' === sessionId) return null;
+      if ('' === sessionId) {return null;}
       return {
         sessionId,
         url: 'string' === typeof r['url'] ? r['url'] : '',

@@ -139,10 +139,10 @@ export async function actCommand(
   const hover = ActionType.HOVER === actArgs['action'];
   if (hover || (ActionType.PRESS === actArgs['action'] && deps.realInput === undefined)) {
     const ref = asString(actArgs['ref']);
-    if (hover && ref === undefined) throw new Error(HOVER_NEEDS_POINTER_MSG);
+    if (hover && ref === undefined) {throw new Error(HOVER_NEEDS_POINTER_MSG);}
     const action = hover ? ActionType.HOVER : ActionType.PRESS;
     const real = await tryRealInput(deps, session, ref ?? '', action, actArgs);
-    if (hover && real.result === undefined) throw new Error(HOVER_NEEDS_POINTER_MSG);
+    if (hover && real.result === undefined) {throw new Error(HOVER_NEEDS_POINTER_MSG);}
     if (real.result !== undefined) {
       const result = { dispatched: true, settled: real.settled, ...asRecord(real.result) };
       return { kind: 'command_result', id: action, ok: true, result };
@@ -221,7 +221,7 @@ export const ACT_TOOLS: ToolDef[] = [
       const session = deps.sessions.resolve(asString(args['sessionId']));
       // Live-control: refuse to drive the page while the human has paused us (before any work).
       const paused = pausedShortCircuit(session);
-      if (paused !== undefined) return paused;
+      if (paused !== undefined) {return paused;}
       refuseIfThrottled(session, args['refuseWhenThrottled']);
       // Where this step RUNS, read before the action — not after.
       //
@@ -233,7 +233,7 @@ export const ACT_TOOLS: ToolDef[] = [
       // Resolve `target` to a ref BEFORE the action window opens, so the lookup is not attributed to
       // the act and cannot be mistaken for something the action caused.
       const targetRef = await resolveActTarget(session, args);
-      if ('error' === targetRef.kind) throw new Error(targetRef.message);
+      if ('error' === targetRef.kind) {throw new Error(targetRef.message);}
 
       const since = session.elapsed();
       // The act cursor + effect are marked only once the action has actually DISPATCHED (below, on
@@ -276,11 +276,11 @@ export const ACT_TOOLS: ToolDef[] = [
           action: args['action'],
           args: args['args'] ?? {},
         });
-        if (!result.ok) throw new Error(result.error ?? 'act failed');
+        if (!result.ok) {throw new Error(result.error ?? 'act failed');}
         captureAct(deps.recordings, args, result.result, routeBefore, session.id);
         // lift dispatch/settle status to the envelope (a settle timeout is NOT a failure).
         const r = asRecord(result.result);
-        if ('boolean' === typeof r['settled']) settledOutcome = r['settled'];
+        if ('boolean' === typeof r['settled']) {settledOutcome = r['settled'];}
         // Keep what only this call measured, so the observe that judges this window can ask whether
         // anything happened INSIDE the target — the one fact that separates a dead control from a
         // page that was merely busy with something else.
@@ -502,7 +502,7 @@ export const ACT_TOOLS: ToolDef[] = [
       // BEFORE the action. A body clause this session cannot answer would fail whatever the app
       // did, and on a drive that mutates state the action is not always repeatable. See #801(C).
       const bodyRefusal = bodyClauseRefusal(until, session);
-      if (bodyRefusal !== undefined) throw new Error(bodyRefusal);
+      if (bodyRefusal !== undefined) {throw new Error(bodyRefusal);}
       const timeout = asNumber(args['timeout_ms']) ?? DEFAULT_ASSERT_TIMEOUT_MS;
       // An intent declared here lands in the ledger BEFORE the verdict is drawn, which is what makes
       // the undeclared-change gap silent on THIS verdict rather than the next one: it reads the
@@ -520,7 +520,7 @@ export const ACT_TOOLS: ToolDef[] = [
       // Resolve `target` to a ref BEFORE the action window opens, so the lookup is not attributed to
       // the act and cannot be mistaken for something the action caused.
       const resolved = await resolveActTarget(session, args);
-      if ('error' === resolved.kind) throw new Error(resolved.message);
+      if ('error' === resolved.kind) {throw new Error(resolved.message);}
 
       let since = session.elapsed();
       const actedSince = since;
@@ -558,7 +558,7 @@ export const ACT_TOOLS: ToolDef[] = [
           }),
         );
         if (actResult !== null) {
-          if (!actResult.ok) throw new Error(actResult.error ?? 'act failed');
+          if (!actResult.ok) {throw new Error(actResult.error ?? 'act failed');}
           dispatched = { result: actResult.result };
           // Dispatched — now this act owns the cursor and the effect. Marking its OWN measurement
           // also stops the spread below from inheriting an earlier reticle_act's action and
@@ -589,7 +589,7 @@ export const ACT_TOOLS: ToolDef[] = [
           predicateStarted,
           reevaluate: (next, budget) => waitForPredicate(next, until, budget, 0, baselines),
         });
-        if (followed.followed) since = 0;
+        if (followed.followed) {since = 0;}
         session = followed.session;
         verdict = followed.verdict;
 
@@ -598,11 +598,11 @@ export const ACT_TOOLS: ToolDef[] = [
           const left = (): number => timeout - (session.elapsed() - predicateStarted);
           const reverted = await finishAfterMatch(session, until, since, baselines, left);
           if (reverted !== undefined)
-            verdict = { pass: false, failureReason: reverted, observed: reverted };
+            {verdict = { pass: false, failureReason: reverted, observed: reverted };}
         }
 
         const r = asRecord(actResult?.result);
-        if ('boolean' === typeof r['settled']) settledOutcome = r['settled'];
+        if ('boolean' === typeof r['settled']) {settledOutcome = r['settled'];}
         // Where the acted element is written, captured at act time even if the action unmounted it.
         const actedSource = sourceOf(r['source']);
         // Remembered so a LATER assertion can name a file with no element to point at, and so the
@@ -708,7 +708,7 @@ export const ACT_TOOLS: ToolDef[] = [
         });
         // A refuted expectation must not ride into a regression flow cut from the ambient tape; it is
         // kept as the capsule below instead. See RecordingStore.unassertLast.
-        if (!verdict.pass && actResult !== null) deps.recordings.unassertLast();
+        if (!verdict.pass && actResult !== null) {deps.recordings.unassertLast();}
         const capsuleSaved = await saveFailedAssertCapsule({
           deps,
           verdict,
@@ -978,7 +978,7 @@ export const ACT_TOOLS: ToolDef[] = [
         });
       } finally {
         if (dispatched !== undefined)
-          captureVerdictedAct(
+          {captureVerdictedAct(
             deps.recordings,
             args,
             dispatched.result,
@@ -986,7 +986,7 @@ export const ACT_TOOLS: ToolDef[] = [
             recordedVerdict,
             session.id,
             wroteSince(acted, actedSince),
-          );
+          );}
         deps.recordings.markEnded(pathOf(currentOf(deps.sessions, session).url), session.id);
         acted.finishAction(
           verdictEffect,

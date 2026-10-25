@@ -37,7 +37,7 @@ function netDeps(events: ReticleEvent[]): ToolDeps {
 
 function networkTool() {
   const t = OBSERVE_TOOLS.find((x) => x.name === ReticleTool.NETWORK);
-  if (t === undefined) throw new Error('no reticle_network tool');
+  if (t === undefined) {throw new Error('no reticle_network tool');}
   return t;
 }
 

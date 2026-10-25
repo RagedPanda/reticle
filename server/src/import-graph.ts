@@ -35,8 +35,8 @@ import { dirname, join, normalize, sep } from 'node:path';
  */
 export function resolveImport(fromFile: string, specifier: string): string | undefined {
   // `@/x` is already relative to the source root, which is exactly what this returns.
-  if (specifier.startsWith('@/')) return specifier.slice(2).replace(/\.js$/, '.ts');
-  if (!specifier.startsWith('.')) return undefined;
+  if (specifier.startsWith('@/')) {return specifier.slice(2).replace(/\.js$/, '.ts');}
+  if (!specifier.startsWith('.')) {return undefined;}
   return normalize(join(dirname(fromFile), specifier))
     .split(sep)
     .join('/')
@@ -60,7 +60,7 @@ export function importsOf(sourceRoot: string, file: string): string[] {
   const specifiers: string[] = [];
   for (const match of text.matchAll(/(?:from|import)\s*\(?\s*['"]([^'"]+)['"]/g)) {
     const specifier = match[1];
-    if (specifier !== undefined) specifiers.push(specifier);
+    if (specifier !== undefined) {specifiers.push(specifier);}
   }
   return specifiers;
 }
@@ -92,10 +92,10 @@ export function reachableFrom(sourceRoot: string, entry: string): Map<string, st
   const queue = [start];
   while (queue.length > 0) {
     const file = queue.shift();
-    if (file === undefined) continue;
+    if (file === undefined) {continue;}
     for (const specifier of importsOf(sourceRoot, file)) {
       const target = resolveImport(file, specifier);
-      if (target === undefined || reachedVia.has(target)) continue;
+      if (target === undefined || reachedVia.has(target)) {continue;}
       reachedVia.set(target, file);
       queue.push(target);
     }

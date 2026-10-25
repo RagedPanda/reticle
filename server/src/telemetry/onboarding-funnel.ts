@@ -23,7 +23,7 @@ export async function reportOnboardingStep(step: OnboardingStep): Promise<boolea
   const parsed = OnboardingStepSchema.safeParse(step);
   // A malformed step is DROPPED rather than sent or thrown. Sending it would put unvalidated text on
   // the wire; throwing would let a metric change what the user's install does, which rule 5 forbids.
-  if (!parsed.success) return false;
+  if (!parsed.success) {return false;}
   return getTelemetry().emit(TelemetryEventKind.ONBOARDING_STEP, { onboarding: parsed.data });
 }
 

@@ -65,7 +65,7 @@ describe('MCP POST transport', () => {
     const request = ((options, callback) => {
       if (isHeaderRecord(options.headers)) {
         const value = options.headers[MCP_CLIENT_DIRECTORY_HEADER];
-        if ('string' === typeof value) named = value;
+        if ('string' === typeof value) {named = value;}
       }
       const req = new EventEmitter() as http.ClientRequest;
       req.end = (() => {

@@ -25,7 +25,7 @@ import { reticleStateHome, spawnDaemon, STATE_DIR_ENV } from './daemon.js';
 const created: string[] = [];
 afterEach(() => {
   delete process.env[STATE_DIR_ENV];
-  for (const dir of created.splice(0)) rmSync(dir, { recursive: true, force: true });
+  for (const dir of created.splice(0)) {rmSync(dir, { recursive: true, force: true });}
 });
 
 describe('reticleStateHome', () => {

@@ -227,7 +227,7 @@ const URL_THEN_LEASE =
  * diagnosed the problem.
  */
 function leaseAdvice(base: string, facts: NoSessionFacts): string {
-  if (true === facts.desktop) return DESKTOP_NO_BROWSER;
+  if (true === facts.desktop) {return DESKTOP_NO_BROWSER;}
   const caveat = leaseCaveat(facts.leaseBrowser);
   return caveat === undefined ? base : `${base} ${caveat}`;
 }
@@ -264,10 +264,10 @@ const TAB_GONE_WHAT = 'The tab was closed, navigated away, or hard-reloaded.';
  * page down is no longer the same dead end as "the human closed the tab".
  */
 function tabGoneWhat(url: string | undefined): string {
-  if (undefined === url || '' === url) return TAB_GONE_WHAT;
+  if (undefined === url || '' === url) {return TAB_GONE_WHAT;}
   const torn = pageTornDownWhileOn(url);
   const first = torn.charAt(0);
-  if ('' === first) return TAB_GONE_WHAT;
+  if ('' === first) {return TAB_GONE_WHAT;}
   return `${first.toUpperCase()}${torn.slice(1)}. ${TAB_GONE_WHAT}`;
 }
 
@@ -368,7 +368,7 @@ const INIT_CMD = '`npx @reticlehq/server init`';
  */
 function slowListenerClause(facts: NoSessionFacts): string {
   const slow = facts.slowListeners ?? [];
-  if (0 === slow.length) return '';
+  if (0 === slow.length) {return '';}
   const ports = slow.join(', ');
   const subject = 1 === slow.length ? `Port ${ports} ACCEPTED` : `Ports ${ports} ACCEPTED`;
   return (
@@ -445,7 +445,7 @@ function unattributedListeners(listening: readonly number[]): string {
  */
 function portMismatchClause(facts: NoSessionFacts): string {
   const configured = facts.projectPort;
-  if (configured === undefined || configured === facts.port) return '';
+  if (configured === undefined || configured === facts.port) {return '';}
   return (
     ` They already disagree: \`.reticle.json\` says port ${String(configured)} and this daemon is` +
     ` on ${String(facts.port)}, so the SDK is dialling ${String(configured)} and nothing is there.` +
@@ -463,7 +463,7 @@ function portMismatchClause(facts: NoSessionFacts): string {
  */
 function siblingListenerClause(facts: NoSessionFacts): string {
   const occupied = facts.siblingListeners ?? [];
-  if (0 === occupied.length) return '';
+  if (0 === occupied.length) {return '';}
   const mismatch = facts.projectPort;
   const extra =
     mismatch !== undefined && mismatch !== facts.port
@@ -500,7 +500,7 @@ function rankedCauses(facts: NoSessionFacts): string {
  */
 function configsElsewhereClause(facts: NoSessionFacts): string {
   const configs = facts.configsElsewhere ?? [];
-  if (0 === configs.length) return '';
+  if (0 === configs.length) {return '';}
   const named = configs
     .map((c) => (c.projectId === undefined ? c.directory : `${c.directory} ('${c.projectId}')`))
     .join(', ');
@@ -514,8 +514,8 @@ function configsElsewhereClause(facts: NoSessionFacts): string {
 /** Where we looked, when we found nothing. An absence nobody can check is not evidence. */
 function searchedClause(facts: NoSessionFacts): string {
   const searched = facts.searchedDirectories ?? [];
-  if (0 === searched.length) return '';
-  if ((facts.configsElsewhere ?? []).length > 0) return '';
+  if (0 === searched.length) {return '';}
+  if ((facts.configsElsewhere ?? []).length > 0) {return '';}
   return ` I looked in: ${searched.join(', ')}. If your app is not in that list, that is the answer — this daemon is standing somewhere else.`;
 }
 
@@ -528,9 +528,9 @@ function searchedClause(facts: NoSessionFacts): string {
  */
 function stallClause(facts: NoSessionFacts): string {
   const { daemonUpMs, initialized, everConnected } = facts;
-  if (everConnected) return '';
-  if (!initialized) return '';
-  if (daemonUpMs === undefined || daemonUpMs < STALL_AFTER_MS) return '';
+  if (everConnected) {return '';}
+  if (!initialized) {return '';}
+  if (daemonUpMs === undefined || daemonUpMs < STALL_AFTER_MS) {return '';}
   const minutes = Math.round(daemonUpMs / 60_000);
   return (
     `This daemon has been running for ${String(minutes)} minutes and no app has connected. ` +
@@ -540,7 +540,7 @@ function stallClause(facts: NoSessionFacts): string {
 }
 
 function alreadyListeningClause(listening: readonly number[]): string {
-  if (0 === listening.length) return '';
+  if (0 === listening.length) {return '';}
   if (1 === listening.length) {
     const port = listening[0];
     return (

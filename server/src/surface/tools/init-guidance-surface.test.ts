@@ -72,7 +72,7 @@ describe('the guidance init writes and prints names only tools the reader was gi
   const advertised = new Set(advertisedTools(TOOL_SURFACE.MERGED).map((tool) => tool.name));
 
   it('finds the sources of the guidance init installs and prints', () => {
-    for (const file of WRITTEN_GUIDANCE) expect(existsSync(file), file).toBe(true);
+    for (const file of WRITTEN_GUIDANCE) {expect(existsSync(file), file).toBe(true);}
   });
 
   /*
@@ -100,7 +100,7 @@ describe('the guidance init writes and prints names only tools the reader was gi
     const broken: string[] = [];
     for (const file of WRITTEN_GUIDANCE) {
       for (const name of toolNamesIn(readFileSync(file, 'utf8'))) {
-        if (!advertised.has(name)) broken.push(`${file.slice(REPO_ROOT.length + 1)} -> ${name}`);
+        if (!advertised.has(name)) {broken.push(`${file.slice(REPO_ROOT.length + 1)} -> ${name}`);}
       }
     }
     expect(

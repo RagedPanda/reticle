@@ -101,11 +101,11 @@ function tables(): Map<string, string[]> {
       current = null;
       continue;
     }
-    if (null === current) continue;
+    if (null === current) {continue;}
     // Top-level keys only: a nested option object is indented deeper.
     const key = /^ {2}(?:'([^']+)'|([A-Za-z_][\w]*)):/.exec(line);
     const id = key?.[1] ?? key?.[2];
-    if (undefined !== id) out.get(current)?.push(id);
+    if (undefined !== id) {out.get(current)?.push(id);}
   }
   return out;
 }
@@ -129,20 +129,20 @@ function consumerOf(table: string): string | null {
   let declaring = false;
   for (const line of source().split('\n')) {
     const start = /^(?:export )?function (\w+)/.exec(line);
-    if (null !== start) fn = start[1] ?? null;
+    if (null !== start) {fn = start[1] ?? null;}
     if (new RegExp(`^const ${table}\\b`).test(line)) {
       seenDeclaration = true;
       declaring = true;
       continue;
     }
     if (declaring) {
-      if (/^\};?$/.test(line)) declaring = false;
+      if (/^\};?$/.test(line)) {declaring = false;}
       continue;
     }
-    if (!seenDeclaration) continue;
+    if (!seenDeclaration) {continue;}
     const code = line.trimStart();
-    if (code.startsWith('*') || code.startsWith('//') || code.startsWith('/*')) continue;
-    if (new RegExp(`\\b${table}\\b`).test(line)) return fn;
+    if (code.startsWith('*') || code.startsWith('//') || code.startsWith('/*')) {continue;}
+    if (new RegExp(`\\b${table}\\b`).test(line)) {return fn;}
   }
   return null;
 }
@@ -164,7 +164,7 @@ describe('every declared bench scenario can still fire', () => {
         continue;
       }
       if (consumer !== ENTRY && !new RegExp(`\\b${consumer}\\(`).test(body))
-        orphaned.push(`${table} (read only by ${consumer}, which ${ENTRY} never calls)`);
+        {orphaned.push(`${table} (read only by ${consumer}, which ${ENTRY} never calls)`);}
     }
     expect(
       orphaned,
@@ -206,12 +206,12 @@ describe('every declared bench scenario is scored by something', () => {
 
   function files(dir: string): string[] {
     const out: string[] = [];
-    if (!existsSync(dir)) return out;
+    if (!existsSync(dir)) {return out;}
     for (const entry of readdirSync(dir)) {
-      if ('node_modules' === entry || 'dist' === entry || entry.startsWith('.')) continue;
+      if ('node_modules' === entry || 'dist' === entry || entry.startsWith('.')) {continue;}
       const full = join(dir, entry);
-      if (statSync(full).isDirectory()) out.push(...files(full));
-      else if (SEARCH_EXT.some((e) => entry.endsWith(e))) out.push(full);
+      if (statSync(full).isDirectory()) {out.push(...files(full));}
+      else if (SEARCH_EXT.some((e) => entry.endsWith(e))) {out.push(full);}
     }
     return out;
   }

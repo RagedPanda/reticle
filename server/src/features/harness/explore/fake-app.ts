@@ -34,7 +34,7 @@ export function fakeApp(pages: Record<string, FakePage>, start: string) {
         if (effect !== undefined && 'to' in effect) {
           route = effect.to;
           overlay = undefined;
-        } else if (effect !== undefined) overlay = effect.opens;
+        } else if (effect !== undefined) {overlay = effect.opens;}
         return Promise.resolve({ ok: true });
       }
       case ReticleTool.SCROLL_TO: {

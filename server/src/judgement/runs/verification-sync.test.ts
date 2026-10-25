@@ -38,7 +38,7 @@ const stubFetch = (mode: 'ok' | 'fail' | 'throw'): { calls: FetchArgs[] } => {
   const calls: FetchArgs[] = [];
   globalThis.fetch = ((url: string, init: FetchInit) => {
     calls.push([url, init]);
-    if ('throw' === mode) return Promise.reject(new Error('network down'));
+    if ('throw' === mode) {return Promise.reject(new Error('network down'));}
     return Promise.resolve({ ok: 'ok' === mode, status: 'ok' === mode ? 201 : 500 } as Response);
   }) as unknown as typeof fetch;
   return { calls };
@@ -97,7 +97,7 @@ describe('persistAndSyncVerificationRun — MCP verification → Runs-tab artifa
     expect(calls).toHaveLength(1);
     const first = calls[0];
     expect(first).toBeDefined();
-    if (first === undefined) return;
+    if (first === undefined) {return;}
     const [url, init] = first;
     expect(url).toBe('https://cloud.test/v1/runs');
     expect(init.method).toBe('POST');
@@ -176,7 +176,7 @@ describe('persistAndSyncVerificationRun — MCP verification → Runs-tab artifa
    */
   it('records the command line off CI as a person, trigger manual', async () => {
     for (const k of ['CI', 'GITHUB_ACTIONS', 'GITLAB_CI', 'BUILDKITE', 'CIRCLECI', 'JENKINS_URL'])
-      vi.stubEnv(k, '');
+      {vi.stubEnv(k, '');}
     forgetAgents();
     noteAgentAttached('laptop', CLI_CLIENT_NAME);
     const id = await runAsAgent('laptop', () =>

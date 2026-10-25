@@ -48,8 +48,8 @@ export async function waitForReconnect(opts: WaitForReconnectOptions): Promise<b
   const start = opts.now();
   for (;;) {
     const live = opts.current();
-    if (live !== undefined && live !== opts.previous) return true;
-    if (opts.now() - start >= opts.timeoutMs) return false;
+    if (live !== undefined && live !== opts.previous) {return true;}
+    if (opts.now() - start >= opts.timeoutMs) {return false;}
     await opts.sleep(poll);
   }
 }

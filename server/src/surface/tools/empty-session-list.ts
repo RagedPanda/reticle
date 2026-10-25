@@ -72,7 +72,7 @@ export async function wireCallerBesideLiveSessions(
   sessions: readonly { projectId?: string }[],
 ): Promise<unknown> {
   const dir = callingClientDirectory();
-  if (dir === undefined) return undefined;
+  if (dir === undefined) {return undefined;}
   const projectId = readProjectId(dir);
   if (projectId !== undefined && sessions.some((session) => session.projectId === projectId)) {
     return undefined;
@@ -82,16 +82,16 @@ export async function wireCallerBesideLiveSessions(
     next !== undefined && FIRST_RUN_ACTIONS.has(next.action)
       ? deps.firstRun?.projectDirectory(dir)
       : undefined;
-  if (target === undefined || deps.firstRun === undefined) return undefined;
+  if (target === undefined || deps.firstRun === undefined) {return undefined;}
   return deps.firstRun.wire(target);
 }
 
 /** The departed tab for this call: the caller's own project when it named one, else the daemon's newest. */
 function departedForCaller(deps: ToolDeps): { id: string; url: string } | undefined {
   const dir = callingClientDirectory();
-  if (dir === undefined) return deps.sessions.lastKnown?.();
+  if (dir === undefined) {return deps.sessions.lastKnown?.();}
   const projectId = readProjectId(dir);
-  if (projectId === undefined) return undefined;
+  if (projectId === undefined) {return undefined;}
   return deps.sessions.lastKnownFor?.(projectId);
 }
 
@@ -120,7 +120,7 @@ export async function emptySessionList(
   if (dir !== undefined && deps.firstRun !== undefined) {
     const wired = await deps.firstRun.wire(dir);
     const connected = deps.sessions.list();
-    if (wired.ok && 0 < connected.length) return { sessions: connected, wired };
+    if (wired.ok && 0 < connected.length) {return { sessions: connected, wired };}
     return { sessions, wired, ...(why === undefined ? {} : { why }) };
   }
   // The last tab, when one was here. Optional-call: test stubs of SessionManager predate it.

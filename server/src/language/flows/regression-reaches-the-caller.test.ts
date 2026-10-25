@@ -17,7 +17,7 @@ import { FLOW_TOOLS } from './flow-tools.js';
  */
 const replayTool = (): (typeof FLOW_TOOLS)[number] => {
   const tool = FLOW_TOOLS.find((t) => t.name === ReticleTool.FLOW_REPLAY);
-  if (tool === undefined) throw new Error('reticle_flow_replay is not on the surface');
+  if (tool === undefined) {throw new Error('reticle_flow_replay is not on the surface');}
   return tool;
 };
 

@@ -114,7 +114,7 @@ describe('capturing a prompt', () => {
     run('claude-code', { prompt: PROMPT, cwd: dir });
     const ignore = readFileSync(join(dir, '.reticle', '.gitignore'), 'utf8').split('\n');
     for (const name of ['request.json', 'requests.jsonl', 'requests.1.jsonl'])
-      expect(ignore, name).toContain(name);
+      {expect(ignore, name).toContain(name);}
   });
 
   it('finds the project from a folder inside it', () => {

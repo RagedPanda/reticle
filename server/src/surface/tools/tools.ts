@@ -177,10 +177,10 @@ export const RAW_TOOLS: ToolDef[] = withCompactEnvelope([
         );
       const sessions = await list();
       // An empty list is a dead end on its own; see empty-session-list.ts for what it carries.
-      if (0 === sessions.length) return emptySessionList(deps, sessions);
+      if (0 === sessions.length) {return emptySessionList(deps, sessions);}
       // Another project's tab is up. This caller's project may still never have been wired.
       const wired = await wireCallerBesideLiveSessions(deps, sessions);
-      if (wired === undefined) return { sessions };
+      if (wired === undefined) {return { sessions };}
       return { sessions: await list(), wired };
     },
   },
@@ -534,7 +534,7 @@ export const RAW_TOOLS: ToolDef[] = withCompactEnvelope([
       // Accept the predicate's named-field spelling too — see query-shape.ts.
       const args = normalizeQueryArgs(rawArgs);
       const empty = emptyQueryRefusal(args);
-      if (empty !== undefined) return Promise.reject(empty);
+      if (empty !== undefined) {return Promise.reject(empty);}
       const session = deps.sessions.resolve(asString(args['sessionId']));
       return commandOrThrow(deps, asString(args['sessionId']), ReticleCommand.QUERY, {
         by: args['by'],
@@ -722,11 +722,11 @@ export const RETIRED_FROM_SURFACE: string[] = [
  * The browser counts what leanness passed over, so the tool can say which of the two it is.
  */
 function noteEmptyLeanTree(result: unknown, mode: string): unknown {
-  if (SnapshotMode.INTERACTIVE !== mode) return result;
+  if (SnapshotMode.INTERACTIVE !== mode) {return result;}
   const row = asRecord(result);
-  if (0 !== asNumber(row['nodes'])) return result;
+  if (0 !== asNumber(row['nodes'])) {return result;}
   const skipped = asNumber(row['leanSkipped']) ?? 0;
-  if (0 === skipped) return result;
+  if (0 === skipped) {return result;}
   return {
     ...row,
     note:
@@ -753,14 +753,14 @@ function noteEmptyLeanTree(result: unknown, mode: string): unknown {
  * empty tree it replaces.
  */
 function noteHiddenPage(result: unknown, mode: string): unknown {
-  if (SnapshotMode.STATUS === mode) return result;
+  if (SnapshotMode.STATUS === mode) {return result;}
   const row = asRecord(result);
-  if (0 !== asNumber(row['nodes'])) return result;
+  if (0 !== asNumber(row['nodes'])) {return result;}
   // A note already there is the more specific one (leanness), and two explanations for one empty
   // tree is worse than the better of them alone.
-  if (row['note'] !== undefined) return result;
+  if (row['note'] !== undefined) {return result;}
   const skipped = asNumber(row['hiddenSkipped']) ?? 0;
-  if (0 === skipped) return result;
+  if (0 === skipped) {return result;}
   return {
     ...row,
     note:

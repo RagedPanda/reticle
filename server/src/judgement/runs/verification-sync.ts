@@ -125,7 +125,7 @@ function assembleRun(
 /** A replay's verdict, decided as its run decides it: a green that proved nothing is undecided. */
 function replayVerified(replay: FlowReplayResult, durationMs: number): Verified {
   const status = mapReplayToFlowResult(replay, durationMs).status;
-  if (RunFlowStatus.PASS === status) return Verified.YES;
+  if (RunFlowStatus.PASS === status) {return Verified.YES;}
   return RunFlowStatus.FAIL === status ? Verified.NO : Verified.UNKNOWN;
 }
 
@@ -135,11 +135,11 @@ export async function persistAndSyncVerificationRun(
   target: ProjectTarget,
 ): Promise<string | undefined> {
   const { projectId } = target;
-  if (0 === timed.length) return undefined;
+  if (0 === timed.length) {return undefined;}
   // A replay the Harness made inside its own drive is part of that drive's run: written on its own
   // it was a second row ("Passed · Flow replay · Your agent") beside the plan run it belonged to.
-  if (currentDrivenBy() !== undefined) return undefined;
-  for (const t of timed) runLedger.replayed(t.replay.name, replayVerified(t.replay, t.durationMs));
+  if (currentDrivenBy() !== undefined) {return undefined;}
+  for (const t of timed) {runLedger.replayed(t.replay.name, replayVerified(t.replay, t.durationMs));}
   let run: ReticleVerificationRun;
   // The project the suite ran for, not the directory the daemon was started in. Both halves below
   // take it: the artifact `reticle_run` reads back through `sessionRoot`, and the cloud link that
@@ -159,7 +159,7 @@ export async function persistAndSyncVerificationRun(
     return undefined;
   }
   // Per-project cloud: only push when THIS project has cloud attached AND its policy allows runs.
-  if (null === cloud.config || !cloud.policy.runs) return run.runId; // not attached / runs disabled → local only
+  if (null === cloud.config || !cloud.policy.runs) {return run.runId;} // not attached / runs disabled → local only
   const result = await syncRunToCloud(run, cloud.config, cloudFetch);
   if (result.outcome !== SyncOutcome.SYNCED) {
     log('cloud-run-sync-failed', { runId: run.runId, status: result.status, error: result.error });

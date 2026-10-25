@@ -28,7 +28,7 @@ import { OPAQUE_ORIGIN } from '@reticlehq/core';
  * feed an unparseable string to `new URL`. Returns null only for a header that is not an origin.
  */
 export function normalizeOrigin(origin: string): string | null {
-  if (origin === OPAQUE_ORIGIN) return OPAQUE_ORIGIN;
+  if (origin === OPAQUE_ORIGIN) {return OPAQUE_ORIGIN;}
   try {
     const web = new URL(origin).origin;
     return web === OPAQUE_ORIGIN ? origin : web;
@@ -90,12 +90,12 @@ export class OriginFollower {
 
   /** Record the origin a session was admitted from. Non-web origins are never followed. */
   remember(sessionId: string, origin: string | null): void {
-    if (!this.mayDial(origin) || null === origin) return;
+    if (!this.mayDial(origin) || null === origin) {return;}
     this.#admitted.delete(sessionId);
     this.#admitted.set(sessionId, origin);
     if (this.#admitted.size > MAX_REMEMBERED) {
       const oldest = this.#admitted.keys().next().value;
-      if (oldest !== undefined) this.#admitted.delete(oldest);
+      if (oldest !== undefined) {this.#admitted.delete(oldest);}
     }
   }
 
@@ -106,8 +106,8 @@ export class OriginFollower {
    */
   refusal(hello: { sessionId: string; url: string }, to: string): string | undefined {
     const from = this.#admitted.get(hello.sessionId);
-    if (from === undefined) return FollowRefusal.UNKNOWN_SESSION;
-    if (originOf(hello.url) !== to) return FollowRefusal.URL_MISMATCH;
+    if (from === undefined) {return FollowRefusal.UNKNOWN_SESSION;}
+    if (originOf(hello.url) !== to) {return FollowRefusal.URL_MISMATCH;}
     let allowed = false;
     try {
       allowed = this.#policy({ sessionId: hello.sessionId, from, to, url: hello.url });

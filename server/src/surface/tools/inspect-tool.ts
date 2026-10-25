@@ -37,7 +37,7 @@ const LOCATOR_ARGS: readonly string[] = [
 /** The error for a ref-less inspect, or `undefined` when a usable ref was given. */
 export function missingRefRefusal(args: Record<string, unknown>): Error | undefined {
   const ref = asString(args['ref']);
-  if (ref !== undefined && 0 !== ref.length) return undefined;
+  if (ref !== undefined && 0 !== ref.length) {return undefined;}
   const locator = LOCATOR_ARGS.find((key) => asString(args[key]) !== undefined);
   const named =
     locator === undefined
@@ -141,7 +141,7 @@ export const INSPECT_TOOL: ToolDef = {
     // being required exactly where an agent meets it. See `missingRefRefusal`. Rejected rather
     // than thrown: a caller holding the promise would never see a synchronous throw.
     const refusal = missingRefRefusal(args);
-    if (refusal !== undefined) return Promise.reject(refusal);
+    if (refusal !== undefined) {return Promise.reject(refusal);}
     return commandOrThrow(deps, asString(args['sessionId']), ReticleCommand.INSPECT, {
       ref: asString(args['ref']),
     });

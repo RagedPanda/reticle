@@ -71,7 +71,7 @@ const defaultLoad: NoticesLoad = async (url, etag) => {
 function readCache(path: string): Cached | undefined {
   try {
     const raw: unknown = JSON.parse(readFileSync(path, 'utf8'));
-    if ('object' !== typeof raw || null === raw) return undefined;
+    if ('object' !== typeof raw || null === raw) {return undefined;}
     const record = raw as Record<string, unknown>;
     const fetchedAt = record['fetchedAt'];
     const etag = record['etag'];
@@ -118,8 +118,8 @@ export function hudNoticesSource(opts: {
           writeCache(opts.cacheFile, cached);
           return;
         }
-        if (200 !== answer.status || answer.body === undefined) return;
-        if (MAX_NOTICES_BODY_BYTES < Buffer.byteLength(answer.body)) return;
+        if (200 !== answer.status || answer.body === undefined) {return;}
+        if (MAX_NOTICES_BODY_BYTES < Buffer.byteLength(answer.body)) {return;}
         let file: unknown;
         try {
           file = JSON.parse(answer.body);
@@ -128,7 +128,7 @@ export function hudNoticesSource(opts: {
         }
         // An unreadable file keeps the last good notices rather than emptying the rail.
         const parsed = parseHudNotices(file);
-        if (0 === parsed.length && 0 < entries.length) return;
+        if (0 === parsed.length && 0 < entries.length) {return;}
         entries = parsed;
         // The cache holds what VALIDATED, rebuilt from the schema's output, never the body itself:
         // unknown fields and rejected entries in a network answer do not reach the disk.
@@ -149,7 +149,7 @@ export function hudNoticesSource(opts: {
     read(): HudNoticeEntry[] {
       const last = Math.max(cached?.fetchedAt ?? 0, askedAt ?? Number.NEGATIVE_INFINITY);
       const stale = cached === undefined && askedAt === undefined ? true : FRESH_MS <= now() - last;
-      if (!inFlight && stale && !outboundOff(process.env)) refresh();
+      if (!inFlight && stale && !outboundOff(process.env)) {refresh();}
       return entries;
     },
   };

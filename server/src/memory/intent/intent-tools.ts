@@ -156,16 +156,16 @@ export const INTENT_TOOLS: ToolDef[] = [
       // path for `record`, instead of saying which argument the call left out.
       const need = (name: string): string => {
         const value = asString(args[name]);
-        if (value !== undefined && 0 < value.trim().length) return value;
+        if (value !== undefined && 0 < value.trim().length) {return value;}
         throw new Error(
           `${ReticleTool.INTENT} ${String(action)}: \`${name}\` is required, and none was given — nothing was read or stored`,
         );
       };
 
-      if (INDEX === action) return { entries: (await shards.index()).entries, path: root };
-      if (SUBJECT === action) return { records: await shards.subject(need('subject')), path: root };
-      if (GET === action) return { record: await shards.get(need('id')) };
-      if (MIGRATE === action) return { ...(await shards.migrate()), path: root };
+      if (INDEX === action) {return { entries: (await shards.index()).entries, path: root };}
+      if (SUBJECT === action) {return { records: await shards.subject(need('subject')), path: root };}
+      if (GET === action) {return { record: await shards.get(need('id')) };}
+      if (MIGRATE === action) {return { ...(await shards.migrate()), path: root };}
       if (RECORD === action) {
         const written = await shards.record({
           id: need('id'),
@@ -193,7 +193,7 @@ export const INTENT_TOOLS: ToolDef[] = [
       const request = asString(args['request']);
       if (request !== undefined && 0 < request.trim().length) {
         await recordRequest(deps, root, request, Array.isArray(raw) ? raw : []);
-        if (!Array.isArray(raw) || 0 === raw.length) return { request: 'recorded', path: root };
+        if (!Array.isArray(raw) || 0 === raw.length) {return { request: 'recorded', path: root };}
       }
       // Refused, not read as an empty list: `declare` with nothing to declare stored nothing and
       // answered `{ intents: [] }`, which an agent reads as a declaration that worked (#1118).
@@ -244,12 +244,12 @@ async function withExistingFiles<T extends { surface?: unknown }>(
   const kept = await Promise.all(
     entries.map(async (entry) => {
       const surface = entry.surface as { files?: unknown } | undefined;
-      if (!Array.isArray(surface?.files)) return entry;
+      if (!Array.isArray(surface?.files)) {return entry;}
       const files: string[] = [];
       for (const file of surface.files)
-        if ('string' === typeof file && (await deps.fs.exists(join(projectDir, file))))
-          files.push(file);
-        else if ('string' === typeof file) missing.push(file);
+        {if ('string' === typeof file && (await deps.fs.exists(join(projectDir, file))))
+          {files.push(file);}
+        else if ('string' === typeof file) {missing.push(file);}}
       return { ...entry, surface: { ...surface, files } };
     }),
   );

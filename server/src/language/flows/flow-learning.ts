@@ -36,9 +36,9 @@ export async function persistLearning(
   result: FlowReplayResult,
 ): Promise<FlowReplayResult> {
   const learned = result.learned;
-  if (learned === undefined || 0 === learned.length) return result;
+  if (learned === undefined || 0 === learned.length) {return result;}
   const name = asString(args['flowName']) ?? '';
-  if (0 === name.length) return result;
+  if (0 === name.length) {return result;}
   try {
     const target = targetOf(deps, args);
     await flowsForSession(deps, target).flows.recordLearned(name, learned, target.projectId);
@@ -104,14 +104,14 @@ export async function persistSources(
   sources: Parameters<typeof withLearnedSources>[1],
 ): Promise<void> {
   const name = asString(args['flowName']) ?? '';
-  if (0 === name.length) return;
+  if (0 === name.length) {return;}
   try {
     const target = targetOf(deps, args);
     const { projectId } = target;
     const store = flowsForSession(deps, target).flows;
     const current = await store.load(name, projectId);
     // Read first so a flow that already names every file is never rewritten.
-    if (!current.ok || withLearnedSources(current.value, sources) === undefined) return;
+    if (!current.ok || withLearnedSources(current.value, sources) === undefined) {return;}
     await store.recordSources(name, sources, projectId);
   } catch {
     // Bookkeeping only.
@@ -126,7 +126,7 @@ export async function replaySeededOrNot(
   appUrl: string | undefined,
 ): Promise<FlowReplayResult> {
   const seed = asNumber(args['seed']);
-  if (seed === undefined) return await replayAndLearn(deps, args);
+  if (seed === undefined) {return await replayAndLearn(deps, args);}
   /*
    * The targets are the endpoints the FLOW declared it depends on, so the perturbation lands on
    * traffic the flow claims to care about. No declared endpoints means nothing to slow, and the
@@ -141,7 +141,7 @@ export async function replaySeededOrNot(
   const rules = perturbationFor(seed, targets);
   const port =
     0 === rules.length ? undefined : await sessionPerturbationPort(deps.realInput, appUrl);
-  if (port === undefined) return replayAndLearn(deps, args);
+  if (port === undefined) {return replayAndLearn(deps, args);}
   try {
     await port.slow(rules);
     const replay = await runSavedFlow(() => replayNamedFlow(deps, args));

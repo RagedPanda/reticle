@@ -54,7 +54,7 @@ const REPORT: RunReport = {
 function project(linked: boolean): string {
   const root = join(mkdtempSync(join(tmpdir(), 'run-report-')), ReticleDir.ROOT);
   mkdirSync(root, { recursive: true });
-  if (linked) writeFileSync(join(root, ReticleDir.CLOUD_LINK_FILE), '{}');
+  if (linked) {writeFileSync(join(root, ReticleDir.CLOUD_LINK_FILE), '{}');}
   return root;
 }
 
@@ -180,7 +180,7 @@ describe('the call that ends an agent run carries the report', () => {
       ...deps(root, 'agent-2'),
       sessions: {
         resolve: () => {
-          if (!open) throw new Error('no such session');
+          if (!open) {throw new Error('no such session');}
           return { id: 'lease-1', url: 'http://localhost:4336/' };
         },
       } as unknown as SessionManager,

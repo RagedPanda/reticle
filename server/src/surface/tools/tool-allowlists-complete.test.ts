@@ -58,11 +58,11 @@ const ALLOWLISTS: ReadonlyArray<{ readonly name: string; readonly file: string }
 const membersOf = (setName: string, file: string): string[] => {
   const source = readFileSync(join(SERVER_SRC, file), 'utf8');
   const start = source.indexOf(`const ${setName}`);
-  if (start < 0) return [];
+  if (start < 0) {return [];}
   const open = source.indexOf('new Set([', start);
-  if (open < 0) return [];
+  if (open < 0) {return [];}
   const close = source.indexOf('])', open);
-  if (close < 0) return [];
+  if (close < 0) {return [];}
   return [...source.slice(open, close).matchAll(/ReticleTool\.([A-Z0-9_]+)/g)].map(
     (match) => match[1] ?? '',
   );

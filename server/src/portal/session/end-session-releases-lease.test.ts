@@ -15,7 +15,7 @@ const OWNER = 'agent-1';
 
 function endTool() {
   const tool = LIVE_CONTROL_TOOLS.find((t) => t.name === ReticleTool.END_SESSION);
-  if (tool === undefined) throw new Error('reticle_end_session is not defined');
+  if (tool === undefined) {throw new Error('reticle_end_session is not defined');}
   return tool;
 }
 

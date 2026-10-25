@@ -42,7 +42,7 @@ export async function mutationTest(
    * broken for it. That is not only a saving: every mutation carries the risk of not being undone,
    * and the cheapest way to never leave a break behind is not to make one.
    */
-  if ('pass' !== before) return MutationOutcome.INCONCLUSIVE;
+  if ('pass' !== before) {return MutationOutcome.INCONCLUSIVE;}
 
   try {
     await deps.mutate(mutation);

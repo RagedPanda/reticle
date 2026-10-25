@@ -68,7 +68,7 @@ describe('agent nudges', () => {
       linked: () => Promise.resolve(true),
     });
     const said = [];
-    for (let i = 0; i < LONG_JOURNEY_ACTS + 3; i++) said.push(await takeNudge(on));
+    for (let i = 0; i < LONG_JOURNEY_ACTS + 3; i++) {said.push(await takeNudge(on));}
     expect(said.filter((n) => n !== undefined)).toEqual([
       { kind: AgentNudgeKind.EXPLORE, text: NudgeText.explore() },
     ]);

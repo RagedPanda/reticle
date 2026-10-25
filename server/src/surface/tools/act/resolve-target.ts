@@ -34,7 +34,7 @@ const ROLE_RANK: Readonly<Record<string, number>> = {
 };
 
 function roleRank(role: unknown): number {
-  if ('string' !== typeof role) return 100;
+  if ('string' !== typeof role) {return 100;}
   return ROLE_RANK[role] ?? 50;
 }
 
@@ -54,7 +54,7 @@ function inViewport(c: TargetCandidate): boolean {
  */
 function compareCandidates(a: TargetCandidate, b: TargetCandidate): number {
   const viewport = Number(inViewport(b)) - Number(inViewport(a));
-  if (0 !== viewport) return viewport;
+  if (0 !== viewport) {return viewport;}
   return roleRank(a.role) - roleRank(b.role);
 }
 
@@ -69,10 +69,10 @@ function formatCandidate(c: TargetCandidate, anyInViewport: boolean): string {
   const ref = 'string' === typeof c.ref ? c.ref : '?';
   const visible = false !== c.visible;
   let where: string;
-  if (!visible) where = 'hidden';
-  else if (inViewport(c)) where = 'in-viewport';
-  else if (anyInViewport) where = 'off-screen';
-  else where = 'visible';
+  if (!visible) {where = 'hidden';}
+  else if (inViewport(c)) {where = 'in-viewport';}
+  else if (anyInViewport) {where = 'off-screen';}
+  else {where = 'visible';}
   const head = name.length > 0 ? `${ref} (${role} "${name}"` : `${ref} (${role}`;
   return `${head}; ${where})`;
 }

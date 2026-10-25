@@ -38,7 +38,7 @@ const depsFor = (state: SessionState): ToolDeps => {
   return {
     sessions: {
       resolve: () => {
-        if ('no-session' === state) throw new Error('no session is connected');
+        if ('no-session' === state) {throw new Error('no session is connected');}
         return session;
       },
       get: () => ('no-session' === state ? undefined : session),

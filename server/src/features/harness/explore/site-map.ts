@@ -86,13 +86,13 @@ export function pagesReadIn(calls: readonly ToolOutcome[], at: number): HarnessM
   return calls.flatMap((call) => {
     // Only a full read of an unobstructed page: a quick read has no text, and a page behind an open
     // menu reads as the menu. Either one once replaced the survey's page and emptied the map.
-    if (ReticleTool.SNAPSHOT !== call.name || call.isError) return [];
-    if (SnapshotMode.FULL !== asRecord(call.args)['mode']) return [];
+    if (ReticleTool.SNAPSHOT !== call.name || call.isError) {return [];}
+    if (SnapshotMode.FULL !== asRecord(call.args)['mode']) {return [];}
     const result = asRecord(call.result);
     const tree = result['tree'];
     const route = asRecord(result['status'])['route'];
-    if ('string' !== typeof tree || 'string' !== typeof route) return [];
-    if (overlayOpen(parseTree(tree))) return [];
+    if ('string' !== typeof tree || 'string' !== typeof route) {return [];}
+    if (overlayOpen(parseTree(tree))) {return [];}
     return [pageFrom({ tree, route: routeOf(route) }, at)];
   });
 }
@@ -120,7 +120,7 @@ export async function surveyApp(
   presses = SURVEY_PRESSES,
 ): Promise<HarnessMap | undefined> {
   let start = await readPage(invoke);
-  if (start === undefined) return undefined;
+  if (start === undefined) {return undefined;}
   // A menu left open hides the page behind it: reload it once before reading what it offers.
   if (overlayOpen(parseTree(start.tree))) {
     await invoke(ReticleTool.NAVIGATE, { url: start.route }).catch(() => undefined);
@@ -138,13 +138,13 @@ export async function surveyApp(
       const line = parseTree(here?.tree ?? '').find(
         (l) => l.ref !== undefined && label(l) === target,
       );
-      if (line?.ref === undefined) continue;
+      if (line?.ref === undefined) {continue;}
       await invoke(ReticleTool.ACT, { ref: line.ref, action: 'click' });
       await settle(invoke);
       const read = await readPage(invoke);
-      if (read !== undefined) pages.push(pageFrom(read, now(), target));
+      if (read !== undefined) {pages.push(pageFrom(read, now(), target));}
       if (read !== undefined && read.route !== start.route)
-        await invoke(ReticleTool.NAVIGATE, { url: start.route });
+        {await invoke(ReticleTool.NAVIGATE, { url: start.route });}
     } catch {
       /* a press that fails is a page the map does not have */
     }
@@ -154,7 +154,7 @@ export async function surveyApp(
 
 /** The map from its file's text, or undefined when there is none or it does not parse. */
 export function parseMap(text: string | undefined): HarnessMap | undefined {
-  if (text === undefined) return undefined;
+  if (text === undefined) {return undefined;}
   try {
     const parsed = HarnessMapSchema.safeParse(JSON.parse(text));
     return parsed.success ? parsed.data : undefined;

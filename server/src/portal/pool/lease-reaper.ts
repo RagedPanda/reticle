@@ -24,12 +24,12 @@ export class LeaseReaper {
   }
 
   start(): void {
-    if (this.#timer !== undefined) return;
+    if (this.#timer !== undefined) {return;}
     this.#timer = setInterval(() => {
       this.#pool
         .sweepExpired()
         .then((reclaimed) => {
-          if (reclaimed.length > 0) log('lease_reaped_expired', { leases: reclaimed });
+          if (reclaimed.length > 0) {log('lease_reaped_expired', { leases: reclaimed });}
         })
         .catch(() => undefined);
     }, this.#intervalMs);
@@ -37,7 +37,7 @@ export class LeaseReaper {
   }
 
   stop(): void {
-    if (this.#timer === undefined) return;
+    if (this.#timer === undefined) {return;}
     clearInterval(this.#timer);
     this.#timer = undefined;
   }

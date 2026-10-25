@@ -65,13 +65,13 @@ const HERE = 'this folder';
 export function unsentRunCount(root: string): number {
   try {
     const dir = join(root, ReticleDir.RUNS_SUBDIR);
-    if (!existsSync(dir)) return 0;
+    if (!existsSync(dir)) {return 0;}
     const state = readCloudState(root);
     const sent = new Set([...Object.keys(state.sentRunHashes ?? {}), ...(state.sentRunIds ?? [])]);
     // Made before the folder was linked here: held for `--move-history`, so not waiting for a sync.
     const linkedAt = state.linkedAt;
     const heldBack = (file: string): boolean => {
-      if (linkedAt === undefined) return false;
+      if (linkedAt === undefined) {return false;}
       try {
         const at = (JSON.parse(readFileSync(join(dir, file), 'utf8')) as { createdAt?: unknown })
           .createdAt;
@@ -96,7 +96,7 @@ export function unsentRunCount(root: string): number {
  */
 export function unsentFlowCount(root: string, sendsFlows: boolean): number {
   try {
-    if (!sendsFlows) return diskSource(root).flows().length;
+    if (!sendsFlows) {return diskSource(root).flows().length;}
     return readCloudState(root).refusedSets?.flow?.count ?? 0;
   } catch {
     return 0;
@@ -117,7 +117,7 @@ export async function unsyncedRoots(
     const runs = unsentRunCount(root);
     const linked = await isLinked(root).catch(() => false);
     const flows = unsentFlowCount(root, linked && (await sendsFlows(root).catch(() => false)));
-    if (0 === runs && 0 === flows) continue;
+    if (0 === runs && 0 === flows) {continue;}
     const projectId = projectOfRoot(root);
     out.push({ root, runs, flows, linked, ...(projectId === undefined ? {} : { projectId }) });
   }
@@ -165,7 +165,7 @@ export function describeUnsynced(entry: UnsyncedRoot, from: string): string {
   }
   // `connect`, not `link`: it signs in first when it has to, so it is the one command that works.
   if (!entry.linked)
-    return `${what} in ${where} are not on your dashboard: run \`reticle connect\` there`;
+    {return `${what} in ${where} are not on your dashboard: run \`reticle connect\` there`;}
   // A linked root counts flows only when flow sync is off or the platform refused them.
   return 0 < entry.flows
     ? `${what} in ${where} are not on your dashboard: \`reticle config --flows on\` there if flow ` +
@@ -184,19 +184,19 @@ const FOLDERS_SHOWN = 5;
 export function describeUnsyncedBriefly(entries: readonly UnsyncedRoot[], from: string): string[] {
   const unclaimed = entries.filter((entry) => isUnmatchedRoot(entry.root));
   const claimed = entries.filter((entry) => !isUnmatchedRoot(entry.root));
-  if (entries.length <= FOLDERS_SHOWN) return entries.map((entry) => describeUnsynced(entry, from));
+  if (entries.length <= FOLDERS_SHOWN) {return entries.map((entry) => describeUnsynced(entry, from));}
   const runs = unclaimed.reduce((sum, entry) => sum + entry.runs, 0);
   const lines = claimed.slice(0, FOLDERS_SHOWN).map((entry) => describeUnsynced(entry, from));
   if (0 < unclaimed.length)
-    lines.unshift(
+    {lines.unshift(
       `${String(runs)} run(s) in ${String(unclaimed.length)} folders under ~/${ReticleDir.ROOT}/${UNMATCHED_SUBDIR} ` +
         'are not on your dashboard: no project claimed them, so they stay on this machine',
-    );
+    );}
   const more = claimed.length - FOLDERS_SHOWN;
   if (0 < more || 0 < unclaimed.length)
-    lines.push(
+    {lines.push(
       `${0 < more ? `${String(more)} more folder(s) hold work not on your dashboard. ` : ''}` +
         '`reticle doctor` lists every one',
-    );
+    );}
   return lines;
 }

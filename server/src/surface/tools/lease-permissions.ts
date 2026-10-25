@@ -33,9 +33,9 @@ type PermissionPool = Pick<BrowserPool, 'notificationPermission'>;
 
 /** The validated list, undefined when the caller passed none, or a refusal naming the right shape. */
 export function parseLeasePermissions(raw: unknown): readonly string[] | undefined {
-  if (raw === undefined) return undefined;
+  if (raw === undefined) {return undefined;}
   const parsed = LEASE_PERMISSIONS_ARG.safeParse(raw);
-  if (!parsed.success) throw new Error(INVALID_PERMISSIONS);
+  if (!parsed.success) {throw new Error(INVALID_PERMISSIONS);}
   return parsed.data;
 }
 
@@ -55,9 +55,9 @@ export async function notificationReadBack(
   sessionId: string,
   permissions: readonly string[] | undefined,
 ): Promise<string | undefined> {
-  if (true !== permissions?.includes(NOTIFICATIONS_PERMISSION)) return undefined;
+  if (true !== permissions?.includes(NOTIFICATIONS_PERMISSION)) {return undefined;}
   const reading = await pool.notificationPermission(sessionId);
-  if (reading === undefined || GRANTED === reading) return undefined;
+  if (reading === undefined || GRANTED === reading) {return undefined;}
   return (
     `notifications was granted, but this page's Notification.permission still reads "${reading}": ` +
     'the pooled headless browser does not support notifications, so UI gated on ' +
@@ -79,9 +79,9 @@ export function refuseRegrant(
   sessionId: string,
   permissions: readonly string[] | undefined,
 ): void {
-  if (permissions === undefined) return;
+  if (permissions === undefined) {return;}
   const held = pool.permissionsOf(sessionId);
-  if (held === undefined || sameSet(permissions, held)) return;
+  if (held === undefined || sameSet(permissions, held)) {return;}
   throw new Error(
     `${ACQUIRE} this origin's lease ${sessionId} already holds [${held.join(', ')}], and it may be ` +
       "another agent's live tab, so its grants are not changed in place. If it is yours, release it " +

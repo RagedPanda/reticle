@@ -478,7 +478,7 @@ describe('a framework whose HTML never carries the SDK', () => {
     let opened = false;
     const fx = world({
       probePage: () => {
-        if (!opened) probesBeforeOpen += 1;
+        if (!opened) {probesBeforeOpen += 1;}
         return htmlWithoutSdk();
       },
       openBrowser: () => {
@@ -1063,7 +1063,7 @@ describe('a dev port served on both loopbacks (#1377)', () => {
   it('starts as before: a second app on both is a busy port the dev server moves off', async () => {
     const port = await hold('127.0.0.1', 0);
     expect(port).toBeDefined();
-    if (undefined === (await hold('::1', port ?? 0))) return; // no IPv6 loopback on this machine
+    if (undefined === (await hold('::1', port ?? 0))) {return;} // no IPv6 loopback on this machine
     let started = false;
     const fx = world({
       startDevServer: () => {

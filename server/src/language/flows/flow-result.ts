@@ -35,9 +35,9 @@ export const safeProjectId = (projectId?: ProjectId): ProjectId | undefined =>
 
 /** Map a structured FlowErrorCode to a legible one-line message for the agent. */
 export function flowErrorMessage(code: FlowErrorCode, detail?: string): string {
-  if (FlowErrorCode.PARSE_FAILED === code && undefined !== detail) return detail;
+  if (FlowErrorCode.PARSE_FAILED === code && undefined !== detail) {return detail;}
   // The detail names both versions and the remedy, so it beats anything generic this could say.
-  if (FlowErrorCode.WRONG_VERSION === code && undefined !== detail) return detail;
+  if (FlowErrorCode.WRONG_VERSION === code && undefined !== detail) {return detail;}
   switch (code) {
     case FlowErrorCode.INVALID_NAME:
       return 'invalid flow name — use a single safe segment (letters/digits/-/_), no path separators';
@@ -112,7 +112,7 @@ export function stillRecording(
   explicitName: string | undefined,
   held: readonly string[],
 ): string | undefined {
-  if (active.includes(name) && !isAmbient(name)) return name;
+  if (active.includes(name) && !isAmbient(name)) {return name;}
   // The ambient tape is the daemon's own, never one the agent started, so it is neither named nor
   // counted: with a named recording beside it, that one is still the only candidate.
   const opened = active.filter((recording) => !isAmbient(recording));

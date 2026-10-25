@@ -48,7 +48,7 @@ const IPV6_MAPPED_PREFIX = '::ffff:';
  */
 function isLoopback(address: string): boolean {
   const host = address.toLowerCase();
-  if ('::1' === host || 'localhost' === host) return true;
+  if ('::1' === host || 'localhost' === host) {return true;}
   const unmapped = host.startsWith(IPV6_MAPPED_PREFIX)
     ? host.slice(IPV6_MAPPED_PREFIX.length)
     : host;
@@ -67,9 +67,9 @@ function isLoopback(address: string): boolean {
 export function innermostInternalFrame(stack: string): string | undefined {
   for (const line of stack.split('\n')) {
     const match = line.match(NODE_INTERNAL_FRAME);
-    if (null === match) continue;
+    if (null === match) {continue;}
     const [, module, lineNumber] = match;
-    if (module === undefined || lineNumber === undefined) continue;
+    if (module === undefined || lineNumber === undefined) {continue;}
     return `${module}:${lineNumber}`;
   }
   return undefined;
@@ -82,15 +82,15 @@ export function innermostInternalFrame(stack: string): string | undefined {
  * comparison is testable — the port itself is used to answer one enum and is then discarded.
  */
 export function crashCause(value: unknown, knownPorts: readonly number[]): CrashCause {
-  if (!(value instanceof Error)) return {};
+  if (!(value instanceof Error)) {return {};}
   const error: NodeJS.ErrnoException & { address?: unknown; port?: unknown } = value;
   const cause: CrashCause = {};
 
-  if ('string' === typeof error.syscall && error.syscall.length > 0) cause.syscall = error.syscall;
+  if ('string' === typeof error.syscall && error.syscall.length > 0) {cause.syscall = error.syscall;}
   // `code` (`ECONNREFUSED`), not the numeric `errno` (-61): the symbolic name is stable across
   // platforms, where the number is not.
-  if ('string' === typeof error.code && error.code.length > 0) cause.errno = error.code;
-  if ('string' === typeof error.address) cause.loopback = isLoopback(error.address);
+  if ('string' === typeof error.code && error.code.length > 0) {cause.errno = error.code;}
+  if ('string' === typeof error.address) {cause.loopback = isLoopback(error.address);}
   if ('number' === typeof error.port) {
     cause.port = knownPorts.includes(error.port) ? CrashPort.RETICLE : CrashPort.OTHER;
   }
@@ -102,9 +102,9 @@ export function crashCause(value: unknown, knownPorts: readonly number[]): Crash
   // would attach one to every crash — noise on the reports that already have a location, and more
   // than we need. The blind reports are the ones with a syscall and no frames of our own, and they
   // are the only ones this exists for.
-  if (cause.syscall === undefined && cause.errno === undefined) return cause;
-  if (reticleFrames(error.stack ?? '').length > 0) return cause;
+  if (cause.syscall === undefined && cause.errno === undefined) {return cause;}
+  if (reticleFrames(error.stack ?? '').length > 0) {return cause;}
   const frame = innermostInternalFrame(error.stack ?? '');
-  if (frame !== undefined) cause.internalFrame = frame;
+  if (frame !== undefined) {cause.internalFrame = frame;}
   return cause;
 }

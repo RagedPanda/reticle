@@ -22,7 +22,7 @@ const EMAIL = 'sam@example.com';
 
 function recordStopTool() {
   const t = READ_TOOLS.find((x) => x.name === ReticleTool.RECORD_STOP);
-  if (t === undefined) throw new Error('no reticle_record_stop tool');
+  if (t === undefined) {throw new Error('no reticle_record_stop tool');}
   return t;
 }
 

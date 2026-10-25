@@ -134,7 +134,7 @@ export type FirstFlowPort = (
 function hasElectronDependency(dir: string): boolean {
   try {
     const pkg: unknown = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'));
-    if ('object' !== typeof pkg || null === pkg) return false;
+    if ('object' !== typeof pkg || null === pkg) {return false;}
     const p = pkg as {
       dependencies?: Record<string, unknown>;
       devDependencies?: Record<string, unknown>;
@@ -188,7 +188,7 @@ export function registerOtherAgents(print: (line: string) => void): number {
   );
   const skills = applyAgentSkills(agentIo, { home, platform });
   if (0 < skills.length)
-    print(`  ✓ the /reticle skill, for ${String(skills.length)} ${agentWord(skills.length)}`);
+    {print(`  ✓ the /reticle skill, for ${String(skills.length)} ${agentWord(skills.length)}`);}
 
   // Registration alone still leaves an Accept dialog in front of every call, and a verification run
   // makes dozens of them: the loop is only autonomous once the tools are pre-approved.
@@ -257,7 +257,7 @@ async function afterConnect(
   print: (line: string) => void,
 ): Promise<Pick<SetupOutcome, 'flowSaved' | 'notes'>> {
   const notes = [...outcome.notes];
-  if (input.firstFlow === undefined) return { flowSaved: false, notes };
+  if (input.firstFlow === undefined) {return { flowSaved: false, notes };}
   const { flowSaved } = await input.firstFlow(
     {
       appDir: input.appDir,
@@ -282,7 +282,7 @@ export async function runSetupCommand(
   input: SetupCommandInput,
   print: (line: string) => void,
 ): Promise<SetupCommandResult> {
-  if (input.registerAgents) registerOtherAgents(print);
+  if (input.registerAgents) {registerOtherAgents(print);}
 
   // A moved port first: this project's daemon on the OLD port would otherwise be the one the page
   // finds and dials, while everything below waits on the new one.
@@ -311,7 +311,7 @@ export async function runSetupCommand(
     input.bridgePort,
     nodeEnsureDaemonDeps((status) => undefined !== daemonSkew(status)),
   );
-  if (undefined !== daemon.message) print(daemon.message);
+  if (undefined !== daemon.message) {print(daemon.message);}
   if (EnsureDaemon.SKEWED_IN_USE === daemon.state) {
     // Stop here: every hello from the page would be refused, and waiting out the connect budget
     // only to blame the page is the run this exists to prevent.
@@ -339,7 +339,7 @@ export async function runSetupCommand(
     hasTauriConf: existsSync(join(input.appDir, 'src-tauri', 'tauri.conf.json')),
     hasElectronDep: hasElectronDependency(input.appDir),
   });
-  if (AppShape.WEB !== shape) print(`detected ${describeShape(shape)}`);
+  if (AppShape.WEB !== shape) {print(`detected ${describeShape(shape)}`);}
 
   const server = new OwnedDevServer();
 
@@ -367,9 +367,9 @@ export async function runSetupCommand(
             })
           : {};
       if (SigningEnv.IDENTITY in signing)
-        print(
+        {print(
           `signing the dev build as ${String(signing[SigningEnv.IDENTITY])}, so macOS does not ask for the keychain password`,
-        );
+        );}
       server.start(command, cwd, { ...input.env, ...signing });
       return Promise.resolve();
     },
@@ -396,7 +396,7 @@ export async function runSetupCommand(
     probePage,
     openBrowser: async (url) => {
       const failure = await openInBrowser(url);
-      if (null === failure) return undefined;
+      if (null === failure) {return undefined;}
       // It used to end "nothing else here will open one", which stopped being true once a
       // Reticle-owned browser could always launch: run-setup opens a lease on this failure, so the
       // reader is told what happens next rather than sent to find a browser by hand.
@@ -419,7 +419,7 @@ export async function runSetupCommand(
       // A daemon too old to report the short one falls back to the long one, because saying the
       // right thing at length beats saying nothing.
       const lead = status.whyLead ?? full;
-      if (undefined === lead) return undefined;
+      if (undefined === lead) {return undefined;}
       return undefined === full ? { lead } : { lead, full };
     },
     now: () => Date.now(),
@@ -465,9 +465,9 @@ export async function runSetupCommand(
       // Its output is on a file now, not this terminal, so say where: a compile error that used to
       // scroll past here is the first thing somebody will look for.
       const log = server.logPath();
-      if (undefined !== log) print(`The dev server keeps running; its output goes to ${log}`);
+      if (undefined !== log) {print(`The dev server keeps running; its output goes to ${log}`);}
     }
-    if (!outcome.ok || undefined === outcome.url || undefined === outcome.sessionId) return outcome;
+    if (!outcome.ok || undefined === outcome.url || undefined === outcome.sessionId) {return outcome;}
     return {
       ...outcome,
       ...(await afterConnect(input, outcome.url, outcome.sessionId, outcome, print)),

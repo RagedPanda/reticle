@@ -130,7 +130,7 @@ describe('a plan belongs to the platform it was asked for, not the host', () => 
     ] as const) {
       const rows = planAgentConfigs({ home, platform, ...fs({}) });
       expect(rows.length).toBeGreaterThan(0);
-      for (const row of rows) expect(row.file).not.toContain(wrong);
+      for (const row of rows) {expect(row.file).not.toContain(wrong);}
     }
   });
 });

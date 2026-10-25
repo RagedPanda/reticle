@@ -256,12 +256,12 @@ describe('performGesture drives press through the real keyboard', () => {
           return Promise.resolve();
         },
         down: (key: string) => {
-          if (key.includes('+')) return Promise.reject(new Error(`Unknown key: "${key}"`));
+          if (key.includes('+')) {return Promise.reject(new Error(`Unknown key: "${key}"`));}
           sent.push(`down:${key}`);
           return Promise.resolve();
         },
         up: (key: string) => {
-          if (key.includes('+')) return Promise.reject(new Error(`Unknown key: "${key}"`));
+          if (key.includes('+')) {return Promise.reject(new Error(`Unknown key: "${key}"`));}
           sent.push(`up:${key}`);
           return Promise.resolve();
         },

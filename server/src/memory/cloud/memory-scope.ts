@@ -142,7 +142,7 @@ export function memoryReadUrl(baseUrl: string, scope: MemoryReadScope): string {
   if (projectId !== undefined) {
     parts.push(`${MemoryScopeField.PROJECT_ID}=${encodeURIComponent(projectId)}`);
   }
-  if (scope.limit !== undefined) parts.push(`${MemoryScopeField.LIMIT}=${String(scope.limit)}`);
+  if (scope.limit !== undefined) {parts.push(`${MemoryScopeField.LIMIT}=${String(scope.limit)}`);}
   if (scope.cursor !== undefined) {
     parts.push(`${MemoryScopeField.CURSOR}=${encodeURIComponent(scope.cursor)}`);
   }
@@ -162,11 +162,11 @@ export function keepOwnProject(
   projectId: string | null | undefined,
 ): unknown[] {
   const mine = projectToName(projectId);
-  if (mine === undefined) return [...entries];
+  if (mine === undefined) {return [...entries];}
   return entries.filter((entry) => {
-    if (null === entry || 'object' !== typeof entry) return true;
+    if (null === entry || 'object' !== typeof entry) {return true;}
     const stated = (entry as Record<string, unknown>)[MemoryScopeField.PROJECT_ID];
-    if ('string' !== typeof stated || 0 === stated.length) return true;
+    if ('string' !== typeof stated || 0 === stated.length) {return true;}
     return stated === mine;
   });
 }
@@ -214,10 +214,10 @@ export function scopeOfMemoryResponse(
   projectId: string | null | undefined,
 ): MemoryResponseScope {
   const mine = projectToName(projectId);
-  if (mine === undefined) return MemoryResponseScope.NOT_ASKED;
-  if (null === body || 'object' !== typeof body) return MemoryResponseScope.UNSCOPED;
+  if (mine === undefined) {return MemoryResponseScope.NOT_ASKED;}
+  if (null === body || 'object' !== typeof body) {return MemoryResponseScope.UNSCOPED;}
   const stated = (body as Record<string, unknown>)[MemoryScopeField.PROJECT_ID];
-  if ('string' !== typeof stated || 0 === stated.length) return MemoryResponseScope.UNSCOPED;
+  if ('string' !== typeof stated || 0 === stated.length) {return MemoryResponseScope.UNSCOPED;}
   return stated === mine ? MemoryResponseScope.OWN : MemoryResponseScope.OTHER;
 }
 
@@ -234,10 +234,10 @@ export function scopedMemoryEntries(
   body: unknown,
   projectId: string | null | undefined,
 ): unknown[] | undefined {
-  if (!isReadableMemoryScope(scopeOfMemoryResponse(body, projectId))) return undefined;
-  if (null === body || 'object' !== typeof body) return undefined;
+  if (!isReadableMemoryScope(scopeOfMemoryResponse(body, projectId))) {return undefined;}
+  if (null === body || 'object' !== typeof body) {return undefined;}
   const entries = (body as Record<string, unknown>)['entries'];
-  if (!Array.isArray(entries)) return undefined;
+  if (!Array.isArray(entries)) {return undefined;}
   return keepOwnProject(entries, projectId);
 }
 
@@ -260,11 +260,11 @@ export function scopedMemoryEntries(
  * The caller therefore checks for `undefined` and refuses out loud, instead of asking twice.
  */
 export function scopeMemoryResponse(body: unknown, projectId: string | null | undefined): unknown {
-  if (!isReadableMemoryScope(scopeOfMemoryResponse(body, projectId))) return undefined;
-  if (null === body || 'object' !== typeof body) return undefined;
+  if (!isReadableMemoryScope(scopeOfMemoryResponse(body, projectId))) {return undefined;}
+  if (null === body || 'object' !== typeof body) {return undefined;}
   const envelope = body as Record<string, unknown>;
   const entries = envelope['entries'];
-  if (!Array.isArray(entries)) return body;
+  if (!Array.isArray(entries)) {return body;}
   return { ...envelope, entries: keepOwnProject(entries, projectId) };
 }
 
@@ -290,16 +290,16 @@ export async function readMemoryPages(
     const body = await fetchBody(
       memoryReadUrl(baseUrl, { ...scope, limit: MEMORY_PAGE_LIMIT, cursor }),
     );
-    if (null === body || 'object' !== typeof body) return body;
-    if (!isReadableMemoryScope(scopeOfMemoryResponse(body, scope.projectId))) return body;
+    if (null === body || 'object' !== typeof body) {return body;}
+    if (!isReadableMemoryScope(scopeOfMemoryResponse(body, scope.projectId))) {return body;}
     const envelope = body as Record<string, unknown>;
     first ??= envelope;
     const pageEntries = envelope['entries'];
-    if (!Array.isArray(pageEntries)) return 0 === page ? body : { ...first, entries };
+    if (!Array.isArray(pageEntries)) {return 0 === page ? body : { ...first, entries };}
     entries.push(...(pageEntries as unknown[]));
     const next = envelope[MemoryScopeField.NEXT_CURSOR];
     more = 'string' === typeof next && 0 < next.length;
-    if (!more) break;
+    if (!more) {break;}
     cursor = next as string;
   }
   const { [MemoryScopeField.NEXT_CURSOR]: _paged, ...rest } = first ?? {};

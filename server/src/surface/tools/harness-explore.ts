@@ -198,7 +198,7 @@ const msgUnknownDriver = (asked: string): string =>
  */
 export function maxStepsFromEnv(env: Record<string, string | undefined>): number {
   const raw = env[ReticleEnv.HARNESS_MAX_STEPS];
-  if (raw === undefined) return DEFAULT_MAX_STEPS;
+  if (raw === undefined) {return DEFAULT_MAX_STEPS;}
   const parsed = Number.parseInt(raw, 10);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_MAX_STEPS;
 }
@@ -222,9 +222,9 @@ export async function exploreApp(
   const options = named === undefined ? asked : { ...asked, focus: named.persona };
   const refusal = await refusedForPlan(env, options);
   if (refusal !== undefined)
-    throw MSG_NO_HARNESS_KEY === refusal.text
+    {throw MSG_NO_HARNESS_KEY === refusal.text
       ? new HarnessNotLinkedError()
-      : new DriveRefusedError(refusal.text, refusal.reason);
+      : new DriveRefusedError(refusal.text, refusal.reason);}
   // The flows a drive reads and diffs are the PROJECT's, which is where its saves land.
   const reads = withProjectFlows(deps, options.sessionId);
   // No journey named: plan the drive first. The platform's Harness proposes the people worth being;
@@ -241,11 +241,11 @@ export async function exploreApp(
     const scripted = await exploreScript(deps, env, options, before);
     // Where the person opens it: the run, and the plan the dashboard keeps and runs again.
     if (scripted !== undefined)
-      return {
+      {return {
         ...scripted,
         ...runUrlFor(deps, options.sessionId, scripted.runIds?.[0]),
         ...planUrlFor(deps, options.sessionId, scripted.planId),
-      };
+      };}
   }
 
   const maxSteps = options.maxSteps ?? maxStepsFromEnv(env);
@@ -256,7 +256,7 @@ export async function exploreApp(
   const driving = drivingPlan(plan, options.focus);
   // Refused before anything touches the app: an unknown driver, or no platform to drive with.
   if (options.driver === undefined)
-    buildDriver(env, maxSteps, driving, options.driverName, options.focus);
+    {buildDriver(env, maxSteps, driving, options.driverName, options.focus);}
   // Every action this drive takes carries who took it, so the run it folds into is the Harness's own
   // and not mixed into the run of whichever agent shares the tab.
   const harnessId = options.harnessId ?? randomUUID();
@@ -338,7 +338,7 @@ export async function exploreApp(
   noteHarnessGoal(harnessId, goalMet);
   noteHarnessSpan(harnessId, deps.now() - driveStarted);
   const unproved = unprovedGoals(goals);
-  if (unproved !== undefined) narrate(unproved, true);
+  if (unproved !== undefined) {narrate(unproved, true);}
 
   const after = await reads.flows.list();
   const reconciled = reconcileFlows(before, after, [...drive.toolCalls, ...banked]);
@@ -388,7 +388,7 @@ export function narrator(
 ): (text: string, summary?: boolean) => void {
   return (text, summary = false) => {
     // The drive's poll answers with its latest line, whether or not a tab is watching.
-    if (options.harnessId !== undefined) noteDriveLine(options.harnessId, text);
+    if (options.harnessId !== undefined) {noteDriveLine(options.harnessId, text);}
     try {
       // Filed in the HUD's Harness log; its start and end lines in the Agent Log too.
       deps.sessions
@@ -406,7 +406,7 @@ function planUrlFor(
   sessionId: string | undefined,
   planId: string | undefined,
 ): { planUrl?: string } {
-  if (planId === undefined) return {};
+  if (planId === undefined) {return {};}
   try {
     const root = sessionRoot(deps, sessionId);
     const dashboard = readDashboardUrl(root);
@@ -430,7 +430,7 @@ function runUrlFor(
   sessionId: string | undefined,
   runId: string | undefined,
 ): { runUrl?: string } {
-  if (runId === undefined) return {};
+  if (runId === undefined) {return {};}
   try {
     const dashboard = readDashboardUrl(sessionRoot(deps, sessionId));
     return dashboard === undefined ? {} : { runUrl: dashboardRunUrl(dashboard, runId) };
@@ -472,11 +472,11 @@ export async function recordPersona(
   // Only the journey itself, "Name: journey": the plan appends the product's rules below it, and
   // keeping them made each plan append them again to a goal that already carried them.
   const intent = (persona.split('\n')[0] ?? '').trim();
-  if (0 === intent.length) return;
+  if (0 === intent.length) {return;}
   for (const name of names) {
     try {
       const loaded = await deps.flows.load(name);
-      if (!loaded.ok || (loaded.value.intent ?? '').length > 0) continue;
+      if (!loaded.ok || (loaded.value.intent ?? '').length > 0) {continue;}
       // Its own project: without it the store files a flat duplicate beside the original.
       const project = loaded.value.projectId;
       await deps.flows.saveFlow(
@@ -504,8 +504,8 @@ export async function flowsThatCheckNothing(
   for (const name of names) {
     try {
       const loaded = await deps.flows.load(name);
-      if (!loaded.ok) continue;
-      if (!loaded.value.steps.some((step) => step.expect !== undefined)) empty.push(name);
+      if (!loaded.ok) {continue;}
+      if (!loaded.value.steps.some((step) => step.expect !== undefined)) {empty.push(name);}
     } catch {
       /* unreadable is not the same as empty */
     }
@@ -542,11 +542,11 @@ export function reconcileFlows(
       // The flow's filename is `saveAs` when given, and the recording's name otherwise. Read from
       // the result first, which is what the store actually wrote, and fall back to the request.
       const result = asRecord(call.result)['name'];
-      if ('string' === typeof result) return result;
+      if ('string' === typeof result) {return result;}
       const args = asRecord(call.args);
       const saveAs = args['saveAs'];
       const flowName = args['flowName'];
-      if ('string' === typeof saveAs) return saveAs;
+      if ('string' === typeof saveAs) {return saveAs;}
       return 'string' === typeof flowName ? flowName : undefined;
     })
     .filter((name): name is string => name !== undefined && present.has(name));
@@ -566,7 +566,7 @@ export function reconcileFlows(
  */
 export function cutOffReason(drive: { stopReason?: unknown; error?: unknown }): string | undefined {
   if (StopReason.BROKEN !== drive.stopReason && StopReason.STOPPED !== drive.stopReason)
-    return undefined;
+    {return undefined;}
   const why =
     'string' === typeof drive.error && 0 < drive.error.length
       ? drive.error
@@ -617,7 +617,7 @@ export async function bankOpenRecording(
   journey?: string,
 ): Promise<ToolOutcome[]> {
   const open = openRecordingName(drive.toolCalls);
-  if (open === undefined) return [];
+  if (open === undefined) {return [];}
   const args = { flowName: open, intent: bankedIntent(persona, open, journey) };
   try {
     await toolset.invoke(ReticleTool.RECORD, { action: 'stop', recordingName: open });
@@ -634,12 +634,12 @@ export async function bankOpenRecording(
 export function openRecordingName(toolCalls: readonly ToolOutcome[]): string | undefined {
   let open: string | undefined;
   for (const call of toolCalls) {
-    if (ReticleTool.RECORD !== call.name) continue;
+    if (ReticleTool.RECORD !== call.name) {continue;}
     const args = asRecord(call.args);
     const name = args['recordingName'];
-    if ('string' !== typeof name) continue;
-    if ('start' === args['action'] && !call.isError) open = name;
-    if ('stop' === args['action'] && name === open) open = undefined;
+    if ('string' !== typeof name) {continue;}
+    if ('start' === args['action'] && !call.isError) {open = name;}
+    if ('stop' === args['action'] && name === open) {open = undefined;}
   }
   return open;
 }
@@ -656,7 +656,7 @@ export async function readFlows(deps: ToolDeps): Promise<FlowFile[]> {
   try {
     for (const name of await deps.flows.list()) {
       const loaded = await deps.flows.load(name);
-      if (loaded.ok) flows.push(loaded.value);
+      if (loaded.ok) {flows.push(loaded.value);}
     }
   } catch {
     // An unreadable store plans from what it could read, as `readPlan` does.
@@ -706,9 +706,9 @@ export function buildDriver(
   siteMap?: HarnessMap,
 ): { driver: ModelDriver; name: string } {
   if (requested !== undefined && SERVER_DRIVER !== requested)
-    throw new Error(msgUnknownDriver(requested));
+    {throw new Error(msgUnknownDriver(requested));}
   const platform = serverOptionsFromEnv(env);
-  if (platform === undefined) throw new HarnessNotLinkedError();
+  if (platform === undefined) {throw new HarnessNotLinkedError();}
   return {
     driver: serverDriver({
       ...platform,

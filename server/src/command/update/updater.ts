@@ -73,7 +73,7 @@ function detectExecutionKind(): ExecutionKind {
  * `apply_update` npm-installs into the user's own project (polluting their package.json).
  */
 export function classifyExecutionKind(script: string): ExecutionKind {
-  if (script.includes('/_npx/') || script.includes('\\_npx\\')) return ExecutionKind.NPX;
+  if (script.includes('/_npx/') || script.includes('\\_npx\\')) {return ExecutionKind.NPX;}
   const globalSignals = [
     '/lib/node_modules/',
     '\\npm\\node_modules\\',
@@ -82,7 +82,7 @@ export function classifyExecutionKind(script: string): ExecutionKind {
     '/usr/local/',
     '/usr/lib/',
   ];
-  if (globalSignals.some((s) => script.includes(s))) return ExecutionKind.GLOBAL;
+  if (globalSignals.some((s) => script.includes(s))) {return ExecutionKind.GLOBAL;}
   if (script.includes('/node_modules/') || script.includes('\\node_modules\\')) {
     return ExecutionKind.LOCAL;
   }
@@ -93,9 +93,9 @@ export function classifyExecutionKind(script: string): ExecutionKind {
 function findLocalProjectRoot(): string | null {
   let dir = process.cwd();
   for (;;) {
-    if (existsSync(join(dir, 'package.json'))) return dir;
+    if (existsSync(join(dir, 'package.json'))) {return dir;}
     const parent = dirname(dir);
-    if (parent === dir) return null; // reached filesystem root
+    if (parent === dir) {return null;} // reached filesystem root
     dir = parent;
   }
 }
@@ -130,7 +130,7 @@ export function npmSpawn(
   on: string = platform(),
 ): { file: string; argv: string[]; shell: boolean } {
   const bin = NodePlatform.WINDOWS === on ? 'npm.cmd' : 'npm';
-  if (NodePlatform.WINDOWS !== on) return { file: bin, argv: args, shell: false };
+  if (NodePlatform.WINDOWS !== on) {return { file: bin, argv: args, shell: false };}
   return { file: [bin, ...args.map(windowsShellArg)].join(' '), argv: [], shell: true };
 }
 
@@ -174,7 +174,7 @@ export function installArgs(
   kind: ExecutionKind,
   localRoot: string | null,
 ): NpmInstall | null {
-  if (kind === ExecutionKind.NPX) return null;
+  if (kind === ExecutionKind.NPX) {return null;}
   const pkg = `${RETICLE_NPM_PACKAGE}@${version}`;
   if (kind === ExecutionKind.LOCAL && localRoot !== null) {
     return { args: ['install', pkg], cwd: localRoot };

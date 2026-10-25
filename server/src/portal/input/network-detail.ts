@@ -91,7 +91,7 @@ const DEFAULT_POLICY: RedactionPolicy = { isSensitiveKey: defaultIsSensitiveKey 
  * which is key-based over a parsed object — not string-shaped.
  */
 function redactByKey(value: unknown, policy: RedactionPolicy): unknown {
-  if (Array.isArray(value)) return value.map((v) => redactByKey(v, policy));
+  if (Array.isArray(value)) {return value.map((v) => redactByKey(v, policy));}
   if (value !== null && 'object' === typeof value) {
     const out: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(value)) {

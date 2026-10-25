@@ -22,7 +22,7 @@ function recordingRouteOf(pathname: string, hash = ''): string {
   }
   const fragment = hash.startsWith('#') ? hash : 0 === hash.length ? '' : `#${hash}`;
   if (fragment.startsWith('#/'))
-    return routePathOf(0 === pathname.length ? '/' : pathname, fragment);
+    {return routePathOf(0 === pathname.length ? '/' : pathname, fragment);}
   return pathname;
 }
 
@@ -35,15 +35,15 @@ function recordingRouteOf(pathname: string, hash = ''): string {
 function pageKeyOf(startPath: string): string {
   const hashAt = startPath.indexOf('#');
   const queryAt = startPath.indexOf('?');
-  if (queryAt < 0 || (hashAt >= 0 && queryAt > hashAt)) return startPath;
+  if (queryAt < 0 || (hashAt >= 0 && queryAt > hashAt)) {return startPath;}
   return startPath.slice(0, queryAt) + (hashAt >= 0 ? startPath.slice(hashAt) : '');
 }
 
 function collapseConsecutive(routes: readonly string[]): string[] {
   const out: string[] = [];
   for (const route of routes) {
-    if (0 === route.length) continue;
-    if (out.at(-1) === route) continue;
+    if (0 === route.length) {continue;}
+    if (out.at(-1) === route) {continue;}
     out.push(route);
   }
   return out;
@@ -76,11 +76,11 @@ export function routesFromRecording(
   events: readonly ReticleEvent[],
 ): string[] {
   const raw: string[] = [];
-  if (undefined !== startPath) raw.push(recordingRouteOf(pageKeyOf(startPath)));
+  if (undefined !== startPath) {raw.push(recordingRouteOf(pageKeyOf(startPath)));}
   for (const event of events) {
-    if (EventType.ROUTE_CHANGE !== event.type) continue;
+    if (EventType.ROUTE_CHANGE !== event.type) {continue;}
     const pathname = asString(event.data['pathname']) ?? asString(event.data['to']);
-    if (undefined === pathname) continue;
+    if (undefined === pathname) {continue;}
     raw.push(recordingRouteOf(pathname, asString(event.data['hash']) ?? ''));
   }
   return collapseConsecutive(raw);

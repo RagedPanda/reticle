@@ -28,9 +28,9 @@ const EMPTY_PROJECT: ProjectFile = { version: PROJECT_FILE_VERSION, runs: [] };
  * that mean the file is damaged rather than foreign.
  */
 function versionOf(parsed: unknown): number | undefined {
-  if ('object' !== typeof parsed || null === parsed) return undefined;
+  if ('object' !== typeof parsed || null === parsed) {return undefined;}
   const version = (parsed as { version?: unknown }).version;
-  if ('number' !== typeof version || version === PROJECT_FILE_VERSION) return undefined;
+  if ('number' !== typeof version || version === PROJECT_FILE_VERSION) {return undefined;}
   return version;
 }
 
@@ -67,7 +67,7 @@ export class ProjectStore {
   /** Never throws. Missing → MISSING. Bad JSON / failed schema → MALFORMED. Mirrors readContract. */
   async read(): Promise<ReadProjectResult> {
     const path = reticleDirPaths(this.#root).project;
-    if (!(await this.#fs.exists(path))) return { ok: false, reason: ProjectReadError.MISSING };
+    if (!(await this.#fs.exists(path))) {return { ok: false, reason: ProjectReadError.MISSING };}
 
     let text: string;
     try {
@@ -87,7 +87,7 @@ export class ProjectStore {
     }
 
     const result = ProjectFileSchema.safeParse(parsed);
-    if (result.success) return { ok: true, file: result.data };
+    if (result.success) {return { ok: true, file: result.data };}
     // Which KIND of unreadable. A file whose version we do not recognise is intact and belongs to
     // another release; anything else is damage. They are repaired differently, so they are named
     // differently -- one message for both would send somebody hunting a typo in a healthy file.
@@ -137,7 +137,7 @@ export class ProjectStore {
    */
   async recordRoutes(routes: readonly string[]): Promise<void> {
     const additions = routes.filter((route) => route.length > 0);
-    if (0 === additions.length) return;
+    if (0 === additions.length) {return;}
 
     const path = reticleDirPaths(this.#root).project;
     await withFileLock(path, async () => {
@@ -158,7 +158,7 @@ export class ProjectStore {
         merged.length === current.length &&
         merged.every((route, index) => route === current[index])
       )
-        return;
+        {return;}
       const learned: ProjectLearned = { ...base.learned, routes: merged };
       const next: ProjectFile = { ...base, learned };
       await this.#fs.mkdir(reticleDirPaths(this.#root).root);
@@ -199,7 +199,7 @@ export class ProjectStore {
       }
       const base: ProjectFile = existing.ok ? existing.file : EMPTY_PROJECT;
       const current = base.learned?.bestObservability?.percent;
-      if (current !== undefined && percent <= current) return;
+      if (current !== undefined && percent <= current) {return;}
       const learned: ProjectLearned = {
         ...base.learned,
         bestObservability: { percent, at: this.#clock.now() },
@@ -212,10 +212,10 @@ export class ProjectStore {
   /** The most-recent run for `name` (undefined on missing/malformed/none). Powers diff-vs-last. */
   async lastRun(name: string): Promise<RunRecord | undefined> {
     const read = await this.read();
-    if (!read.ok) return undefined;
+    if (!read.ok) {return undefined;}
     for (let i = read.file.runs.length - 1; i >= 0; i -= 1) {
       const run = read.file.runs[i];
-      if (run !== undefined && run.name === name) return run;
+      if (run !== undefined && run.name === name) {return run;}
     }
     return undefined;
   }
@@ -256,7 +256,7 @@ function truncate(runs: RunRecord[]): RunRecord[] {
   const seen = new Set<string>();
   for (let i = runs.length - 1; i >= 0; i -= 1) {
     const run = runs[i];
-    if (run === undefined || seen.has(run.name)) continue;
+    if (run === undefined || seen.has(run.name)) {continue;}
     seen.add(run.name);
     kept.add(i);
     perName.set(run.name, 1);
@@ -264,9 +264,9 @@ function truncate(runs: RunRecord[]): RunRecord[] {
   // Pass 2 (newest→oldest): fill the rest with extra recent runs, respecting PER_NAME and TOTAL.
   for (let i = runs.length - 1; i >= 0 && kept.size < PROJECT_RUN_CAP.TOTAL; i -= 1) {
     const run = runs[i];
-    if (run === undefined || kept.has(i)) continue;
+    if (run === undefined || kept.has(i)) {continue;}
     const count = perName.get(run.name) ?? 0;
-    if (count >= PROJECT_RUN_CAP.PER_NAME) continue;
+    if (count >= PROJECT_RUN_CAP.PER_NAME) {continue;}
     perName.set(run.name, count + 1);
     kept.add(i);
   }

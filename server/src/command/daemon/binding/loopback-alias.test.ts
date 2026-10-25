@@ -28,7 +28,7 @@ import { openLoopbackAlias, IPV6_LOOPBACK } from './loopback-alias.js';
 
 const cleanups: (() => Promise<void>)[] = [];
 afterEach(async () => {
-  for (const close of cleanups.splice(0)) await close();
+  for (const close of cleanups.splice(0)) {await close();}
 });
 
 /** True when this machine can bind `::1` at all — a CI runner with IPv6 disabled cannot. */
@@ -54,7 +54,7 @@ async function startOrigin(): Promise<{ port: number; close: () => Promise<void>
 
 describe('loopback alias', () => {
   it('serves the IPv4 daemon over ::1, so `localhost` resolves either way', async ({ skip }) => {
-    if (!(await hasIpv6Loopback())) skip();
+    if (!(await hasIpv6Loopback())) {skip();}
     const origin = await startOrigin();
     cleanups.push(origin.close);
     const alias = await openLoopbackAlias(origin.port);

@@ -13,7 +13,7 @@ import { idleMsSchema } from '@/surface/tools/args/numeric-bounds.js';
 import type { ToolDef, ToolDeps } from '@/surface/tools/tool-kit.js';
 
 function sdkPredatesHud(version: string | undefined): boolean {
-  if (version === undefined) return true;
+  if (version === undefined) {return true;}
   const order = compareVersions(version, HUD_MIN_SDK_VERSION);
   return order === undefined || order < 0;
 }
@@ -58,7 +58,7 @@ export const SESSION_TOOLS: ToolDef[] = [
       const idleEndMs = asNumber(args['idleEndMs']);
       // Tune BOTH sides: the browser's foreground idle timer AND the server reaper (the throttle-proof
       // authority), so the agent-set window is honored even when the tab is backgrounded.
-      if (idleEndMs !== undefined) session.setIdleEndMs(idleEndMs);
+      if (idleEndMs !== undefined) {session.setIdleEndMs(idleEndMs);}
       // One parameter on the wire to the agent, two to the page: a corner moves it, anything else
       // shows, hides or removes it.
       const asked = asString(args['hud']);
@@ -70,7 +70,7 @@ export const SESSION_TOOLS: ToolDef[] = [
         ...(hud === undefined ? {} : { hud }),
         ...(corner === undefined ? {} : { corner }),
       });
-      if (!res.ok) throw new Error(res.error ?? 'session config failed');
+      if (!res.ok) {throw new Error(res.error ?? 'session config failed');}
       // Asked to move the HUD and the page says nothing about it: an SDK older than this daemon, or
       // no HUD mounted. Reported, never `applied: true`: an agent told the HUD moved would test a
       // control it is still covering.

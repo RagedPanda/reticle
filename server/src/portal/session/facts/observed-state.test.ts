@@ -37,7 +37,7 @@ describe('ambient persistence does not double per session', () => {
       });
       const merged: Record<string, number> = { ...persisted };
       for (const [k, v] of Object.entries(state.ownAmbientCounts()))
-        merged[k] = (merged[k] ?? 0) + v;
+        {merged[k] = (merged[k] ?? 0) + v;}
       persisted = merged;
     }
     const total = Object.values(persisted).reduce((a, b) => a + b, 0);

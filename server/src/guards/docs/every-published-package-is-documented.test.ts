@@ -48,8 +48,8 @@ function publishedNames(): string[] {
       private?: boolean;
       name?: string;
     };
-    if (true === manifest.private) continue;
-    if (undefined !== manifest.name) names.push(manifest.name);
+    if (true === manifest.private) {continue;}
+    if (undefined !== manifest.name) {names.push(manifest.name);}
   }
   return names.sort();
 }

@@ -96,6 +96,6 @@ export function stopOnCrash(
     return { event, handler };
   });
   return () => {
-    for (const { event, handler } of handlers) target.off(event, handler);
+    for (const { event, handler } of handlers) {target.off(event, handler);}
   };
 }

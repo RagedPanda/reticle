@@ -51,7 +51,7 @@ function isAccessor(target: object, key: string): boolean {
   let proto: object | null = target;
   while (null !== proto) {
     const descriptor = Object.getOwnPropertyDescriptor(proto, key);
-    if (undefined !== descriptor) return undefined !== descriptor.get;
+    if (undefined !== descriptor) {return undefined !== descriptor.get;}
     proto = Object.getPrototypeOf(proto) as object | null;
   }
   return false;

@@ -59,7 +59,7 @@ describe('a flow save', () => {
     const saved = await store.save({ name: 'base', version: 1, steps: [step] });
     expect(saved.ok).toBe(true);
     const loaded = await store.load('base');
-    if (!loaded.ok) throw new Error('base did not load');
+    if (!loaded.ok) {throw new Error('base did not load');}
     const flow: FlowFile = { ...loaded.value, name: 'copy' };
     await store.saveFlow(flow);
     expect(wrote).toBe(2);

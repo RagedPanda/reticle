@@ -65,7 +65,7 @@ export function claimedSessionOf(url: string): string | undefined {
  */
 function mayInherit(departed: SessionIdentity, candidate: SessionIdentity): boolean {
   const claimed = claimedSessionOf(departed.url);
-  if (claimed === undefined) return true;
+  if (claimed === undefined) {return true;}
   return claimedSessionOf(candidate.url) === claimed;
 }
 
@@ -88,7 +88,7 @@ export function pickDocumentSuccessor(
   departed: SessionIdentity,
 ): SessionIdentity | undefined {
   const origin = originOf(departed.url);
-  if (origin === undefined) return undefined;
+  if (origin === undefined) {return undefined;}
   // A candidate must belong to the same app. `sessionStorage` is scoped to the ORIGIN rather than
   // the app, so recycling a port (stop app A on :3000, start app B, reload the tab) has app B read
   // app A's id out of storage and register under it with its own projectId. The guard was on the
@@ -110,11 +110,11 @@ export function pickDocumentSuccessor(
   // Refusal, not a second guess, when the project does not match: an exact id match belonging to
   // another app is the strongest evidence there is that the caller's id is stale, so falling
   // through to whatever else sits on the origin would be the silent redirect this prevents.
-  if (sameId !== undefined) return sameProject(sameId) ? sameId : undefined;
+  if (sameId !== undefined) {return sameProject(sameId) ? sameId : undefined;}
   const others = atOrigin.filter(
     (s) => s.id !== departed.id && sameProject(s) && mayInherit(departed, s),
   );
-  if (1 !== others.length) return undefined;
+  if (1 !== others.length) {return undefined;}
   return others[0];
 }
 
@@ -154,7 +154,7 @@ export async function awaitDocumentSuccessor(
   const departedIdentity = identityOf(departed);
   for (;;) {
     const sameId = sessions.get(departed.id);
-    if (sameId !== undefined && sameId !== departed) return sameId;
+    if (sameId !== undefined && sameId !== departed) {return sameId;}
     // The departed session often still sits in the registry until the socket close lands. Leave it
     // out of the pick, or same-id-first would keep returning the page that just unloaded.
     const picked = pickDocumentSuccessor(
@@ -166,9 +166,9 @@ export async function awaitDocumentSuccessor(
     );
     if (picked !== undefined) {
       const live = sessions.get(picked.id);
-      if (live !== undefined && live !== departed) return live;
+      if (live !== undefined && live !== departed) {return live;}
     }
-    if (clock.now() >= deadline) return null;
+    if (clock.now() >= deadline) {return null;}
     await clock.sleep(POLL_MS);
   }
 }

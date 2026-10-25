@@ -88,9 +88,9 @@ const DISCONNECT_STORM = 20;
 /** The expected-failure code this value carries, and which class it belongs to. */
 function expectedCode(value: unknown): { code: string; unreachable: boolean } | undefined {
   const raw = (value as { code?: unknown } | null | undefined)?.code;
-  if ('string' !== typeof raw) return undefined;
-  if (DISCONNECT_CODES.has(raw)) return { code: raw, unreachable: false };
-  if (UNREACHABLE_CODES.has(raw)) return { code: raw, unreachable: true };
+  if ('string' !== typeof raw) {return undefined;}
+  if (DISCONNECT_CODES.has(raw)) {return { code: raw, unreachable: false };}
+  if (UNREACHABLE_CODES.has(raw)) {return { code: raw, unreachable: true };}
   return undefined;
 }
 
@@ -109,7 +109,7 @@ interface ExpectedEvents {
  */
 function absorbExpected(value: unknown, log: LogFn, events: ExpectedEvents): boolean {
   const hit = expectedCode(value);
-  if (hit === undefined) return false;
+  if (hit === undefined) {return false;}
   log(hit.unreachable ? events.unreachable : events.disconnected, {
     code: hit.code,
     note: hit.unreachable
@@ -285,7 +285,7 @@ export function installDaemonResilience(proc: ProcessLike, log: LogFn, onFatal: 
     unreachable: 'reticle_daemon_peer_unreachable',
   };
   proc.on('unhandledRejection', (reason: unknown) => {
-    if (absorbExpected(reason, log, expected)) return;
+    if (absorbExpected(reason, log, expected)) {return;}
     log('reticle_daemon_unhandled_rejection', { reason: describe(reason) });
     reportCrash(CrashKind.UNHANDLED_REJECTION, reason);
   });
@@ -293,7 +293,7 @@ export function installDaemonResilience(proc: ProcessLike, log: LogFn, onFatal: 
     // Not fatal either: Node's "the process state is undefined" guidance is about a throw that
     // escaped everything, not about a write to a socket somebody closed. Exiting here would let one
     // departing client take down the daemon serving every other agent.
-    if (absorbExpected(err, log, expected)) return;
+    if (absorbExpected(err, log, expected)) {return;}
     log('reticle_daemon_uncaught_exception', { error: describe(err) });
     reportCrash(CrashKind.UNCAUGHT_EXCEPTION, err);
     onFatal();
@@ -344,7 +344,7 @@ export function installProxyResilience(
   let disconnects = 0;
   let gone = false;
   const absorb = (value: unknown): boolean => {
-    if (!absorbExpected(value, log, expected)) return false;
+    if (!absorbExpected(value, log, expected)) {return false;}
     if (false === expectedCode(value)?.unreachable) {
       disconnects += 1;
       if (disconnects >= DISCONNECT_STORM && !gone) {
@@ -361,17 +361,17 @@ export function installProxyResilience(
   const noteUsableSession = (): void => {
     // Not after `gone`: the process is already leaving, and a late frame must not look like a
     // reason to stay. Nothing brings the proxy back from `onGone` by design.
-    if (gone) return;
+    if (gone) {return;}
     disconnects = 0;
   };
   proc.on('unhandledRejection', (reason: unknown) => {
-    if (absorb(reason)) return;
+    if (absorb(reason)) {return;}
     log('reticle_mcp_proxy_unhandled_rejection', { reason: describe(reason) });
     onCrash(CrashKind.UNHANDLED_REJECTION, reason);
   });
   proc.on('uncaughtException', (err: unknown) => {
     // The client closing its end of stdio is how this process is SUPPOSED to end its day.
-    if (absorb(err)) return;
+    if (absorb(err)) {return;}
     log('reticle_mcp_proxy_uncaught_exception', {
       error: describe(err),
       note: 'still serving — exiting here would disconnect the MCP client',

@@ -84,7 +84,7 @@ export function postToSession(
       let socketBytesBeforeRequest = 0;
       let settled = false;
       const req = request(options, (res) => {
-        if (settled) return;
+        if (settled) {return;}
         settled = true;
         const status = res.statusCode ?? 0;
         const rejected = status < 200 || status >= 300;
@@ -111,7 +111,7 @@ export function postToSession(
         socketBytesBeforeRequest = assigned.bytesWritten;
       });
       req.on('error', (err) => {
-        if (settled) return;
+        if (settled) {return;}
         settled = true;
         // Invisible to mcp_connection_lost (SSE is up) and to tool_refused (handler never ran).
         getSessionMetrics().recordPostSocketFailure();

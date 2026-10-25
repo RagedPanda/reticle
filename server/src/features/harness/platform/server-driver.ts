@@ -140,13 +140,13 @@ export function serverDriver(options: ServerDriverOptions): ModelDriver {
           const message = refusalSentence(refusal, res.status);
           // A person turned it off: the drive ends, and the result says that rather than "broken".
           if (PlatformRefusalCode.HARNESS_OFF === refusal.code)
-            throw new DriveStoppedError(message);
+            {throw new DriveStoppedError(message);}
           // A refusal is an answer; only a network failure is worth asking again.
           throw new ServerHarnessError(message, res.status);
         }
         return JSON.parse(text) as unknown;
       } catch (error) {
-        if (error instanceof ServerHarnessError || error instanceof DriveStoppedError) throw error;
+        if (error instanceof ServerHarnessError || error instanceof DriveStoppedError) {throw error;}
         last = error;
       }
     }
@@ -156,13 +156,13 @@ export function serverDriver(options: ServerDriverOptions): ModelDriver {
   return {
     // The run's own record, which carries its spend however the drive ended.
     async spent(): Promise<number | undefined> {
-      if (runId === undefined) return undefined;
+      if (runId === undefined) {return undefined;}
       const res = await doFetch(`${options.url}${RUNS_PATH}/${encodeURIComponent(runId)}`, {
         method: 'GET',
         headers: platformHeaders(options),
         signal: AbortSignal.timeout(SPENT_TIMEOUT_MS),
       });
-      if (!res.ok) return undefined;
+      if (!res.ok) {return undefined;}
       const body = asRecord(JSON.parse(await res.text()) as unknown);
       return 'number' === typeof body['creditsSpent'] ? body['creditsSpent'] : undefined;
     },
@@ -181,7 +181,7 @@ export function serverDriver(options: ServerDriverOptions): ModelDriver {
           tools: input.tools.filter((t) => FINISH !== t.name).map(toolSpec),
         })) as { runId?: unknown };
         if ('string' !== typeof started.runId)
-          throw new ServerHarnessError('the platform started no run', 502);
+          {throw new ServerHarnessError('the platform started no run', 502);}
         runId = started.runId;
       }
       // Only what happened since the last turn: the platform holds everything before it.
@@ -205,7 +205,7 @@ export function serverDriver(options: ServerDriverOptions): ModelDriver {
       const usage = reply.usage === undefined ? {} : { usage: reply.usage };
       // A run the platform ended as failed is a broken drive, and its summary says why.
       if (reply.done && FAILED === reply.status)
-        throw new ServerHarnessError(reply.summary ?? reply.text, 502);
+        {throw new ServerHarnessError(reply.summary ?? reply.text, 502);}
       if (reply.done) {
         // The platform has finished: `finish` ends the local loop the same way a local model would.
         return {
@@ -277,9 +277,9 @@ export function withSecrets(
       const name = field.replace(/[^a-zA-Z0-9]+/g, '_').toUpperCase();
       return env[`${SECRET_ENV_PREFIX}${name}`] ?? value;
     }
-    if (Array.isArray(value)) return value.map(swap);
+    if (Array.isArray(value)) {return value.map(swap);}
     if ('object' === typeof value && null !== value)
-      return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, swap(v)]));
+      {return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, swap(v)]));}
     return value;
   };
   return swap(args) as Record<string, unknown>;

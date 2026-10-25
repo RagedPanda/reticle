@@ -385,7 +385,7 @@ export async function commandOrThrow(
 ): Promise<unknown> {
   const session = deps.sessions.resolve(sessionId);
   const result = await session.command(name, args);
-  if (!result.ok) throw new Error(result.error ?? `command '${name}' failed`);
+  if (!result.ok) {throw new Error(result.error ?? `command '${name}' failed`);}
   return result.result;
 }
 
@@ -401,7 +401,7 @@ export async function snapshotTree(
 ): Promise<{ lines: string[]; route: string }> {
   const session = deps.sessions.resolve(sessionId);
   const result = await session.command(ReticleCommand.SNAPSHOT, { mode: SnapshotMode.FULL });
-  if (!result.ok) throw new Error(result.error ?? 'snapshot failed');
+  if (!result.ok) {throw new Error(result.error ?? 'snapshot failed');}
   const snap = (result.result ?? {}) as SnapshotResult;
   return { lines: normalizeLines(snap.tree ?? ''), route: snap.status?.route ?? '' };
 }
@@ -434,12 +434,12 @@ export function takeCallSecrets(args: Record<string, unknown>): {
   secrets: Record<string, string> | undefined;
   rest: Record<string, unknown>;
 } {
-  if (!(CALL_SECRETS_ARG in args)) return { secrets: undefined, rest: args };
+  if (!(CALL_SECRETS_ARG in args)) {return { secrets: undefined, rest: args };}
   const { [CALL_SECRETS_ARG]: raw, ...rest } = args;
   const secrets: Record<string, string> = {};
   for (const [key, value] of Object.entries(asRecord(raw))) {
     const text = asString(value);
-    if (text !== undefined && 0 < text.length) secrets[key] = text;
+    if (text !== undefined && 0 < text.length) {secrets[key] = text;}
   }
   return { secrets, rest };
 }

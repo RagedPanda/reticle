@@ -37,7 +37,7 @@ const runFrom = (actions: ReturnType<typeof action>[], editEpoch?: number) => {
     agentId: 'agent-1',
     ...(editEpoch === undefined ? {} : { editEpoch }),
   });
-  if (input === undefined) throw new Error('the journal produced no run');
+  if (input === undefined) {throw new Error('the journal produced no run');}
   return buildVerificationRun(input, () => 1_700_000_000_000);
 };
 

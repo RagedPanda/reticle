@@ -37,7 +37,7 @@ import { join } from 'node:path';
 
 let dir: string | undefined;
 afterEach(() => {
-  if (dir !== undefined) rmSync(dir, { recursive: true, force: true });
+  if (dir !== undefined) {rmSync(dir, { recursive: true, force: true });}
   dir = undefined;
 });
 

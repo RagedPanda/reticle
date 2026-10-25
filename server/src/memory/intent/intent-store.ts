@@ -57,11 +57,11 @@ export class IntentStore {
     const declared: Intent[] = [];
     for (const entry of entries) {
       // A step label is a log line, not a rule: every route that declares comes through here.
-      if (isActionLabel(entry.statement)) continue;
+      if (isActionLabel(entry.statement)) {continue;}
       const stored = await this.#ledger.upsert(entry.id, (existing) =>
         redeclareIntent(existing, declareIntent({ ...entry, now })),
       );
-      if (stored !== undefined) declared.push(stored);
+      if (stored !== undefined) {declared.push(stored);}
     }
     return declared;
   }
@@ -76,7 +76,7 @@ export class IntentStore {
   async place(id: string, surface: IntentSurface): Promise<boolean> {
     let placed = false;
     await this.#ledger.upsert(id, (existing) => {
-      if (existing === undefined || existing.surface !== undefined) return undefined;
+      if (existing === undefined || existing.surface !== undefined) {return undefined;}
       placed = true;
       return { ...existing, surface };
     });
@@ -103,9 +103,9 @@ export class IntentStore {
   ): Promise<boolean> {
     let proved = false;
     await this.#ledger.upsert(id, (existing) => {
-      if (existing === undefined) return undefined;
+      if (existing === undefined) {return undefined;}
       const next = dischargeIntent(existing, proof);
-      if (next === existing) return undefined;
+      if (next === existing) {return undefined;}
       proved = true;
       return next;
     });

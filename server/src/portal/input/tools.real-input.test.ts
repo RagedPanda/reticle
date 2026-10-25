@@ -81,7 +81,7 @@ function fakeSession(state: FakeSessionState): Session {
       // The real INSPECT's shape: `states` from describe() never carries `inViewport`. The page
       // reports the viewport in its own field, and only when asked to reveal. An older SDK omits it.
       const reveal = true === args[INSPECT_REVEAL_ARG];
-      if (reveal && ref === state.offViewportRef) state.revealRefs?.push(ref);
+      if (reveal && ref === state.offViewportRef) {state.revealRefs?.push(ref);}
       const offView = ref === state.offViewportRef;
       const inView = !offView || true === state.revealBrings;
       const viewport =
@@ -171,7 +171,7 @@ function fakeDeps(provider: RealInputProvider | undefined, state: FakeSessionSta
     reticleRoot: '/tmp/reticle-test/.reticle',
     now: () => 0,
   };
-  if (provider !== undefined) deps.realInput = provider;
+  if (provider !== undefined) {deps.realInput = provider;}
   return deps;
 }
 
@@ -196,8 +196,8 @@ function makeProvider(
     perform: (_url, action, box, args) => {
       // A specific error is thrown as given, so a test can name the CLASS the caller branches on
       // (`DriveError` with a code) rather than only its message.
-      if (options.throws instanceof Error) return Promise.reject(options.throws);
-      if (true === options.throws) return Promise.reject(new Error('cdp gone'));
+      if (options.throws instanceof Error) {return Promise.reject(options.throws);}
+      if (true === options.throws) {return Promise.reject(new Error('cdp gone'));}
       const center = boxCenter(box);
       const call: RecordingProvider['calls'][number] = {
         action,
@@ -205,7 +205,7 @@ function makeProvider(
         center,
         args: { ...args },
       };
-      if (args.toBox !== undefined) call.toBox = args.toBox;
+      if (args.toBox !== undefined) {call.toBox = args.toBox;}
       calls.push(call);
       return Promise.resolve({ performed: true, center, inputMode: InputMode.REAL });
     },
@@ -214,7 +214,7 @@ function makeProvider(
 
 function actTool() {
   const tool = TOOLS.find((t) => t.name === ReticleTool.ACT);
-  if (tool === undefined) throw new Error('no reticle_act tool');
+  if (tool === undefined) {throw new Error('no reticle_act tool');}
   return tool;
 }
 

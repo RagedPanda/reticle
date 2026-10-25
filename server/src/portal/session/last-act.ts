@@ -87,8 +87,8 @@ export class LastAct {
    * exists to exclude.
    */
   cursor(): number | undefined {
-    if (this.#cursor === undefined) return this.#navigated;
-    if (this.#navigated === undefined) return this.#cursor;
+    if (this.#cursor === undefined) {return this.#navigated;}
+    if (this.#navigated === undefined) {return this.#cursor;}
     return Math.max(this.#cursor, this.#navigated);
   }
 

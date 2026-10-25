@@ -15,7 +15,7 @@ import { createNodeFileSystem } from '@/memory/project/fs/fs-port.js';
 
 export async function handleContext(session: string | undefined): Promise<void> {
   const root = join(process.cwd(), ReticleDir.ROOT);
-  if (!existsSync(root)) return;
+  if (!existsSync(root)) {return;}
   try {
     const fs = createNodeFileSystem();
     const lines = await resumeFromDisk({

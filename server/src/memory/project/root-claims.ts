@@ -19,7 +19,7 @@ const everClaimed = new Set<string>();
 /** Claim `root` for the session a lease registers. Refuses anything but an absolute `.reticle`. */
 export function claimArtifactRoot(leaseId: string, root: string): void {
   if (!isAbsolute(root) || ReticleDir.ROOT !== basename(root))
-    throw new Error(`root must be an absolute path to a ${ReticleDir.ROOT} folder, got ${root}`);
+    {throw new Error(`root must be an absolute path to a ${ReticleDir.ROOT} folder, got ${root}`);}
   claims.set(leaseId, root);
   everClaimed.add(root);
 }
@@ -35,8 +35,8 @@ export function claimedArtifactRoot(
   url: string | undefined,
 ): string | undefined {
   const direct = claims.get(sessionId);
-  if (direct !== undefined) return direct;
-  if (url === undefined) return undefined;
+  if (direct !== undefined) {return direct;}
+  if (url === undefined) {return undefined;}
   try {
     const lease = new URL(url).searchParams.get(RETICLE_URL_PARAM.SESSION);
     return null === lease ? undefined : claims.get(lease);

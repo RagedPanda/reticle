@@ -49,7 +49,7 @@ function rerenderingPage(options: PageOptions = {}): {
     command: (name: string, args: Record<string, unknown> = {}) => {
       if (ReticleCommand.QUERY === name) {
         const ref = `g${String(generation)}:${String(args['value'])}`;
-        if (true === options.alwaysStale) generation += 1;
+        if (true === options.alwaysStale) {generation += 1;}
         const doubled = generation > 0 && args['value'] === options.doubledAfterRerender;
         return Promise.resolve({
           kind: 'command_result',
@@ -79,7 +79,7 @@ function rerenderingPage(options: PageOptions = {}): {
             } as CommandResult);
           }
           performed.push(testid);
-          if (true === options.rerenderAfter?.includes(testid)) generation += 1;
+          if (true === options.rerenderAfter?.includes(testid)) {generation += 1;}
         }
       }
       return Promise.resolve({ kind: 'command_result', id: 'a', ok: true } as CommandResult);

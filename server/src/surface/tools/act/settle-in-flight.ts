@@ -137,16 +137,16 @@ export function inFlightRequestIds(
 ): string[] {
   const settled = new Set<string>();
   for (const e of events) {
-    if (e.type !== EventType.NET_REQUEST) continue;
+    if (e.type !== EventType.NET_REQUEST) {continue;}
     const id = idOf(e.data);
-    if (id !== undefined) settled.add(id);
+    if (id !== undefined) {settled.add(id);}
   }
   const open: string[] = [];
   for (const e of events) {
-    if (e.type !== EventType.NET_PENDING || isDevTooling(e.data) || isDeparture(e.data)) continue;
-    if (isForeign(e.data, appOrigin, background)) continue;
+    if (e.type !== EventType.NET_PENDING || isDevTooling(e.data) || isDeparture(e.data)) {continue;}
+    if (isForeign(e.data, appOrigin, background)) {continue;}
     const id = idOf(e.data);
-    if (id !== undefined && !settled.has(id) && !open.includes(id)) open.push(id);
+    if (id !== undefined && !settled.has(id) && !open.includes(id)) {open.push(id);}
   }
   return open;
 }
@@ -167,9 +167,9 @@ export function inFlightRequestLabels(
   const open = new Set(inFlightRequestIds(events, appOrigin, background));
   const labels: string[] = [];
   for (const e of events) {
-    if (e.type !== EventType.NET_PENDING) continue;
+    if (e.type !== EventType.NET_PENDING) {continue;}
     const id = idOf(e.data);
-    if (id === undefined || !open.has(id)) continue;
+    if (id === undefined || !open.has(id)) {continue;}
     open.delete(id); // one label per request, however many times its start was recorded
     const method = 'string' === typeof e.data['method'] ? e.data['method'] : 'request';
     const url = 'string' === typeof e.data['url'] ? e.data['url'] : 'an unreported url';
@@ -199,7 +199,7 @@ export function repeatedRequestLabels(
 ): string[] {
   const counts = new Map<string, number>();
   for (const e of events) {
-    if (e.type !== EventType.NET_REQUEST || isDevTooling(e.data)) continue;
+    if (e.type !== EventType.NET_REQUEST || isDevTooling(e.data)) {continue;}
     const method = 'string' === typeof e.data['method'] ? e.data['method'] : 'request';
     const url = 'string' === typeof e.data['url'] ? e.data['url'] : 'an unreported url';
     const key = `${method} ${url}`;
@@ -236,15 +236,15 @@ export async function waitForInFlight(
   const outstanding = (): string[] =>
     inFlightRequestIds(session.eventsSince(since), session.url, session.background);
   let open = outstanding();
-  if (0 === open.length) return { settled: true, stillInFlight: [] };
-  if (budgetMs <= 0) return { settled: false, stillInFlight: open };
+  if (0 === open.length) {return { settled: true, stillInFlight: [] };}
+  if (budgetMs <= 0) {return { settled: false, stillInFlight: open };}
 
   const deadline = session.elapsed() + budgetMs;
   while (session.elapsed() < deadline) {
     // Never overshoot the budget: the last sleep is trimmed to whatever is actually left.
     await opts.sleep(Math.min(POLL_MS, deadline - session.elapsed()));
     open = outstanding();
-    if (0 === open.length) return { settled: true, stillInFlight: [] };
+    if (0 === open.length) {return { settled: true, stillInFlight: [] };}
   }
   return { settled: false, stillInFlight: open };
 }

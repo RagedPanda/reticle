@@ -21,7 +21,7 @@ import type { ToolDef } from '@/surface/tools/tools.js';
 
 const toolNamed = (name: string): ToolDef => {
   const found = LIVE_CONTROL_TOOLS.find((t) => t.name === name);
-  if (found === undefined) throw new Error(`no tool named ${name}`);
+  if (found === undefined) {throw new Error(`no tool named ${name}`);}
   return found;
 };
 

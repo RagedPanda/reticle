@@ -53,7 +53,7 @@ export async function runStepWithStaleRetry(
   opts: { sleep(ms: number): Promise<void> } = realSleep,
 ): Promise<StepOutcome> {
   const first = await attempt();
-  if (first.ok || !isStaleRefError(first.error)) return first;
+  if (first.ok || !isStaleRefError(first.error)) {return first;}
   await waitForReaction(session, since, budgetMs, opts);
   return attempt();
 }
@@ -78,7 +78,7 @@ export function describeStepResult(
   };
   // `reticleUi`: the step hit Reticle's own HUD, so the recorder leaves it out of the app's flow.
   for (const key of ['testid', 'component', 'role', 'name', 'source', 'warning', 'reticleUi']) {
-    if (result[key] !== undefined) out[key] = result[key];
+    if (result[key] !== undefined) {out[key] = result[key];}
   }
   return out;
 }

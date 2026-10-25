@@ -113,7 +113,7 @@ function startFakeDaemon(onPort = 0): Promise<FakeDaemon> {
         },
         close: () =>
           new Promise<void>((done) => {
-            for (const stream of streams) stream.socket?.destroy();
+            for (const stream of streams) {stream.socket?.destroy();}
             server.close(() => done());
           }),
       });
@@ -131,7 +131,7 @@ describe('what an outage event is allowed to say', () => {
   const cleanups: (() => Promise<void> | void)[] = [];
 
   afterEach(async () => {
-    for (const cleanup of cleanups.splice(0).reverse()) await cleanup();
+    for (const cleanup of cleanups.splice(0).reverse()) {await cleanup();}
     vi.restoreAllMocks();
     vi.unstubAllEnvs();
     resetOutageReporting();

@@ -100,7 +100,7 @@ const asBool = (v: unknown, fallback: boolean): boolean => ('boolean' === typeof
 /** Read + JSON-parse a file, or null on any problem (missing/malformed) — never throws. */
 async function readJson(fs: FileSystemPort, path: string): Promise<unknown> {
   try {
-    if (!(await fs.exists(path))) return null;
+    if (!(await fs.exists(path))) {return null;}
     return JSON.parse(await fs.readFile(path));
   } catch {
     return null;
@@ -109,10 +109,10 @@ async function readJson(fs: FileSystemPort, path: string): Promise<unknown> {
 
 /** Validate the shape of `.reticle/cloud.json`. Requires projectId + url; policy/verify default in. */
 function parseLink(raw: unknown): CloudLink | null {
-  if (typeof raw !== 'object' || null === raw) return null;
+  if (typeof raw !== 'object' || null === raw) {return null;}
   const o = raw as Record<string, unknown>;
-  if (typeof o.projectId !== 'string' || 0 === o.projectId.length) return null;
-  if (typeof o.url !== 'string' || 0 === o.url.length) return null;
+  if (typeof o.projectId !== 'string' || 0 === o.projectId.length) {return null;}
+  if (typeof o.url !== 'string' || 0 === o.url.length) {return null;}
   const sync =
     'object' === typeof o.sync && o.sync !== null ? (o.sync as Record<string, unknown>) : {};
   return {
@@ -165,7 +165,7 @@ function credentialFor(
   url: string,
   orgId?: string,
 ): string | null {
-  if (typeof raw !== 'object' || null === raw) return null;
+  if (typeof raw !== 'object' || null === raw) {return null;}
   const store = raw as Record<string, unknown>;
   /*
    * The ORG slot first, because cloud + project is still not an identity.
@@ -177,25 +177,25 @@ function credentialFor(
    * two tenants colliding.
    */
   const orgScoped = orgId === undefined ? undefined : store[credentialSlot(url, projectId, orgId)];
-  if ('string' === typeof orgScoped && orgScoped.length > 0) return orgScoped;
+  if ('string' === typeof orgScoped && orgScoped.length > 0) {return orgScoped;}
   /*
    * Then the cloud+project slot, which is what every repo linked before this change still holds. It
    * is ambiguous between tenants by construction, which is why it is consulted second and why the
    * writer above stopped producing it as the only entry.
    */
   const composite = store[credentialSlot(url, projectId)];
-  if ('string' === typeof composite && composite.length > 0) return composite;
+  if ('string' === typeof composite && composite.length > 0) {return composite;}
   const entry = store[projectId];
-  if ('string' === typeof entry) return entry.length > 0 ? entry : null;
-  if (typeof entry !== 'object' || null === entry) return null;
+  if ('string' === typeof entry) {return entry.length > 0 ? entry : null;}
+  if (typeof entry !== 'object' || null === entry) {return null;}
   const record = entry as Record<string, unknown>;
   const key = record['key'];
   const forUrl = record['url'];
-  if ('string' !== typeof key || 0 === key.length) return null;
+  if ('string' !== typeof key || 0 === key.length) {return null;}
   // A credential stamped with a DIFFERENT cloud is not this project's credential, however much the
   // project ids match. Refuse rather than dial somewhere with somebody else's key.
   if ('string' === typeof forUrl && normalizeCloudUrl(forUrl) !== normalizeCloudUrl(url))
-    return null;
+    {return null;}
   return key;
 }
 

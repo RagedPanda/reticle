@@ -63,7 +63,7 @@ export function reportCliRun(argv: readonly string[]): void {
   drainInstallTrace(RETICLE_STATE_DIR);
   // Before anything reads it: a channel declared on THIS command outlives it.
   rememberInstallSource(process.env, RETICLE_STATE_DIR);
-  if (firstArg === DAEMON_INNER_COMMAND) return;
+  if (firstArg === DAEMON_INNER_COMMAND) {return;}
   const command = knownCommand(firstArg);
   const telemetry = getTelemetry();
   // FIRST — before the human-command filter. The install happened whichever command ran, and on most
@@ -71,13 +71,13 @@ export function reportCliRun(argv: readonly string[]): void {
   // Behind the filter this event never fires at all on an install that only ever runs `reticle mcp`.
   // `detach` so a quick command (`version`/`gate`) exits immediately instead of waiting out the POST.
   if (telemetry.firstRun)
-    void telemetry.emit(TelemetryEventKind.RETICLE_INSTALLED, {
+    {void telemetry.emit(TelemetryEventKind.RETICLE_INSTALLED, {
       detach: true,
       // WHICH published route brought this machine in. Self-declared by the channel, never inferred
       // — see install-source.ts for which of the four routes can actually carry the marker.
       installSource: resolveInstallSource(process.env, RETICLE_STATE_DIR),
-    });
-  if (!isHumanCliCommand(command)) return;
+    });}
+  if (!isHumanCliCommand(command)) {return;}
   void telemetry.emit(TelemetryEventKind.CLI_COMMAND_RUN, {
     detach: true,
     // No `actor`: with the agent's transport excluded, this event is human BY DEFINITION, so the

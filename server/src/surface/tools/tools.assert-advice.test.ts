@@ -36,7 +36,7 @@ function depsWith(opts: { matched?: boolean; events?: ReticleEvent[] }): ToolDep
 
 function assertTool() {
   const t = TOOLS.find((x) => x.name === ReticleTool.ASSERT);
-  if (t === undefined) throw new Error('no reticle_assert tool');
+  if (t === undefined) {throw new Error('no reticle_assert tool');}
   return t;
 }
 

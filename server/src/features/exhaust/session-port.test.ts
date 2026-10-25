@@ -18,12 +18,12 @@ function world() {
       elapsed: () => 0,
       eventsSince: (): ReticleEvent[] => [],
       command: (name: string, args?: Record<string, unknown>): Promise<CommandResult> => {
-        if (mine !== generation) return Promise.reject(new Error(sessionReplacedReason('s1', 'x')));
+        if (mine !== generation) {return Promise.reject(new Error(sessionReplacedReason('s1', 'x')));}
         log.push(`${String(mine)}:${name}`);
         if ('navigate' === name || ('act' === name && 'link' === args?.['ref'])) {
           generation += 1;
           current = make();
-          if ('act' === name) return Promise.reject(new Error(sessionReplacedReason('s1', 'x')));
+          if ('act' === name) {return Promise.reject(new Error(sessionReplacedReason('s1', 'x')));}
         }
         return Promise.resolve({
           kind: 'command_result',

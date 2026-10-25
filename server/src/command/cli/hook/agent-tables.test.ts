@@ -36,9 +36,9 @@ describe('the agent tables agree', () => {
     const mcp: readonly string[] = Object.values(McpClient);
     for (const spec of PROMPT_HOOK_AGENTS) {
       const want = EXPECTED[spec.id];
-      if (want.mcp !== null) expect(mcp, spec.id).toContain(want.mcp);
+      if (want.mcp !== null) {expect(mcp, spec.id).toContain(want.mcp);}
       // The registered client's name is what its handshake carries: it must map to the client.
-      if (want.mcp !== null) expect(agentClientOf(want.mcp), spec.id).toBe(want.client);
+      if (want.mcp !== null) {expect(agentClientOf(want.mcp), spec.id).toBe(want.client);}
     }
   });
 
@@ -54,7 +54,7 @@ describe('the agent tables agree', () => {
     for (const file of ['prompt-hook.ts', 'hook-command.ts']) {
       const source = readFileSync(join(import.meta.dirname, file), 'utf8');
       for (const id of Object.values(PromptHookAgent))
-        expect(source, `${file} spells '${id}'`).not.toContain(`'${id}'`);
+        {expect(source, `${file} spells '${id}'`).not.toContain(`'${id}'`);}
     }
   });
 });

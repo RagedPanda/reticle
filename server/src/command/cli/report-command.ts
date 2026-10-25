@@ -46,10 +46,10 @@ export function keepAliveReason(runId: string): string {
 /** The newest drive this agent started that still runs, read from `.reticle/runs/`. */
 function agentDriveRunning(root: string, now: number): string | undefined {
   const runs = join(root, ReticleDir.RUNS_SUBDIR);
-  if (!existsSync(runs)) return undefined;
+  if (!existsSync(runs)) {return undefined;}
   let newest: { runId: string; startedAt: number } | undefined;
   for (const name of readdirSync(runs)) {
-    if (!name.endsWith(DRIVE_RECORD_SUFFIX)) continue;
+    if (!name.endsWith(DRIVE_RECORD_SUFFIX)) {continue;}
     let record: Record<string, unknown>;
     try {
       record = asRecord(JSON.parse(readFileSync(join(runs, name), 'utf8')));
@@ -57,11 +57,11 @@ function agentDriveRunning(root: string, now: number): string | undefined {
       continue;
     }
     const { harnessRun, status, origin, startedAt } = record;
-    if (DriveStatus.RUNNING !== status || DriveOrigin.AGENT !== origin) continue;
-    if ('string' !== typeof harnessRun || 'number' !== typeof startedAt) continue;
-    if (now - startedAt > KEEP_ALIVE_MAX_MS) continue;
+    if (DriveStatus.RUNNING !== status || DriveOrigin.AGENT !== origin) {continue;}
+    if ('string' !== typeof harnessRun || 'number' !== typeof startedAt) {continue;}
+    if (now - startedAt > KEEP_ALIVE_MAX_MS) {continue;}
     if (newest === undefined || startedAt > newest.startedAt)
-      newest = { runId: harnessRun, startedAt };
+      {newest = { runId: harnessRun, startedAt };}
   }
   return newest?.runId;
 }
@@ -91,9 +91,9 @@ interface Found {
  * ponytail: an unmatched folder is not tied to this cwd; the newest session in the window wins.
  */
 function sessionRoots(root: string, home: string | undefined): string[] {
-  if (home === undefined) return [root];
+  if (home === undefined) {return [root];}
   const unmatched = join(home, ReticleDir.ROOT, UNMATCHED_SUBDIR);
-  if (!existsSync(unmatched)) return [root];
+  if (!existsSync(unmatched)) {return [root];}
   return [root, ...readdirSync(unmatched).map((name) => join(unmatched, name))];
 }
 
@@ -102,12 +102,12 @@ function newestSession(roots: readonly string[]): Found | undefined {
   let newest: Found | undefined;
   for (const root of roots) {
     const sessionsDir = join(root, ReticleDir.SESSIONS_SUBDIR);
-    if (!existsSync(sessionsDir)) continue;
+    if (!existsSync(sessionsDir)) {continue;}
     for (const id of readdirSync(sessionsDir)) {
       const ledger = join(sessionsDir, id, ReticleDir.JOURNAL_ACTIONS_FILE);
-      if (!existsSync(ledger)) continue;
+      if (!existsSync(ledger)) {continue;}
       const writtenAt = statSync(ledger).mtimeMs;
-      if (newest === undefined || writtenAt > newest.writtenAt) newest = { id, writtenAt, root };
+      if (newest === undefined || writtenAt > newest.writtenAt) {newest = { id, writtenAt, root };}
     }
   }
   return newest;
@@ -118,8 +118,8 @@ export async function reportFor(input: ReportInput): Promise<{ lines: string[]; 
   // The one case the hook blocks: the agent's own Harness drive is still running, so its result,
   // and any defect it finds, would reach nobody.
   const driving = true === input.hook ? agentDriveRunning(root, input.now) : undefined;
-  if (driving !== undefined) return { lines: [], block: keepAliveReason(driving) };
-  if (true === input.hook && !input.treeChanged) return { lines: [] };
+  if (driving !== undefined) {return { lines: [], block: keepAliveReason(driving) };}
+  if (true === input.hook && !input.treeChanged) {return { lines: [] };}
   const found =
     input.session === undefined
       ? newestSession(sessionRoots(root, input.home))
@@ -173,7 +173,7 @@ export async function handleReport(session: string | undefined, hook: boolean): 
     // A hook that throws turns the agent's stop into an error the user did not cause; it says nothing
     // instead. Run by hand, the reason is the answer (an id that is not a session, a journal it
     // could not read), so it is printed and the exit is non-zero.
-    if (hook) return;
+    if (hook) {return;}
     process.stderr.write(
       `reticle report: ${error instanceof Error ? error.message : String(error)}\n`,
     );
@@ -185,7 +185,7 @@ export async function handleReport(session: string | undefined, hook: boolean): 
     process.stdout.write(`${JSON.stringify({ decision: 'block', reason: block })}\n`);
     return;
   }
-  if (0 === lines.length) return;
+  if (0 === lines.length) {return;}
   process.stdout.write(
     hook ? `${JSON.stringify({ systemMessage: lines.join('\n') })}\n` : `${lines.join('\n')}\n`,
   );

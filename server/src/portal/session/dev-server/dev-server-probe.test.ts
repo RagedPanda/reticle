@@ -114,14 +114,14 @@ describe('the Host header the probe sends', () => {
       // `::` accepts both families on the stacks CI runs, so both probes arrive here.
       server.listen(0, () => {
         const addr = server.address();
-        if (null === addr || 'string' === typeof addr) reject(new Error('no port'));
-        else resolve(addr.port);
+        if (null === addr || 'string' === typeof addr) {reject(new Error('no port'));}
+        else {resolve(addr.port);}
       });
     });
     try {
       expect(await anyFamilyServes(port)).toBe(true);
       expect(hosts.length).toBeGreaterThan(0);
-      for (const host of hosts) expect(host).toBe(`localhost:${String(port)}`);
+      for (const host of hosts) {expect(host).toBe(`localhost:${String(port)}`);}
     } finally {
       await new Promise<void>((resolve) => server.close(() => resolve()));
     }

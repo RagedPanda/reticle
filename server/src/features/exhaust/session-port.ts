@@ -58,7 +58,7 @@ export function sessionPort(input: {
       sleep: input.sleep,
     });
     const next = input.sessions.get(before.id);
-    if (!back || next === undefined) return false;
+    if (!back || next === undefined) {return false;}
     current = next;
     return true;
   };
@@ -74,7 +74,7 @@ export function sessionPort(input: {
         return { tree: asString(body['tree']) ?? '', ...(route === undefined ? {} : { route }) };
       } catch (error) {
         // A click that followed a real link leaves the next read on a dead document.
-        if (!isSessionReplacedError(error) || !(await successor(current))) break;
+        if (!isSessionReplacedError(error) || !(await successor(current))) {break;}
       }
     }
     return { tree: '' };
@@ -88,11 +88,11 @@ export function sessionPort(input: {
       const before = current;
       try {
         const res = await before.command(ReticleCommand.NAVIGATE, { url: input.startUrl });
-        if (!res.ok) return false;
+        if (!res.ok) {return false;}
       } catch (error) {
-        if (!isSessionReplacedError(error)) return false;
+        if (!isSessionReplacedError(error)) {return false;}
       }
-      if (!(await successor(before))) return false;
+      if (!(await successor(before))) {return false;}
       await input.sleep(input.settleMs);
       return true;
     },
@@ -112,7 +112,7 @@ export function sessionPort(input: {
         ok = res.ok && false !== asRecord(res.result)['dispatched'];
       } catch (error) {
         // Following a real link replaces the document mid-command: the click WORKED.
-        if (!isSessionReplacedError(error)) throw error;
+        if (!isSessionReplacedError(error)) {throw error;}
         replaced = true;
         ok = true;
       } finally {
@@ -121,7 +121,7 @@ export function sessionPort(input: {
       await input.sleep(input.settleMs);
       const events = session.eventsSince(since);
       if (replaced && (await successor(session)))
-        return { ok, events: [...events, ...current.eventsSince(0)] };
+        {return { ok, events: [...events, ...current.eventsSince(0)] };}
       return { ok, events };
     },
 

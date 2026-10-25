@@ -39,7 +39,7 @@ class SlowSession implements FlowReplaySession {
   constructor(arrivesAtMs: number) {
     this.#timer = setTimeout(() => {
       this.#arrived = true;
-      for (const listener of this.#listeners) listener(SIGNAL_EVENT);
+      for (const listener of this.#listeners) {listener(SIGNAL_EVENT);}
     }, arrivesAtMs);
   }
   dispose(): void {
@@ -88,7 +88,7 @@ describe('a step declares how long its consequence takes', () => {
   it('passes when the STEP declares the longer wait', async () => {
     const f = flow();
     const [step] = f.steps;
-    if (step !== undefined) step.timeoutMs = GENEROUS;
+    if (step !== undefined) {step.timeoutMs = GENEROUS;}
     const steps = await replayFlow(new SlowSession(LATE), f, waitForPredicate, 40);
     expect(steps[0]?.ok).toBe(true);
     expect(steps[0]?.drift).toBeUndefined();
@@ -107,7 +107,7 @@ describe('a step declares how long its consequence takes', () => {
   it('lets a step override the flow, so one slow step does not slow the suite', async () => {
     const f = flow({ signalTimeoutMs: 40 });
     const [step] = f.steps;
-    if (step !== undefined) step.timeoutMs = GENEROUS;
+    if (step !== undefined) {step.timeoutMs = GENEROUS;}
     const steps = await replayFlow(new SlowSession(LATE), f, waitForPredicate, 40);
     expect(steps[0]?.ok).toBe(true);
   });

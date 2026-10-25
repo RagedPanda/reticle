@@ -221,7 +221,7 @@ function recordVerification(
     brand,
     currentDrivenBy() !== undefined,
   );
-  if (verification === undefined) return false;
+  if (verification === undefined) {return false;}
   getSessionMetrics().recordVerification();
   void getTelemetry().emit(TelemetryEventKind.VERIFICATION_COMPLETED, {
     actor: TelemetryActor.AGENT,
@@ -256,7 +256,7 @@ function reportBugsFound(
   sessionId: string | undefined,
 ): void {
   const bugs = bugsInResult(toolName, result);
-  if (0 === bugs.length) return;
+  if (0 === bugs.length) {return;}
   const metrics = getSessionMetrics();
   const route = routeOf(result);
   for (const bug of bugs) {
@@ -301,7 +301,7 @@ function reportBugsFound(
  * `reticle_run`. A count that doubles because of HOW a tool was reached is not a measurement.
  */
 function reportRefusal(toolName: string, message: string, error?: unknown): void {
-  if (toolName === ReticleTool.RUN) return;
+  if (toolName === ReticleTool.RUN) {return;}
   reportToolRefused(toolName, refusalReasonFor(message, codedRefusalOf(error)));
 }
 
@@ -319,7 +319,7 @@ function reportRefusal(toolName: string, message: string, error?: unknown): void
  * feedback rate read half.
  */
 function frictionInviteFor(toolName: string, raw: unknown): FrictionKind | undefined {
-  if (!isPlainObject(raw) || toolName === ReticleTool.RUN) return undefined;
+  if (!isPlainObject(raw) || toolName === ReticleTool.RUN) {return undefined;}
   const friction = frictionOf({
     unknownTool: false,
     // A vacuous unknown is the caller's: it asserted nothing real (a bare `settled` wait, which the
@@ -331,7 +331,7 @@ function frictionInviteFor(toolName: string, raw: unknown): FrictionKind | undef
     // loop this release exists to encourage — get told they are stuck.
     producedVerdict: 'verified' in raw,
   });
-  if (friction !== undefined) getSessionMetrics().recordFeedbackPrompt();
+  if (friction !== undefined) {getSessionMetrics().recordFeedbackPrompt();}
   return friction;
 }
 
@@ -352,10 +352,10 @@ function firstOversizedArg(args: Record<string, unknown>): string | undefined {
   const tooLong = (value: unknown): boolean =>
     'string' === typeof value && value.length > TRANSPORT_LIMITS.MAX_STRING_LENGTH;
   for (const [key, value] of Object.entries(args)) {
-    if (tooLong(value)) return key;
+    if (tooLong(value)) {return key;}
     if ('object' === typeof value && null !== value && !Array.isArray(value)) {
       for (const [inner, nested] of Object.entries(value as Record<string, unknown>)) {
-        if (tooLong(nested)) return `${key}.${inner}`;
+        if (tooLong(nested)) {return `${key}.${inner}`;}
       }
     }
   }
@@ -390,7 +390,7 @@ function pinnedArgs(
   explicitSessionId: string | undefined,
   session: Session | undefined,
 ): Record<string, unknown> {
-  if (explicitSessionId !== undefined || session === undefined) return args;
+  if (explicitSessionId !== undefined || session === undefined) {return args;}
   return { ...args, [SESSION_ID_ARG]: session.id };
 }
 
@@ -418,7 +418,7 @@ export async function runTool<Ext>(
       const ends = endsRun(tool.name, args);
       // A call that only ends a run starts none: a second yield in a row carries no empty report.
       if (agentCall && !ends && deps.attachId !== undefined)
-        runLedger.begin(deps.now(), deps.attachId);
+        {runLedger.begin(deps.now(), deps.attachId);}
       // The project of the session a call ends, read while the session still exists: releasing a
       // tab removes it, and an unreadable project lost an unlinked user's cloud line.
       const endedIn =
@@ -439,13 +439,13 @@ export async function runTool<Ext>(
         root,
         fold: NOTICE_FOLD,
       });
-      if (!agentCall) return answer;
+      if (!agentCall) {return answer;}
       runLedger.after(deps.now());
       noteToolResult(runLedger, tool.name, args, raw);
       const notesAfter = root === undefined ? [] : readAppNotes(root);
       runLedger.memoryWritten(notesAfter.filter((note) => !notesBefore.includes(note)).length);
       runLedger.memoryRead(notesBefore);
-      if (!ends || null === answer || 'object' !== typeof answer) return answer;
+      if (!ends || null === answer || 'object' !== typeof answer) {return answer;}
       return { ...answer, ...runReportField(runLedger, endedIn ?? root, process.env, deps.now()) };
     }),
   );
@@ -512,13 +512,13 @@ async function loggedTool<Ext>(
   try {
     const result = await dispatchTool(tool, deps, args, call, seen);
     if (logPath !== undefined)
-      logToolCall(logPath, { tool: tool.name, args, at, ms: Date.now() - at, result });
+      {logToolCall(logPath, { tool: tool.name, args, at, ms: Date.now() - at, result });}
     episode({ result });
     return result;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     if (logPath !== undefined)
-      logToolCall(logPath, { tool: tool.name, args, at, ms: Date.now() - at, error: message });
+      {logToolCall(logPath, { tool: tool.name, args, at, ms: Date.now() - at, error: message });}
     episode({ error: message });
     throw error;
   }
@@ -653,7 +653,7 @@ async function dispatchTool<Ext>(
     }
   }
   const leaseId = session?.id ?? rawSessionId;
-  if (leaseId !== undefined) deps.pool?.touch(leaseId);
+  if (leaseId !== undefined) {deps.pool?.touch(leaseId);}
   // One identity for the whole call: the handler drives the session everything above is attributed
   // to, rather than resolving again against a registry that can have changed underneath it.
   const dispatchArgs = pinnedArgs(args, rawSessionId, session);
@@ -723,7 +723,7 @@ async function dispatchTool<Ext>(
       raw['dispatched'] !== false &&
       (!isPlainObject(effect) || effect['dispatched'] !== false) &&
       (tool.name !== ReticleTool.ACT_AND_WAIT || isPlainObject(effect));
-    if (ACTION_TOOLS.has(tool.name) && acted) noteActed(args);
+    if (ACTION_TOOLS.has(tool.name) && acted) {noteActed(args);}
   }
   // The human-feedback ask rides out on the first VERIFICATION that completes — the one moment the
   // experience is fresh and there is something concrete to react to. It is spliced BEFORE the
@@ -769,12 +769,12 @@ async function dispatchTool<Ext>(
   // Bound to THIS session's root: a tab must be shown its own project's numbers, not whichever
   // project the daemon was started in.
   session?.pushImpact?.(() => impactSnapshot(artifactRoot));
-  if (resultIsError(raw)) reportRefusal(tool.name, (raw as { error: string }).error);
+  if (resultIsError(raw)) {reportRefusal(tool.name, (raw as { error: string }).error);}
   else {
     noteToolServed();
     // Which tab these refs belong to. Recorded on the way OUT, so the next call that spends one is
     // measured against the tab that actually produced it.
-    if (session !== undefined && REF_MINTING_TOOLS.has(tool.name)) noteRefsMinted(session.id);
+    if (session !== undefined && REF_MINTING_TOOLS.has(tool.name)) {noteRefsMinted(session.id);}
   }
   // The feedback family is asked at most once per agent session (agent/notices.ts): gated here, at
   // the take, so a suppressed ask is never counted as one that was made.
@@ -807,7 +807,7 @@ async function dispatchTool<Ext>(
   // invitations and reading near-empty, which looks identical to a nudge that never fires.
   const friction = asked || prompt !== undefined ? undefined : frictionInviteFor(tool.name, raw);
   if (prompt !== undefined || friction !== undefined)
-    noteFeedbackAsked(currentDrivenBy() === undefined ? deps.attachId : undefined);
+    {noteFeedbackAsked(currentDrivenBy() === undefined ? deps.attachId : undefined);}
   // Once per project, on a proved verdict, when the runs live only on this machine. Not on a result
   // whose `reticleResult` already ends with the platform line: once per result, never twice.
   const platform =
@@ -898,7 +898,7 @@ async function dispatchTool<Ext>(
               }
             : {}),
         };
-  if (!bound || !isPlainObject(result)) return result;
+  if (!bound || !isPlainObject(result)) {return result;}
   // Reuse the session resolved above so the health envelope describes the SAME session the handler
   // drove; only re-resolve if the up-front attempt failed but the handler somehow succeeded.
   // A handler that answered with no tab to resolve (a Harness drive polled by runId after a daemon
@@ -926,7 +926,7 @@ async function dispatchTool<Ext>(
     envelope[EnvelopeKey.HOST_STUB] = HOST_STUB_NOTE;
   }
   // The health block is idempotent: add it only when the handler didn't already include a `session`.
-  if (!('session' in result)) Object.assign(envelope, healthEnvelope(resolved));
+  if (!('session' in result)) {Object.assign(envelope, healthEnvelope(resolved));}
   // Lease + age-warning are INDEPENDENT of the health block. Previously the `'session' in result`
   // early-return skipped them whenever a handler returned its own health (which a throttled tab always
   // does) — so a long-running backgrounded session, the case most likely to leak, never got the
@@ -937,9 +937,9 @@ async function dispatchTool<Ext>(
   if (lease !== undefined && process.env['CI'] === undefined) {
     envelope[EnvelopeKey.SESSION_LEASE] = lease;
   }
-  if (opened !== undefined) envelope[EnvelopeKey.ZERO_INSTALL] = opened.notice;
+  if (opened !== undefined) {envelope[EnvelopeKey.ZERO_INSTALL] = opened.notice;}
   const warning = resolved.ageWarning();
-  if (warning !== undefined) envelope[EnvelopeKey.SESSION_AGE_WARNING] = warning;
+  if (warning !== undefined) {envelope[EnvelopeKey.SESSION_AGE_WARNING] = warning;}
   // Ask for a verdict when the agent has driven the page and not asked for one: a session that never
   // calls a verdict-producing tool proves nothing, however many tools it used. One-shot per
   // abandoned run, same discipline as the pool lease — a hint on every call is noise that gets tuned
@@ -965,10 +965,10 @@ async function dispatchTool<Ext>(
     // `lastAct` read defensively: this envelope is built on EVERY tool call, so a session shape
     // without it would turn a missing field into a crash on the whole surface rather than a missing
     // suggestion. The baton degrades to prose, which is what it carried before.
-    envelope[EnvelopeKey.VERIFY_NEXT] = verifyNextBaton(
+    {envelope[EnvelopeKey.VERIFY_NEXT] = verifyNextBaton(
       unverified,
       resolved.lastAct?.effect() ?? {},
-    );
+    );}
   return Object.keys(envelope).length > 0 ? { ...result, ...envelope } : result;
 }
 
@@ -984,10 +984,10 @@ async function withStepShot<Ext>(
   raw: unknown,
   sessionId: string | undefined,
 ): Promise<unknown> {
-  if (!STEP_SHOT_TOOLS.has(name) || Array.isArray(args['steps'])) return raw;
-  if (!isPlainObject(raw) || resultIsError(raw) || true === raw['paused']) return raw;
+  if (!STEP_SHOT_TOOLS.has(name) || Array.isArray(args['steps'])) {return raw;}
+  if (!isPlainObject(raw) || resultIsError(raw) || true === raw['paused']) {return raw;}
   const tab = 'string' === typeof raw['sessionId'] ? raw['sessionId'] : sessionId;
-  if (tab === undefined) return raw;
+  if (tab === undefined) {return raw;}
   // Paired with its check when the run is written: the n-th verdict picture is the n-th check.
   const verdict =
     'verified' in raw && (ReticleTool.ACT_AND_WAIT === name || ReticleTool.ASSERT === name);
@@ -1015,11 +1015,11 @@ function unmatchedRootOf(
     const target = sessionTarget(deps, sessionId);
     // A lease that claimed a root writes there. The page's unmatched bucket is not where this
     // run goes, so naming it would send the agent to fix a folder the run never touches.
-    if (target.claimedRoot !== undefined) return undefined;
+    if (target.claimedRoot !== undefined) {return undefined;}
     const resolved = deps.artifactRootFor?.(target.projectId, target.origin);
     if (resolved === undefined || ArtifactRootReason.MATCHED_PROJECT === resolved.reason)
-      return undefined;
-    if (resolved.root === deps.reticleRoot) return undefined;
+      {return undefined;}
+    if (resolved.root === deps.reticleRoot) {return undefined;}
     return {
       root: resolved.root,
       contenders: resolved.candidates ?? [],

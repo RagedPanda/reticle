@@ -56,8 +56,8 @@ function callOf(
   parent: string,
   action: string,
 ): string {
-  if (advertised.has(direct)) return direct;
-  if (advertised.has(parent)) return `${parent} {action:"${action}"}`;
+  if (advertised.has(direct)) {return direct;}
+  if (advertised.has(parent)) {return `${parent} {action:"${action}"}`;}
   // Neither is advertised. Say nothing rather than name a tool the agent cannot call — an empty
   // slot costs a capability the agent has to discover; a wrong name costs the whole product.
   return '';
@@ -67,7 +67,7 @@ const ZERO_INSTALL_ARGS = `{ action: "acquire", url: "<the running app's URL>" }
 
 /** The zero-install lease, direct where it is advertised, through `reticle_run` where that is. */
 function zeroInstallCall(advertised: ReadonlySet<string>): string {
-  if (advertised.has(ReticleTool.LEASE)) return `${ReticleTool.LEASE} ${ZERO_INSTALL_ARGS}`;
+  if (advertised.has(ReticleTool.LEASE)) {return `${ReticleTool.LEASE} ${ZERO_INSTALL_ARGS}`;}
   if (advertised.has(ReticleTool.RUN)) {
     return `${ReticleTool.RUN}({ tool: "${ReticleTool.LEASE}", args: ${ZERO_INSTALL_ARGS} })`;
   }

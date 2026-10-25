@@ -49,7 +49,7 @@ describe('Session.queryEvents', () => {
     };
     const session = newSession(reader);
     // Overflow the ring buffer so seq 0 is evicted (count cap) and bufferHealth.dropped > 0.
-    for (let i = 0; i <= RING_BUFFER_DEFAULTS.MAX_EVENTS; i += 1) session.pushEvent(evt(i));
+    for (let i = 0; i <= RING_BUFFER_DEFAULTS.MAX_EVENTS; i += 1) {session.pushEvent(evt(i));}
 
     const all = await session.queryEvents({});
     expect(reads).toBe(1);
@@ -76,7 +76,7 @@ describe('Session.queryEvents', () => {
         ]),
     };
     const session = newSession(reader);
-    for (let i = 0; i <= RING_BUFFER_DEFAULTS.MAX_EVENTS; i += 1) session.pushEvent(evt(i + 10));
+    for (let i = 0; i <= RING_BUFFER_DEFAULTS.MAX_EVENTS; i += 1) {session.pushEvent(evt(i + 10));}
     const a1 = await session.queryEvents({ actionId: 'a1' });
     expect(a1.map((e) => e.seq)).toEqual([0]);
   });

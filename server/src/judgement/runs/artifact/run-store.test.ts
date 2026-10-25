@@ -134,7 +134,7 @@ describe('RunStore — temp-dir filesystem, never touches the repo', () => {
     await store.write(run);
     const read = await store.read(asRunId('run-1'));
     expect(read.ok).toBe(true);
-    if (read.ok) expect(read.run.runId).toBe('run-1');
+    if (read.ok) {expect(read.run.runId).toBe('run-1');}
   });
 
   it('a missing run reads as MISSING (never throws)', async () => {
@@ -239,7 +239,7 @@ describe('RunStore — temp-dir filesystem, never touches the repo', () => {
     'prunes oldest runs beyond the retention cap, keeping the newest',
     async () => {
       const capped = new RunStore(fs, root, { retention: 3, slack: 1 });
-      for (let i = 1; i <= 5; i += 1) await capped.write(make(`run-${i}`, i * 1000));
+      for (let i = 1; i <= 5; i += 1) {await capped.write(make(`run-${i}`, i * 1000));}
       const ids = (await capped.list()).sort();
       expect(ids).toEqual(['run-3', 'run-4', 'run-5']); // oldest two pruned
     },

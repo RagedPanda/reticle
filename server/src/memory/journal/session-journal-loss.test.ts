@@ -74,7 +74,7 @@ function newSession(reader: JournalReader): Session {
 
 /** Push past the ring buffer's count cap, which is what makes queries fall through to the journal. */
 function evictBuffer(session: Session): void {
-  for (let i = 0; i <= RING_BUFFER_DEFAULTS.MAX_EVENTS; i += 1) session.pushEvent(evt(i));
+  for (let i = 0; i <= RING_BUFFER_DEFAULTS.MAX_EVENTS; i += 1) {session.pushEvent(evt(i));}
 }
 
 describe('Session.journalWriteLoss', () => {
@@ -142,7 +142,7 @@ describe('a real capped ledger reaches a real session', () => {
         eventBytesCap: TINY_CAP_BYTES,
       });
       const overflowing: ReticleEvent[] = [];
-      for (let i = 0; i < OVERFLOW_EVENTS; i += 1) overflowing.push(evt(i));
+      for (let i = 0; i < OVERFLOW_EVENTS; i += 1) {overflowing.push(evt(i));}
       await journal.appendEvents(overflowing);
 
       const session = newSession(journal);
@@ -169,7 +169,7 @@ describe('a real capped ledger reaches a real session', () => {
         eventBytesCap: TINY_CAP_BYTES,
       });
       const overflowing: ReticleEvent[] = [];
-      for (let i = 0; i < OVERFLOW_EVENTS; i += 1) overflowing.push(evt(i));
+      for (let i = 0; i < OVERFLOW_EVENTS; i += 1) {overflowing.push(evt(i));}
       await journal.appendEvents(overflowing);
 
       const session = newSession(journal);

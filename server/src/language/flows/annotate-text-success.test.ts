@@ -31,7 +31,7 @@ function annotate(a: Annotation, steps = 1) {
 /** Narrow to the success branch, so a regression that starts refusing fails here rather than later. */
 function okResult(a: Annotation, steps = 1): Extract<AnnotateResult, { ok: true }> {
   const { result } = compileAnnotation(a, steps);
-  if (!result.ok) throw new Error(`expected an ok annotation, got ${result.code}`);
+  if (!result.ok) {throw new Error(`expected an ok annotation, got ${result.code}`);}
   return result;
 }
 

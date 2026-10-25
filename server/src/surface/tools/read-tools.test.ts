@@ -38,7 +38,7 @@ function runState(
     sessions: { resolve: () => session } as unknown as SessionManager,
   } as unknown as ToolDeps;
   const tool = TOOLS.find((t) => t.name === ReticleTool.STATE);
-  if (tool === undefined) throw new Error('reticle_state missing');
+  if (tool === undefined) {throw new Error('reticle_state missing');}
   return { forwarded, reply: Promise.resolve(tool.handler(deps, args)) };
 }
 

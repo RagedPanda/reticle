@@ -23,10 +23,10 @@ export function paginateQueryResult(
   limit: number | undefined,
   countOnly: boolean,
 ): unknown {
-  if (typeof result !== 'object' || null === result) return result;
+  if (typeof result !== 'object' || null === result) {return result;}
   const record = result as Record<string, unknown>;
   const elements = record['elements'];
-  if (!Array.isArray(elements)) return result;
+  if (!Array.isArray(elements)) {return result;}
 
   const counted = record['count'];
   // Older browser SDKs (and the zero-match hint path) may not carry `count`; fall back rather than
@@ -54,7 +54,7 @@ export function paginateQueryResult(
 
   // No limit was asked for, but the wire capped the array anyway. Saying nothing here is what let a
   // partial list read as complete.
-  if (truncatedOnWire) return { ...record, total, truncated: true };
+  if (truncatedOnWire) {return { ...record, total, truncated: true };}
 
   return result;
 }

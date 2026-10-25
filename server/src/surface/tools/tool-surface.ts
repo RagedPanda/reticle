@@ -302,7 +302,7 @@ export const MERGED_TOOL_NAMES: ReadonlySet<string> = new Set([
 
 /** Is the truthy form of a boolean env var set? `1`, `true`, `yes` — anything else is off. */
 function envFlagOn(raw: string | undefined): boolean {
-  if (raw === undefined) return false;
+  if (raw === undefined) {return false;}
   const value = raw.trim().toLowerCase();
   return '1' === value || 'true' === value || 'yes' === value || 'on' === value;
 }
@@ -323,13 +323,13 @@ function envFlagOn(raw: string | undefined): boolean {
  * loss at any price, so the arm that proves this one does not lose accuracy stays runnable.
  */
 export function resolveToolSurface(explicit?: string): ToolSurface {
-  if (explicit === TOOL_SURFACE.LEAN) return TOOL_SURFACE.LEAN;
-  if (explicit === TOOL_SURFACE.MERGED) return TOOL_SURFACE.MERGED;
-  if (explicit === TOOL_SURFACE.VERIFY) return TOOL_SURFACE.VERIFY;
-  if (explicit === TOOL_SURFACE.ALL) return TOOL_SURFACE.ALL;
-  if (explicit === TOOL_SURFACE.DEFAULT) return TOOL_SURFACE.DEFAULT;
+  if (explicit === TOOL_SURFACE.LEAN) {return TOOL_SURFACE.LEAN;}
+  if (explicit === TOOL_SURFACE.MERGED) {return TOOL_SURFACE.MERGED;}
+  if (explicit === TOOL_SURFACE.VERIFY) {return TOOL_SURFACE.VERIFY;}
+  if (explicit === TOOL_SURFACE.ALL) {return TOOL_SURFACE.ALL;}
+  if (explicit === TOOL_SURFACE.DEFAULT) {return TOOL_SURFACE.DEFAULT;}
   const retiredExplicit = explicit === undefined ? undefined : RETIRED_PROFILE_VALUES[explicit];
-  if (retiredExplicit !== undefined) return retiredExplicit;
+  if (retiredExplicit !== undefined) {return retiredExplicit;}
   // The one LIVE value of the otherwise-retired setting. It rides there rather than on a switch of
   // its own because the experiment is an A/B between two surfaces, and a boolean cannot name an arm.
   if (TOOL_SURFACE.LEAN === process.env[TOOL_PROFILE_ENV]?.trim().toLowerCase()) {
@@ -338,8 +338,8 @@ export function resolveToolSurface(explicit?: string): ToolSurface {
   if (TOOL_SURFACE.MERGED === process.env[TOOL_PROFILE_ENV]?.trim().toLowerCase()) {
     return TOOL_SURFACE.MERGED;
   }
-  if (envFlagOn(process.env[VERIFY_SURFACE_ENV])) return TOOL_SURFACE.VERIFY;
-  if (envFlagOn(process.env[ADVERTISE_ALL_ENV])) return TOOL_SURFACE.ALL;
+  if (envFlagOn(process.env[VERIFY_SURFACE_ENV])) {return TOOL_SURFACE.VERIFY;}
+  if (envFlagOn(process.env[ADVERTISE_ALL_ENV])) {return TOOL_SURFACE.ALL;}
   const retiredEnv = RETIRED_PROFILE_VALUES[process.env[TOOL_PROFILE_ENV] ?? ''];
   return retiredEnv ?? TOOL_SURFACE.MERGED;
 }
@@ -429,20 +429,20 @@ export function defaultAdvertisedNames(): readonly string[] {
 
 /** The advertised NAME set for a surface, without needing the tool table. */
 function filterToolNames(surface: ToolSurface): ReadonlySet<string> {
-  if (surface === TOOL_SURFACE.VERIFY) return VERIFY_TOOL_NAMES;
-  if (surface === TOOL_SURFACE.LEAN) return LEAN_TOOL_NAMES;
-  if (surface === TOOL_SURFACE.MERGED) return MERGED_TOOL_NAMES;
-  if (surface === TOOL_SURFACE.DEFAULT) return CORE_TOOL_NAMES;
+  if (surface === TOOL_SURFACE.VERIFY) {return VERIFY_TOOL_NAMES;}
+  if (surface === TOOL_SURFACE.LEAN) {return LEAN_TOOL_NAMES;}
+  if (surface === TOOL_SURFACE.MERGED) {return MERGED_TOOL_NAMES;}
+  if (surface === TOOL_SURFACE.DEFAULT) {return CORE_TOOL_NAMES;}
   return new Set([...CORE_TOOL_NAMES, ...EXTENDED_TOOL_NAMES]);
 }
 
 export function filterTools(tools: ToolDef[], surface: ToolSurface): ToolDef[] {
-  if (surface === TOOL_SURFACE.VERIFY) return tools.filter((t) => VERIFY_TOOL_NAMES.has(t.name));
-  if (surface === TOOL_SURFACE.LEAN) return tools.filter((t) => LEAN_TOOL_NAMES.has(t.name));
+  if (surface === TOOL_SURFACE.VERIFY) {return tools.filter((t) => VERIFY_TOOL_NAMES.has(t.name));}
+  if (surface === TOOL_SURFACE.LEAN) {return tools.filter((t) => LEAN_TOOL_NAMES.has(t.name));}
   if (surface === TOOL_SURFACE.MERGED) {
     return tools.filter((t) => MERGED_TOOL_NAMES.has(t.name));
   }
-  if (surface === TOOL_SURFACE.DEFAULT) return tools.filter((t) => CORE_TOOL_NAMES.has(t.name));
+  if (surface === TOOL_SURFACE.DEFAULT) {return tools.filter((t) => CORE_TOOL_NAMES.has(t.name));}
   // `all` is the extended surface, not the whole registry — the cap is a hard budget shared with
   // every other MCP server the user has connected. surface-sizes.test.ts enforces it.
   return tools.filter((t) => CORE_TOOL_NAMES.has(t.name) || EXTENDED_TOOL_NAMES.has(t.name));

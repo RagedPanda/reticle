@@ -326,8 +326,8 @@ describe('the projects this machine knows', () => {
     try {
       expect(knownProjectCandidates().map((c) => c.directory)).toContain(app);
     } finally {
-      if (previous === undefined) delete process.env[ReticleEnv.STATE_DIR];
-      else process.env[ReticleEnv.STATE_DIR] = previous;
+      if (previous === undefined) {delete process.env[ReticleEnv.STATE_DIR];}
+      else {process.env[ReticleEnv.STATE_DIR] = previous;}
     }
   });
 });
@@ -367,7 +367,7 @@ describe('an unmatched project, said in the log', () => {
       daemonIsProject: () => true,
       servingDirectory: noServingDirectory,
     });
-    for (let i = 0; i < 16; i += 1) resolve(asProjectId(WORKTREE_ID));
+    for (let i = 0; i < 16; i += 1) {resolve(asProjectId(WORKTREE_ID));}
     expect(logged.filter((e) => 'artifact_root_unmatched' === e)).toHaveLength(1);
   });
 });

@@ -24,7 +24,7 @@ class FakeProc {
     return this;
   }
   emit(event: string, arg: unknown): void {
-    for (const listener of this.#listeners.get(event) ?? []) listener(arg);
+    for (const listener of this.#listeners.get(event) ?? []) {listener(arg);}
   }
 }
 
@@ -57,20 +57,20 @@ const STORM = 20;
 describe('the proxy leaves once its client is gone for good', () => {
   it('keeps serving through the handful a real reconnect produces', () => {
     const w = wire();
-    for (let i = 0; i < STORM - 1; i += 1) w.proc.emit('uncaughtException', errno('EPIPE'));
+    for (let i = 0; i < STORM - 1; i += 1) {w.proc.emit('uncaughtException', errno('EPIPE'));}
     expect(w.exits, 'one client leaving and coming back must not kill the proxy').toBe(0);
   });
 
   it('exits when the disconnects keep coming', () => {
     const w = wire();
-    for (let i = 0; i < STORM; i += 1) w.proc.emit('uncaughtException', errno('EPIPE'));
+    for (let i = 0; i < STORM; i += 1) {w.proc.emit('uncaughtException', errno('EPIPE'));}
     expect(w.exits).toBe(1);
     expect(w.events.at(-1)).toBe('reticle_mcp_proxy_client_gone');
   });
 
   it('exits once, however long the loop runs — the log must not become the leak', () => {
     const w = wire();
-    for (let i = 0; i < STORM * 50; i += 1) w.proc.emit('uncaughtException', errno('EPIPE'));
+    for (let i = 0; i < STORM * 50; i += 1) {w.proc.emit('uncaughtException', errno('EPIPE'));}
     expect(w.exits, 'a second exit call is a second storm of its own').toBe(1);
     expect(w.events.filter((e) => 'reticle_mcp_proxy_client_gone' === e)).toHaveLength(1);
     // Every emit here is a synchronous in-memory call, but the loop reads as heavy to the guard that
@@ -120,27 +120,27 @@ describe('the proxy leaves once its client is gone for good', () => {
 describe('a usable session clears the storm counter', () => {
   it('does not exit when disconnects are separated by a working session', () => {
     const w = wire();
-    for (let i = 0; i < 19; i += 1) w.proc.emit('unhandledRejection', errno('ECONNRESET'));
+    for (let i = 0; i < 19; i += 1) {w.proc.emit('unhandledRejection', errno('ECONNRESET'));}
     expect(w.exits).toBe(0);
     w.noteUsableSession();
     // Another nineteen, which without the reset would be thirty-eight and long past the threshold.
-    for (let i = 0; i < 19; i += 1) w.proc.emit('unhandledRejection', errno('ECONNRESET'));
+    for (let i = 0; i < 19; i += 1) {w.proc.emit('unhandledRejection', errno('ECONNRESET'));}
     expect(w.exits).toBe(0);
   });
 
   it('still exits on a genuine storm, with no usable session between', () => {
     const w = wire();
-    for (let i = 0; i < 25; i += 1) w.proc.emit('unhandledRejection', errno('ECONNRESET'));
+    for (let i = 0; i < 25; i += 1) {w.proc.emit('unhandledRejection', errno('ECONNRESET'));}
     expect(w.exits).toBeGreaterThan(0);
     expect(w.events).toContain('reticle_mcp_proxy_client_gone');
   });
 
   it('a reset after the proxy has already left does not bring it back', () => {
     const w = wire();
-    for (let i = 0; i < 25; i += 1) w.proc.emit('unhandledRejection', errno('ECONNRESET'));
+    for (let i = 0; i < 25; i += 1) {w.proc.emit('unhandledRejection', errno('ECONNRESET'));}
     const exits = w.exits;
     w.noteUsableSession();
-    for (let i = 0; i < 25; i += 1) w.proc.emit('unhandledRejection', errno('ECONNRESET'));
+    for (let i = 0; i < 25; i += 1) {w.proc.emit('unhandledRejection', errno('ECONNRESET'));}
     expect(w.exits).toBe(exits);
   });
 });

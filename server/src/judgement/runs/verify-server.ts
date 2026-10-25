@@ -30,7 +30,7 @@ export interface VerifyServerOptions {
 }
 
 function singleHeader(value: string | string[] | undefined): string | undefined {
-  if (Array.isArray(value)) return value[0];
+  if (Array.isArray(value)) {return value[0];}
   return value;
 }
 
@@ -55,14 +55,14 @@ export function createVerifyRequestListener(opts: VerifyServerOptions): http.Req
     req.on('error', () => fail(400, 'request error'));
 
     req.on('data', (chunk: Buffer) => {
-      if (aborted) return;
+      if (aborted) {return;}
       size += chunk.length;
-      if (size > MAX_BODY_BYTES) return fail(413, 'request too large');
+      if (size > MAX_BODY_BYTES) {return fail(413, 'request too large');}
       chunks.push(chunk);
     });
 
     req.on('end', () => {
-      if (aborted) return;
+      if (aborted) {return;}
       // Defensive: handleVerifyRequest already catches verify errors, but a rejection here must never
       // become an unhandled rejection that takes down the process.
       writeResponse(req, res, opts, Buffer.concat(chunks).toString('utf8')).catch(() => {

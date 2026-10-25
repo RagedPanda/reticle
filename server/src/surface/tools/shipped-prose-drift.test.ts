@@ -63,7 +63,7 @@ function toolNamesInStrings(source: string): string[] {
   // (Backticked prose inside a block comment otherwise reads as a template literal.)
   for (const literal of source.replace(COMMENT, '').matchAll(STRING_LITERAL)) {
     const text = literal[1] ?? literal[2] ?? literal[3] ?? '';
-    for (const token of text.matchAll(TOOL_TOKEN)) found.add(token[0]);
+    for (const token of text.matchAll(TOOL_TOKEN)) {found.add(token[0]);}
   }
   return [...found];
 }
@@ -72,7 +72,7 @@ describe('user-facing prose names only tools that exist', () => {
   const advertised = new Set(TOOLS.map((t) => t.name));
 
   it('finds prose to check (a passing test over zero files proves nothing)', () => {
-    for (const file of PROSE_FILES) expect(statSync(file).isFile()).toBe(true);
+    for (const file of PROSE_FILES) {expect(statSync(file).isFile()).toBe(true);}
     const named = PROSE_FILES.flatMap((f) => toolNamesInStrings(readFileSync(f, 'utf8')));
     expect(named.length).toBeGreaterThan(0);
   });

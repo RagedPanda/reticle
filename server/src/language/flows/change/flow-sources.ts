@@ -27,7 +27,7 @@ export function flowSources(steps: readonly FlowStep[]): string[] {
        * whole time.
        */
       const anchored = step.anchor as { source?: { file: string } };
-      if (anchored.source !== undefined) files.add(anchored.source.file);
+      if (anchored.source !== undefined) {files.add(anchored.source.file);}
       /*
        * The step's own source, which is where almost every real flow's coverage actually lives.
        *
@@ -37,8 +37,8 @@ export function flowSources(steps: readonly FlowStep[]): string[] {
        * fail-safe re-ran the lot: measured against this repo's own saved flows, 52 replayed in 46
        * seconds to answer `unknown`.
        */
-      if (step.source !== undefined) files.add(step.source.file);
-      if (step.steps !== undefined) walk(step.steps);
+      if (step.source !== undefined) {files.add(step.source.file);}
+      if (step.steps !== undefined) {walk(step.steps);}
     }
   };
   walk(steps);

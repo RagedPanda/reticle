@@ -28,14 +28,14 @@ const FLOW = 'flow ';
 
 /** One piece of evidence for a claim: what the check saw, else the source line it drove. */
 function evidenceOf(effect: JournalVerdictEffect): string | undefined {
-  if (effect.observed !== undefined) return `${SAW}${effect.observed}`;
+  if (effect.observed !== undefined) {return `${SAW}${effect.observed}`;}
   return effect.source;
 }
 
 /** `no` when anything failed, `yes` only when something held and nothing was undecided. */
 function runVerified(all: readonly Verified[]): Verified {
-  if (all.includes(Verified.NO)) return Verified.NO;
-  if (0 === all.length || all.some((v) => Verified.YES !== v)) return Verified.UNKNOWN;
+  if (all.includes(Verified.NO)) {return Verified.NO;}
+  if (0 === all.length || all.some((v) => Verified.YES !== v)) {return Verified.UNKNOWN;}
   return Verified.YES;
 }
 
@@ -51,43 +51,43 @@ export class RunLedger {
 
   /** An agent call starts. The first one starts the run, and a call from another agent starts a new one. */
   begin(now: number, owner: string): void {
-    if (this.#owner !== owner) this.#reset();
+    if (this.#owner !== owner) {this.#reset();}
     this.#owner = owner;
     this.#startedAt ??= now;
   }
 
   /** An agent call ended. The first one that left a verdict sets the time to the first verdict. */
   after(now: number): void {
-    if (0 < this.#verdicts.length || 0 < this.#replayed.size) this.#firstVerdictAt ??= now;
+    if (0 < this.#verdicts.length || 0 < this.#replayed.size) {this.#firstVerdictAt ??= now;}
   }
 
   /** A journal record from the agent's own call. A record with no verdict is not a claim. */
   verdict(action: JournalAction): void {
-    if (this.#idle() || action.drivenBy !== undefined) return;
+    if (this.#idle() || action.drivenBy !== undefined) {return;}
     // A replay is counted once, as a flow, decided as its run decides it (`replayed`). Its journal
     // record said `unknown` where the run said `no`, and one report gave both answers.
-    if (ReticleTool.FLOW_REPLAY === action.tool) return;
+    if (ReticleTool.FLOW_REPLAY === action.tool) {return;}
     const parsed = JournalVerdictEffectSchema.safeParse(action.effect);
-    if (parsed.success) this.#verdicts.push(parsed.data);
+    if (parsed.success) {this.#verdicts.push(parsed.data);}
   }
 
   flowSaved(name: string): void {
-    if (!this.#idle()) this.#saved.add(name);
+    if (!this.#idle()) {this.#saved.add(name);}
   }
 
   /** The last replay of a flow in this run is its verdict. */
   replayed(name: string, verified: Verified): void {
-    if (!this.#idle()) this.#replayed.set(name, verified);
+    if (!this.#idle()) {this.#replayed.set(name, verified);}
   }
 
   memoryWritten(count = 1): void {
-    if (!this.#idle()) this.#written += count;
+    if (!this.#idle()) {this.#written += count;}
   }
 
   /** Notes given to the agent. Each one counts once, however often it is shown. */
   memoryRead(notes: readonly string[]): void {
-    if (this.#idle()) return;
-    for (const note of notes) this.#read.add(note);
+    if (this.#idle()) {return;}
+    for (const note of notes) {this.#read.add(note);}
   }
 
   isEmpty(): boolean {

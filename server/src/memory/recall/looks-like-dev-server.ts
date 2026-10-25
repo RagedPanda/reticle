@@ -16,9 +16,9 @@
 const REFUSES = new Set([401, 403, 407]);
 
 export function looksLikeDevServer(status: number, contentType: string | undefined): boolean {
-  if (REFUSES.has(status)) return false;
+  if (REFUSES.has(status)) {return false;}
   // A redirect IS a server routing: a dev server on a base path answers `/` with one.
-  if (status >= 300 && status < 400) return true;
+  if (status >= 300 && status < 400) {return true;}
   // Otherwise it has to be serving a document. A 404 that renders HTML is still a dev server — the
   // server is there, only the route is missing.
   return contentType !== undefined && contentType.toLowerCase().includes('text/html');

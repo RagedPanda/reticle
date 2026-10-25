@@ -53,12 +53,12 @@ describe('the goals a drive was asked to prove (#1316)', () => {
     const asked: [string, Record<string, unknown>][] = [];
     const invoke = (name: string, args: Record<string, unknown>): Promise<unknown> => {
       asked.push([name, args]);
-      if (ReticleTool.SNAPSHOT === name) return Promise.resolve({ tree });
+      if (ReticleTool.SNAPSHOT === name) {return Promise.resolve({ tree });}
       if (ReticleTool.SCROLL_TO === name) {
         const value = String(args['value']);
         return Promise.resolve({ found: tree.includes(value) || below.includes(value) });
       }
-      if (ReticleTool.WAIT_FOR === name) return Promise.resolve({ pass: true });
+      if (ReticleTool.WAIT_FOR === name) {return Promise.resolve({ pass: true });}
       return Promise.resolve({ verified: assertSays });
     };
     return { asked, invoke };
@@ -112,10 +112,10 @@ describe('the goals a drive was asked to prove (#1316)', () => {
     const tree = 'textbox "Name": Nina release 2\nheading "Generated script for: Fixed it"';
     const asked: Record<string, unknown>[] = [];
     const invoke = (name: string, args: Record<string, unknown>): Promise<unknown> => {
-      if (ReticleTool.SNAPSHOT === name) return Promise.resolve({ tree });
+      if (ReticleTool.SNAPSHOT === name) {return Promise.resolve({ tree });}
       if (ReticleTool.SCROLL_TO === name)
-        return Promise.resolve({ found: tree.includes(String(args['value'])) });
-      if (ReticleTool.ASSERT !== name) return Promise.resolve({ pass: true });
+        {return Promise.resolve({ found: tree.includes(String(args['value'])) });}
+      if (ReticleTool.ASSERT !== name) {return Promise.resolve({ pass: true });}
       asked.push(asRecord(args['predicate']));
       const contains = asRecord(args['predicate'])['contains'];
       return Promise.resolve({
@@ -221,11 +221,11 @@ describe('a goal shown only in text the Harness wrote itself', () => {
     const asked: [string, Record<string, unknown>][] = [];
     const invoke = (name: string, args: Record<string, unknown>): Promise<unknown> => {
       asked.push([name, args]);
-      if (ReticleTool.SNAPSHOT === name) return Promise.resolve({ tree });
+      if (ReticleTool.SNAPSHOT === name) {return Promise.resolve({ tree });}
       // The browser's text search lands on the row too, and hands back its cut text.
       if (ReticleTool.SCROLL_TO === name)
-        return Promise.resolve({ found: true, element: { text: found } });
-      if (ReticleTool.WAIT_FOR === name) return Promise.resolve({ pass: true });
+        {return Promise.resolve({ found: true, element: { text: found } });}
+      if (ReticleTool.WAIT_FOR === name) {return Promise.resolve({ pass: true });}
       return Promise.resolve({ verified: 'yes' });
     };
     return { asked, invoke };
@@ -364,7 +364,7 @@ describe('looking for an end settles over the whole session', () => {
   it('waits from the session start, so a request opened before the look still counts', async () => {
     const waits: Record<string, unknown>[] = [];
     const invoke = (name: string, args: Record<string, unknown>): Promise<unknown> => {
-      if (ReticleTool.WAIT_FOR === name) waits.push(args);
+      if (ReticleTool.WAIT_FOR === name) {waits.push(args);}
       return Promise.resolve({ tree: '- text "Done"', found: true });
     };
     await lookFor(invoke, 'Done');

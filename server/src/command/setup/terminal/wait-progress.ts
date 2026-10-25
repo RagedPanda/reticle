@@ -32,9 +32,9 @@ export function waitProgressLine(
   watching: string | undefined,
   lastSpokeAtMs: number | undefined,
 ): string | undefined {
-  if (elapsedMs < WAIT_PROGRESS_EVERY_MS) return undefined;
+  if (elapsedMs < WAIT_PROGRESS_EVERY_MS) {return undefined;}
   const since = elapsedMs - (lastSpokeAtMs ?? 0);
-  if (lastSpokeAtMs !== undefined && since < WAIT_PROGRESS_EVERY_MS) return undefined;
+  if (lastSpokeAtMs !== undefined && since < WAIT_PROGRESS_EVERY_MS) {return undefined;}
   const seconds = `${String(Math.floor(elapsedMs / 1000))}s`;
   if (watching === undefined) {
     // A different problem, and one the reader can act on: we do not know where to look. The CRA
@@ -63,7 +63,7 @@ export function connectProgressLine(
   budgetMs: number,
   awaiting: string,
 ): string | undefined {
-  if (elapsedMs < WAIT_PROGRESS_EVERY_MS) return undefined;
+  if (elapsedMs < WAIT_PROGRESS_EVERY_MS) {return undefined;}
   if (lastSpokeAtMs !== undefined && elapsedMs - lastSpokeAtMs < WAIT_PROGRESS_EVERY_MS) {
     return undefined;
   }

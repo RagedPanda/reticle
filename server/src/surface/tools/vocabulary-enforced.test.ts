@@ -27,7 +27,7 @@ describe('no tool parameter advertises a vocabulary it does not enforce', () => 
     Object.entries(tool.inputSchema ?? {})
       .filter(([, schema]) => {
         const described = schema?.description ?? '';
-        if (!ADVERTISES_VOCABULARY.test(described)) return false;
+        if (!ADVERTISES_VOCABULARY.test(described)) {return false;}
         return true === schema?.safeParse(OUT_OF_VOCABULARY).success;
       })
       .map(([param]) => `${tool.name}.${param}`),

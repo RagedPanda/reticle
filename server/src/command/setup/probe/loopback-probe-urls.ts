@@ -28,7 +28,7 @@ export function loopbackProbeUrls(url: string): string[] {
   } catch {
     return [url];
   }
-  if (!isLoopbackHostname(parsed.hostname)) return [url];
+  if (!isLoopbackHostname(parsed.hostname)) {return [url];}
 
   const out: string[] = [];
   const seen = new Set<string>();
@@ -41,14 +41,14 @@ export function loopbackProbeUrls(url: string): string[] {
       ? `[${host}]${port.length > 0 ? `:${port}` : ''}`
       : `${host}${port.length > 0 ? `:${port}` : ''}`;
     const href = next.href;
-    if (seen.has(href)) return;
+    if (seen.has(href)) {return;}
     seen.add(href);
     out.push(href);
   };
 
   // Caller's host first so a working announcement is not reordered for no reason.
   push(parsed.hostname);
-  for (const host of LOOPBACK_HOSTS) push(host);
+  for (const host of LOOPBACK_HOSTS) {push(host);}
   return out;
 }
 
@@ -88,8 +88,8 @@ const codeOf = (value: unknown): string | undefined => {
 export function isAddressMiss(err: unknown): boolean {
   const cause = field(err, 'cause');
   const direct = codeOf(cause);
-  if (undefined !== direct) return ADDRESS_MISS_CODES.has(direct);
+  if (undefined !== direct) {return ADDRESS_MISS_CODES.has(direct);}
   const errors = field(cause, 'errors');
-  if (!Array.isArray(errors) || 0 === errors.length) return false;
+  if (!Array.isArray(errors) || 0 === errors.length) {return false;}
   return errors.every((e: unknown) => ADDRESS_MISS_CODES.has(codeOf(e) ?? ''));
 }

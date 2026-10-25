@@ -82,7 +82,7 @@ export async function requestFreeDrive(
     });
     const body = record(await res.text());
     const driveId = str(body['driveId']);
-    if (true === body['granted'] && driveId !== undefined) return { granted: true, driveId };
+    if (true === body['granted'] && driveId !== undefined) {return { granted: true, driveId };}
     const message =
       str(body['message']) ??
       `The Reticle platform did not grant a drive (it answered ${String(res.status)}).`;
@@ -145,14 +145,14 @@ export async function fetchPlatformRun(
       method: 'GET',
       headers: headers(platform),
     });
-    if (HTTP_NOT_FOUND === res.status) return { error: msgRunNotOnPlatform(runId) };
+    if (HTTP_NOT_FOUND === res.status) {return { error: msgRunNotOnPlatform(runId) };}
     const body = record(await res.text());
     if (200 > res.status || 300 <= res.status)
-      return {
+      {return {
         error:
           str(body['message']) ??
           `The Reticle platform answered ${String(res.status)} for ${runId}.`,
-      };
+      };}
     return { run: body };
   } catch (error) {
     return {

@@ -29,7 +29,7 @@ describe('assert-net', () => {
     expect(out.result.ok).toBe(true);
     // Narrow before reading `target`: the failure arm of AnnotateResult has no such field, and the
     // union is what stops a test from asserting on a shape the code can never return.
-    if (!out.result.ok) throw new Error('expected the annotation to compile');
+    if (!out.result.ok) {throw new Error('expected the annotation to compile');}
     expect(out.result.target).toBe(AnnotationTarget.STEP);
     expect(out.patch?.stepExpect).toEqual({
       kind: 'net',

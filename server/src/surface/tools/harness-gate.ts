@@ -99,7 +99,7 @@ export async function withLinkedCredential(
     // the daemon's own link, never "run reticle connect" to a project that is linked.
     const own = root !== undefined && isUnmatchedRoot(root) ? undefined : root;
     const linked = await deps.linkedCloud?.(own);
-    if (linked === undefined || null === linked) return env;
+    if (linked === undefined || null === linked) {return env;}
     return {
       ...env,
       [ReticleEnv.API_KEY]: linked.apiKey,
@@ -159,10 +159,10 @@ export async function harnessStartRefusal(
   // and proves nothing. The handshake already knows, so say it before anything is spent.
   const skew = app?.tab.versionSkew;
   if (skew !== undefined && 0 < skew.length)
-    return refusal(`${MSG_SKEW_LEAD} ${skew}`, HarnessRunReason.VERSION_SKEW);
+    {return refusal(`${MSG_SKEW_LEAD} ${skew}`, HarnessRunReason.VERSION_SKEW);}
   // Learned something: the platform hears it before the drive, so its coverage reading is current.
   if (app !== undefined && (await probeMarkers([app.tab, ...app.siblings])))
-    await reportAppsNow().catch(() => undefined);
+    {await reportAppsNow().catch(() => undefined);}
   return undefined;
 }
 
@@ -201,28 +201,28 @@ export async function refusedByPlatform(
   env: Record<string, string | undefined>,
   options: HarnessAsk,
 ): Promise<HarnessRefusal | undefined> {
-  if (true === options.skipPlatformConfig) return undefined;
+  if (true === options.skipPlatformConfig) {return undefined;}
   // No platform, no Harness: it runs there, on the workspace's credits.
   if (serverOptionsFromEnv(env) === undefined)
-    return refusal(MSG_NO_HARNESS_KEY, HarnessRunReason.NOT_LINKED);
+    {return refusal(MSG_NO_HARNESS_KEY, HarnessRunReason.NOT_LINKED);}
   const config = await platformConfig(env, options);
   // It needs a confirmed yes, not the absence of a no. The platform also checks on every turn.
   if (config === undefined)
-    return refusal(MSG_HARNESS_UNCONFIRMED, HarnessRunReason.PLATFORM_UNREACHABLE);
+    {return refusal(MSG_HARNESS_UNCONFIRMED, HarnessRunReason.PLATFORM_UNREACHABLE);}
   // An older platform may still send `harnessUnlocked: false`. It is not read: no setup score
   // refuses a drive.
-  if (!config.harnessEnabled) return refusal(MSG_HARNESS_DISABLED, HarnessRunReason.HARNESS_OFF);
+  if (!config.harnessEnabled) {return refusal(MSG_HARNESS_DISABLED, HarnessRunReason.HARNESS_OFF);}
   // Before entitlement: no credits left is why most workspaces are not entitled, said as the HUD says it.
   if (config.credits !== undefined && creditsSpent(config.credits))
-    return refusal(
+    {return refusal(
       creditsUsedLine(
         config.credits,
         // The platform's own page; built from the API origin only for a platform that names none.
         config.planUrl ?? planUrl(config.platformUrl ?? cloudUrlFrom(env) ?? ''),
       ),
       HarnessRunReason.NO_CREDITS,
-    );
-  if (!config.harnessEntitled) return refusal(MSG_HARNESS_UNCLAIMED, HarnessRunReason.NOT_ENTITLED);
+    );}
+  if (!config.harnessEntitled) {return refusal(MSG_HARNESS_UNCLAIMED, HarnessRunReason.NOT_ENTITLED);}
   return undefined;
 }
 
@@ -237,10 +237,10 @@ export async function refusedForPlan(
 ): Promise<HarnessRefusal | undefined> {
   const planId = options.planId;
   const platform = serverOptionsFromEnv(env);
-  if (planId === undefined || platform === undefined) return refusedByPlatform(env, options);
-  if (await savedPlanDrivesNothing(platform, planId)) return undefined;
+  if (planId === undefined || platform === undefined) {return refusedByPlatform(env, options);}
+  if (await savedPlanDrivesNothing(platform, planId)) {return undefined;}
   const refused = await refusedByPlatform(env, options);
-  if (refused !== undefined) await reportPlanBlocked(platform, planId, firstLine(refused.text));
+  if (refused !== undefined) {await reportPlanBlocked(platform, planId, firstLine(refused.text));}
   return refused;
 }
 

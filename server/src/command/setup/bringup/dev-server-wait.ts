@@ -62,9 +62,9 @@ export const WAIT_CEILING_MS = 25 * 60_000;
  * that is a live server whatever its parent did.
  */
 export function judgeWait(facts: WaitFacts): WaitVerdict {
-  if (facts.serving) return WaitVerdict.READY;
-  if (facts.launcherExited) return WaitVerdict.DEAD;
-  if (facts.elapsedMs >= (facts.budgetMs ?? WAIT_CEILING_MS)) return WaitVerdict.HUNG;
+  if (facts.serving) {return WaitVerdict.READY;}
+  if (facts.launcherExited) {return WaitVerdict.DEAD;}
+  if (facts.elapsedMs >= (facts.budgetMs ?? WAIT_CEILING_MS)) {return WaitVerdict.HUNG;}
   // Output IS progress. Silence is what distinguishes a build from a wedge.
   return facts.quietForMs >= (facts.quietMeansHungMs ?? QUIET_MEANS_HUNG_MS)
     ? WaitVerdict.HUNG
@@ -84,7 +84,7 @@ export function portBusyMessage(output: string): string | undefined {
   const match =
     CRA_PORT_BUSY.exec(output) ?? NAMED_PORT_BUSY.exec(output) ?? EADDRINUSE_PORT.exec(output);
   const port = match?.[1];
-  if (undefined === port) return undefined;
+  if (undefined === port) {return undefined;}
   return (
     `port ${port} is already in use — something else is serving there, so this launcher did not ` +
     `bind. Pass --url http://localhost:${port} if that process is this app, or free the port and re-run.`
@@ -129,7 +129,7 @@ export function announcedUrl(output: string): string | undefined {
  */
 export function urlToWatch(output: string, observedPorts: readonly number[]): string | undefined {
   const announced = announcedUrl(output);
-  if (undefined !== announced) return announced;
+  if (undefined !== announced) {return announced;}
   const port = observedPorts[0];
   return undefined === port ? undefined : `http://localhost:${port}`;
 }

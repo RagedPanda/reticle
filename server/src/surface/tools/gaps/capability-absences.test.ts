@@ -58,7 +58,7 @@ describe('what a session cannot do is reported, but only when it said so', () =>
 describe('an agent asking what it can do is told what it cannot', () => {
   const capabilitiesTool = (): ToolDef => {
     const found = TOOLS.find((t) => t.name === ReticleTool.CAPABILITIES);
-    if (found === undefined) throw new Error('reticle_capabilities is not on the surface');
+    if (found === undefined) {throw new Error('reticle_capabilities is not on the surface');}
     return found;
   };
 

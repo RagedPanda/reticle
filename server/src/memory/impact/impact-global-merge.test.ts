@@ -31,7 +31,7 @@ function tempRoot(): string {
   return dir;
 }
 afterEach(() => {
-  for (const dir of roots.splice(0)) rmSync(dir, { recursive: true, force: true });
+  for (const dir of roots.splice(0)) {rmSync(dir, { recursive: true, force: true });}
 });
 
 const DAY = 86_400_000;

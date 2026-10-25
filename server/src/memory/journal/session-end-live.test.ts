@@ -39,7 +39,7 @@ describe('ending the live sessions on close', () => {
   it('a teardown that throws does not stop the others', async () => {
     const done: string[] = [];
     await endLiveSessions(registry([{ id: 'bad' }, { id: 'good' }]), (t) => {
-      if ('bad' === t.id) return Promise.reject(new Error('disk full'));
+      if ('bad' === t.id) {return Promise.reject(new Error('disk full'));}
       done.push(t.id);
       return Promise.resolve();
     });

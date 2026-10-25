@@ -100,7 +100,7 @@ function fakeDeps(session: Session): ToolDeps {
 
 function tool(name: string) {
   const found = TOOLS.find((t) => t.name === name);
-  if (found === undefined) throw new Error(`no ${name} tool`);
+  if (found === undefined) {throw new Error(`no ${name} tool`);}
   return found;
 }
 
@@ -148,7 +148,7 @@ describe('act_sequence burst', () => {
     const sent = await dispatchedArgs({ burst: 50_000 });
 
     expect(sent).toHaveLength(2);
-    for (const args of sent) expect(args['settleMs']).toBe(0);
+    for (const args of sent) {expect(args['settleMs']).toBe(0);}
   });
 
   it('treats a non-numeric burst as absent rather than as zero', async () => {
@@ -157,6 +157,6 @@ describe('act_sequence burst', () => {
     const sent = await dispatchedArgs({ burst: 'fast' });
 
     expect(sent).toHaveLength(2);
-    for (const args of sent) expect(args['settleMs']).toBeUndefined();
+    for (const args of sent) {expect(args['settleMs']).toBeUndefined();}
   });
 });

@@ -41,19 +41,19 @@ const UPLOAD_MAX_BYTES = Math.floor((TRANSPORT_LIMITS.MAX_MESSAGE_BYTES / (4 / 3
 function fakeFs(files: Record<string, Uint8Array>): FileSystemPort {
   // Pre-normalise every key so lookup always works regardless of separator.
   const normalised: Record<string, Uint8Array> = {};
-  for (const [k, v] of Object.entries(files)) normalised[resolve(k)] = v;
+  for (const [k, v] of Object.entries(files)) {normalised[resolve(k)] = v;}
 
   return {
     readFile: (path) => {
       const bytes = normalised[resolve(path)];
-      if (bytes === undefined) return Promise.reject(new Error(`ENOENT: ${path}`));
+      if (bytes === undefined) {return Promise.reject(new Error(`ENOENT: ${path}`));}
       return Promise.resolve(new TextDecoder().decode(bytes));
     },
     writeFile: () => Promise.resolve(),
     appendFile: () => Promise.resolve(),
     readFileBytes: (path) => {
       const bytes = normalised[resolve(path)];
-      if (bytes === undefined) return Promise.reject(new Error(`ENOENT: ${path}`));
+      if (bytes === undefined) {return Promise.reject(new Error(`ENOENT: ${path}`));}
       return Promise.resolve(bytes);
     },
     writeFileBytes: () => Promise.resolve(),
@@ -64,14 +64,14 @@ function fakeFs(files: Record<string, Uint8Array>): FileSystemPort {
     rm: () => Promise.resolve(),
     stat: (path) => {
       const bytes = normalised[resolve(path)];
-      if (bytes === undefined) return Promise.reject(new Error(`ENOENT: ${path}`));
+      if (bytes === undefined) {return Promise.reject(new Error(`ENOENT: ${path}`));}
       return Promise.resolve({ mtimeMs: Date.now(), size: bytes.byteLength });
     },
     // realpath: resolve symlinks — in the fake, just normalise the path (no actual symlinks)
     realpath: (path) => {
       const resolved = resolve(path);
       // If the path isn't in our file map, reject with ENOENT
-      if (!(resolved in normalised)) return Promise.reject(new Error(`ENOENT: ${path}`));
+      if (!(resolved in normalised)) {return Promise.reject(new Error(`ENOENT: ${path}`));}
       return Promise.resolve(resolved);
     },
     isNotFound: (err) => String(err).includes('ENOENT'),

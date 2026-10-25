@@ -59,8 +59,8 @@ export function shouldGreetWithLeaseNotice(
   leasedSessionIds: readonly string[],
   leasedProjectIds: readonly (string | undefined)[],
 ): boolean {
-  if (leasedSessionIds.includes(session.id)) return false;
-  if (0 === leasedSessionIds.length) return false;
+  if (leasedSessionIds.includes(session.id)) {return false;}
+  if (0 === leasedSessionIds.length) {return false;}
   return leasedProjectIds.some(
     (projectId) =>
       projectId === undefined || session.projectId === undefined || session.projectId === projectId,

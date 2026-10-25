@@ -40,7 +40,7 @@ export interface LeaseBrowserState {
  * have to filter blanks, and a healthy install must pay nothing at all for this check.
  */
 export function leaseCaveat(state: LeaseBrowserState | undefined): string | undefined {
-  if (state === undefined || state.exists) return undefined;
+  if (state === undefined || state.exists) {return undefined;}
 
   // Present-at-the-wrong-revision and absent-entirely have different fixes and different readings,
   // and collapsing them is what made the reported loop unbreakable — "the check is broken" and

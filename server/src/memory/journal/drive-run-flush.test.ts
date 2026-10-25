@@ -50,7 +50,7 @@ describe('a drive publishes its evidence while the drive is still happening', ()
 
   it('collapses a burst into ONE write, so a fast drive is not quadratic in its own length', async () => {
     const { written, handle } = harness();
-    for (let i = 0; i < 20; i += 1) emitHook(verdict('s1'));
+    for (let i = 0; i < 20; i += 1) {emitHook(verdict('s1'));}
     await tick(40);
     expect(written).toEqual(['s1']);
     handle.stop();

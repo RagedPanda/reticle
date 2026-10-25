@@ -21,7 +21,7 @@ export interface ScriptCoverage {
 }
 
 export async function startJsCoverage(page: Page, covering: WeakSet<Page>): Promise<boolean> {
-  if (covering.has(page)) return true;
+  if (covering.has(page)) {return true;}
   try {
     await page.coverage.startJSCoverage({ resetOnNavigation: false });
     covering.add(page);

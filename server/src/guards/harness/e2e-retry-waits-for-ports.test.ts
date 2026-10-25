@@ -39,7 +39,7 @@ const RETRY_BLOCK = CI.slice(
 describe('the e2e retry frees its ports before retrying', () => {
   it('still kills the app servers it started', () => {
     // Guards the guard: if the cleanup disappears, the wait below is meaningless.
-    for (const port of ['8787', '4310', '3100']) expect(RETRY_BLOCK).toContain(port);
+    for (const port of ['8787', '4310', '3100']) {expect(RETRY_BLOCK).toContain(port);}
   });
 
   it('waits for the ports to actually close, rather than assuming kill -9 is synchronous', () => {

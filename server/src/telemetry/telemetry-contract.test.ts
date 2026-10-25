@@ -484,19 +484,19 @@ describe('the product signals stay closed', () => {
 
   it('accepts every member of every vocabulary', () => {
     for (const accountState of Object.values(TelemetryAccountState))
-      expect(ok({ accountState, linked: true })).toBe(true);
-    for (const client of Object.values(AgentClient)) expect(ok({ client })).toBe(true);
-    for (const launch of Object.values(LaunchMethod)) expect(ok({ launch })).toBe(true);
+      {expect(ok({ accountState, linked: true })).toBe(true);}
+    for (const client of Object.values(AgentClient)) {expect(ok({ client })).toBe(true);}
+    for (const launch of Object.values(LaunchMethod)) {expect(ok({ launch })).toBe(true);}
     for (const view of Object.values(HudPanel))
-      expect(ok({ hud: { view, tabs: CountBucket.ONE } })).toBe(true);
+      {expect(ok({ hud: { view, tabs: CountBucket.ONE } })).toBe(true);}
     for (const surface of Object.values(HudPromptSurface))
-      expect(ok({ hud: { surface } })).toBe(true);
-    for (const via of Object.values(PlatformLinkVia)) expect(ok({ link: { via } })).toBe(true);
+      {expect(ok({ hud: { surface } })).toBe(true);}
+    for (const via of Object.values(PlatformLinkVia)) {expect(ok({ link: { via } })).toBe(true);}
     for (const source of Object.values(HarnessRunSource))
-      for (const outcome of Object.values(HarnessRunOutcome))
-        expect(
+      {for (const outcome of Object.values(HarnessRunOutcome))
+        {expect(
           ok({ harness: { phase: 'completed', source, outcome, hosted: true, journeys: '1' } }),
-        ).toBe(true);
+        ).toBe(true);}}
   });
 
   it('refuses free text where a closed value belongs', () => {

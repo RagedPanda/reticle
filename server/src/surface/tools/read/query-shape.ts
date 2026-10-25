@@ -28,7 +28,7 @@ const FIELD_TO_STRATEGY: readonly (readonly [string, string])[] = [
 
 export function normalizeQueryArgs(args: Record<string, unknown>): Record<string, unknown> {
   // An explicit pair is the contract; never second-guess it.
-  if ('string' === typeof args['by'] && 'string' === typeof args['value']) return args;
+  if ('string' === typeof args['by'] && 'string' === typeof args['value']) {return args;}
   for (const [field, strategy] of FIELD_TO_STRATEGY) {
     const value = args[field];
     if ('string' === typeof value && value.length > 0) {
@@ -50,7 +50,7 @@ export const EMPTY_FIND_OPENING = 'Nothing was searched: this find names nothing
  */
 export function emptyQueryRefusal(args: Record<string, unknown>): Error | undefined {
   if (true === args['self'] || 'string' === typeof args['by'] || 'string' === typeof args['value'])
-    return undefined;
+    {return undefined;}
   return new Error(
     `${EMPTY_FIND_OPENING} Pass one of testid, text, role ` +
       '(with name), label, placeholder or alt, e.g. { testid: "submit" } or { role: "button", ' +

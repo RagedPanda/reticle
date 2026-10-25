@@ -28,7 +28,7 @@ export function connectedAppUrl(
   sessions: readonly { readonly url?: string; readonly projectId?: string }[],
   projectId: string | undefined,
 ): string | undefined {
-  if (projectId === undefined) return undefined;
+  if (projectId === undefined) {return undefined;}
   const mine = sessions.find((s) => s.projectId === projectId && 0 < (s.url ?? '').length);
   return mine?.url;
 }

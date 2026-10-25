@@ -27,7 +27,7 @@ const NET = (over: Record<string, unknown> = {}): Record<string, unknown> => ({
 /** The refusal as the tool surface throws it, for a session that declared capture off. */
 const refusalFor = (session: { captureBodies?: boolean; sdkVersion?: string }): string => {
   const refusal = bodyClauseRefusal(NET(), session);
-  if (refusal === undefined) throw new Error('the pre-flight did not refuse — fixture is wrong');
+  if (refusal === undefined) {throw new Error('the pre-flight did not refuse — fixture is wrong');}
   return refusal;
 };
 

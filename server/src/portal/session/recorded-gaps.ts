@@ -50,7 +50,7 @@ export function recordGaps(sessionId: string, gaps: readonly object[], now: numb
     const kind = text(gap['kind']);
     const missing = text(gap['missing']);
     const fix = text(gap['fix']);
-    if (kind === undefined || missing === undefined || fix === undefined) continue;
+    if (kind === undefined || missing === undefined || fix === undefined) {continue;}
     const cost = text(gap['cost']);
     const ref = text(gap['ref']);
     const source = text(gap['source']);
@@ -67,7 +67,7 @@ export function recordGaps(sessionId: string, gaps: readonly object[], now: numb
       ...list.filter((g) => g.kind !== kind || g.missing !== missing),
     ].slice(0, LINK_APP_GAPS_MAX);
   }
-  if (0 < list.length) bySession.set(sessionId, list);
+  if (0 < list.length) {bySession.set(sessionId, list);}
 }
 
 /** A tab as the notes below key it: its session, and the app it shows. */
@@ -84,8 +84,8 @@ export interface NotedTab {
  * mid-drive that it had let start at 87.5%.
  */
 function appKeyOf(tab: NotedTab): string | undefined {
-  if (tab.projectId !== undefined && 0 < tab.projectId.length) return `project:${tab.projectId}`;
-  if (tab.url === undefined) return undefined;
+  if (tab.projectId !== undefined && 0 < tab.projectId.length) {return `project:${tab.projectId}`;}
+  if (tab.url === undefined) {return undefined;}
   try {
     return `origin:${new URL(tab.url).origin}`;
   } catch {
@@ -100,7 +100,7 @@ const sourceSeen = new Set<string>();
 function markSeen(seen: Set<string>, tab: NotedTab): void {
   seen.add(tab.id);
   const app = appKeyOf(tab);
-  if (app !== undefined) seen.add(app);
+  if (app !== undefined) {seen.add(app);}
 }
 
 /** Whether this tab, or any tab of its app, was marked. */
@@ -111,7 +111,7 @@ function wasSeen(seen: ReadonlySet<string>, tab: NotedTab): boolean {
 
 /** A verdict on this tab named a file:line: source mapping is seen, whatever else lacks one. */
 export function noteSourceSeen(tab: NotedTab, source: string | undefined): void {
-  if (source !== undefined) markSeen(sourceSeen, tab);
+  if (source !== undefined) {markSeen(sourceSeen, tab);}
 }
 
 /** Sessions, and apps, where an acted element carried a `data-testid`. */
@@ -119,12 +119,12 @@ const testidSeen = new Set<string>();
 
 /** An acted element carried a test id: the app uses them, whatever one control lacks. */
 export function noteTestidSeen(tab: NotedTab, testid: string | undefined): void {
-  if (testid !== undefined && 0 < testid.length) markSeen(testidSeen, tab);
+  if (testid !== undefined && 0 < testid.length) {markSeen(testidSeen, tab);}
 }
 
 /** What an act result says about the element it reached: its test id and its source stamp. */
 export function noteActedElement(tab: NotedTab, result: unknown): void {
-  if ('object' !== typeof result || null === result) return;
+  if ('object' !== typeof result || null === result) {return;}
   const acted = result as Record<string, unknown>;
   noteTestidSeen(tab, text(acted['testid']));
   // An action that ran with a canvas on screen: its pixels go unobserved for this run.
@@ -133,11 +133,11 @@ export function noteActedElement(tab: NotedTab, result: unknown): void {
     'object' === typeof effect && null !== effect
       ? (effect as Record<string, unknown>)['canvases']
       : undefined;
-  if ('number' === typeof canvases && 0 < canvases) canvasSeen.add(tab.id);
+  if ('number' === typeof canvases && 0 < canvases) {canvasSeen.add(tab.id);}
   const source = acted['source'];
   if ('object' === typeof source && null !== source) {
     const file = text((source as Record<string, unknown>)['file']);
-    if (file !== undefined) markSeen(sourceSeen, tab);
+    if (file !== undefined) {markSeen(sourceSeen, tab);}
   }
 }
 
@@ -147,20 +147,20 @@ export function noteActedElement(tab: NotedTab, result: unknown): void {
  * control acted on rather than only from a verdict.
  */
 export function notedAct<T extends { ok: boolean; result?: unknown }>(tab: NotedTab, done: T): T {
-  if (done.ok) noteActedElement(tab, done.result);
+  if (done.ok) {noteActedElement(tab, done.result);}
   return done;
 }
 
 /** The markers a page said it carries (`ReticleCommand.MARKERS`), marked for its tab and its app. */
 function noteMarkers(tab: NotedTab, result: unknown): void {
-  if ('object' !== typeof result || null === result) return;
+  if ('object' !== typeof result || null === result) {return;}
   const markers = (result as Record<string, unknown>)['markers'];
-  if (!Array.isArray(markers)) return;
-  if (markers.includes(CoverageMarker.SOURCE)) markSeen(sourceSeen, tab);
-  if (markers.includes(CoverageMarker.TESTID)) markSeen(testidSeen, tab);
+  if (!Array.isArray(markers)) {return;}
+  if (markers.includes(CoverageMarker.SOURCE)) {markSeen(sourceSeen, tab);}
+  if (markers.includes(CoverageMarker.TESTID)) {markSeen(testidSeen, tab);}
   const notApplicable = (result as Record<string, unknown>)['notApplicable'];
   if (Array.isArray(notApplicable) && notApplicable.includes(CoverageCapability.SOURCE_MAPPING))
-    markSeen(sourceNotApplicable, tab);
+    {markSeen(sourceNotApplicable, tab);}
 }
 
 /** Apps whose page said file:line cannot apply (plain HTML: no plugin, no framework, no stamp). */
@@ -197,7 +197,7 @@ export async function probeMarkers(tabs: readonly ProbedTab[]): Promise<boolean>
         const done = await tab
           .command?.(ReticleCommand.MARKERS, {}, MARKERS_PROBE_MS)
           .catch(() => undefined);
-        if (true === done?.ok) noteMarkers(tab, done.result);
+        if (true === done?.ok) {noteMarkers(tab, done.result);}
       }),
   );
   return before < sourceSeen.size + testidSeen.size;
@@ -221,7 +221,7 @@ export function engineBlindSpotsField(
   intent: unknown,
   declared: readonly { statement: string }[],
 ): { [ENGINE_BLIND_SPOTS_FIELD]: EngineBlindSpot[] } {
-  if (computesComparison(predicate)) comparedSeen.add(sessionId);
+  if (computesComparison(predicate)) {comparedSeen.add(sessionId);}
   const claims = [text(intent), ...declared.map((each) => each.statement)];
   return {
     [ENGINE_BLIND_SPOTS_FIELD]: engineBlindSpots({
@@ -275,11 +275,11 @@ export function announcedChannels(tab: InstrumentedTab): string[] {
   // the app has no source mapping (core's per-control rule).
   const off = gaps.some((gap) => InstrumentationGapKind.SOURCE_MAPPING_OFF === gap.kind);
   if (!off && (wasSeen(sourceSeen, tab) || true === tab.sourceMapping))
-    channels.push(CoverageMarker.SOURCE);
+    {channels.push(CoverageMarker.SOURCE);}
   // Nothing announces test ids, so they are seen on an acted element — and a control the agent
   // could only reach without one keeps the capability missing.
   const noTestid = gaps.some((gap) => InstrumentationGapKind.MISSING_TESTID === gap.kind);
-  if (!noTestid && wasSeen(testidSeen, tab)) channels.push(CoverageMarker.TESTID);
+  if (!noTestid && wasSeen(testidSeen, tab)) {channels.push(CoverageMarker.TESTID);}
   return channels;
 }
 

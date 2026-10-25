@@ -120,7 +120,7 @@ describe('applyMerges (assembly-point consolidation)', () => {
 describe('a key that belongs to another action of the same tool', () => {
   const tool = (surface: readonly ToolDef[], name: string): ToolDef => {
     const found = surface.find((t) => t.name === name);
-    if (found === undefined) throw new Error(`${name} is not on this surface`);
+    if (found === undefined) {throw new Error(`${name} is not on this surface`);}
     return found;
   };
   const refusal = (call: Promise<unknown>): Promise<string> =>

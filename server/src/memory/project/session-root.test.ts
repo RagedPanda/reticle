@@ -68,7 +68,7 @@ function deps(options: {
      * it is not here", which is the case that used to be answered with somebody else's directory.
      */
     resolve: (sessionId?: string) => {
-      if (true === options.resolveThrows) throw new Error('no browser session connected');
+      if (true === options.resolveThrows) {throw new Error('no browser session connected');}
       if (sessionId !== undefined && sessionId !== session.id) {
         throw new Error(`no connected session with id '${sessionId}'`);
       }

@@ -133,7 +133,7 @@ export async function laneSeed(
   sessionId: string | undefined,
   appUrl: string | undefined,
 ): Promise<SeedStorage | undefined> {
-  if (appUrl === undefined) return undefined;
+  if (appUrl === undefined) {return undefined;}
   return suiteFixtureSeed(deps.realInput, sessionUrlOf(deps, sessionId) ?? appUrl);
 }
 
@@ -177,8 +177,8 @@ export async function exploreScript(
   // A saved plan is the platform's: without it there is nothing to run, and driving something else
   // in its place would answer a question nobody asked.
   if (platform === undefined && options.planId !== undefined)
-    throw new Error(msgSavedPlanUnreadable(options.planId));
-  if (platform === undefined) return undefined;
+    {throw new Error(msgSavedPlanUnreadable(options.planId));}
+  if (platform === undefined) {return undefined;}
   if (options.planId !== undefined) {
     const planId = options.planId;
     // Refused or broken before a journey ran is still said to the plan, so its history shows it.
@@ -186,7 +186,7 @@ export async function exploreScript(
     // real results itself whenever it returns.
     try {
       const saved = await fetchScript(platform, planId);
-      if (saved === undefined) throw new Error(msgSavedPlanUnreadable(planId));
+      if (saved === undefined) {throw new Error(msgSavedPlanUnreadable(planId));}
       return await runPlan(deps, env, options, before, { platform, plan, script: saved, planId });
     } catch (error) {
       const why = error instanceof Error ? error.message : String(error);
@@ -199,7 +199,7 @@ export async function exploreScript(
   const again = focus === undefined ? undefined : await planMadeFor(deps, options.sessionId, focus);
   const reused = again === undefined ? undefined : await fetchScript(platform, again);
   if (again !== undefined && reused !== undefined)
-    return runPlan(deps, env, options, before, { platform, plan, script: reused, planId: again });
+    {return runPlan(deps, env, options, before, { platform, plan, script: reused, planId: again });}
   // What the screen offers, for a named journey too. The platform splits a broad request ("test my
   // app, make a plan") into journeys through these controls and leaves a narrow one whole; without
   // them, a chat-requested drive of a desktop app planned one step that restated the request.
@@ -223,7 +223,7 @@ export async function exploreScript(
     narrator(deps, options)(msgNoPlan(proposed.refused), true);
     return undefined;
   }
-  if (proposed === undefined || 0 < checkScript(proposed.script).length) return undefined;
+  if (proposed === undefined || 0 < checkScript(proposed.script).length) {return undefined;}
   return runPlan(deps, env, options, before, {
     platform,
     plan,
@@ -264,7 +264,7 @@ async function runPlan(
   // The journey itself leads (its rules are already written into it by the platform): a driver
   // with nothing named to prove stopped after its first half.
   const planFor = (goal?: string): HarnessPlan => {
-    if (goal === undefined) return open;
+    if (goal === undefined) {return open;}
     const journey = { kind: PlanStepKind.DRIVE, target: 'this journey, to its end', why: goal };
     return { ...open, steps: [journey, ...open.steps] };
   };
@@ -298,12 +298,12 @@ async function runPlan(
   // /login, a page that was not the journey. They start from what this tab holds, or take turns here.
   const seed = wantsLanes ? await laneSeed(deps, options.sessionId, appUrl) : undefined;
   const leasing = wantsLanes && seed !== undefined;
-  if (wantsLanes && !leasing) narrator(deps, options)(MSG_LANES_IN_THIS_TAB);
+  if (wantsLanes && !leasing) {narrator(deps, options)(MSG_LANES_IN_THIS_TAB);}
   const projectId = safeProjectId(deps, options.sessionId);
   let off = false;
   const poll = setInterval(() => {
     void refusedByPlatform(env, options).then((refusal) => {
-      if (MSG_HARNESS_DISABLED === refusal?.text) off = true;
+      if (MSG_HARNESS_DISABLED === refusal?.text) {off = true;}
     });
   }, STOP_POLL_MS);
   poll.unref();
@@ -326,7 +326,7 @@ async function runPlan(
     },
     ...(true === options.confirmDangerous ? { confirmDangerous: true } : {}),
     lease: async () => {
-      if (!leasing) return { ...pinned(options), release: () => Promise.resolve() };
+      if (!leasing) {return { ...pinned(options), release: () => Promise.resolve() };}
       const acquire = () => acquireLeasedSession(pool, deps.sessions, appUrl, projectId, seed);
       // A cold dev server can miss the first load while other lanes compile it; the second finds it warm.
       return acquire().catch(acquire);
@@ -370,7 +370,7 @@ async function runPlan(
       const banked = await bankOpenRecording(toolset, result, persona, goal);
       // A lane in its own browser is graded where it drove: the caller's tab never saw its pages.
       if (leasing && 0 < endGoalsAsked.length)
-        laneGrades.push(
+        {laneGrades.push(
           await huntAndGrade(deps, (name, args) => toolset.invoke(name, args), {
             sessionId: options.sessionId,
             goals: endGoalsAsked,
@@ -382,7 +382,7 @@ async function runPlan(
             reached: pagesReached(result.toolCalls),
             typed: typedValues(result.toolCalls),
           }),
-        );
+        );}
       if (persona !== undefined) {
         const saved = reconcileFlows(ahead, await reads.flows.list(), [
           ...result.toolCalls,
@@ -440,7 +440,7 @@ async function runPlan(
     },
     planFile,
   );
-  for (const line of run.lines) narrate(line);
+  for (const line of run.lines) {narrate(line);}
   const cutOff = run.drives.find((d) => StopReason.BROKEN === d.stopReason);
   narrate(
     run.stopped
@@ -514,20 +514,20 @@ async function runPlan(
           typed: typedValues(run.toolCalls),
         });
   const goals = graded.goals;
-  for (const id of lanes.all()) noteHarnessDisparity(id, graded.disparity);
+  for (const id of lanes.all()) {noteHarnessDisparity(id, graded.disparity);}
   const goalMet = goalOfDrive(drive.goalMet, goals, actedOnApp(run.toolCalls));
-  if (0 < goals.length) for (const id of lanes.all()) noteHarnessGoal(id, goalMet);
+  if (0 < goals.length) {for (const id of lanes.all()) {noteHarnessGoal(id, goalMet);}}
   // After the goals are graded: a journey that "passed" over goals that came back unmet is not.
   // ponytail: one run-wide goalMet on every journey; per-journey once lanes grade their own goals.
   if (planId !== undefined)
-    await reportPlanResults(
+    {await reportPlanResults(
       platform,
       planId,
       goalMet === undefined ? results : results.map((r) => ({ ...r, goalMet })),
       runIds,
-    );
+    );}
   // ponytail: every lane is given the run's time; per-lane timing if lanes ever report their own.
-  for (const id of lanes.all()) noteHarnessSpan(id, deps.now() - runStarted);
+  for (const id of lanes.all()) {noteHarnessSpan(id, deps.now() - runStarted);}
   return {
     // The hunt's navigations too, after the goal was decided on what the plan itself drove.
     drive: {
@@ -556,7 +556,7 @@ async function runPlan(
  * what was measured; what a replay saved is not, since its journey was not also driven to compare.
  */
 function answeredBy(journeys: readonly JourneyRun[]): string {
-  if (0 === journeys.length) return '';
+  if (0 === journeys.length) {return '';}
   const driven = journeys.filter((j) => JourneyBy.MODEL === j.by);
   const replayed = journeys.filter((j) => JourneyBy.REPLAY === j.by).length;
   const tokens = driven.reduce((n, j) => n + j.tokens, 0);
@@ -598,7 +598,7 @@ export async function memoryGoals(deps: ToolDeps, sessionId?: string): Promise<s
     /* no request declared: the common case */
   }
   try {
-    for (const intent of await openSessionIntents(deps, sessionId)) goals.push(intent.statement);
+    for (const intent of await openSessionIntents(deps, sessionId)) {goals.push(intent.statement);}
   } catch {
     /* no intent ledger */
   }
@@ -654,7 +654,7 @@ export function goalOfRun(
   drives: readonly HarnessResult[],
   journeys: readonly JourneyStatus[],
 ): { goalMet?: boolean } {
-  if (0 < journeys.length && journeys.every((j) => ScriptStatus.PASSED === j.status)) return {};
+  if (0 < journeys.length && journeys.every((j) => ScriptStatus.PASSED === j.status)) {return {};}
   const judged = drives.flatMap((d) => (d.goalMet === undefined ? [] : [d.goalMet]));
   return 0 === judged.length ? {} : { goalMet: judged.every(Boolean) };
 }
@@ -678,7 +678,7 @@ async function crawlApp(
       ...pinned(options),
       drivenBy: { harness, driver },
     }).invoke(ReticleTool.VERIFY, args);
-    if (undefined !== asRecord(result)['error']) return undefined;
+    if (undefined !== asRecord(result)['error']) {return undefined;}
     return { id: 'crawl', name: ReticleTool.CRAWL, args, result, isError: false };
   } catch {
     return undefined;
@@ -700,7 +700,7 @@ async function planMadeFor(
     for (const file of files) {
       const saved = asRecord(JSON.parse(await deps.fs.readFile(join(dir, file))));
       const planId = saved['planId'];
-      if (focus === saved['focus'] && 'string' === typeof planId) return planId;
+      if (focus === saved['focus'] && 'string' === typeof planId) {return planId;}
     }
   } catch {
     /* no plans yet: this persona is planned afresh */
@@ -727,7 +727,7 @@ async function controlsSeenBefore(
       const saved = asRecord(JSON.parse(await deps.fs.readFile(join(dir, file))));
       const controls = saved['appControls'];
       if (Array.isArray(controls))
-        return controls.filter((c): c is string => 'string' === typeof c);
+        {return controls.filter((c): c is string => 'string' === typeof c);}
     }
   } catch {
     /* no plans yet: the planner works from the screen alone */

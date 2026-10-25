@@ -78,7 +78,7 @@ async function driveWithHonestConflict(
   // crashes rather than being dressed up as a port conflict.
   process.on('uncaughtException', (error: unknown) => {
     const code = (error as { code?: unknown } | null)?.code;
-    if ('EADDRINUSE' !== code) throw error;
+    if ('EADDRINUSE' !== code) {throw error;}
     const reason = driveRaceLost(parsed.port, parsed.driveUrl);
     log('reticle_drive_port_race_lost', { port: parsed.port, reason });
     process.stderr.write(`${reason}\n`);
@@ -133,8 +133,8 @@ async function attachToRunningDaemon(
   process.stderr.write(`${describeAttached(port, url, result.session, app)}\n`);
   // The command's own default is headed, and this path cannot deliver that. Said out loud rather
   // than left for the user to discover by watching a window that never opens.
-  if (!headless) process.stderr.write(`${driveHeadlessOnAttach(port, url)}\n`);
+  if (!headless) {process.stderr.write(`${driveHeadlessOnAttach(port, url)}\n`);}
   // A tab that never connected is not a drive session, and reporting one is the false green this
   // command exists to avoid.
-  if (!result.session.ready) process.exit(1);
+  if (!result.session.ready) {process.exit(1);}
 }

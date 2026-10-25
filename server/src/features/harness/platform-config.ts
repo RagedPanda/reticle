@@ -118,7 +118,7 @@ function hudFieldsOf(
 
 /** `{ [key]: value }` when `value` is an http(s) address, else nothing: a link must open. */
 function webUrl<K extends string>(value: unknown, key: K): Partial<Record<K, string>> {
-  if ('string' !== typeof value) return {};
+  if ('string' !== typeof value) {return {};}
   try {
     const url = new URL(value);
     return 'http:' === url.protocol || 'https:' === url.protocol
@@ -149,10 +149,10 @@ function endsAtOf(value: unknown): number | undefined {
 function parse(body: string): PlatformModelConfig | undefined {
   try {
     const parsed: unknown = JSON.parse(body);
-    if ('object' !== typeof parsed || null === parsed) return undefined;
+    if ('object' !== typeof parsed || null === parsed) {return undefined;}
     const record = parsed as Record<string, unknown>;
     const provider = record['provider'];
-    if ('string' !== typeof provider || 0 === provider.length) return undefined;
+    if ('string' !== typeof provider || 0 === provider.length) {return undefined;}
     // Absent reads as OFF: the Harness is opt-in, a new project starts with it off, and only the
     // platform saying it is on lets a drive spend credits.
     const enabled = record['harnessEnabled'];
@@ -222,7 +222,7 @@ export async function fetchPlatformConfig(
   timeoutMs: number = TIMEOUT_MS,
 ): Promise<PlatformModelConfig | undefined> {
   const cloud = platformCredentialFrom(env);
-  if (cloud === undefined) return undefined;
+  if (cloud === undefined) {return undefined;}
   const key = cloud.apiKey;
   const host = cloud.url;
   const drive = env[ReticleEnv.DRIVE_ID];
@@ -242,7 +242,7 @@ export async function fetchPlatformConfig(
       },
       signal: controller.signal,
     });
-    if (!res.ok) return undefined;
+    if (!res.ok) {return undefined;}
     const config = parse(await res.text());
     return config === undefined ? undefined : { ...config, platformUrl: base };
   } catch {

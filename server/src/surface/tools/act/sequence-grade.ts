@@ -112,12 +112,12 @@ export function gradeSequence(
   // Nothing failed that was seen: a step nobody could judge leaves the plan undecided, saying why.
   const unjudged = steps.find((step) => step.undecided !== undefined);
   if (unjudged !== undefined)
-    return {
+    {return {
       verified: Verified.UNKNOWN,
       declared,
       total,
       because: `a step could not be judged — ${unjudged.undecided ?? ''}`,
-    };
+    };}
 
   /*
    * `unknown` rather than `no-fault`, and the distinction is load-bearing.
@@ -201,7 +201,7 @@ export function gradeSequence(
 export const JOURNEY_RECORDING = 'last-journey';
 
 export function offerToKeep(grade: SequenceGrade): string | undefined {
-  if (grade.verified !== Verified.YES || 0 === grade.declared) return undefined;
+  if (grade.verified !== Verified.YES || 0 === grade.declared) {return undefined;}
   return (
     `this plan proved something (${String(grade.declared)} of ${String(grade.total)} steps declared a ` +
     'consequence and every one held) — keep it as a regression flow with ' +

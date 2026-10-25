@@ -62,7 +62,7 @@ export async function resolveBridgeSecurityWithAutoToken(
   options: StartOptions,
 ): Promise<BridgeSecurity> {
   const security = resolveBridgeSecurity(options);
-  if (security.token !== undefined) return security;
+  if (security.token !== undefined) {return security;}
   const dir = options.pairingTokenDir ?? defaultPairingTokenDir();
   const token = await readOrCreatePairingToken(dir, nodePairingTokenDeps());
   if (token === undefined) {

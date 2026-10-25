@@ -137,7 +137,7 @@ describe('the human prompt re-arms, but is capped', () => {
     enableChannel();
     let asks = 0;
     for (let i = 0; i < 500; i += 1) {
-      if (takeFeedbackPrompt(ReticleTool.ASSERT) !== undefined) asks += 1;
+      if (takeFeedbackPrompt(ReticleTool.ASSERT) !== undefined) {asks += 1;}
     }
     expect(asks).toBe(3);
   });

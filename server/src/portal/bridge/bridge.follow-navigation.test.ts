@@ -76,7 +76,7 @@ async function startOnWww(bridge: Bridge, port: number, sessionId: string): Prom
 }
 
 afterEach(async () => {
-  for (const socket of sockets.splice(0)) socket.terminate();
+  for (const socket of sockets.splice(0)) {socket.terminate();}
   await Promise.all(bridges.splice(0).map((bridge) => bridge.close()));
 });
 

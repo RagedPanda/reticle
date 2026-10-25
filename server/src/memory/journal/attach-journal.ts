@@ -41,7 +41,7 @@ interface JournalAttachDeps {
  */
 export function makeJournalAttach(deps: JournalAttachDeps): (session: JournalTarget) => void {
   return (session) => {
-    if (!deps.enabled) return;
+    if (!deps.enabled) {return;}
     if (!isValidSessionId(session.id)) {
       log('journal_skipped_unsafe_session_id', { sessionId: session.id });
       return;

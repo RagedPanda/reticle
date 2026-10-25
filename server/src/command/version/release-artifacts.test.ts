@@ -27,12 +27,12 @@ describe('nothing under apps/ can reach a registry', () => {
     let checked = 0;
     for (const entry of readdirSync(appsDir)) {
       const manifest = join(appsDir, entry, 'package.json');
-      if (!existsSync(manifest)) continue;
+      if (!existsSync(manifest)) {continue;}
       checked += 1;
       const pkg: unknown = JSON.parse(readFileSync(manifest, 'utf8'));
       const isPrivate =
         'object' === typeof pkg && null !== pkg && true === (pkg as { private?: unknown }).private;
-      if (!isPrivate) leaked.push(entry);
+      if (!isPrivate) {leaked.push(entry);}
     }
     // The denominator. `continue` on a missing manifest means a layout that nests apps one level
     // deeper reports "every app is private" having read none — and the failure this guards is a 403

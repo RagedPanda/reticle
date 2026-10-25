@@ -107,7 +107,7 @@ interface NextActionFacts {
 export function portOfUrl(url: string): number | undefined {
   try {
     const raw = new URL(url).port;
-    if ('' === raw) return undefined;
+    if ('' === raw) {return undefined;}
     const port = Number(raw);
     return Number.isSafeInteger(port) && port > 0 ? port : undefined;
   } catch {
@@ -140,15 +140,15 @@ export function departedPortGone(facts: {
  * for a url that does not parse, or one with no port to name (a desktop webview's opaque origin).
  */
 function reopenableUrl(raw: string | undefined): { url: string; port: number } | undefined {
-  if (raw === undefined) return undefined;
+  if (raw === undefined) {return undefined;}
   let url: URL;
   try {
     url = new URL(raw);
   } catch {
     return undefined;
   }
-  if ('http:' !== url.protocol && 'https:' !== url.protocol) return undefined;
-  for (const param of Object.values(RETICLE_URL_PARAM)) url.searchParams.delete(param);
+  if ('http:' !== url.protocol && 'https:' !== url.protocol) {return undefined;}
+  for (const param of Object.values(RETICLE_URL_PARAM)) {url.searchParams.delete(param);}
   const port = '' === url.port ? ('https:' === url.protocol ? 443 : 80) : Number(url.port);
   return { url: url.toString(), port };
 }

@@ -19,7 +19,7 @@ const bridges: Bridge[] = [];
 const sockets: WebSocket[] = [];
 
 afterEach(async () => {
-  for (const socket of sockets.splice(0)) socket.terminate();
+  for (const socket of sockets.splice(0)) {socket.terminate();}
   await Promise.all(bridges.splice(0).map((bridge) => bridge.close()));
 });
 
@@ -133,7 +133,7 @@ describe('a session nonce on the bridge', () => {
     expect(await sayHello(bridge, port, 'tab-1', nonce, production)).toBe('accepted');
     const session = bridge.sessions.get('tab-1');
     const sent: string[] = [];
-    for (const socket of sockets) socket.on('message', (raw: Buffer) => sent.push(raw.toString()));
+    for (const socket of sockets) {socket.on('message', (raw: Buffer) => sent.push(raw.toString()));}
     const result = await session?.command(ReticleCommand.ACT, { ref: 'e1', action: 'click' });
     expect(result?.ok).toBe(false);
     expect(result?.error).toContain(`${PRODUCTION_REFUSAL_PREFIX}${ProductionRule.OBSERVE_ONLY}`);

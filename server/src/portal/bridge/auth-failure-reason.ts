@@ -50,7 +50,7 @@ const DIFFERENT_PROJECT_PREFIX = 'this daemon serves a different project';
  * the caller answers with `connectedSinceLastClosure`.
  */
 export function isAuthRefusalReason(reason: string | undefined): boolean {
-  if (reason === undefined) return false;
+  if (reason === undefined) {return false;}
   return reason.startsWith('authentication failed') || reason.startsWith(DIFFERENT_PROJECT_PREFIX);
 }
 
@@ -78,6 +78,6 @@ export function authFailureReason(
     const reason = `${DIFFERENT_PROJECT_PREFIX} — set a free "port" in .reticle.json, then restart the dev server`;
     return Buffer.byteLength(reason, 'utf8') <= MAX_REASON_BYTES ? reason : PLAIN;
   }
-  if (helloToken === undefined || 0 === helloToken.length) return NO_TOKEN;
+  if (helloToken === undefined || 0 === helloToken.length) {return NO_TOKEN;}
   return Buffer.byteLength(WRONG_TOKEN, 'utf8') <= MAX_REASON_BYTES ? WRONG_TOKEN : PLAIN;
 }

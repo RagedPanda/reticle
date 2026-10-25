@@ -52,7 +52,7 @@ const ruleShape = z.object({
  * to parse.
  */
 export function toRules(value: unknown): MockRule[] {
-  if (value === undefined) return [];
+  if (value === undefined) {return [];}
   const parsed = z.array(ruleShape).safeParse(value);
   if (!parsed.success) {
     const problem = parsed.error.issues
@@ -67,12 +67,12 @@ export function toRules(value: unknown): MockRule[] {
   }
   return parsed.data.map((r) => {
     const rule: MockRule = { urlContains: r.urlContains };
-    if (r.method !== undefined) rule.method = r.method;
-    if (r.status !== undefined) rule.status = r.status;
-    if (r.body !== undefined) rule.body = r.body;
-    if (r.contentType !== undefined) rule.contentType = r.contentType;
-    if (r.delayMs !== undefined) rule.delayMs = r.delayMs;
-    if (r.abort !== undefined) rule.abort = r.abort;
+    if (r.method !== undefined) {rule.method = r.method;}
+    if (r.status !== undefined) {rule.status = r.status;}
+    if (r.body !== undefined) {rule.body = r.body;}
+    if (r.contentType !== undefined) {rule.contentType = r.contentType;}
+    if (r.delayMs !== undefined) {rule.delayMs = r.delayMs;}
+    if (r.abort !== undefined) {rule.abort = r.abort;}
     return rule;
   });
 }
@@ -127,13 +127,13 @@ export const NETWORK_MOCK_TOOLS: ToolDef[] = [
       const provider = mockProvider(deps);
       if (provider !== undefined) {
         const applied = await provider.setMocks(session.url, rules);
-        if (applied) return mocksApplied(deps, session.id, rules.length);
+        if (applied) {return mocksApplied(deps, session.id, rules.length);}
       }
       // A lease is a Playwright-owned page — CDP intercept was always there, this tool just had no
       // route to it. Tried after the driven provider: when both exist, drive is the page the caller
       // means, and a lease is the fallback rather than a competitor.
       const leased = await deps.pool?.setMocksLease(session.id, rules);
-      if (true === leased) return mocksApplied(deps, session.id, rules.length);
+      if (true === leased) {return mocksApplied(deps, session.id, rules.length);}
       return {
         applied: false,
         count: 0,

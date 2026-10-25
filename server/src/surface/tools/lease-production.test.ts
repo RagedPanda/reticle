@@ -24,7 +24,7 @@ const SITE = 'https://app.example.com/overview';
 
 function acquire(deps: ToolDeps, args: Record<string, unknown>): Promise<unknown> {
   const def = LEASE_TOOLS.find((t) => t.name === ReticleTool.LEASE_ACQUIRE);
-  if (def === undefined) throw new Error('no acquire tool');
+  if (def === undefined) {throw new Error('no acquire tool');}
   return def.handler(deps, args);
 }
 

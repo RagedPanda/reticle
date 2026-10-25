@@ -71,7 +71,7 @@ async function nearestRoleNameOnPage(
   anchor: { role: string; name?: unknown },
 ): Promise<string | null> {
   const wanted = 'string' === typeof anchor.name ? anchor.name : undefined;
-  if (wanted === undefined) return null;
+  if (wanted === undefined) {return null;}
   try {
     // Straight off the QUERY result: resolveQuery reduces to refs, and the NAMES are what this needs.
     const result = await session.command(ReticleCommand.QUERY, {
@@ -83,7 +83,7 @@ async function nearestRoleNameOnPage(
       'object' === typeof payload && payload !== null
         ? (payload as { elements?: unknown }).elements
         : undefined;
-    if (!Array.isArray(elements)) return null;
+    if (!Array.isArray(elements)) {return null;}
     const candidates: RoleCandidate[] = elements
       .map((element) =>
         'object' === typeof element && element !== null
@@ -186,7 +186,7 @@ export async function runRoleStep(
 const DESTRUCTIVE_ACTION_PATTERN = /potentially destructive (?:\w+ )*(?:action|tool) blocked/i;
 
 function replayDestructiveActionHint(rawError: string): string {
-  if (!DESTRUCTIVE_ACTION_PATTERN.test(rawError)) return rawError;
+  if (!DESTRUCTIVE_ACTION_PATTERN.test(rawError)) {return rawError;}
   return (
     `${rawError} — this is a flow REPLAY: a step's own args.confirmDangerous is stripped before ` +
     'dispatch and never persists, so editing the flow file does nothing. Pass it at the call level ' +
@@ -276,15 +276,15 @@ export async function actOnResolvedRef(
     if (fresh !== undefined && 'drift' in fresh) {
       return { step: index, tool: step.tool, anchor: label, ok: false, drift: fresh.drift };
     }
-    if (fresh !== undefined) act = await dispatch(fresh.ref);
+    if (fresh !== undefined) {act = await dispatch(fresh.ref);}
   }
 
   const result: FlowStepResult = { step: index, tool: step.tool, anchor: label, ok: act.ok };
-  if (!act.ok) result.error = replayDestructiveActionHint(act.error ?? 'command failed');
+  if (!act.ok) {result.error = replayDestructiveActionHint(act.error ?? 'command failed');}
   // A click no person could have made decides nothing, on replay as on a live act.
   const unreachable = act.ok ? unreachableTargetNote(act.result) : undefined;
   if (unreachable !== undefined)
-    return {
+    {return {
       ...result,
       ok: false,
       drift: {
@@ -293,7 +293,7 @@ export async function actOnResolvedRef(
         anchor: label,
         nearest: null,
       },
-    };
+    };}
   return result;
 }
 
@@ -435,8 +435,8 @@ export function degradedStepResult(step: FlowStep, index: number, label: string)
  * the step runner's own resolution asking the same thing of the same anchor.
  */
 export function anchorQueryArgs(anchor: FlowAnchor): Record<string, unknown> | null {
-  if (anchor.kind === AnchorKind.TESTID) return { by: QueryBy.TESTID, value: anchor.value };
-  if (anchor.kind === AnchorKind.COMPONENT) return componentQueryArgs(anchor);
+  if (anchor.kind === AnchorKind.TESTID) {return { by: QueryBy.TESTID, value: anchor.value };}
+  if (anchor.kind === AnchorKind.COMPONENT) {return componentQueryArgs(anchor);}
   if (anchor.kind === AnchorKind.ROLE && !isDegradedAnchor(anchor) && !isDocumentAnchor(anchor)) {
     return roleQueryArgs(anchor);
   }
@@ -494,7 +494,7 @@ function staleSubStep(
   to: number,
 ): number | undefined {
   const named = /ref '([^']*)'/.exec(error)?.[1];
-  if (named === undefined) return undefined;
+  if (named === undefined) {return undefined;}
   const sharing = live.flatMap((one, at) =>
     at >= from && at < to && one.ref === named ? [at] : [],
   );
@@ -521,11 +521,11 @@ export function staleTargetResult(
 ): FlowReplayResult | undefined {
   // A target no person could reach is the same kind of answer: nothing about the app was decided.
   const unreachable = unreachableTargetResult(name, steps) ?? unreachedStepResult(name, steps);
-  if (unreachable !== undefined) return unreachable;
-  if (steps.some((step) => step.drift !== undefined)) return undefined;
+  if (unreachable !== undefined) {return unreachable;}
+  if (steps.some((step) => step.drift !== undefined)) {return undefined;}
   const failed = steps.filter((step) => !step.ok);
   const [only] = failed;
-  if (failed.length !== 1 || only === undefined || !isStaleRefError(only.error)) return undefined;
+  if (failed.length !== 1 || only === undefined || !isStaleRefError(only.error)) {return undefined;}
   return {
     name,
     status: ReplayStatus.UNVERIFIABLE,
@@ -545,7 +545,7 @@ export function unreachableTargetResult(
   steps: readonly FlowStepResult[],
 ): FlowReplayResult | undefined {
   const step = steps.find((s) => DriftReason.TARGET_UNREACHABLE === s.drift?.reasonKind);
-  if (step?.drift === undefined) return undefined;
+  if (step?.drift === undefined) {return undefined;}
   return {
     name,
     status: ReplayStatus.UNVERIFIABLE,
@@ -581,11 +581,11 @@ function unreachedStepResult(
   const step = steps[at];
   const drift = step?.drift;
   if (step === undefined || drift === undefined || !ANCHOR_MISSES.has(drift.reasonKind))
-    return undefined;
-  if (steps.slice(0, at).some((s) => s.ok)) return undefined;
+    {return undefined;}
+  if (steps.slice(0, at).some((s) => s.ok)) {return undefined;}
   // ponytail: one close, unambiguous survivor reads as a rename (heal's case), so it stays drift. A
   // page with exactly one sibling of the missing control (`toggle-1` for `toggle-3`) reads the same.
-  if (drift.nearest !== null && true !== drift.ambiguous) return undefined;
+  if (drift.nearest !== null && true !== drift.ambiguous) {return undefined;}
   return {
     name,
     status: ReplayStatus.UNVERIFIABLE,
@@ -651,7 +651,7 @@ export async function runSequenceStep(
       };
     }
     const queryArgs = anchorQueryArgs(sub.anchor);
-    if (null === queryArgs) return { stop: degradedStepResult(step, index, label) };
+    if (null === queryArgs) {return { stop: degradedStepResult(step, index, label) };}
     const { refs, hint } = ahead
       ? await queryOnce(session, queryArgs)
       : await resolveQuery(session, queryArgs, sleep);
@@ -661,7 +661,7 @@ export async function runSequenceStep(
     }
     const ref = afterRerender ? refFor(sub.anchor, refs) : refs[0];
     if (ref === undefined) {
-      if (ahead) return { pending: true };
+      if (ahead) {return { pending: true };}
       return {
         stop: {
           step: index,
@@ -706,10 +706,10 @@ export async function runSequenceStep(
   const resolveFrom = async (from: number): Promise<{ end: number } | { stop: FlowStepResult }> => {
     for (let at = from; at < subs.length; at += 1) {
       const sub = subs[at];
-      if (sub === undefined) continue;
+      if (sub === undefined) {continue;}
       const resolved = await resolveSub(sub, at, false, at > from);
-      if ('pending' in resolved) return { end: at };
-      if ('stop' in resolved) return resolved;
+      if ('pending' in resolved) {return { end: at };}
+      if ('stop' in resolved) {return resolved;}
       live[at] = resolved.live;
     }
     return { end: subs.length };
@@ -761,7 +761,7 @@ export async function runSequenceStep(
     let staleBefore = -1;
     for (;;) {
       const act = await send(live.slice(start, to));
-      if (act.ok) return true;
+      if (act.ok) {return true;}
       const error = act.error ?? 'command failed';
       if (!isStaleRefError(error)) {
         result.ok = false;
@@ -783,16 +783,16 @@ export async function runSequenceStep(
       await waitForReaction(session, 0, STALE_REF_GRACE_MS, { sleep });
       for (let at = staleAt; at < to; at += 1) {
         const sub = subs[at];
-        if (sub === undefined) continue;
+        if (sub === undefined) {continue;}
         const resolved = await resolveSub(sub, at, true);
         if ('stop' in resolved) {
           result.ok = false;
           result.anchor = resolved.stop.anchor;
-          if (resolved.stop.drift !== undefined) result.drift = resolved.stop.drift;
+          if (resolved.stop.drift !== undefined) {result.drift = resolved.stop.drift;}
           return false;
         }
         // A second look settles, so it is never `pending`.
-        if ('live' in resolved) live[at] = resolved.live;
+        if ('live' in resolved) {live[at] = resolved.live;}
       }
       start = staleAt;
     }
@@ -813,7 +813,7 @@ export async function runSequenceStep(
    */
   const assertDeclared = async (testid: string): Promise<boolean> => {
     const found = await resolveQuery(session, { by: QueryBy.TESTID, value: testid }, sleep);
-    if (0 < found.refs.length) return true;
+    if (0 < found.refs.length) {return true;}
     result.ok = false;
     result.drift = expectElementDrift(testid, found.hint);
     return false;
@@ -833,17 +833,17 @@ export async function runSequenceStep(
   const declaring = subs.some((sub) => declaredBy(sub) !== undefined);
   for (let next = 0; next < subs.length;) {
     const stretch = await resolveFrom(next);
-    if ('stop' in stretch) return stretch.stop;
+    if ('stop' in stretch) {return stretch.stop;}
     const { end } = stretch;
     if (!declaring) {
-      if (!(await dispatchFrom(next, end))) return result;
+      if (!(await dispatchFrom(next, end))) {return result;}
     } else {
       for (let at = next; at < end; at += 1) {
         const sub = subs[at];
-        if (sub === undefined) continue;
-        if (!(await dispatchFrom(at, at + 1))) return result;
+        if (sub === undefined) {continue;}
+        if (!(await dispatchFrom(at, at + 1))) {return result;}
         const testid = declaredBy(sub);
-        if (testid !== undefined && !(await assertDeclared(testid))) return result;
+        if (testid !== undefined && !(await assertDeclared(testid))) {return result;}
       }
     }
     next = end;

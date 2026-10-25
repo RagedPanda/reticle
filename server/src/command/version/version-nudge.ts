@@ -30,7 +30,7 @@ const delivered = new Map<SkewPair, string>();
  * a second tab on a third version is news; the same tab reconnecting is not.
  */
 export function noteVersionSkew(pair: SkewPair, action: string): void {
-  if (delivered.get(pair) === action) return;
+  if (delivered.get(pair) === action) {return;}
   pending.set(pair, action);
 }
 
@@ -57,7 +57,7 @@ export function takeVersionSkew(connection?: {
   take(): string | undefined;
 }): VersionSkewNudge | undefined {
   const own = connection?.take();
-  if (own !== undefined) return { pair: SkewPair.DAEMON, action: own };
+  if (own !== undefined) {return { pair: SkewPair.DAEMON, action: own };}
   for (const [pair, action] of pending) {
     pending.delete(pair);
     delivered.set(pair, action);
@@ -84,9 +84,9 @@ export function takeVersionSkewOnto(
   connection?: { take(): string | undefined },
 ): Record<string, unknown> {
   const skew = takeVersionSkew(connection);
-  if (skew === undefined) return payload;
+  if (skew === undefined) {return payload;}
   // Compatible, so it did not cause this error: ride along, and leave the advice and the ask alone.
-  if (SkewPair.SDK_BEHIND === skew.pair) return { ...payload, [EnvelopeKey.VERSION_SKEW]: skew };
+  if (SkewPair.SDK_BEHIND === skew.pair) {return { ...payload, [EnvelopeKey.VERSION_SKEW]: skew };}
   const { feedback, ...rest } = payload;
   return {
     ...rest,

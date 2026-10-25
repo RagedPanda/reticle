@@ -30,8 +30,8 @@ function serve(body: unknown): Promise<number> {
     s.once('error', reject);
     s.listen(0, '127.0.0.1', () => {
       const addr = s.address();
-      if (null === addr || 'string' === typeof addr) reject(new Error('no port'));
-      else resolve(addr.port);
+      if (null === addr || 'string' === typeof addr) {reject(new Error('no port'));}
+      else {resolve(addr.port);}
     });
   });
 }

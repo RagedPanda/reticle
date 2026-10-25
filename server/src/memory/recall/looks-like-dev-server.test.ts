@@ -36,7 +36,7 @@ describe('what counts as a dev server', () => {
 
   it('rejects anything that refuses the request', () => {
     for (const status of [401, 403, 407])
-      expect(looksLikeDevServer(status, 'text/html')).toBe(false);
+      {expect(looksLikeDevServer(status, 'text/html')).toBe(false);}
   });
 
   it('rejects a service that answers but serves no document', () => {

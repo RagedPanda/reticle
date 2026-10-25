@@ -124,7 +124,7 @@ function versionPhrase(peer: PeerIdentity, self: SelfIdentity): string {
  * inventing a warning would be as dishonest as staying silent about a real one.
  */
 export function describeSkew(given: PeerIdentity, self: SelfIdentity): string | undefined {
-  if (given.contract !== undefined && given.contract === self.contract) return undefined;
+  if (given.contract !== undefined && given.contract === self.contract) {return undefined;}
   // One version, two builds (a daemon running code older than its install, a cached page bundle):
   // installing that version again changes nothing, so the fix is the restart and the reload.
   const peer = given.version === self.version ? { ...given, fix: SAME_VERSION_FIX } : given;
@@ -132,7 +132,7 @@ export function describeSkew(given: PeerIdentity, self: SelfIdentity): string | 
   // Both sides said which names they speak, so compare the names rather than a hash over them.
   if (peer.contractParts !== undefined && self.contractParts !== undefined) {
     const unknown = namesWeDoNotKnow(peer.contractParts, self.contractParts);
-    if (0 === unknown.length) return undefined;
+    if (0 === unknown.length) {return undefined;}
     // Direction comes from the versions when both are known. An older peer naming something we do
     // not know has a name we removed without retiring it, not a newer contract.
     const order = compareVersions(peer.version, self.version);
@@ -147,7 +147,7 @@ export function describeSkew(given: PeerIdentity, self: SelfIdentity): string | 
     );
   }
   if (peer.contract === undefined) {
-    if (peer.version === undefined || peer.version === self.version) return undefined;
+    if (peer.version === undefined || peer.version === self.version) {return undefined;}
     return (
       `version skew: ${versionPhrase(peer, self)}, and it is too old to report which wire contract ` +
       `it speaks. They connect anyway and then disagree about behaviour, which usually surfaces as ` +
@@ -195,17 +195,17 @@ export function sdkFix(daemonVersion: string): string {
 export function compareVersions(a: string | undefined, b: string): number | undefined {
   const parts = (v: string): number[] | undefined => {
     const head = v.split('-')[0];
-    if (head === undefined) return undefined;
+    if (head === undefined) {return undefined;}
     const nums = head.split('.').map((n) => parseInt(n, 10));
     return nums.some(isNaN) ? undefined : nums;
   };
-  if (a === undefined) return undefined;
+  if (a === undefined) {return undefined;}
   const left = parts(a);
   const right = parts(b);
-  if (left === undefined || right === undefined) return undefined;
+  if (left === undefined || right === undefined) {return undefined;}
   for (let i = 0; i < Math.max(left.length, right.length); i += 1) {
     const diff = (left[i] ?? 0) - (right[i] ?? 0);
-    if (0 !== diff) return diff;
+    if (0 !== diff) {return diff;}
   }
   return 0;
 }
@@ -231,9 +231,9 @@ export function describeSdkBehind(
   fix: () => string,
 ): string | undefined {
   const minorOf = (v: string): string => v.split('-')[0]?.split('.').slice(0, 2).join('.') ?? v;
-  if (sdk === undefined) return undefined;
+  if (sdk === undefined) {return undefined;}
   const order = compareVersions(minorOf(sdk), minorOf(daemon));
-  if (order === undefined || order >= 0) return undefined;
+  if (order === undefined || order >= 0) {return undefined;}
   return (
     `This page runs Reticle SDK ${sdk}, older than Reticle ${daemon}. It connects and verifies, ` +
     `but everything added since is missing from the page, the overlay's newer controls included. ` +
@@ -251,7 +251,7 @@ function pagesMatchDaemon(
   pageSdkVersions: readonly (string | undefined)[],
   daemonVersion: string,
 ): boolean {
-  if (0 === pageSdkVersions.length) return false;
+  if (0 === pageSdkVersions.length) {return false;}
   return pageSdkVersions.every((version) => 0 === compareVersions(version, daemonVersion));
 }
 
@@ -339,6 +339,6 @@ export function isPlaywrightClosedError(error: unknown): boolean {
  * mismatched. Undefined when there is no skew to name, or the throw is something else.
  */
 export function rewriteClosedAsSkew(error: unknown, skew: string | undefined): Error | undefined {
-  if (skew === undefined || !isPlaywrightClosedError(error)) return undefined;
+  if (skew === undefined || !isPlaywrightClosedError(error)) {return undefined;}
   return new Error(skew);
 }

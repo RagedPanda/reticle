@@ -57,7 +57,7 @@ const inside = (c: string, p: string): boolean => c === p || c.startsWith(`${p}$
 
 /** Compared both as written and with links resolved: either spelling may be the one lsof used. */
 function within(child: string | undefined, parent: string): boolean {
-  if (child === undefined) return false;
+  if (child === undefined) {return false;}
   return inside(resolve(child), resolve(parent)) || inside(real(child), real(parent));
 }
 
@@ -75,19 +75,19 @@ export function firstCallOpener(io: FirstCallIo): () => Promise<FirstCallOpened 
   const tried = new Set<string>();
   return async () => {
     const dir = io.project();
-    if (dir === undefined || tried.has(dir)) return undefined;
+    if (dir === undefined || tried.has(dir)) {return undefined;}
     const pinned = detectDevCommandInProject(dir)?.port;
     const candidates = new Set<number>(DEV_SERVER_PORTS);
-    if (pinned !== undefined) candidates.add(pinned);
+    if (pinned !== undefined) {candidates.add(pinned);}
     const own = (await io.serving([...candidates]))
       .map((port) => `${LOCALHOST}:${String(port)}`)
       .filter((url) => within(io.servingDirectory(url), dir));
     const [url] = own;
     // ponytail: nothing serving yet is not an attempt, so a later call looks again.
-    if (url === undefined || 1 !== own.length) return undefined;
+    if (url === undefined || 1 !== own.length) {return undefined;}
     tried.add(dir);
     await io.lease(url).catch(() => undefined);
-    if (!io.connected()) return undefined;
+    if (!io.connected()) {return undefined;}
     return { url, notice: openedNotice(url, initCommandIn(dir)) };
   };
 }

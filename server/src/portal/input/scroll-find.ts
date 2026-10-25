@@ -51,7 +51,7 @@ async function queryFirst(
     ...(q.name !== undefined ? { name: q.name } : {}),
   });
   const elements = asRecord(res.result)['elements'];
-  if (Array.isArray(elements) && elements.length > 0) return asRecord(elements[0]);
+  if (Array.isArray(elements) && elements.length > 0) {return asRecord(elements[0]);}
   return undefined;
 }
 
@@ -66,8 +66,8 @@ function exhaustNote(
   data: Record<string, unknown>,
   nothingEverScrolled: boolean,
 ): { note?: string } {
-  if (q.container !== undefined) return {};
-  if (true === data['scrolled'] || !nothingEverScrolled) return {};
+  if (q.container !== undefined) {return {};}
+  if (true === data['scrolled'] || !nothingEverScrolled) {return {};}
   return {
     note: "The document did not scroll — the target may be inside a list with its own scroll container. Pass that container's ref as `container`.",
   };
@@ -102,7 +102,7 @@ export async function scrollToFind(
   const max = opts.maxScrolls ?? SCROLL_FIND_DEFAULTS.MAX_SCROLLS;
 
   const first = await queryFirst(session, q);
-  if (first !== undefined) return { found: true, element: first, scrolls: 0, exhausted: false };
+  if (first !== undefined) {return { found: true, element: first, scrolls: 0, exhausted: false };}
 
   const baseArgs = (): Record<string, unknown> =>
     q.container !== undefined ? { ref: q.container } : {};
@@ -119,7 +119,7 @@ export async function scrollToFind(
     scrolls += 1;
     last = asRecord(sr.result);
     const hit = await queryFirst(session, q);
-    if (hit !== undefined) return { found: true, element: hit, scrolls, exhausted: false };
+    if (hit !== undefined) {return { found: true, element: hit, scrolls, exhausted: false };}
   }
 
   let downwardSpent = false;
@@ -132,13 +132,13 @@ export async function scrollToFind(
     scrolls += 1;
     const data = asRecord(sr.result);
     last = data;
-    if (true === data['scrolled']) everScrolled = true;
+    if (true === data['scrolled']) {everScrolled = true;}
 
     const hit = await queryFirst(session, q);
-    if (hit !== undefined) return { found: true, element: hit, scrolls, exhausted: false };
+    if (hit !== undefined) {return { found: true, element: hit, scrolls, exhausted: false };}
 
     // Reached the bottom, or the container would not move downward — turn around before giving up.
-    if (true === data['atEnd'] || true !== data['scrolled']) downwardSpent = true;
+    if (true === data['atEnd'] || true !== data['scrolled']) {downwardSpent = true;}
   }
 
   // If the downward pass spent its budget it never saw the end, so there is nothing to turn around
@@ -155,10 +155,10 @@ export async function scrollToFind(
     scrolls += 1;
     const data = asRecord(sr.result);
     last = data;
-    if (true === data['scrolled']) everScrolled = true;
+    if (true === data['scrolled']) {everScrolled = true;}
 
     const hit = await queryFirst(session, q);
-    if (hit !== undefined) return { found: true, element: hit, scrolls, exhausted: false };
+    if (hit !== undefined) {return { found: true, element: hit, scrolls, exhausted: false };}
 
     // The top refusing to move means both directions are spent.
     if (true !== data['scrolled']) {

@@ -29,11 +29,11 @@ const NO_TEAM = 'not set';
 
 /** `codesign -dv` output (it writes to stderr), or undefined when it said nothing usable. */
 export function parseCodesign(output: string): Signature | undefined {
-  if (output.includes(NOT_SIGNED)) return { adhoc: true };
+  if (output.includes(NOT_SIGNED)) {return { adhoc: true };}
   const field = (key: string): string | undefined =>
     new RegExp(`^${key}=(.+)$`, 'm').exec(output)?.[1]?.trim();
   const identifier = field('Identifier');
-  if (identifier === undefined) return undefined;
+  if (identifier === undefined) {return undefined;}
   const team = field('TeamIdentifier');
   return {
     adhoc: 'adhoc' === field('Signature'),
@@ -47,9 +47,9 @@ export function signingNote(
   build: Signature | undefined,
   installed: Signature | undefined,
 ): string | undefined {
-  if (build === undefined) return undefined;
-  if (build.adhoc) return KEYCHAIN_NOTE;
-  if (installed !== undefined && installed.teamId !== build.teamId) return KEYCHAIN_NOTE;
+  if (build === undefined) {return undefined;}
+  if (build.adhoc) {return KEYCHAIN_NOTE;}
+  if (installed !== undefined && installed.teamId !== build.teamId) {return KEYCHAIN_NOTE;}
   return undefined;
 }
 
@@ -62,7 +62,7 @@ export function tauriDevBinary(
 ): { build: string; release: string[]; installed?: string } | undefined {
   const cargo = read('src-tauri/Cargo.toml');
   const name = cargo === undefined ? undefined : /^name\s*=\s*"([^"]+)"/m.exec(cargo)?.[1];
-  if (name === undefined) return undefined;
+  if (name === undefined) {return undefined;}
   let product: unknown;
   try {
     product = (JSON.parse(read('src-tauri/tauri.conf.json') ?? '{}') as Record<string, unknown>)[
@@ -84,7 +84,7 @@ export function tauriDevBinary(
 
 /** `codesign -dv` of one path, as it prints it (to stderr). Undefined when nothing ran. */
 function codesignOf(path: string): Signature | undefined {
-  if (!existsSync(path)) return undefined;
+  if (!existsSync(path)) {return undefined;}
   const run = spawnSync('codesign', ['-dv', '--verbose=2', path], { encoding: 'utf8' });
   return parseCodesign(`${run.stdout}${run.stderr}`);
 }
@@ -100,16 +100,16 @@ export interface SigningProbe {
 
 /** On macOS, the keychain note for the Tauri build Reticle drives, when it applies. */
 export function keychainNoteFor(probe: SigningProbe): string | undefined {
-  if ('darwin' !== (probe.platform ?? process.platform)) return undefined;
+  if ('darwin' !== (probe.platform ?? process.platform)) {return undefined;}
   const app = tauriDevBinary(probe.read);
-  if (app === undefined) return undefined;
+  if (app === undefined) {return undefined;}
   const codesign = probe.codesign ?? codesignOf;
   const installed = app.installed === undefined ? undefined : codesign(app.installed);
   // Every build on disk, debug and release: a person with only a release build heard nothing.
   for (const build of [app.build, ...app.release]) {
     // macOS only, so a POSIX path on every host the unit test runs on.
     const note = signingNote(codesign(posix.join(probe.dir ?? process.cwd(), build)), installed);
-    if (note !== undefined) return note;
+    if (note !== undefined) {return note;}
   }
   return undefined;
 }
@@ -133,7 +133,7 @@ const noticed = new Set<string>();
  * flooded with password dialogs is talking to the agent, and may never run doctor.
  */
 export function keychainNoticeOnce(attach: string, probe: SigningProbe): string | undefined {
-  if (noticed.has(attach)) return undefined;
+  if (noticed.has(attach)) {return undefined;}
   noticed.add(attach);
   return keychainNoteFor(probe);
 }

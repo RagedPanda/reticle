@@ -47,7 +47,7 @@ export function resolveInstallSource(
   stateDir?: string,
 ): InstallSource {
   const declared = (env[INSTALL_SOURCE_ENV] ?? '').trim().toLowerCase();
-  if (KNOWN.has(declared)) return declared as InstallSource;
+  if (KNOWN.has(declared)) {return declared as InstallSource;}
   return (
     (stateDir === undefined ? undefined : machineInstallSource(stateDir)) ?? InstallSource.UNKNOWN
   );
@@ -81,7 +81,7 @@ export function rememberInstallSource(
   stateDir: string = INSTALL_STATE_DIR,
 ): void {
   const declared = declaredInstallSource(env);
-  if (declared === undefined) return;
+  if (declared === undefined) {return;}
   try {
     mkdirSync(stateDir, { recursive: true });
     writeFileSync(join(stateDir, MACHINE_FILE), declared, { encoding: 'utf8', flag: 'wx' });
@@ -124,7 +124,7 @@ export function projectInstallSource(
   const recorded = findProjectConfig(cwd)?.['installSource'];
   if ('string' === typeof recorded) {
     const narrowed = recorded.trim().toLowerCase();
-    if (KNOWN.has(narrowed)) return narrowed as InstallSource;
+    if (KNOWN.has(narrowed)) {return narrowed as InstallSource;}
   }
   return resolveInstallSource(env, INSTALL_STATE_DIR);
 }

@@ -59,7 +59,7 @@ describe('a handshake fact is kept only if something reads it', () => {
 
   it.each(facts)('%s is read somewhere', (fact) => {
     const readers = sources().filter((file) => {
-      if (file.endsWith('handshake-facts.ts')) return false; // the declaration is not a read
+      if (file.endsWith('handshake-facts.ts')) {return false;} // the declaration is not a read
       const text = readFileSync(join(REPO_ROOT, 'server', file), 'utf8');
       // An ASSIGNMENT is not a read. `session.x = parsed.x` is exactly the shape that produced
       // this defect twice: the value arrives, is stored, and is never consulted.

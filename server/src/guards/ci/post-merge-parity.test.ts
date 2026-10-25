@@ -32,7 +32,7 @@ const QUEUE_BRANCH = 'merge_group';
 type Cells = Record<string, Set<string>>;
 
 function jobIf(body: unknown): string {
-  if ('object' !== typeof body || null === body || !('if' in body)) return '';
+  if ('object' !== typeof body || null === body || !('if' in body)) {return '';}
   const value = (body as { if?: unknown }).if;
   return 'string' === typeof value ? value : '';
 }
@@ -44,9 +44,9 @@ export function quarantinedNames(flakyText: string): Set<string> {
   };
   const names = new Set<string>();
   for (const entry of parsed.entries ?? []) {
-    if ('string' !== typeof entry.issue || '' === entry.issue) continue;
-    if ('string' === typeof entry.job_or_test) names.add(entry.job_or_test);
-    if ('string' === typeof entry.id) names.add(entry.id);
+    if ('string' !== typeof entry.issue || '' === entry.issue) {continue;}
+    if ('string' === typeof entry.job_or_test) {names.add(entry.job_or_test);}
+    if ('string' === typeof entry.id) {names.add(entry.id);}
   }
   return names;
 }
@@ -56,7 +56,7 @@ export function pushOnlyJobs(workflowText: string, allowed: Set<string>): string
   const parsed = parse(workflowText) as { jobs?: Record<string, unknown> };
   return Object.entries(parsed.jobs ?? {})
     .filter(([name, body]) => {
-      if (SIDE_EFFECT.has(name) || allowed.has(name)) return false;
+      if (SIDE_EFFECT.has(name) || allowed.has(name)) {return false;}
       const condition = jobIf(body);
       return condition.includes('push') && !condition.includes(QUEUE_BRANCH);
     })
@@ -74,13 +74,13 @@ function words(value: string, vars: Record<string, string>): string[] {
 export function installCellsByBranch(runText: string): Record<string, Cells> {
   const vars: Record<string, string> = {};
   for (const match of runText.matchAll(/^\s*([A-Z_]+)=(['"])([^'"]*)\2\s*$/gm)) {
-    if (undefined !== match[1] && undefined !== match[3]) vars[match[1]] = match[3];
+    if (undefined !== match[1] && undefined !== match[3]) {vars[match[1]] = match[3];}
   }
   const branches: Record<string, Cells> = {};
   const branch = /^\s*([a-z_*]+)\)\s*LINUX=(\S+);\s*WINDOWS=(\S+)\s*;;/gm;
   for (const match of runText.matchAll(branch)) {
     const [, name, linux, windows] = match;
-    if (undefined === name || undefined === linux || undefined === windows) continue;
+    if (undefined === name || undefined === linux || undefined === windows) {continue;}
     branches[name] = {
       [LINUX]: new Set(words(linux, vars)),
       [WINDOWS]: new Set(words(windows.replace(/;$/, ''), vars)),
@@ -100,9 +100,9 @@ export function cellsMissingFromQueue(runText: string, allowed: Set<string>): st
   const missing: string[] = [];
   for (const [os, scaffolds] of Object.entries(push)) {
     for (const scaffold of scaffolds) {
-      if (true === queue[os]?.has(scaffold)) continue;
+      if (true === queue[os]?.has(scaffold)) {continue;}
       const id = `${INSTALL_JOB}/${os}/${scaffold}`;
-      if (!allowed.has(id) && !allowed.has(`${INSTALL_JOB}/${os}`)) missing.push(id);
+      if (!allowed.has(id) && !allowed.has(`${INSTALL_JOB}/${os}`)) {missing.push(id);}
     }
   }
   return missing;

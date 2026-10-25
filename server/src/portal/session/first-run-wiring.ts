@@ -66,9 +66,9 @@ export function projectDirectoryOf(
   wired: (dir: string) => boolean = (dir) => readProjectId(dir) !== undefined,
 ): string | undefined {
   const dir = resolve(cwd);
-  if (dir === resolve(home) || dir === resolve('/')) return undefined;
+  if (dir === resolve(home) || dir === resolve('/')) {return undefined;}
   // Already wired: nothing for a first run to do, and init over a wired app proves nothing.
-  if (wired(dir)) return undefined;
+  if (wired(dir)) {return undefined;}
   // Only an app with a page: a daemon started in a library or API package wrote a config there.
   return isWebApp('.', {
     exists: (p) => existsSync(join(dir, p)),
@@ -140,7 +140,7 @@ export function firstRunWiring(options: {
     projectDirectory: (cwd) => projectDirectoryOf(cwd),
     wire(directory) {
       const held = done.get(directory);
-      if (held !== undefined) return held;
+      if (held !== undefined) {return held;}
       const outcome = run(['init', '--no-mcp', '--json', '--port', String(options.port)], directory)
         .then(({ code, stdout, stderr }): WireOutcome => {
           // Under --json the plan lines may go to stderr, keeping stdout for the one object.

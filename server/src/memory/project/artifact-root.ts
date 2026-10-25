@@ -151,10 +151,10 @@ export function rebaseIntoCheckout(
   from: Pick<Checkout, 'root' | 'commonDir'> | undefined,
   to: Pick<Checkout, 'root' | 'commonDir'> | undefined,
 ): string {
-  if (from === undefined || to === undefined) return directory;
-  if (!samePath(from.commonDir, to.commonDir) || samePath(from.root, to.root)) return directory;
+  if (from === undefined || to === undefined) {return directory;}
+  if (!samePath(from.commonDir, to.commonDir) || samePath(from.root, to.root)) {return directory;}
   const rel = relative(from.root, directory);
-  if ('..' === rel || rel.startsWith(`..${sep}`) || isAbsolute(rel)) return directory;
+  if ('..' === rel || rel.startsWith(`..${sep}`) || isAbsolute(rel)) {return directory;}
   return join(to.root, rel);
 }
 
@@ -169,7 +169,7 @@ function checkoutContaining(
   matches: readonly ProjectCandidate[],
   servingDirectory: string | undefined,
 ): string | undefined {
-  if (servingDirectory === undefined || 0 === servingDirectory.length) return undefined;
+  if (servingDirectory === undefined || 0 === servingDirectory.length) {return undefined;}
   const inside = matches
     .map((candidate) => candidate.directory)
     .filter((directory) => isSameOrInside(directory, servingDirectory));
@@ -194,7 +194,7 @@ function dedupeByDirectory(matches: readonly ProjectCandidate[]): ProjectCandida
   const seen = new Set<string>();
   const out: ProjectCandidate[] = [];
   for (const candidate of matches) {
-    if (seen.has(candidate.directory)) continue;
+    if (seen.has(candidate.directory)) {continue;}
     seen.add(candidate.directory);
     out.push(candidate);
   }
@@ -320,7 +320,7 @@ export function unmatchedRoot(query: {
   origin?: string | undefined;
 }): string {
   if (query.daemonIsProject && isTheDaemonsOwnProject(query.daemonProjectId, query.projectId))
-    return query.daemonRoot;
+    {return query.daemonRoot;}
   const id = query.projectId ?? '';
   const named = SAFE_SEGMENT_PATTERN.test(id) && !id.includes('..');
   return join(
@@ -356,8 +356,8 @@ function isTheDaemonsOwnProject(
   daemonProjectId: string | undefined,
   projectId: ProjectId | undefined,
 ): boolean {
-  if (projectId === undefined || 0 === projectId.length) return true;
-  if (daemonProjectId === undefined || 0 === daemonProjectId.length) return false;
+  if (projectId === undefined || 0 === projectId.length) {return true;}
+  if (daemonProjectId === undefined || 0 === daemonProjectId.length) {return false;}
   return (
     daemonProjectId === projectId &&
     SAFE_SEGMENT_PATTERN.test(daemonProjectId) &&
@@ -367,6 +367,6 @@ function isTheDaemonsOwnProject(
 
 /** Hashed, not spelled: an origin carries a host and a port, and neither belongs in a path segment. */
 function unnamedSegment(origin: string | undefined): string {
-  if (origin === undefined || 0 === origin.trim().length) return UNNAMED_PROJECT;
+  if (origin === undefined || 0 === origin.trim().length) {return UNNAMED_PROJECT;}
   return `${ORIGIN_BUCKET_PREFIX}${fnv1a(origin.trim())}`;
 }

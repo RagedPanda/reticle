@@ -45,7 +45,7 @@ function predicateGuidance(toolName: string): string {
 
 describe('the predicate vocabulary is discoverable from the tool that takes it', () => {
   for (const kind of Object.values(PredicateKind)) {
-    if (COMBINATORS.has(kind)) continue;
+    if (COMBINATORS.has(kind)) {continue;}
     it(`reticle_assert names the '${kind}' predicate`, () => {
       expect(
         predicateGuidance(ReticleTool.ASSERT),

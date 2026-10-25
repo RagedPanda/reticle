@@ -52,7 +52,7 @@ const WINDOW_BUDGET_MS = 8_000;
  */
 function provesOnlyDispatch(observation: { readonly value?: unknown }): boolean {
   const value = observation.value;
-  if ('object' !== typeof value || null === value) return false;
+  if ('object' !== typeof value || null === value) {return false;}
   return true === (value as { oneWay?: unknown }).oneWay;
 }
 
@@ -83,7 +83,7 @@ function closedBy(
   // The gap is reported instead as a non-impeaching `time` blind spot by the realm, which costs
   // a claim nothing unless it reads `time`. This line is what stops the budget derivation
   // overriding that.
-  if (settleUnmeasurable) return window.closes;
+  if (settleUnmeasurable) {return window.closes;}
   return closedAt - window.openedAt >= window.budgetMs
     ? CloseCondition.BUDGET_EXHAUSTED
     : window.closes;
@@ -104,7 +104,7 @@ function asEvidence(
   const out: Evidence[] = [];
   for (const observation of observations) {
     const channel = declared.get(observation.channel);
-    if (channel === undefined) continue; // observed on a channel we never declared: not evidence
+    if (channel === undefined) {continue;} // observed on a channel we never declared: not evidence
     out.push({
       observation,
       provenance: {

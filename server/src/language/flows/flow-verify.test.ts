@@ -22,7 +22,7 @@ import { ReticleTool } from '@reticlehq/core';
 
 function depsWithSessionUrl(url: string | undefined, runtime?: string): ToolDeps {
   const resolve = (): Session => {
-    if (url === undefined) throw new Error('no connected session');
+    if (url === undefined) {throw new Error('no connected session');}
     return { url, runtime } as unknown as Session;
   };
   return { sessions: { resolve } as unknown as SessionManager } as unknown as ToolDeps;
@@ -98,7 +98,7 @@ describe('act rejects an unknown action at the wire boundary', () => {
     handler: (deps: unknown, args: Record<string, unknown>) => Promise<unknown>;
   } => {
     const tool = TOOLS.find((t) => t.name === ReticleTool.ACT);
-    if (tool === undefined) throw new Error('reticle_act missing from the surface');
+    if (tool === undefined) {throw new Error('reticle_act missing from the surface');}
     return tool as unknown as {
       handler: (d: unknown, a: Record<string, unknown>) => Promise<unknown>;
     };

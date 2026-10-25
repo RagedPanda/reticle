@@ -44,7 +44,7 @@ const MAX_SINGLE_READ_BYTES = 2_147_483_647;
  * process. Checking here means the caller gets one predictable rejection instead of either.
  */
 function requireByteCount(label: string, value: number | undefined): void {
-  if (value === undefined) return;
+  if (value === undefined) {return;}
   if (!Number.isSafeInteger(value) || value < 0) {
     throw new RangeError(
       `${label} must be a non-negative safe integer, got ${String(value)} — a fractional or negative byte count cannot reach a read syscall safely`,
@@ -126,7 +126,7 @@ export function createNodeFileSystem(): FileSystemPort {
       const fh = await open(path, 'r');
       try {
         const { size } = await fh.stat();
-        if (byteOffset >= size) return { text: '', size, from: byteOffset };
+        if (byteOffset >= size) {return { text: '', size, from: byteOffset };}
         // Keep the newest bytes when the tail is over the caller's ceiling. Clamped into the file
         // rather than trusted: a ceiling of zero would otherwise size a negative buffer.
         const cut =
@@ -146,7 +146,7 @@ export function createNodeFileSystem(): FileSystemPort {
         // block, and `fstat` runs one syscall ahead of `read` — so a file truncated in between, or
         // any short read, would otherwise decode that memory and hand it back as journal text.
         const got = buf.subarray(0, bytesRead);
-        if (!capped && readFrom === start) return { text: got.toString('utf8'), size, from: start };
+        if (!capped && readFrom === start) {return { text: got.toString('utf8'), size, from: start };}
         // The ceiling moved the start, so the window may open inside a record whose head was never
         // read. Drop up to the first boundary in BYTES, before decoding: `\n` is one byte and
         // cannot occur inside a multi-byte sequence, so everything past it is intact UTF-8 and a
@@ -154,7 +154,7 @@ export function createNodeFileSystem(): FileSystemPort {
         const newline = got.indexOf(NEWLINE_BYTE);
         // No boundary in the whole window: there is no record here that can be read, and half of
         // one is worse than none. `from` still says how far the read reached.
-        if (-1 === newline) return { text: '', size, from: readFrom + bytesRead };
+        if (-1 === newline) {return { text: '', size, from: readFrom + bytesRead };}
         return {
           text: got.subarray(newline + 1).toString('utf8'),
           size,

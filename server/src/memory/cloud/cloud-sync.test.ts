@@ -241,7 +241,7 @@ describe('fetchProjectRegressionFromCloud', () => {
 const stalledFetch = (_url: string, init: { signal?: AbortSignal }): Promise<Response> =>
   new Promise((_resolve, reject) => {
     const signal = init.signal;
-    if (signal === undefined) return;
+    if (signal === undefined) {return;}
     signal.addEventListener('abort', () => {
       reject(signal.reason instanceof Error ? signal.reason : new Error(String(signal.reason)));
     });

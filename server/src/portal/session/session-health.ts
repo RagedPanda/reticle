@@ -112,13 +112,13 @@ export function pendingNavigationMs(
   nowMs: number,
 ): number | undefined {
   const settled = new Set<unknown>();
-  for (const e of events) if (e.type === EventType.NET_REQUEST) settled.add(e.data['id']);
+  for (const e of events) {if (e.type === EventType.NET_REQUEST) {settled.add(e.data['id']);}}
   let oldest: number | undefined;
   for (const e of events) {
-    if (e.type !== EventType.NET_PENDING || settled.has(e.data['id'])) continue;
-    if (oldest === undefined || e.t < oldest) oldest = e.t;
+    if (e.type !== EventType.NET_PENDING || settled.has(e.data['id'])) {continue;}
+    if (oldest === undefined || e.t < oldest) {oldest = e.t;}
   }
-  if (oldest === undefined) return undefined;
+  if (oldest === undefined) {return undefined;}
   const age = nowMs - oldest;
   return age >= PENDING_NAVIGATION_NOTICE_MS ? age : undefined;
 }
@@ -136,7 +136,7 @@ interface BufferEnvelope {
  */
 export function bufferEnvelope(session: HealthSubject): BufferEnvelope {
   const { total, dropped } = session.bufferHealth();
-  if (0 === dropped) return {};
+  if (0 === dropped) {return {};}
   return { buffer: { held: total, dropped, note: BUFFER_EVICTION_WARNING } };
 }
 
@@ -177,7 +177,7 @@ export function healthEnvelope(session: HealthSubject): HealthEnvelope {
     health.recommendation === undefined &&
     health.pendingNavigationMs === undefined &&
     health.versionSkew === undefined;
-  if (nominal) return {};
+  if (nominal) {return {};}
   // Skew outranks the throttle warning when both hold: a throttled tab makes a reading unreliable,
   // a skewed link makes the ACTION unreliable, and there is no point warning about the quality of an
   // observation of something that may never have happened.
@@ -228,9 +228,9 @@ const STARVED_WAIT_NOTE =
 export function annotateStarvedFailure<
   V extends { pass?: boolean; failureReason?: string; inconclusive?: string },
 >(session: HealthSubject, verdict: V): V {
-  if (true === verdict.pass || verdict.failureReason === undefined) return verdict;
-  if (true !== session.throttled()) return verdict;
-  if (THROTTLED_STARVED_NOTE !== verdict.inconclusive) return verdict;
+  if (true === verdict.pass || verdict.failureReason === undefined) {return verdict;}
+  if (true !== session.throttled()) {return verdict;}
+  if (THROTTLED_STARVED_NOTE !== verdict.inconclusive) {return verdict;}
   return { ...verdict, failureReason: `${verdict.failureReason}${STARVED_WAIT_NOTE}` };
 }
 
@@ -288,7 +288,7 @@ export function readHealthEvent(data: Record<string, unknown>): HealthReport {
 export function ledgerNotice(ledger: { bytes: number; capBytes: number } | undefined): {
   ledger?: { bytes: number; capBytes: number };
 } {
-  if (ledger === undefined || 0 >= ledger.capBytes) return {};
+  if (ledger === undefined || 0 >= ledger.capBytes) {return {};}
   const fraction = ledger.bytes / ledger.capBytes;
   return fraction < SESSION_HEALTH.LEDGER_NOTICE_FRACTION ? {} : { ledger };
 }

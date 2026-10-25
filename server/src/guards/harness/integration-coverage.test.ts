@@ -62,10 +62,10 @@ function shippedPackages(): string[] {
   const yaml = readFileSync(join(REPO, 'pnpm-workspace.yaml'), 'utf8');
   const names: string[] = [];
   for (const glob of workspaceGlobs(yaml)) {
-    if (glob.startsWith('apps')) continue;
+    if (glob.startsWith('apps')) {continue;}
     const [head, ...rest] = glob.split('/');
     const here = join(REPO, head ?? '');
-    if (!existsSync(here)) continue;
+    if (!existsSync(here)) {continue;}
     const levels = rest.length;
     const walk = (dir: string, depth: number): void => {
       if (depth === levels) {
@@ -73,11 +73,11 @@ function shippedPackages(): string[] {
         // contains no forward slash at all, so the split returned the WHOLE PATH as the package
         // name and every entry missed the coverage map — reported as fourteen packages shipped
         // without coverage, which is the opposite of what was true.
-        if (existsSync(join(dir, 'package.json'))) names.push(basename(dir));
+        if (existsSync(join(dir, 'package.json'))) {names.push(basename(dir));}
         return;
       }
       for (const entry of readdirSync(dir, { withFileTypes: true })) {
-        if (entry.isDirectory()) walk(join(dir, entry.name), depth + 1);
+        if (entry.isDirectory()) {walk(join(dir, entry.name), depth + 1);}
       }
     };
     walk(here, 0);

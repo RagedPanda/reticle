@@ -21,14 +21,14 @@ export class DepartureNote {
 
   /** Fold one inbound event into the note. */
   observe(event: ReticleEvent, elapsedMs: number): void {
-    if (event.type !== EventType.NET_PENDING) return;
+    if (event.type !== EventType.NET_PENDING) {return;}
     // Only navigation-initiated pendings count: a fetch that never settled is in-flight work,
     // not a departure.
-    if (event.data['initiator'] !== NetInitiator.NAVIGATION) return;
+    if (event.data['initiator'] !== NetInitiator.NAVIGATION) {return;}
     // A download never takes the document away, so it must not explain a later disconnect.
-    if (true === event.data['download']) return;
+    if (true === event.data['download']) {return;}
     const url = event.data['url'];
-    if ('string' !== typeof url || 0 === url.length) return;
+    if ('string' !== typeof url || 0 === url.length) {return;}
     this.#note = { url, at: elapsedMs };
   }
 
@@ -40,7 +40,7 @@ export class DepartureNote {
    * time, when `elapsedMs` is the disconnect time.
    */
   read(elapsedMs: number): string | undefined {
-    if (this.#note === undefined) return undefined;
+    if (this.#note === undefined) {return undefined;}
     return elapsedMs - this.#note.at <= DEPARTED_TO_FRESHNESS_MS ? this.#note.url : undefined;
   }
 }

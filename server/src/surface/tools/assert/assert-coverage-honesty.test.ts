@@ -60,7 +60,7 @@ function depsWithBlindSpots(
 
 const tool = (name: string): ToolDef => {
   const found = TOOLS.find((t) => t.name === name);
-  if (found === undefined) throw new Error(`${name} is not on the surface`);
+  if (found === undefined) {throw new Error(`${name} is not on the surface`);}
   return found;
 };
 

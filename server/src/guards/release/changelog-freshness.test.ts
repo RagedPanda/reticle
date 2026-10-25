@@ -61,7 +61,7 @@ const shippedSource = (): string[] => {
     .filter((m) => m.length > 0 && !m.startsWith('apps/'))
     .map((m) => dirname(join(REPO, m)))
     .filter((dir) => {
-      if (!existsSync(join(dir, 'src'))) return false;
+      if (!existsSync(join(dir, 'src'))) {return false;}
       try {
         return (
           true !== (JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')) as Manifest).private
@@ -116,9 +116,9 @@ function changelogBeingWrittenNow(): boolean {
 
 /** Subjects of the user-facing commits landed since the changelog was last touched. */
 function undocumented(): string[] | null {
-  if (changelogBeingWrittenNow()) return [];
+  if (changelogBeingWrittenNow()) {return [];}
   const last = git('log', '-1', '--format=%H', '--', ...NOTES);
-  if (null === last || 0 === last.length) return null;
+  if (null === last || 0 === last.length) {return null;}
   const subjects = git(
     'log',
     '--no-merges',
@@ -127,7 +127,7 @@ function undocumented(): string[] | null {
     '--',
     ...shippedSource(),
   );
-  if (null === subjects) return null;
+  if (null === subjects) {return null;}
   return subjects
     .split('\n')
     .filter((s) => s.length > 0)
@@ -136,7 +136,7 @@ function undocumented(): string[] | null {
 
 describe('the changelog is not far behind the code', () => {
   it('git history is readable, or this guard says so instead of passing quietly', ({ skip }) => {
-    if (null === git('rev-parse', '--git-dir')) skip();
+    if (null === git('rev-parse', '--git-dir')) {skip();}
     expect(git('log', '-1', '--format=%H', '--', ...NOTES)).toMatch(/^[0-9a-f]{7,40}$/);
   });
 
@@ -150,7 +150,7 @@ describe('the changelog is not far behind the code', () => {
   it('the packages it counts over are real, so a zero means nothing changed and not nothing looked', ({
     skip,
   }) => {
-    if (null === git('rev-parse', '--git-dir')) skip();
+    if (null === git('rev-parse', '--git-dir')) {skip();}
     const roots = shippedSource();
     expect(roots.length, 'no publishable package with a src/ was found').toBeGreaterThan(5);
     for (const root of roots) {
@@ -166,7 +166,7 @@ describe('the changelog is not far behind the code', () => {
     skip,
   }) => {
     const behind = undocumented();
-    if (null === behind) skip();
+    if (null === behind) {skip();}
     expect(
       behind?.length ?? 0,
       `${String(behind?.length ?? 0)} user-facing commits have landed in ${shippedSource().join(', ')} since ` +

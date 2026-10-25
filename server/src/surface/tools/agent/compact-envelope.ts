@@ -138,19 +138,19 @@ function without(
   keys: readonly string[],
 ): Record<string, unknown> {
   const out = { ...record };
-  for (const key of keys) delete out[key];
+  for (const key of keys) {delete out[key];}
   return out;
 }
 
 /** Evidence with transport detail removed, recursively, keeping every deciding field. */
 export function trimEvidence(value: unknown, depth = 0): unknown {
-  if (depth > 4) return value;
-  if (Array.isArray(value)) return value.map((item) => trimEvidence(item, depth + 1));
-  if (!isRecord(value)) return value;
+  if (depth > 4) {return value;}
+  if (Array.isArray(value)) {return value.map((item) => trimEvidence(item, depth + 1));}
+  if (!isRecord(value)) {return value;}
   const out: Record<string, unknown> = {};
   for (const [key, item] of Object.entries(value)) {
-    if (EVIDENCE_NOISE_KEYS.has(key)) continue;
-    if ('durationMs' === key && 'number' === typeof item && item < SLOW_MS) continue;
+    if (EVIDENCE_NOISE_KEYS.has(key)) {continue;}
+    if ('durationMs' === key && 'number' === typeof item && item < SLOW_MS) {continue;}
     out[key] = trimEvidence(item, depth + 1);
   }
   return out;
@@ -158,8 +158,8 @@ export function trimEvidence(value: unknown, depth = 0): unknown {
 
 /** `src/x.tsx:81` from a `{file,line}` source record, or the string as given. */
 function sourceLabel(source: unknown): string | undefined {
-  if ('string' === typeof source) return source;
-  if (!isRecord(source) || 'string' !== typeof source['file']) return undefined;
+  if ('string' === typeof source) {return source;}
+  if (!isRecord(source) || 'string' !== typeof source['file']) {return undefined;}
   return 'number' === typeof source['line']
     ? `${source['file']}:${String(source['line'])}`
     : source['file'];
@@ -168,14 +168,14 @@ function sourceLabel(source: unknown): string | undefined {
 /** The `{effect}` of an act, keeping only what says something the agent did not already know. */
 function compactEffect(effect: Record<string, unknown>): Record<string, unknown> {
   const out = without(effect, EFFECT_IDENTITY_KEYS);
-  if (true === out['dispatched']) delete out['dispatched'];
-  if (true === out['settled']) delete out['settled'];
-  if (null === out['settleReason'] || undefined === out['settleReason']) delete out['settleReason'];
+  if (true === out['dispatched']) {delete out['dispatched'];}
+  if (true === out['settled']) {delete out['settled'];}
+  if (null === out['settleReason'] || undefined === out['settleReason']) {delete out['settleReason'];}
   const nested = out['effect'];
   if (isRecord(nested)) {
     const lean = without(nested, EFFECT_MOTION_KEYS);
-    if (0 === Object.keys(lean).length) delete out['effect'];
-    else out['effect'] = lean;
+    if (0 === Object.keys(lean).length) {delete out['effect'];}
+    else {out['effect'] = lean;}
   }
   return out;
 }
@@ -186,18 +186,18 @@ function compactEffect(effect: Record<string, unknown>): Record<string, unknown>
  */
 export function changedLine(summary: Record<string, unknown>): string | undefined {
   const parts: string[] = [];
-  if ('string' === typeof summary['route']) parts.push(`route ${summary['route']}`);
+  if ('string' === typeof summary['route']) {parts.push(`route ${summary['route']}`);}
   const requests = Array.isArray(summary['requests']) ? (summary['requests'] as unknown[]) : [];
-  if (requests.length > 0) parts.push(requests.map(String).join(', '));
+  if (requests.length > 0) {parts.push(requests.map(String).join(', '));}
   const stateDiffs = Array.isArray(summary['stateDiffs'])
     ? (summary['stateDiffs'] as unknown[])
     : [];
   const statePaths = [...new Set(stateDiffs.map((d) => asRecord(d)['path']).map(String))];
-  if (statePaths.length > 0) parts.push(`state ${statePaths.join(', ')}`);
+  if (statePaths.length > 0) {parts.push(`state ${statePaths.join(', ')}`);}
   const list = (key: string, label: string): void => {
     const items = summary[key];
     if (Array.isArray(items) && items.length > 0)
-      parts.push(`${label} ${items.map(String).join(', ')}`);
+      {parts.push(`${label} ${items.map(String).join(', ')}`);}
   };
   list('storageKeysChanged', 'storage');
   list('fieldsChanged', 'fields');
@@ -210,7 +210,7 @@ function decisiveSummary(summary: Record<string, unknown>): Record<string, unkno
   const out: Record<string, unknown> = {};
   for (const key of DECISIVE_SUMMARY_KEYS) {
     const value = summary[key];
-    if (value === undefined || 0 === value) continue;
+    if (value === undefined || 0 === value) {continue;}
     out[key] = value;
   }
   const net = asRecord(summary['net']);
@@ -226,10 +226,10 @@ function decisiveSummary(summary: Record<string, unknown>): Record<string, unkno
 /** Honesty: the grade, integrity always, the rest only when it says something. */
 function compactHonesty(honesty: Record<string, unknown>): Record<string, unknown> {
   const out = { ...honesty };
-  if ('window' === out['attribution']) delete out['attribution'];
+  if ('window' === out['attribution']) {delete out['attribution'];}
   const coverage = asRecord(out['coverage']);
-  if (true !== coverage['partial']) delete out['coverage'];
-  if (true === out['settled']) delete out['settled'];
+  if (true !== coverage['partial']) {delete out['coverage'];}
+  if (true === out['settled']) {delete out['settled'];}
   return out;
 }
 
@@ -240,7 +240,7 @@ function freshGaps(gaps: unknown): unknown[] {
 
 /** The screenshot by path, or the reason there is none. */
 function compactScreenshot(shot: unknown): unknown {
-  if (!isRecord(shot) || 'string' !== typeof shot['path']) return shot;
+  if (!isRecord(shot) || 'string' !== typeof shot['path']) {return shot;}
   return { path: shot['path'] };
 }
 
@@ -250,12 +250,12 @@ export function compactVerdict(result: Record<string, unknown>): Record<string, 
   delete out['trace'];
   const effect = out['effect'];
   if (isRecord(effect)) {
-    if (out['ref'] === undefined && 'string' === typeof effect['ref']) out['ref'] = effect['ref'];
+    if (out['ref'] === undefined && 'string' === typeof effect['ref']) {out['ref'] = effect['ref'];}
     const source = sourceLabel(effect['source']);
-    if (out['source'] === undefined && source !== undefined) out['source'] = source;
+    if (out['source'] === undefined && source !== undefined) {out['source'] = source;}
     const lean = compactEffect(effect);
-    if (0 === Object.keys(lean).length) delete out['effect'];
-    else out['effect'] = lean;
+    if (0 === Object.keys(lean).length) {delete out['effect'];}
+    else {out['effect'] = lean;}
   }
   const verdict = out['verdict'];
   if (isRecord(verdict) && verdict['evidence'] !== undefined) {
@@ -269,18 +269,18 @@ export function compactVerdict(result: Record<string, unknown>): Record<string, 
     'number' === typeof summary['net']['total']
   ) {
     const line = changedLine(summary);
-    if (line !== undefined) out[CHANGED_KEY] = line;
+    if (line !== undefined) {out[CHANGED_KEY] = line;}
     const decisive = decisiveSummary(summary);
-    if (decisive === undefined) delete out['summary'];
-    else out['summary'] = decisive;
+    if (decisive === undefined) {delete out['summary'];}
+    else {out['summary'] = decisive;}
   }
-  if (isRecord(out['honesty'])) out['honesty'] = compactHonesty(out['honesty']);
+  if (isRecord(out['honesty'])) {out['honesty'] = compactHonesty(out['honesty']);}
   if (out['instrumentationGaps'] !== undefined) {
     const gaps = freshGaps(out['instrumentationGaps']);
-    if (0 === gaps.length) delete out['instrumentationGaps'];
-    else out['instrumentationGaps'] = gaps;
+    if (0 === gaps.length) {delete out['instrumentationGaps'];}
+    else {out['instrumentationGaps'] = gaps;}
   }
-  if (out['screenshot'] !== undefined) out['screenshot'] = compactScreenshot(out['screenshot']);
+  if (out['screenshot'] !== undefined) {out['screenshot'] = compactScreenshot(out['screenshot']);}
   // The blast radius on a green mostly restates the `changed` line. Its undeclared REQUESTS are the
   // exception — "it worked, and it also fired a DELETE" — so those stay. On a red it lives in the
   // capsule, which is kept whole.
@@ -288,28 +288,28 @@ export function compactVerdict(result: Record<string, unknown>): Record<string, 
     const requests = out['blastRadius'].filter(
       (b) => 'string' === typeof b && b.startsWith('net '),
     );
-    if (0 === requests.length) delete out['blastRadius'];
-    else out['blastRadius'] = requests;
+    if (0 === requests.length) {delete out['blastRadius'];}
+    else {out['blastRadius'] = requests;}
   }
   return out;
 }
 
 /** One sequence step, compacted: the outcome, its source, its screenshot, its contradictions. */
 function compactStep(step: unknown): unknown {
-  if (!isRecord(step)) return step;
+  if (!isRecord(step)) {return step;}
   const out = without(step, ['testid', 'component', 'role', 'name', 'digest']);
-  if (true === out['dispatched']) delete out['dispatched'];
-  if (true === out['settled']) delete out['settled'];
-  if (null === out['settleReason']) delete out['settleReason'];
+  if (true === out['dispatched']) {delete out['dispatched'];}
+  if (true === out['settled']) {delete out['settled'];}
+  if (null === out['settleReason']) {delete out['settleReason'];}
   const source = sourceLabel(out['source']);
-  if (source !== undefined) out['source'] = source;
-  if (out['screenshot'] !== undefined) out['screenshot'] = compactScreenshot(out['screenshot']);
+  if (source !== undefined) {out['source'] = source;}
+  if (out['screenshot'] !== undefined) {out['screenshot'] = compactScreenshot(out['screenshot']);}
   return out;
 }
 
 /** A sequence result, compacted per step. Idempotent. */
 export function compactSequence(result: Record<string, unknown>): Record<string, unknown> {
-  if (!Array.isArray(result['steps'])) return result;
+  if (!Array.isArray(result['steps'])) {return result;}
   return { ...result, steps: result['steps'].map(compactStep) };
 }
 
@@ -324,11 +324,11 @@ export function shapeForAgent(
   result: unknown,
   agentCall: boolean,
 ): unknown {
-  if (!agentCall || !COMPACTED_TOOLS.has(tool) || !isRecord(result)) return result;
+  if (!agentCall || !COMPACTED_TOOLS.has(tool) || !isRecord(result)) {return result;}
   const normalized = aliasesWritten(args);
   const noted = 0 === normalized.length ? result : { ...result, [NORMALIZED_KEY]: normalized };
-  if (!wantsCompact(args)) return noted;
-  if (Array.isArray(noted['steps'])) return compactSequence(noted);
+  if (!wantsCompact(args)) {return noted;}
+  if (Array.isArray(noted['steps'])) {return compactSequence(noted);}
   return 'verified' in noted ? compactVerdict(noted) : noted;
 }
 
@@ -342,7 +342,7 @@ export function withCompactEnvelope<
   T extends { name: string; inputSchema: z.ZodRawShape; outputSchema?: z.ZodRawShape },
 >(tools: T[]): T[] {
   return tools.map((tool) => {
-    if (!COMPACTED_TOOLS.has(tool.name)) return tool;
+    if (!COMPACTED_TOOLS.has(tool.name)) {return tool;}
     const output = tool.outputSchema;
     return {
       ...tool,

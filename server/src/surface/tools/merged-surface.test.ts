@@ -67,7 +67,7 @@ describe('the merged surface trims names, never capabilities', () => {
     const merged = names(TOOL_SURFACE.MERGED);
     const absorbed = new Map<string, string>();
     for (const plan of SURFACE_MERGE_PLANS) {
-      for (const member of Object.values(plan.members)) absorbed.set(member, plan.name);
+      for (const member of Object.values(plan.members)) {absorbed.set(member, plan.name);}
     }
     // Folded into the existing session plan, which lives in MERGE_PLANS rather than here so the
     // harness toolset keeps excluding `reticle_feedback` by name.
@@ -81,9 +81,9 @@ describe('the merged surface trims names, never capabilities', () => {
 
     const lost: string[] = [];
     for (const tool of advertisedTools(TOOL_SURFACE.DEFAULT)) {
-      if (merged.has(tool.name)) continue;
+      if (merged.has(tool.name)) {continue;}
       const into = absorbed.get(tool.name);
-      if (into === undefined || !merged.has(into)) lost.push(tool.name);
+      if (into === undefined || !merged.has(into)) {lost.push(tool.name);}
     }
     expect(
       lost,

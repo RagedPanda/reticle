@@ -56,9 +56,9 @@ const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000;
 function countSourceFiles(root: string, readDir: DirReader = defaultReadDir): number {
   let count = 0;
   const walk = (dir: string, depth: number): void => {
-    if (depth > MAX_WALK_DEPTH || count >= MAX_FILES_SCANNED) return;
+    if (depth > MAX_WALK_DEPTH || count >= MAX_FILES_SCANNED) {return;}
     for (const entry of readDir(dir)) {
-      if (count >= MAX_FILES_SCANNED) return;
+      if (count >= MAX_FILES_SCANNED) {return;}
       if (entry.isDirectory) {
         if (!SKIP_DIRS.has(entry.name) && !entry.name.startsWith('.')) {
           walk(join(dir, entry.name), depth + 1);
@@ -74,7 +74,7 @@ function countSourceFiles(root: string, readDir: DirReader = defaultReadDir): nu
 
 export function sizeBucket(sourceFiles: number): ProjectSize {
   for (const [threshold, bucket] of SIZE_THRESHOLDS) {
-    if (sourceFiles < threshold) return bucket;
+    if (sourceFiles < threshold) {return bucket;}
   }
   return ProjectSize.HUGE;
 }
@@ -99,9 +99,9 @@ export function projectAgeWeeks(
       const first = read(path).split('\n')[0];
       // reflog line: `<old> <new> <name> <email> <unix-ts> <tz>\t<message>`
       const seconds = first?.match(/\s(\d{9,11})\s[+-]\d{4}/)?.[1];
-      if (seconds === undefined) continue;
+      if (seconds === undefined) {continue;}
       const ageMs = now - parseInt(seconds, 10) * 1000;
-      if (ageMs < 0) continue;
+      if (ageMs < 0) {continue;}
       return Math.floor(ageMs / MS_PER_WEEK);
     } catch {
       continue;
@@ -114,7 +114,7 @@ export function projectAgeWeeks(
 export function isMonorepo(root: string, read: FileReader = defaultRead): boolean {
   try {
     const pkg = JSON.parse(read(join(root, 'package.json'))) as { workspaces?: unknown };
-    if (pkg.workspaces !== undefined) return true;
+    if (pkg.workspaces !== undefined) {return true;}
   } catch {
     /* no package.json — fall through to the pnpm check */
   }
@@ -196,13 +196,13 @@ export function profileProject(cwd: string, now: number, install?: InstallFacts)
   const hasHistory = exists(join(reticleRoot, ReticleDir.PROJECT_FILE));
 
   const featuresUsed: string[] = [];
-  if (flowCount > 0) featuresUsed.push(FeatureFamily.DETERMINISTIC_REPLAY);
-  if (visualBaselineCount > 0) featuresUsed.push(FeatureFamily.VISUAL_BASELINE);
-  if (baselineCount > 0) featuresUsed.push(FeatureFamily.TEXT_BASELINE);
-  if (hasContract) featuresUsed.push(FeatureFamily.CAPABILITY_CONTRACT);
-  if (runCount > 0) featuresUsed.push(FeatureFamily.RUN_ARTIFACTS);
-  if (capsuleCount > 0) featuresUsed.push(FeatureFamily.BUG_CAPSULES);
-  if (hasHistory) featuresUsed.push(FeatureFamily.CROSS_RUN_HISTORY);
+  if (flowCount > 0) {featuresUsed.push(FeatureFamily.DETERMINISTIC_REPLAY);}
+  if (visualBaselineCount > 0) {featuresUsed.push(FeatureFamily.VISUAL_BASELINE);}
+  if (baselineCount > 0) {featuresUsed.push(FeatureFamily.TEXT_BASELINE);}
+  if (hasContract) {featuresUsed.push(FeatureFamily.CAPABILITY_CONTRACT);}
+  if (runCount > 0) {featuresUsed.push(FeatureFamily.RUN_ARTIFACTS);}
+  if (capsuleCount > 0) {featuresUsed.push(FeatureFamily.BUG_CAPSULES);}
+  if (hasHistory) {featuresUsed.push(FeatureFamily.CROSS_RUN_HISTORY);}
 
   const { stack, stackMajor, stackSource, stackUnknownReason } = detectStack(cwd);
   const ageWeeks = projectAgeWeeks(cwd, now);

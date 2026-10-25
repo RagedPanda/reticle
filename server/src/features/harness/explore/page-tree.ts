@@ -35,9 +35,9 @@ export function parseTree(tree: string): TreeLine[] {
   const stack: { depth: number; role: string }[] = [];
   for (const raw of tree.split('\n')) {
     const m = LINE.exec(raw);
-    if (null === m) continue;
+    if (null === m) {continue;}
     const depth = (m[1] ?? '').length;
-    while (0 < stack.length && (stack.at(-1)?.depth ?? 0) >= depth) stack.pop();
+    while (0 < stack.length && (stack.at(-1)?.depth ?? 0) >= depth) {stack.pop();}
     const rest = m[4] ?? '';
     const ref = REF.exec(rest)?.[1];
     const text = OWN_TEXT.exec(rest)?.[1];
@@ -125,11 +125,11 @@ export function navLinks(lines: readonly TreeLine[]): (TreeLine & { ref: string 
  */
 export function toggles(lines: readonly TreeLine[]): (TreeLine & { ref: string })[] {
   return lines.filter((l, i): l is TreeLine & { ref: string } => {
-    if (!pressable(l) || l.states.includes(PRESSED) || l.states.includes(CHECKED)) return false;
-    if (TOGGLE_ROLES.has(l.role)) return true;
+    if (!pressable(l) || l.states.includes(PRESSED) || l.states.includes(CHECKED)) {return false;}
+    if (TOGGLE_ROLES.has(l.role)) {return true;}
     // Only inside a group of its kind (Mine | Team, Map | List). A banner's "Hide sidebar" is
     // pressed too, and the workspace switcher beside it was pressed as a toggle on a live drive.
-    if ('button' !== l.role || !TOGGLE_GROUPS.has(l.within.at(-1) ?? '')) return false;
+    if ('button' !== l.role || !TOGGLE_GROUPS.has(l.within.at(-1) ?? '')) {return false;}
     const siblings = [lines[i - 1], lines[i + 1]].filter(
       (s): s is TreeLine => s !== undefined && s.depth === l.depth && 'button' === s.role,
     );

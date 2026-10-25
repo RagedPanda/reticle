@@ -97,14 +97,14 @@ function changedRegion(out: Buffer, width: number, height: number): VisualRect |
       const i = (y * width + x) * RGBA;
       // pixelmatch marks a changed pixel solid red (default diffColor) at full alpha.
       if (255 === out[i] && 0 === out[i + 1] && 0 === out[i + 2] && 255 === out[i + 3]) {
-        if (x < minX) minX = x;
-        if (y < minY) minY = y;
-        if (x > maxX) maxX = x;
-        if (y > maxY) maxY = y;
+        if (x < minX) {minX = x;}
+        if (y < minY) {minY = y;}
+        if (x > maxX) {maxX = x;}
+        if (y > maxY) {maxY = y;}
       }
     }
   }
-  if (maxX < 0) return undefined;
+  if (maxX < 0) {return undefined;}
   return { x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1 };
 }
 

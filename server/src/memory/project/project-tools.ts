@@ -53,7 +53,7 @@ function diffRuns(previous: RunRecord, current: RunRecord): RunDiff {
 }
 
 function numericDelta(before: number | undefined, after: number | undefined): number | undefined {
-  if (before === undefined && after === undefined) return undefined;
+  if (before === undefined && after === undefined) {return undefined;}
   return (after ?? 0) - (before ?? 0);
 }
 
@@ -66,7 +66,7 @@ async function cloudRegression(deps: ToolDeps, sessionId: string | undefined): P
   // The same resolver every caller uses (stored key for a linked repo, else the exported one);
   // the environment alone only for an embedder that wires no linked-credential port.
   const config = await (deps.linkedCloud?.() ?? Promise.resolve(resolveCloudConfig(process.env)));
-  if (null === config) return undefined;
+  if (null === config) {return undefined;}
   let projectId: ProjectId | undefined;
   try {
     projectId = deps.sessions.resolve(sessionId).projectId;
@@ -84,10 +84,10 @@ const DEFAULT_RUN_LIMIT = 25;
 function lastTwoFor(runs: RunRecord[], name: string): [RunRecord, RunRecord] | undefined {
   const matching = runs.filter((r) => r.name === name);
   const n = matching.length;
-  if (n < 2) return undefined;
+  if (n < 2) {return undefined;}
   const previous = matching[n - 2];
   const current = matching[n - 1];
-  if (previous === undefined || current === undefined) return undefined;
+  if (previous === undefined || current === undefined) {return undefined;}
   return [previous, current];
 }
 
@@ -143,7 +143,7 @@ export const PROJECT_TOOLS: ToolDef[] = [
     },
     handler: async (deps: ToolDeps, args) => {
       // A push asked for is done first, so the status below describes what it achieved.
-      if (true === args['push']) await deps.syncNow?.().catch(() => undefined);
+      if (true === args['push']) {await deps.syncNow?.().catch(() => undefined);}
       const root = sessionRoot(deps, asString(args['sessionId']));
       const linked = (await deps.linkedCloud?.().catch(() => null)) ?? null;
       const summary = readSyncSummary(root, null !== linked);

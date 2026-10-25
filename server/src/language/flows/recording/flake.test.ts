@@ -3,7 +3,7 @@ import { emptyRecord, flakeRate, isFlaky, recordOutcome } from './flake.js';
 
 function accrue(outcomes: boolean[]): ReturnType<typeof emptyRecord> {
   let record = emptyRecord();
-  for (const passed of outcomes) record = recordOutcome(record, passed);
+  for (const passed of outcomes) {record = recordOutcome(record, passed);}
   return record;
 }
 

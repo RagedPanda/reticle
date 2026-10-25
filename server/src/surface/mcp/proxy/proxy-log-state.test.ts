@@ -8,7 +8,7 @@ import { proxyLog, proxyLogPath, setProxyLogPort } from './proxy-log.js';
 const dirs: string[] = [];
 afterEach(() => {
   vi.unstubAllEnvs();
-  for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true });
+  for (const dir of dirs.splice(0)) {rmSync(dir, { recursive: true, force: true });}
 });
 
 it('writes proxy diagnostics into the configured state directory, alongside the daemon log', () => {

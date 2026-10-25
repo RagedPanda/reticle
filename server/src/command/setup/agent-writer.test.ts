@@ -30,7 +30,7 @@ function disk(
       Object.keys(files).some((f) => f === p || f.startsWith(`${p}/`)) || dirs.includes(p),
     readFile: (p) => {
       const v = files[p];
-      if (undefined === v) throw new Error(`ENOENT ${p}`);
+      if (undefined === v) {throw new Error(`ENOENT ${p}`);}
       return v;
     },
     writeFile: (p, c) => {
@@ -111,7 +111,7 @@ describe('writing an agent config', () => {
     const failing: AgentWriterIo = {
       ...io,
       writeFile: (p) => {
-        if (p.includes('warp')) throw new Error('EACCES');
+        if (p.includes('warp')) {throw new Error('EACCES');}
         io.writeFile(p, '{}');
       },
     };

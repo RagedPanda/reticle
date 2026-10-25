@@ -69,7 +69,7 @@ function depsOver(all: Session[], resolved: Session): ToolDeps {
 
 function assertTool() {
   const tool = TOOLS.find((t) => t.name === ReticleTool.ASSERT);
-  if (tool === undefined) throw new Error('no reticle_assert tool');
+  if (tool === undefined) {throw new Error('no reticle_assert tool');}
   return tool;
 }
 

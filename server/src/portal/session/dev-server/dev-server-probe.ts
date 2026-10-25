@@ -183,8 +183,8 @@ async function anyFamilyState(
   const answers = await Promise.all(
     PROBE_HOSTS.map((host) => probe(port, host).catch(() => PortState.CLOSED)),
   );
-  if (answers.includes(PortState.SERVES_DOCUMENT)) return PortState.SERVES_DOCUMENT;
-  if (answers.includes(PortState.CONNECTED_NO_ANSWER)) return PortState.CONNECTED_NO_ANSWER;
+  if (answers.includes(PortState.SERVES_DOCUMENT)) {return PortState.SERVES_DOCUMENT;}
+  if (answers.includes(PortState.CONNECTED_NO_ANSWER)) {return PortState.CONNECTED_NO_ANSWER;}
   return PortState.CLOSED;
 }
 

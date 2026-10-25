@@ -143,7 +143,7 @@ describe('a step screenshot of a leased tab', () => {
       evaluate: (script: string): Promise<unknown> => {
         const hide = script.includes("'hidden'");
         calls.push(hide ? 'hide' : 'restore');
-        if (hide) expect(script).toContain('[data-reticle-hud]');
+        if (hide) {expect(script).toContain('[data-reticle-hud]');}
         return Promise.resolve(undefined);
       },
     };

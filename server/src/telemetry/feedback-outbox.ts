@@ -57,7 +57,7 @@ export function queueFeedback(
 export function readOutbox(home: string = homedir()): OutboxEntry[] {
   try {
     const path = outboxPath(home);
-    if (!existsSync(path)) return [];
+    if (!existsSync(path)) {return [];}
     return readFileSync(path, 'utf8')
       .split('\n')
       .filter((line) => 0 < line.trim().length)
@@ -81,7 +81,7 @@ export function readOutbox(home: string = homedir()): OutboxEntry[] {
  * Volume is a handful of lines a week, so the cost is irrelevant.
  */
 export function markDelivered(id: string | null, home: string = homedir()): void {
-  if (null === id) return;
+  if (null === id) {return;}
   try {
     const remaining = readOutbox(home).filter((entry) => entry.id !== id);
     const path = outboxPath(home);

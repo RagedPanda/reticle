@@ -42,7 +42,7 @@ function read(path: string): NotesFile {
  * Never throws: a note that cannot be written must not break the event that carried it.
  */
 export function recordNotes(reticleRoot: string | undefined, marks: readonly ReviewMark[]): void {
-  if (reticleRoot === undefined || 0 === marks.length) return;
+  if (reticleRoot === undefined || 0 === marks.length) {return;}
   const path = join(reticleRoot, ReticleDir.NOTES_FILE);
   try {
     const held = read(path).notes;
@@ -53,7 +53,7 @@ export function recordNotes(reticleRoot: string | undefined, marks: readonly Rev
       held[key] = note;
     }
     const keys = Object.keys(held);
-    for (const stale of keys.slice(0, Math.max(0, keys.length - MAX_NOTES))) delete held[stale];
+    for (const stale of keys.slice(0, Math.max(0, keys.length - MAX_NOTES))) {delete held[stale];}
     mkdirSync(reticleRoot, { recursive: true });
     const tmp = `${path}.${String(process.pid)}.tmp`;
     writeFileSync(tmp, `${JSON.stringify({ notes: held } satisfies NotesFile, null, 2)}\n`, 'utf8');

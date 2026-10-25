@@ -62,7 +62,7 @@ export function affectedFlows(
       unknownProvenance.push(flow.name);
       continue;
     }
-    if (flow.sources.some(matchesChange)) affected.push(flow.name);
+    if (flow.sources.some(matchesChange)) {affected.push(flow.name);}
   }
   return { affected, unknownProvenance };
 }
@@ -102,8 +102,8 @@ export function unflowedFiles(
   const sources = flows.flatMap((flow) => (flow.sources ?? []).map(normalize));
   return changedFiles.filter((file) => {
     const c = normalize(file);
-    if (!COMPONENT_FILE.test(c) || TEST_FILE.test(c)) return false;
-    if (sources.some((s) => c === s || c.endsWith(`/${s}`) || s.endsWith(`/${c}`))) return false;
+    if (!COMPONENT_FILE.test(c) || TEST_FILE.test(c)) {return false;}
+    if (sources.some((s) => c === s || c.endsWith(`/${s}`) || s.endsWith(`/${c}`))) {return false;}
     return isInteractive(file);
   });
 }

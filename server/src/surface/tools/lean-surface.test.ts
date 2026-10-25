@@ -85,8 +85,8 @@ describe('the lean surface', () => {
     delete process.env[TOOL_PROFILE_ENV];
   });
   afterEach(() => {
-    if (original === undefined) delete process.env[TOOL_PROFILE_ENV];
-    else process.env[TOOL_PROFILE_ENV] = original;
+    if (original === undefined) {delete process.env[TOOL_PROFILE_ENV];}
+    else {process.env[TOOL_PROFILE_ENV] = original;}
   });
 
   it('resolves from the tool-profile setting', () => {

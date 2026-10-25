@@ -19,7 +19,7 @@ describe('compileAnnotation pure compiler', () => {
     const a: Annotation = { kind: AnnotationKind.ASSERT_SIGNAL, name: 'diff:shown' };
     const out = compileAnnotation(a, 3);
     expect(out.result.ok).toBe(true);
-    if (!out.result.ok) throw new Error('expected ok');
+    if (!out.result.ok) {throw new Error('expected ok');}
     expect(out.result.target).toBe(AnnotationTarget.STEP);
     expect(out.patch?.stepIndex).toBe(2);
     expect(out.patch?.stepExpect).toEqual({ kind: 'signal', name: 'diff:shown' });
@@ -47,7 +47,7 @@ describe('compileAnnotation pure compiler', () => {
     const a: Annotation = { kind: AnnotationKind.MARK_DYNAMIC, testid: 'caption-text' };
     const out = compileAnnotation(a, 5);
     expect(out.result.ok).toBe(true);
-    if (!out.result.ok) throw new Error('expected ok');
+    if (!out.result.ok) {throw new Error('expected ok');}
     expect(out.result.target).toBe(AnnotationTarget.FLOW);
     expect(out.patch?.dynamicAdd).toBe('caption-text');
     expect(out.patch?.stepExpect).toBeUndefined();
@@ -57,7 +57,7 @@ describe('compileAnnotation pure compiler', () => {
     const a: Annotation = { kind: AnnotationKind.SUCCESS_STATE, signal: 'diff:shown' };
     const out = compileAnnotation(a, 4);
     expect(out.result.ok).toBe(true);
-    if (!out.result.ok) throw new Error('expected ok');
+    if (!out.result.ok) {throw new Error('expected ok');}
     expect(out.result.target).toBe(AnnotationTarget.FLOW);
     expect(out.patch?.success).toEqual({ kind: 'signal', name: 'diff:shown' });
   });
@@ -107,14 +107,14 @@ describe('compileAnnotation pure compiler', () => {
     };
     const out = compileAnnotation(a, 4);
     expect(out.result.ok).toBe(true);
-    if (!out.result.ok) throw new Error('expected ok');
+    if (!out.result.ok) {throw new Error('expected ok');}
     expect(out.result.note).toContain('assertion-free');
   });
 
   it('success-state with a testid notes it grades presence-only (#395)', () => {
     const a: Annotation = { kind: AnnotationKind.SUCCESS_STATE, testid: 'done' };
     const out = compileAnnotation(a, 4);
-    if (!out.result.ok) throw new Error('expected ok');
+    if (!out.result.ok) {throw new Error('expected ok');}
     expect(out.result.note).toContain('presence-only');
   });
 
@@ -128,7 +128,7 @@ describe('compileAnnotation pure compiler', () => {
       { kind: AnnotationKind.SUCCESS_STATE, statePath: 'cart.items', store: 'app' },
     ] as Annotation[]) {
       const out = compileAnnotation(a, 4);
-      if (!out.result.ok) throw new Error('expected ok');
+      if (!out.result.ok) {throw new Error('expected ok');}
       expect(out.result.note).toBeUndefined();
     }
   });
@@ -161,7 +161,7 @@ describe('compileAnnotation pure compiler', () => {
     const a: Annotation = { kind: AnnotationKind.ASSERT_SIGNAL, name: 'x' };
     const out = compileAnnotation(a, 0);
     expect(out.result.ok).toBe(false);
-    if (out.result.ok) throw new Error('expected not ok');
+    if (out.result.ok) {throw new Error('expected not ok');}
     expect(out.result.code).toBe(AnnotationErrorCode.NO_STEP_TO_ANNOTATE);
     expect(out.patch).toBeUndefined();
   });
@@ -206,7 +206,7 @@ describe('compileAnnotation pure compiler', () => {
     const a: Annotation = { kind: AnnotationKind.SUCCESS_STATE };
     const out = compileAnnotation(a, 4);
     expect(out.result.ok).toBe(false);
-    if (out.result.ok) throw new Error('expected not ok');
+    if (out.result.ok) {throw new Error('expected not ok');}
     expect(out.result.code).toBe(AnnotationErrorCode.MISSING_FIELD);
   });
 
@@ -225,7 +225,7 @@ describe('compileAnnotation pure compiler', () => {
     const a: Annotation = { kind: AnnotationKind.INTENT, text: 'ship a deploy to production' };
     const out = compileAnnotation(a, 0);
     expect(out.result.ok).toBe(true);
-    if (!out.result.ok) throw new Error('expected ok');
+    if (!out.result.ok) {throw new Error('expected ok');}
     expect(out.result.target).toBe(AnnotationTarget.FLOW);
     expect(out.patch?.intent).toBe('ship a deploy to production');
   });

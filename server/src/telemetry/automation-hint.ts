@@ -82,10 +82,10 @@ const declared = (env: NodeJS.ProcessEnv, keys: readonly string[]): boolean =>
  * here follows.
  */
 export function resolveAutomationHint(input: AutomationInput): AutomationHint | undefined {
-  if (declared(input.env, AGENT_SANDBOX_ENV)) return AutomationHint.AGENT_SANDBOX;
-  if (declared(input.env, CI_VENDOR_ENV)) return AutomationHint.CI_RUNNER;
-  if (CONTAINER_MARKERS.some((m) => input.fileExists(m))) return AutomationHint.CONTAINER;
-  if (declared(input.env, HOSTED_WORKSPACE_ENV)) return AutomationHint.HOSTED_WORKSPACE;
+  if (declared(input.env, AGENT_SANDBOX_ENV)) {return AutomationHint.AGENT_SANDBOX;}
+  if (declared(input.env, CI_VENDOR_ENV)) {return AutomationHint.CI_RUNNER;}
+  if (CONTAINER_MARKERS.some((m) => input.fileExists(m))) {return AutomationHint.CONTAINER;}
+  if (declared(input.env, HOSTED_WORKSPACE_ENV)) {return AutomationHint.HOSTED_WORKSPACE;}
   return undefined;
 }
 

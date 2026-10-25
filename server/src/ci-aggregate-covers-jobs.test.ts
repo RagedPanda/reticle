@@ -61,13 +61,13 @@ const OUTSIDE_THE_AGGREGATE: Record<string, string> = {
 function jobNames(yaml: string): string[] {
   const lines = yaml.split('\n');
   const start = lines.findIndex((line) => 'jobs:' === line.trim());
-  if (start < 0) return [];
+  if (start < 0) {return [];}
   const names: string[] = [];
   for (const line of lines.slice(start + 1)) {
     // A top-level key at any indentation other than two spaces has left the jobs block.
-    if (/^\S/.test(line)) break;
+    if (/^\S/.test(line)) {break;}
     const match = /^ {2}([a-z][a-z0-9-]*):\s*$/.exec(line);
-    if (match?.[1] !== undefined) names.push(match[1]);
+    if (match?.[1] !== undefined) {names.push(match[1]);}
   }
   return names;
 }

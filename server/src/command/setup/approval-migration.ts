@@ -62,7 +62,7 @@ export function migrateApprovals(deps: MigrationDeps): MigrationResult {
   try {
     if (io.exists(stamp)) {
       const seen = JSON.parse(io.readFile(stamp)) as Stamp;
-      if (version === seen.version) return NOTHING;
+      if (version === seen.version) {return NOTHING;}
     }
   } catch {
     // An unreadable stamp means we do not know what has run, and the grants below are idempotent,

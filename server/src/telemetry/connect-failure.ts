@@ -39,7 +39,7 @@ const RULES: readonly { readonly match: RegExp; readonly cause: ConnectFailure }
 export function classifyConnectFailure(error: unknown): ConnectFailure {
   const message = error instanceof Error ? error.message : String(error);
   for (const rule of RULES) {
-    if (rule.match.test(message)) return rule.cause;
+    if (rule.match.test(message)) {return rule.cause;}
   }
   return ConnectFailure.OTHER;
 }

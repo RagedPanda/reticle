@@ -57,10 +57,10 @@ const MERGED_NOTE = '# Added by Reticle: the prompts you typed, kept on this mac
  * keeps every line it has, and gets only the prompt files it lacks, appended at the end.
  */
 export function workspaceGitignore(existing: string | undefined): string | undefined {
-  if (existing === undefined) return `${[...HEADER, '', ...TRANSIENT].join('\n')}\n`;
+  if (existing === undefined) {return `${[...HEADER, '', ...TRANSIENT].join('\n')}\n`;}
   const lines = new Set(existing.split(/\r?\n/).map((line) => line.trim()));
   const missing = PROMPT_FILES.filter((name) => !lines.has(name) && !lines.has(`/${name}`));
-  if (0 === missing.length) return undefined;
+  if (0 === missing.length) {return undefined;}
   const base = existing.endsWith('\n') || '' === existing ? existing : `${existing}\n`;
   return `${base}${[MERGED_NOTE, ...missing].join('\n')}\n`;
 }
@@ -79,7 +79,7 @@ export async function ensureWorkspaceGitignore(fs: FileSystemPort, root: string)
   try {
     const existing = (await fs.exists(path)) ? await fs.readFile(path) : undefined;
     const next = workspaceGitignore(existing);
-    if (next === undefined) return;
+    if (next === undefined) {return;}
     await fs.mkdir(root);
     await fs.writeFile(path, next);
   } catch {

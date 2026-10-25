@@ -58,7 +58,7 @@ export async function resolveChangedFiles(
   cwd: string,
 ): Promise<ChangedFiles> {
   // No ref means no question was asked of git, which is not a failure to answer one.
-  if (since === undefined) return { files, failed: false };
+  if (since === undefined) {return { files, failed: false };}
   const changed = await changedFilesSince(since, cwd);
   return {
     files: [...new Set([...files, ...changed.files])],
@@ -84,7 +84,7 @@ export async function loadNamedFlows(
   const flows: NamedFlow[] = [];
   for (const name of await store.list(projectId)) {
     const loaded = await store.load(name, projectId);
-    if (loaded.ok) flows.push({ name: loaded.value.name, steps: loaded.value.steps });
+    if (loaded.ok) {flows.push({ name: loaded.value.name, steps: loaded.value.steps });}
   }
   return flows;
 }
@@ -108,7 +108,7 @@ function atChangedPath<T>(cwd: string, file: string, read: (path: string) => T):
       return undefined;
     }
   };
-  if (isAbsolute(file)) return attempt(file);
+  if (isAbsolute(file)) {return attempt(file);}
   const parts = file.split('/');
   const cwdParts = cwd.split(sep);
   for (let i = 0; i < parts.length; i += 1) {
@@ -119,7 +119,7 @@ function atChangedPath<T>(cwd: string, file: string, read: (path: string) => T):
       continue;
     }
     const found = attempt(join(cwd, ...parts.slice(i)));
-    if (found !== undefined) return found;
+    if (found !== undefined) {return found;}
   }
   return undefined;
 }
@@ -160,7 +160,7 @@ async function currentPassing(
     const stale =
       affected.includes(name) &&
       own.some((f) => !((changedFileModifiedAt(cwd, f) ?? Infinity) < at));
-    if (!stale) passing.push(name);
+    if (!stale) {passing.push(name);}
   }
   return passing;
 }
@@ -282,11 +282,11 @@ export async function handleGate(
     // regression`'s code, so the gate is the one command CI needs. Best-effort: unlinked or offline
     // changes nothing.
     if (regressed !== undefined && 0 < regressed.length)
-      log('reticle_gate_regression', { broken: regressed });
-    if (known.refused !== undefined) process.stderr.write(`${msgGateRefused(known.refused)}\n`);
-    if (GateExit.NOTHING_TO_CHECK === code && !hook) process.stderr.write(`${MSG_GATE_NO_FLOWS}\n`);
+      {log('reticle_gate_regression', { broken: regressed });}
+    if (known.refused !== undefined) {process.stderr.write(`${msgGateRefused(known.refused)}\n`);}
+    if (GateExit.NOTHING_TO_CHECK === code && !hook) {process.stderr.write(`${MSG_GATE_NO_FLOWS}\n`);}
     if (GateExit.REGRESSION === code && !hook && regressed !== undefined)
-      process.stderr.write(`${msgGateRegression(regressed)}\n`);
+      {process.stderr.write(`${msgGateRegression(regressed)}\n`);}
     if (GateExit.PASS !== code) {
       process.exitCode = code;
       if (hook) {
@@ -312,7 +312,7 @@ export async function handleGate(
           unexecuted: result.unexecuted,
           regressed: regressed?.length ?? 0,
         });
-        if (message !== undefined) process.stderr.write(`${message}\n`);
+        if (message !== undefined) {process.stderr.write(`${message}\n`);}
       }
     }
   } catch (error) {

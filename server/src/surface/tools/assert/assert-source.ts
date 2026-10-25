@@ -15,14 +15,14 @@ import type { Session } from '@/portal/session/session.js';
  * caller asked about, so its line is a suggestion dressed as a fact.
  */
 function evidenceSource(evidence: unknown): string | undefined {
-  if (!Array.isArray(evidence) || 0 === evidence.length) return undefined;
+  if (!Array.isArray(evidence) || 0 === evidence.length) {return undefined;}
   let agreed: string | undefined;
   for (const entry of evidence) {
-    if ('object' !== typeof entry || null === entry) return undefined;
+    if ('object' !== typeof entry || null === entry) {return undefined;}
     const found = (entry as { source?: unknown }).source;
-    if ('string' !== typeof found || 0 === found.length) return undefined;
-    if (agreed === undefined) agreed = found;
-    else if (agreed !== found) return undefined;
+    if ('string' !== typeof found || 0 === found.length) {return undefined;}
+    if (agreed === undefined) {agreed = found;}
+    else if (agreed !== found) {return undefined;}
   }
   return agreed;
 }
@@ -48,7 +48,7 @@ export function stampedSourceIn(evidence: unknown, depth = 0): string | undefine
   if (Array.isArray(evidence)) {
     for (const entry of evidence) {
       const found = stampedSourceIn(entry, depth + 1);
-      if (found !== undefined) return found;
+      if (found !== undefined) {return found;}
     }
     return undefined;
   }
@@ -59,7 +59,7 @@ export function stampedSourceIn(evidence: unknown, depth = 0): string | undefine
   }
   for (const value of Object.values(evidence)) {
     const found = stampedSourceIn(value, depth + 1);
-    if (found !== undefined) return found;
+    if (found !== undefined) {return found;}
   }
   return undefined;
 }
@@ -103,10 +103,10 @@ export function assertSource(facts: {
   inconclusive?: string | undefined;
 }): string | undefined {
   const own = evidenceSource(facts.evidence);
-  if (own !== undefined) return own;
-  if (facts.pass || declaresDom(facts.predicate)) return undefined;
+  if (own !== undefined) {return own;}
+  if (facts.pass || declaresDom(facts.predicate)) {return undefined;}
   // Nothing was proven and nobody could have proven it — so there is nothing to point at.
-  if (facts.inconclusive !== undefined) return undefined;
+  if (facts.inconclusive !== undefined) {return undefined;}
   return facts.lastActSource;
 }
 

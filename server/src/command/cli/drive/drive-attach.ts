@@ -115,7 +115,7 @@ export function readAttachResponse(
       'not a session. Stop it with `reticle stop` and retry.',
   };
   const parsed: unknown = parseJson(res.body);
-  if (typeof parsed !== 'object' || null === parsed) return notASession;
+  if (typeof parsed !== 'object' || null === parsed) {return notASession;}
   const record = parsed as Record<string, unknown>;
   const error = record[ERROR_FIELD];
   if ('string' === typeof error) {

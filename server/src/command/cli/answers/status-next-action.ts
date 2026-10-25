@@ -63,7 +63,7 @@ export interface StatusFacts {
  * something is still wrong, which is its own kind of lie.
  */
 export function statusNextAction(facts: StatusFacts): string | undefined {
-  if (facts.sessionCount > 0) return undefined;
+  if (facts.sessionCount > 0) {return undefined;}
 
   if (!facts.running) {
     // `running: false` reads as "Reticle is broken", and it usually means the opposite: the daemon is

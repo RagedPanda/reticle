@@ -91,7 +91,7 @@ function registerWithCodexCli(
     return undefined;
   }
   const probe = codexAvailableProbe();
-  if (!io.runCli(probe.command, probe.args)) return undefined;
+  if (!io.runCli(probe.command, probe.args)) {return undefined;}
   const cmd = codexAddCommand();
   return io.runCli(cmd.command, cmd.args);
 }
@@ -125,8 +125,8 @@ export function setupMcp(io: SetupMcpIo): SetupMcpResult {
       alreadyThere.push(McpClient.CLAUDE_CODE);
     } else {
       const cmd = claudeAddCommand();
-      if (io.runCli(cmd.command, cmd.args)) registered.push(McpClient.CLAUDE_CODE);
-      else failed.push(McpClient.CLAUDE_CODE);
+      if (io.runCli(cmd.command, cmd.args)) {registered.push(McpClient.CLAUDE_CODE);}
+      else {failed.push(McpClient.CLAUDE_CODE);}
     }
   }
 
@@ -143,9 +143,9 @@ export function setupMcp(io: SetupMcpIo): SetupMcpResult {
     // sends somebody to an agent that has no Reticle tools in it.
     if (ClientMergeStatus.MANUAL === merged.status) {
       const viaCli = registerWithCodexCli(io, client, spec.serversKey);
-      if (true === viaCli) registered.push(client.id);
-      else if (false === viaCli) failed.push(client.id);
-      else manual.push({ id: client.id, configPath: client.configPath, docs: spec.docs });
+      if (true === viaCli) {registered.push(client.id);}
+      else if (false === viaCli) {failed.push(client.id);}
+      else {manual.push({ id: client.id, configPath: client.configPath, docs: spec.docs });}
       continue;
     }
     try {

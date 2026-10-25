@@ -46,19 +46,19 @@ interface CrashEvidence {
 
 function crashEvidence(session: unknown): CrashEvidence | undefined {
   const since = asRecord(session)['eventsSince'];
-  if ('function' !== typeof since) return undefined;
+  if ('function' !== typeof since) {return undefined;}
   let events: unknown;
   try {
     events = (since as (cursor: number) => unknown).call(session, 0);
   } catch {
     return undefined;
   }
-  if (!Array.isArray(events)) return undefined;
+  if (!Array.isArray(events)) {return undefined;}
   const errors = events.filter((e) => {
     const type = asString(asRecord(e)['type']);
     return EventType.CONSOLE_ERROR === type || EventType.ERROR_UNCAUGHT === type;
   });
-  if (0 === errors.length) return undefined;
+  if (0 === errors.length) {return undefined;}
   const first = errors
     .map((e) => asString(asRecord(asRecord(e)['data'])['message']))
     .find((m): m is string => undefined !== m && '' !== m);
@@ -72,12 +72,12 @@ export function noteUnmountedRoot(
   scope?: string,
 ): unknown {
   // A scope narrows the walk to one element, so a near-empty DOM under it says nothing about the app.
-  if (SnapshotMode.STATUS === mode || (scope ?? '') !== '') return result;
+  if (SnapshotMode.STATUS === mode || (scope ?? '') !== '') {return result;}
   const row = asRecord(result);
-  if (0 !== asNumber(row['nodes'])) return result;
-  if (row['note'] !== undefined) return result;
+  if (0 !== asNumber(row['nodes'])) {return result;}
+  if (row['note'] !== undefined) {return result;}
   const elements = asNumber(row['domElements']);
-  if (elements === undefined || elements > UNMOUNTED_ROOT_MAX_ELEMENTS) return result;
+  if (elements === undefined || elements > UNMOUNTED_ROOT_MAX_ELEMENTS) {return result;}
   const mount =
     `the tree is empty because there is almost nothing in the DOM: ${String(elements)} ` +
     `element(s) under this scope. That is a mount container with nothing rendered into it, not a ` +

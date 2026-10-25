@@ -37,7 +37,7 @@ function memoryPath(stateDir: string, port: number): string {
 function read(stateDir: string, port: number): string[] {
   try {
     const parsed: unknown = JSON.parse(readFileSync(memoryPath(stateDir, port), 'utf8'));
-    if (!Array.isArray(parsed)) return [];
+    if (!Array.isArray(parsed)) {return [];}
     return parsed.filter((entry): entry is string => 'string' === typeof entry);
   } catch {
     return [];
@@ -55,7 +55,7 @@ export function rememberConnected(
 ): void {
   const key = projectId ?? UNTAGGED;
   const known = read(stateDir, port);
-  if (known.includes(key)) return;
+  if (known.includes(key)) {return;}
   const next = [...known, key].slice(-MAX_REMEMBERED_PROJECTS);
   try {
     mkdirSync(stateDir, { recursive: true });
@@ -95,7 +95,7 @@ export function hasAnyAppConnectedBefore(
   projectId: string | undefined,
 ): boolean {
   const known = read(stateDir, port);
-  if (projectId === undefined) return known.length > 0;
+  if (projectId === undefined) {return known.length > 0;}
   return known.includes(projectId);
 }
 
@@ -123,7 +123,7 @@ export function hasProjectConnectedBefore(
   port: number,
   projectId: string | undefined,
 ): boolean {
-  if (projectId === undefined) return false;
+  if (projectId === undefined) {return false;}
   return hasAnyAppConnectedBefore(stateDir, port, projectId);
 }
 

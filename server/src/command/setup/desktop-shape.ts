@@ -41,8 +41,8 @@ interface ShapeEvidence {
  * has installed, and electron sometimes appears in a monorepo's root devDependencies.
  */
 export function readShape(evidence: ShapeEvidence): AppShape {
-  if (evidence.hasTauriConf) return AppShape.TAURI;
-  if (evidence.hasElectronDep) return AppShape.ELECTRON;
+  if (evidence.hasTauriConf) {return AppShape.TAURI;}
+  if (evidence.hasElectronDep) {return AppShape.ELECTRON;}
   return AppShape.WEB;
 }
 
@@ -84,8 +84,8 @@ const ELECTRON_CONNECT_MS = 3 * 60_000;
 
 /** "a Tauri app", "an Electron app": printed when the shape is detected. */
 export function describeShape(shape: AppShape): string {
-  if (AppShape.ELECTRON === shape) return 'an Electron app';
-  if (AppShape.TAURI === shape) return 'a Tauri app';
+  if (AppShape.ELECTRON === shape) {return 'an Electron app';}
+  if (AppShape.TAURI === shape) {return 'a Tauri app';}
   return 'a web app';
 }
 

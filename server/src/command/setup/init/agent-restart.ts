@@ -27,13 +27,13 @@ const RESTART_NOW =
   'Codex. Once per machine.';
 
 export function restartNotice(facts: RestartFacts): string | undefined {
-  if (facts.newlyRegistered) return RESTART_NOW;
+  if (facts.newlyRegistered) {return RESTART_NOW;}
   return facts.insideAgent && 0 === facts.attached ? RESTART_NOW : undefined;
 }
 
 /** How many agents' MCP clients the daemon's `/status` lists, or undefined for no answer. */
 export function attachedAgents(status: unknown): number | undefined {
-  if ('object' !== typeof status || null === status) return undefined;
+  if ('object' !== typeof status || null === status) {return undefined;}
   const peers = (status as { mcpPeers?: unknown }).mcpPeers;
   return Array.isArray(peers) ? peers.length : 0;
 }

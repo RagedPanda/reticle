@@ -6,13 +6,13 @@ import { classifyFlowAssertions, FlowAssertionGrade } from './flow-classify.js';
 
 function step(expect?: Predicate): FlowStep {
   const s: FlowStep = { tool: ReticleTool.ACT, anchor: { kind: AnchorKind.TESTID, value: 'x' } };
-  if (expect !== undefined) s.expect = expect;
+  if (expect !== undefined) {s.expect = expect;}
   return s;
 }
 
 function flow(steps: FlowStep[], success?: Predicate): FlowFile {
   const f: FlowFile = { version: FLOW_FILE_VERSION, name: 'f', createdAt: 0, steps };
-  if (success !== undefined) f.success = success;
+  if (success !== undefined) {f.success = success;}
   return f;
 }
 

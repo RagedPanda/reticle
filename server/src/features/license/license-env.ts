@@ -30,20 +30,20 @@ const MAX_DEPTH = 12;
 
 function readKey(file: string): string | undefined {
   try {
-    if (!existsSync(file)) return undefined;
+    if (!existsSync(file)) {return undefined;}
     for (const raw of readFileSync(file, 'utf8').split('\n')) {
       const line = raw.trim();
-      if (0 === line.length || line.startsWith('#')) continue;
+      if (0 === line.length || line.startsWith('#')) {continue;}
       const eq = line.indexOf('=');
-      if (eq <= 0) continue;
-      if (line.slice(0, eq).trim() !== LICENSE_KEY_ENV) continue;
+      if (eq <= 0) {continue;}
+      if (line.slice(0, eq).trim() !== LICENSE_KEY_ENV) {continue;}
       const value = line.slice(eq + 1).trim();
       const first = value[0];
       const unquoted =
         ('"' === first || "'" === first) && value.endsWith(first) && value.length >= 2
           ? value.slice(1, -1)
           : value;
-      if (unquoted.length > 0) return unquoted;
+      if (unquoted.length > 0) {return unquoted;}
     }
   } catch {
     // A licence probe may never take the daemon down, and an unreadable file is not an error here.
@@ -54,7 +54,7 @@ function readKey(file: string): string | undefined {
 function inDir(dir: string): string | undefined {
   for (const name of ENV_FILES) {
     const found = readKey(join(dir, name));
-    if (found !== undefined) return found;
+    if (found !== undefined) {return found;}
   }
   return undefined;
 }
@@ -78,14 +78,14 @@ function inConventionalChildren(dir: string): string | undefined {
     const base = join(dir, group);
     let entries: string[];
     try {
-      if (!existsSync(base) || !statSync(base).isDirectory()) continue;
+      if (!existsSync(base) || !statSync(base).isDirectory()) {continue;}
       entries = readdirSync(base);
     } catch {
       continue;
     }
     for (const entry of entries) {
       const found = inDir(join(base, entry));
-      if (found !== undefined) return found;
+      if (found !== undefined) {return found;}
     }
   }
   return undefined;
@@ -107,7 +107,7 @@ function inDiscoveredProjects(dir: string): string | undefined {
   }
   for (const config of found) {
     const key = inDir(config.directory);
-    if (key !== undefined) return key;
+    if (key !== undefined) {return key;}
   }
   return undefined;
 }
@@ -123,15 +123,15 @@ export function licenseKeyFromEnvFiles(
   env: NodeJS.ProcessEnv = process.env,
 ): string | undefined {
   const existing = env[LICENSE_KEY_ENV];
-  if (existing !== undefined && existing.length > 0) return existing;
+  if (existing !== undefined && existing.length > 0) {return existing;}
 
   let dir = startDir;
   for (let depth = 0; depth < MAX_DEPTH; depth++) {
     const here = inDir(dir) ?? inDiscoveredProjects(dir) ?? inConventionalChildren(dir);
-    if (here !== undefined) return here;
-    if (isRoot(dir)) break;
+    if (here !== undefined) {return here;}
+    if (isRoot(dir)) {break;}
     const parent = dirname(dir);
-    if (parent === dir) break;
+    if (parent === dir) {break;}
     dir = parent;
   }
   return undefined;

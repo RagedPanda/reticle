@@ -45,7 +45,7 @@ function isFocused(line: string): boolean {
 function withoutFocus(line: string): string {
   const match = STATE_BRACKET.exec(line);
   const states = match?.[1];
-  if (null === match || undefined === match || undefined === states) return line;
+  if (null === match || undefined === match || undefined === states) {return line;}
   const rest = states.split(',').filter((s) => s !== FOCUSED_STATE);
   const head = line.slice(0, match.index);
   return 0 === rest.length ? head : `${head} [${rest.join(',')}]`;
@@ -96,8 +96,8 @@ function diffKeyed(prev: DeltaLine[], next: DeltaLine[]): { added: string[]; rem
     const map = new Map<string, string[]>();
     for (const line of lines) {
       const existing = map.get(line.key);
-      if (existing === undefined) map.set(line.key, [line.text]);
-      else existing.push(line.text);
+      if (existing === undefined) {map.set(line.key, [line.text]);}
+      else {existing.push(line.text);}
     }
     return map;
   };
@@ -139,14 +139,14 @@ function extractChanged(
   const addedByRef = new Map<string, { idx: number; text: string; role: string }>();
   for (const [i, text] of added.entries()) {
     const ref = refOf(text);
-    if (ref !== undefined) addedByRef.set(ref, { idx: i, text, role: roleOf(text) });
+    if (ref !== undefined) {addedByRef.set(ref, { idx: i, text, role: roleOf(text) });}
   }
   const changedIndicesInAdded = new Set<number>();
   const changedIndicesInRemoved = new Set<number>();
   const changed: string[] = [];
   for (const [i, text] of removed.entries()) {
     const ref = refOf(text);
-    if (ref === undefined) continue;
+    if (ref === undefined) {continue;}
     const match = addedByRef.get(ref);
     if (match !== undefined && match.role === roleOf(text)) {
       changed.push(match.text);
@@ -175,7 +175,7 @@ function extractChanged(
  */
 function focusedLine(tree: string): { id: string; text: string } | undefined {
   const focused = tree.split('\n').find((line) => isFocused(line));
-  if (focused === undefined) return undefined;
+  if (focused === undefined) {return undefined;}
   const text = withoutFocus(focused).trim();
   return { id: REF_MARKER.exec(focused)?.[0]?.trim() ?? deltaKey(focused), text };
 }
@@ -206,12 +206,12 @@ export function snapshotGrowthNote(
   nowMs: number,
   windowMs: number = GROWTH_NOTE_WINDOW_MS,
 ): string | undefined {
-  if (prior === undefined) return undefined;
+  if (prior === undefined) {return undefined;}
   const elapsedMs = nowMs - prior.atMs;
-  if (elapsedMs < 0 || elapsedMs > windowMs) return undefined;
+  if (elapsedMs < 0 || elapsedMs > windowMs) {return undefined;}
   const priorCount = nodeCount(prior.tree);
   const nextCount = nodeCount(nextTree);
-  if (nextCount <= priorCount) return undefined;
+  if (nextCount <= priorCount) {return undefined;}
   return (
     `this scope had ${String(priorCount)} nodes ${String(elapsedMs)}ms ago and has ${String(nextCount)} now — ` +
     'content likely arrived after your last look; a presence conclusion drawn from that earlier snapshot may have been taken mid-load'
@@ -246,7 +246,7 @@ type DeltaDecision =
 
 /** Pure: decide full vs delta vs unchanged given the previous tree (same route) and the next tree. */
 export function snapshotDelta(prevTree: string | undefined, nextTree: string): DeltaDecision {
-  if (prevTree === undefined) return { mode: SnapshotDeltaMode.FULL };
+  if (prevTree === undefined) {return { mode: SnapshotDeltaMode.FULL };}
   const raw = diffKeyed(deltaLines(prevTree), deltaLines(nextTree));
   const { added, removed, changed } = extractChanged(raw.added, raw.removed);
   const before = focusedLine(prevTree);
@@ -313,7 +313,7 @@ export class SnapshotCache {
    */
   priorEntry(key: string, route: string): { tree: string; atMs: number } | undefined {
     const entry = this.#map.get(key);
-    if (entry === undefined || entry.route !== route) return undefined;
+    if (entry === undefined || entry.route !== route) {return undefined;}
     // LRU touch: re-insert so a HOT key isn't evicted while colder, more-recently-added keys survive
     // (Map preserves insertion order; delete+set moves it to the most-recently-used end).
     this.#map.delete(key);
@@ -326,7 +326,7 @@ export class SnapshotCache {
     this.#map.delete(key);
     if (this.#map.size >= this.#max) {
       const oldest = this.#map.keys().next().value;
-      if (oldest !== undefined) this.#map.delete(oldest);
+      if (oldest !== undefined) {this.#map.delete(oldest);}
     }
     this.#map.set(key, { route, tree, atMs: this.#now() });
   }
@@ -366,10 +366,10 @@ export function applySnapshotDelta(
   opts: SnapshotDeltaOpts,
   cache: SnapshotCache,
 ): unknown {
-  if (typeof raw !== 'object' || null === raw) return raw;
+  if (typeof raw !== 'object' || null === raw) {return raw;}
   const r = raw as Record<string, unknown>;
   // Only shape genuine snapshots (have a string tree). An error envelope passes through untouched.
-  if (typeof r['tree'] !== 'string') return raw;
+  if (typeof r['tree'] !== 'string') {return raw;}
   const tree = r['tree'];
   const status =
     'object' === typeof r['status'] && r['status'] !== null

@@ -64,12 +64,12 @@ export class LiveControl {
   /** Queue a human note. Empty/whitespace-only text is ignored so a stray enter cannot spam the agent. */
   push(text: string, t: number): void {
     const trimmed = text.trim();
-    if (0 === trimmed.length) return;
+    if (0 === trimmed.length) {return;}
     const message = { text: trimmed, t };
     this.#inbox.push(message);
     this.#history.push(message);
     if (this.#history.length > HISTORY_CAP)
-      this.#history.splice(0, this.#history.length - HISTORY_CAP);
+      {this.#history.splice(0, this.#history.length - HISTORY_CAP);}
   }
 
   /**
@@ -90,7 +90,7 @@ export class LiveControl {
     const taken = this.#inbox.splice(0, this.#inbox.length);
     for (const message of taken) {
       message.seen = true;
-      if (by !== undefined) message.by = by;
+      if (by !== undefined) {message.by = by;}
     }
     return taken;
   }
@@ -108,7 +108,7 @@ export class LiveControl {
    * cannot emit a presenter push. `ended` is terminal — pause and resume after it do nothing.
    */
   nextStateFor(data: HumanControlData): SessionState | undefined {
-    if (this.isEnded()) return undefined;
+    if (this.isEnded()) {return undefined;}
     switch (data.kind) {
       case HumanControlKind.PAUSE:
         return this.isPaused() ? undefined : SessionState.PAUSED;

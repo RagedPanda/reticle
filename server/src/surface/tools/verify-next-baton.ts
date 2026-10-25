@@ -55,7 +55,7 @@ export function verifyNextBaton(
   lastAct: { action?: string | undefined; ref?: string | undefined },
 ): VerifyNextBaton {
   const { ref, action } = lastAct;
-  if (ref === undefined || action === undefined) return { why: prose };
+  if (ref === undefined || action === undefined) {return { why: prose };}
   return {
     why: prose,
     call: {

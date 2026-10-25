@@ -38,14 +38,14 @@ export function watchAccountFiles(
   };
   return {
     watch(path: string): void {
-      if (watched.has(path)) return;
+      if (watched.has(path)) {return;}
       watched.add(path);
       // Not persistent: a watcher must never be the reason a daemon cannot exit.
       watchFile(path, { persistent: false, interval: intervalMs }, listener);
     },
     close(): void {
-      if (ticker !== undefined) clearInterval(ticker);
-      for (const path of watched) unwatchFile(path, listener);
+      if (ticker !== undefined) {clearInterval(ticker);}
+      for (const path of watched) {unwatchFile(path, listener);}
       watched.clear();
     },
   };
@@ -68,7 +68,7 @@ export function pushIfMoved(
 ): void {
   const snapshot = read();
   const json = JSON.stringify(snapshot);
-  if (ifChanged && sent.get(tab) === json) return;
+  if (ifChanged && sent.get(tab) === json) {return;}
   sent.set(tab, json);
   tab.pushImpact(() => snapshot, true);
 }

@@ -47,8 +47,8 @@ export function projectSetting(projectDir: string, key: string): unknown {
  */
 export function sharesRequests(projectDir: string, reticleRoot: string): boolean {
   const setting = projectSetting(projectDir, 'shareRequests');
-  if (false === setting) return false;
-  if (true === setting) return true;
+  if (false === setting) {return false;}
+  if (true === setting) {return true;}
   // Linked by `reticle connect` (cloud.json), or by a key in the environment, the way CI syncs.
   return (
     existsSync(join(reticleRoot, ReticleDir.CLOUD_LINK_FILE)) ||

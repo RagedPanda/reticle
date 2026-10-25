@@ -27,7 +27,7 @@ export function withFileLock<T>(path: string, fn: () => Promise<T>): Promise<T> 
   // Reclaim the entry once settled IF no successor queued behind us (the Map still points to our
   // promise). Without this, every unique path leaks a Map slot for the daemon's lifetime.
   void settled.then(() => {
-    if (chains.get(path) === settled) chains.delete(path);
+    if (chains.get(path) === settled) {chains.delete(path);}
   });
   return run;
 }

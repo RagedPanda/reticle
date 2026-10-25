@@ -11,7 +11,7 @@ function io(
     readdir: () => Object.keys(files),
     readFile: (path) => {
       const found = files[path.slice(`${HOME}/`.length)];
-      if (found === undefined) throw new Error('ENOENT');
+      if (found === undefined) {throw new Error('ENOENT');}
       return found;
     },
     isAlive: alive,

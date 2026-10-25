@@ -148,8 +148,8 @@ describe('the docs inside the published package still resolve', { timeout: 60_00
     const out: string[] = [];
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
       const rel = `${prefix}${entry.name}`;
-      if (entry.isDirectory()) out.push(...markdown(join(dir, entry.name), `${rel}/`));
-      else if (/\.mdx?$/.test(entry.name)) out.push(rel);
+      if (entry.isDirectory()) {out.push(...markdown(join(dir, entry.name), `${rel}/`));}
+      else if (/\.mdx?$/.test(entry.name)) {out.push(rel);}
     }
     return out;
   };
@@ -175,13 +175,13 @@ describe('the docs inside the published package still resolve', { timeout: 60_00
       for (const rel of staged) {
         const file = join(dest, rel);
         for (const [, target] of readFileSync(file, 'utf8').matchAll(LINK)) {
-          if (undefined === target || /^(?:[a-z][a-z0-9+.-]*:|#|\/)/i.test(target)) continue;
+          if (undefined === target || /^(?:[a-z][a-z0-9+.-]*:|#|\/)/i.test(target)) {continue;}
           const path = target.split('#')[0];
-          if (undefined === path || '' === path) continue;
+          if (undefined === path || '' === path) {continue;}
           const landed = resolve(dirname(file), path);
           const here =
             existsSync(landed) || existsSync(`${landed}.md`) || existsSync(`${landed}.mdx`);
-          if (!here) dead.push(`${rel} -> ${target}`);
+          if (!here) {dead.push(`${rel} -> ${target}`);}
         }
       }
 

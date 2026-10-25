@@ -88,7 +88,7 @@ export function attachJournal(
     // repository nor the root we were about to write into: it created `.reticle/` — holding nothing
     // but the ignore file — wherever the daemon was launched, coming back every boot after the user
     // deleted it, while the journals this ignore protects landed in another tree, uncovered.
-    if (deps.enabled) void ensureWorkspaceGitignore(deps.fs, session.artifactRoot);
+    if (deps.enabled) {void ensureWorkspaceGitignore(deps.fs, session.artifactRoot);}
     journalAttach(session);
   };
   bridge.attachSessionCreate((session) => {

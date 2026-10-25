@@ -40,8 +40,8 @@ export function markStallClock(now: number): void {
  * then works has nothing to report, which is why this returns undefined rather than a duration.
  */
 export function stallUptime(now: number): number | undefined {
-  if (daemonStartedAt === undefined) return undefined;
-  if (appEverConnected()) return undefined;
+  if (daemonStartedAt === undefined) {return undefined;}
+  if (appEverConnected()) {return undefined;}
   return now - daemonStartedAt;
 }
 

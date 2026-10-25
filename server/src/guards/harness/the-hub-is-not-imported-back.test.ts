@@ -77,7 +77,7 @@ describe('the tool aggregator is composed, never consumed', () => {
       // when git is not on PATH, or `server/src` not being there at all. Each of those produced an
       // empty list and a green tick, so the guard reported "no sibling imports the aggregator"
       // precisely when it had been unable to look.
-      if (1 !== (error as { status?: unknown }).status) throw error;
+      if (1 !== (error as { status?: unknown }).status) {throw error;}
       importers = [];
     }
     const offenders = importers.filter((f) =>

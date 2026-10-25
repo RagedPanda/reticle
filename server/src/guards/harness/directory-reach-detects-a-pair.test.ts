@@ -35,7 +35,7 @@ import { mutualPairs, reaches, nameCollisions } from '../../../../scripts/direct
 let fixture: string | undefined;
 
 afterEach(() => {
-  if (fixture !== undefined) rmSync(fixture, { recursive: true, force: true });
+  if (fixture !== undefined) {rmSync(fixture, { recursive: true, force: true });}
   fixture = undefined;
 });
 

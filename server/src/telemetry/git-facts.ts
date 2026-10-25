@@ -79,7 +79,7 @@ export function forgeOf(normalizedOrigin: string): RepoForge {
   const host = normalizedOrigin.split('/')[0] ?? '';
   for (const [domain, forge] of PUBLIC_FORGES) {
     // `ssh.dev.azure.com` and `www.github.com` are the same forge; match on suffix, not equality.
-    if (host === domain || host.endsWith(`.${domain}`)) return forge;
+    if (host === domain || host.endsWith(`.${domain}`)) {return forge;}
   }
   return RepoForge.SELF_HOSTED;
 }
@@ -120,13 +120,13 @@ export function gitFacts(
       // The url line inside the [remote "origin"] section — the first url after that header wins.
       const section = config.split(/\[remote\s+"origin"\]/)[1];
       const url = section?.match(/^\s*url\s*=\s*(.+)$/m)?.[1];
-      if (url === undefined) return { state: GitState.LOCAL_ONLY, root: dir };
+      if (url === undefined) {return { state: GitState.LOCAL_ONLY, root: dir };}
       const origin = normalizeGitOrigin(url);
-      if ('' === origin) return { state: GitState.LOCAL_ONLY, root: dir };
+      if ('' === origin) {return { state: GitState.LOCAL_ONLY, root: dir };}
       return { state: GitState.REMOTE, origin, forge: forgeOf(origin), root: dir };
     }
     const parent = dirname(dir);
-    if (parent === dir) break; // hit the filesystem root
+    if (parent === dir) {break;} // hit the filesystem root
     dir = parent;
   }
   return { state: GitState.NONE };

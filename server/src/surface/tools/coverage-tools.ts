@@ -43,9 +43,9 @@ export function parseControls(tree: string): Control[] {
   const seen = new Set<string>();
   for (const line of tree.split('\n')) {
     const match = LINE_WITH_REF.exec(line);
-    if (null === match) continue;
+    if (null === match) {continue;}
     const [, label, ref] = match;
-    if (label === undefined || ref === undefined || seen.has(ref)) continue;
+    if (label === undefined || ref === undefined || seen.has(ref)) {continue;}
     seen.add(ref);
     controls.push({ ref, label });
   }

@@ -37,10 +37,10 @@ export function noteEmptyRead(
   key: string,
   context: EmptyReadContext,
 ): Record<string, unknown> {
-  if ('string' === typeof result['error']) return result;
+  if ('string' === typeof result['error']) {return result;}
   const value = result[key];
-  if (!Array.isArray(value) || value.length > 0) return result;
-  if (result['note'] !== undefined) return result;
+  if (!Array.isArray(value) || value.length > 0) {return result;}
+  if (result['note'] !== undefined) {return result;}
   const window =
     context.windowMs === undefined ? '' : ` over the last ${String(context.windowMs)}ms`;
   return {

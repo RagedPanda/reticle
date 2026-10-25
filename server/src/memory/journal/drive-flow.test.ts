@@ -112,7 +112,7 @@ describe('a session that visited several routes becomes several flows', () => {
     // Replay navigates to `startPath` before step 1 (the FlowFile contract, flow-replay-run.ts), so
     // a segment that names its route does not care where the last flow left the tab.
     const { programs } = driveFlowsFrom({ steps: [compose, overview] });
-    for (const program of programs) expect(program.startPath).toBeDefined();
+    for (const program of programs) {expect(program.startPath).toBeDefined();}
   });
 
   it('never writes the recorder-internal route onto the saved steps', () => {

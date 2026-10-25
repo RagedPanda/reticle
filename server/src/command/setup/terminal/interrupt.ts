@@ -43,6 +43,6 @@ export function stopOnInterrupt(stop: () => void, target: SignalTarget): () => v
     return { signal, handler };
   });
   return () => {
-    for (const { signal, handler } of handlers) target.off(signal, handler);
+    for (const { signal, handler } of handlers) {target.off(signal, handler);}
   };
 }

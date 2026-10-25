@@ -52,7 +52,7 @@ export class AnnotationStore {
   /** Append a dynamic testid (mark-dynamic). De-duped so repeated marks stay idempotent. */
   addDynamic(name: string, testid: string): void {
     const bucket = this.#bucket(name);
-    if (!bucket.dynamic.includes(testid)) bucket.dynamic.push(testid);
+    if (!bucket.dynamic.includes(testid)) {bucket.dynamic.push(testid);}
   }
 
   /** Set the flow's success expectation (success-state); a later set overwrites. */

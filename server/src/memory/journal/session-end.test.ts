@@ -410,7 +410,7 @@ describe('a session that served no tool call', () => {
     const dir = sessionDirPath(root, asSessionId(id));
     await fs.mkdir(dir);
     await fs.writeFile(join(dir, 'events.jsonl'), '{"t":1}\n');
-    if (actions !== undefined) await fs.writeFile(join(dir, 'actions.jsonl'), actions);
+    if (actions !== undefined) {await fs.writeFile(join(dir, 'actions.jsonl'), actions);}
     return dir;
   }
 

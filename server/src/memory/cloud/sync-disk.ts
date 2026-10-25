@@ -62,7 +62,7 @@ function writeJson(path: string, value: unknown): void {
 /** Every `*.json` directly inside a directory, parsed. Absent directory reads as empty. */
 function readJsonDir(dir: string): unknown[] {
   try {
-    if (!existsSync(dir)) return [];
+    if (!existsSync(dir)) {return [];}
     return readdirSync(dir)
       .filter((f) => f.endsWith(JSON_SUFFIX))
       .map((f) => readJson(join(dir, f)))
@@ -84,8 +84,8 @@ function readFlowFiles(root: string): Array<{ path: string; flow: unknown }> {
     try {
       return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
         const path = join(dir, entry.name);
-        if (entry.isDirectory()) return walk(path);
-        if (!entry.name.endsWith(JSON_SUFFIX)) return [];
+        if (entry.isDirectory()) {return walk(path);}
+        if (!entry.name.endsWith(JSON_SUFFIX)) {return [];}
         const flow = readJson(path);
         return flow === undefined ? [] : [{ path, flow }];
       });
@@ -106,10 +106,10 @@ function keepConflictCopy(root: string, name: string, theirs: unknown): string |
     ({ flow }) =>
       'object' === typeof flow && null !== flow && (flow as { name?: unknown }).name === name,
   );
-  if (held === undefined || 'object' !== typeof theirs || null === theirs) return undefined;
+  if (held === undefined || 'object' !== typeof theirs || null === theirs) {return undefined;}
   const stem = held.path.slice(0, -JSON_SUFFIX.length);
   let n = 1;
-  while (existsSync(`${stem}-conflict-${String(n)}${JSON_SUFFIX}`)) n += 1;
+  while (existsSync(`${stem}-conflict-${String(n)}${JSON_SUFFIX}`)) {n += 1;}
   const copy = `${name}-conflict-${String(n)}`;
   writeJson(`${stem}-conflict-${String(n)}${JSON_SUFFIX}`, {
     ...(held.flow as object),
@@ -154,7 +154,7 @@ function readIntent(reticleRoot: string): unknown {
   };
   let shards = 0;
   for (const entry of safeReaddir(join(reticleRoot, INTENT_SUBDIR))) {
-    if (INTENT_INDEX === entry) continue;
+    if (INTENT_INDEX === entry) {continue;}
     // `<subject>/intent.json` is the layout; a bare `<subject>.json` is an interim shard the store
     // has not migrated yet, and is still this project's memory until it has.
     const path = entry.endsWith(JSON_SUFFIX)
@@ -162,11 +162,11 @@ function readIntent(reticleRoot: string): unknown {
       : join(reticleRoot, INTENT_SUBDIR, entry, IntentDir.SHARD_FILE);
     const shard = readJson(path) as { intents?: Record<string, unknown> } | undefined;
     // A hand-edited or half-written shard costs one subject, never the whole sync.
-    if (shard?.intents === undefined) continue;
+    if (shard?.intents === undefined) {continue;}
     shards++;
-    for (const [id, record] of Object.entries(shard.intents)) merged[id] = record;
+    for (const [id, record] of Object.entries(shard.intents)) {merged[id] = record;}
   }
-  if (legacy === undefined && 0 === shards) return undefined;
+  if (legacy === undefined && 0 === shards) {return undefined;}
   /*
    * Stamp the SUBJECT before sending, on anything that does not already carry one.
    *
@@ -192,7 +192,7 @@ function readIntent(reticleRoot: string): unknown {
         ...('string' === typeof run && 0 < run.length ? { provedBy: run } : {}),
       };
       const held = record as { subject?: unknown; surface?: unknown; binding?: unknown };
-      if ('string' === typeof held.subject && held.subject.length > 0) return [id, record];
+      if ('string' === typeof held.subject && held.subject.length > 0) {return [id, record];}
       const subject = subjectFor({
         surface: held.surface as { route?: string; flow?: string } | undefined,
         binding: held.binding,
@@ -236,7 +236,7 @@ export function diskSource(reticleRoot: string): SyncSource {
     // own directory before it is read.
     screenshot: (runId, file) => {
       try {
-        if (basename(file) !== file) return undefined;
+        if (basename(file) !== file) {return undefined;}
         return new Uint8Array(readFileSync(join(stepShotDir(reticleRoot, runId), file)));
       } catch {
         return undefined;
@@ -256,8 +256,8 @@ export function policyScreenshots(
   read: SyncSource['screenshot'],
   policy: { screenshots: boolean; video: boolean },
 ): Pick<SyncSource, 'screenshot'> {
-  if (!policy.screenshots || read === undefined) return {};
-  if (policy.video) return { screenshot: read };
+  if (!policy.screenshots || read === undefined) {return {};}
+  if (policy.video) {return { screenshot: read };}
   return {
     screenshot: (runId, file) => (file.endsWith(FRAME_FILE_SUFFIX) ? undefined : read(runId, file)),
   };

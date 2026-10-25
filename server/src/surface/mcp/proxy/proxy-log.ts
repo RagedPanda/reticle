@@ -51,7 +51,7 @@ export function accountProxyLogWrite(
   deps: { fileSize(p: string): number; renameFile(from: string, to: string): void },
 ): number {
   const total = bytesSinceCheck + written;
-  if (PROXY_LOG_CHECK_BYTES > total) return total;
+  if (PROXY_LOG_CHECK_BYTES > total) {return total;}
   rotateDaemonLog(path, deps);
   return 0;
 }

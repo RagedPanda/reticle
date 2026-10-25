@@ -15,9 +15,9 @@ import { CALL_SECRETS_ARG, callSecrets } from '@/surface/tools/tool-kit.js';
  * to find the env var because the runner passed a role or a label instead.
  */
 export function anchorFieldName(anchor: FlowAnchor): string | undefined {
-  if (AnchorKind.TESTID === anchor.kind) return anchor.value;
-  if (AnchorKind.ROLE === anchor.kind) return anchor.name;
-  if (AnchorKind.SIGNAL === anchor.kind) return anchor.name;
+  if (AnchorKind.TESTID === anchor.kind) {return anchor.value;}
+  if (AnchorKind.ROLE === anchor.kind) {return anchor.name;}
+  if (AnchorKind.SIGNAL === anchor.kind) {return anchor.name;}
   return undefined;
 }
 
@@ -74,7 +74,7 @@ export function secretValue(
   env: Record<string, string | undefined>,
 ): string | undefined {
   for (const [key, value] of Object.entries(callSecrets() ?? {})) {
-    if (envKey === (key.startsWith(SECRET_ENV_PREFIX) ? key : secretEnvKey(key))) return value;
+    if (envKey === (key.startsWith(SECRET_ENV_PREFIX) ? key : secretEnvKey(key))) {return value;}
   }
   return env[envKey];
 }
@@ -86,7 +86,7 @@ export function secretKeyForFill(
   args: Record<string, unknown> | undefined,
   field: string,
 ): string | undefined {
-  if (args?.['value'] !== REDACTED_FILL) return undefined;
+  if (args?.['value'] !== REDACTED_FILL) {return undefined;}
   const named = args[SECRET_NAME_ARG];
   const base = secretEnvKey(field);
   // A flow can supply this field's occurrence, never an unrelated environment variable.
@@ -100,7 +100,7 @@ export function secretKeyForFill(
 function* secretSteps(steps: readonly FlowStep[]): Generator<FlowStep> {
   for (const step of steps) {
     yield step;
-    if (step.steps !== undefined) yield* secretSteps(step.steps);
+    if (step.steps !== undefined) {yield* secretSteps(step.steps);}
   }
 }
 
@@ -110,11 +110,11 @@ export function withDistinctSecretKeys(flow: FlowFile): FlowFile {
   const used = new Set<string>();
   for (const step of secretSteps(flow.steps)) {
     const field = anchorFieldName(step.anchor);
-    if (field === undefined) continue;
+    if (field === undefined) {continue;}
     const key = secretKeyForFill(step.args, field);
-    if (key === undefined) continue;
+    if (key === undefined) {continue;}
     reserved.add(key);
-    if (key !== secretEnvKey(field) || step.args?.[SECRET_NAME_ARG] === undefined) used.add(key);
+    if (key !== secretEnvKey(field) || step.args?.[SECRET_NAME_ARG] === undefined) {used.add(key);}
   }
   const assign = (step: FlowStep): FlowStep => {
     let out = step;
@@ -132,7 +132,7 @@ export function withDistinctSecretKeys(flow: FlowFile): FlowFile {
         occurrence += 1;
       }
       used.add(key);
-      if (key !== base) out = { ...step, args: { ...step.args, [SECRET_NAME_ARG]: key } };
+      if (key !== base) {out = { ...step, args: { ...step.args, [SECRET_NAME_ARG]: key } };}
     }
     return step.steps === undefined ? out : { ...out, steps: step.steps.map(assign) };
   };
@@ -165,12 +165,12 @@ export function unsuppliedSecrets(
   const seen = new Set<string>();
   for (const step of secretSteps(flow.steps ?? [])) {
     const field = anchorFieldName(step.anchor);
-    if (field === undefined) continue;
+    if (field === undefined) {continue;}
     const envKey = secretKeyForFill(step.args, field);
-    if (envKey === undefined) continue;
+    if (envKey === undefined) {continue;}
     const supplied = secretValue(envKey, env);
-    if (supplied !== undefined && supplied.length > 0) continue;
-    if (seen.has(envKey)) continue;
+    if (supplied !== undefined && supplied.length > 0) {continue;}
+    if (seen.has(envKey)) {continue;}
     seen.add(envKey);
     out.push({ field, envKey });
   }

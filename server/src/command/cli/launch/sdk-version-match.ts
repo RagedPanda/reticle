@@ -87,16 +87,16 @@ export function installedSdkVersion(
   for (;;) {
     for (const pkg of SDK_PACKAGES) {
       const raw = readFile(join(dir, NODE_MODULES, pkg, PACKAGE_JSON));
-      if (raw === undefined) continue;
+      if (raw === undefined) {continue;}
       try {
         const version: unknown = (JSON.parse(raw) as { version?: unknown }).version;
-        if ('string' === typeof version) return version;
+        if ('string' === typeof version) {return version;}
       } catch {
         // A manifest that will not parse is no evidence; try the next package.
       }
     }
     const parent = dirname(dir);
-    if (parent === dir) return undefined;
+    if (parent === dir) {return undefined;}
     dir = parent;
   }
 }
@@ -134,14 +134,14 @@ export function helpVersionNote(sdkVersion: string, cliVersion: string): string 
 
 /** Did the person name a version on the npx line (`npx @reticlehq/server@<version> …`)? */
 function pinnedOnNpxLine(spec: string | undefined): boolean {
-  if (spec === undefined || !spec.startsWith(`${SERVER_PACKAGE}@`)) return false;
+  if (spec === undefined || !spec.startsWith(`${SERVER_PACKAGE}@`)) {return false;}
   return spec.slice(SERVER_PACKAGE.length + 1) !== LATEST_TAG;
 }
 
 function keepsThisBinary(argv: readonly string[]): boolean {
   const [command, sub] = argv;
-  if (command !== undefined && KEEP_COMMANDS.has(command)) return true;
-  if (SETUP_COMMAND === command && SETUP_INSTALL === sub) return true;
+  if (command !== undefined && KEEP_COMMANDS.has(command)) {return true;}
+  if (SETUP_COMMAND === command && SETUP_INSTALL === sub) {return true;}
   return argv.some((arg) => KEEP_FLAGS.has(arg));
 }
 
@@ -159,14 +159,14 @@ export interface VersionMatchInput {
  */
 export function versionToMatch(input: VersionMatchInput): string | undefined {
   const { env } = input;
-  if (env[VersionMatchEnv.REEXECUTED] !== undefined) return undefined;
-  if (env[VersionMatchEnv.OPT_OUT] !== undefined) return undefined;
-  if (pinnedOnNpxLine(env[VersionMatchEnv.NPX_PACKAGE])) return undefined;
-  if (keepsThisBinary(input.argv)) return undefined;
+  if (env[VersionMatchEnv.REEXECUTED] !== undefined) {return undefined;}
+  if (env[VersionMatchEnv.OPT_OUT] !== undefined) {return undefined;}
+  if (pinnedOnNpxLine(env[VersionMatchEnv.NPX_PACKAGE])) {return undefined;}
+  if (keepsThisBinary(input.argv)) {return undefined;}
   const sdk = installedSdkVersion(input.projectDir, input.readFile);
-  if (sdk === undefined) return undefined;
+  if (sdk === undefined) {return undefined;}
   const sdkMajor = majorOf(sdk);
-  if (sdkMajor === undefined) return undefined;
+  if (sdkMajor === undefined) {return undefined;}
   return sdkMajor === majorOf(input.cliVersion) ? undefined : sdk;
 }
 
@@ -177,7 +177,7 @@ export function versionToMatch(input: VersionMatchInput): string | undefined {
  */
 export function helpRunsAt(input: VersionMatchInput): string | undefined {
   const viaCommand = HELP_COMMAND === input.argv[0];
-  if (!viaCommand && !input.argv.some((arg) => HELP_FLAGS.has(arg))) return undefined;
+  if (!viaCommand && !input.argv.some((arg) => HELP_FLAGS.has(arg))) {return undefined;}
   const asked = (viaCommand ? input.argv.slice(1) : input.argv).filter(
     (arg) => !HELP_FLAGS.has(arg),
   );
@@ -193,7 +193,7 @@ export function npxInvocation(
   const argv = [NPX_YES, `${SERVER_PACKAGE}@${version}`, ...args];
   // A `.cmd` cannot be spawned without a shell since the CVE-2024-27980 fix, and a shell needs every
   // argument quoted — the same rule `npmSpawn` in the updater follows.
-  if (NodePlatform.WINDOWS !== on) return { file: NPX, argv, shell: false };
+  if (NodePlatform.WINDOWS !== on) {return { file: NPX, argv, shell: false };}
   return { file: [NPX_WINDOWS, ...argv.map(windowsShellArg)].join(' '), argv: [], shell: true };
 }
 
@@ -217,7 +217,7 @@ export function asReexecChild(child: ChildProcess): ReexecChild {
       // Node can emit `error` AND `exit` for one child; the listener exits the process, so once.
       let ended = false;
       const end = (code: number | undefined, error: Error | undefined): void => {
-        if (ended) return;
+        if (ended) {return;}
         ended = true;
         listener(code, error);
       };
@@ -265,9 +265,9 @@ export function reexecAtVersion(
   const forward = (signal: NodeJS.Signals): void => {
     child.kill(signal);
   };
-  for (const signal of FORWARDED_SIGNALS) process.on(signal, forward);
+  for (const signal of FORWARDED_SIGNALS) {process.on(signal, forward);}
   child.onEnd((code, error) => {
-    for (const signal of FORWARDED_SIGNALS) process.off(signal, forward);
+    for (const signal of FORWARDED_SIGNALS) {process.off(signal, forward);}
     if (error !== undefined) {
       deps.warn?.(
         `Could not start ${SERVER_PACKAGE}@${version} to match this project's SDK (${error.message}). ` +

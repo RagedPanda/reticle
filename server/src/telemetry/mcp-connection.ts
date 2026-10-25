@@ -40,7 +40,7 @@ export function markDaemonStart(now: number): void {
 const MAX_CLIENT_NAME = 64;
 
 export function reportMcpConnected(client?: string, now: () => number = () => Date.now()): void {
-  if (client === undefined) return;
+  if (client === undefined) {return;}
   try {
     const reconnect = connectsSeen > 0;
     connectsSeen += 1;

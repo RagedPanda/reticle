@@ -58,9 +58,9 @@ export function gateDecision(input: GateInput): GateResult {
   const uncovered: string[] = [];
   const quarantined: string[] = [];
   for (const flow of input.affected) {
-    if (passing.has(flow)) continue;
-    if (flaky.has(flow)) quarantined.push(flow);
-    else uncovered.push(flow);
+    if (passing.has(flow)) {continue;}
+    if (flaky.has(flow)) {quarantined.push(flow);}
+    else {uncovered.push(flow);}
   }
   // Downgrades and deleted coverage BLOCK. Flakiness is quarantined because a flake is not the agent's
   // doing; a weakened or deleted assertion is — surfacing it without blocking would leave the gate
@@ -99,13 +99,13 @@ export function gateDecision(input: GateInput): GateResult {
 export function passingFlowNames(flows: readonly RunFlowResult[]): string[] {
   const names = new Set<string>();
   for (const f of flows) {
-    if (f.status !== RunFlowStatus.PASS && f.status !== RunFlowStatus.HEALED) continue;
+    if (f.status !== RunFlowStatus.PASS && f.status !== RunFlowStatus.HEALED) {continue;}
     names.add(f.name);
     const proved =
       f.oracle !== undefined ||
       (f.stepResults ?? []).some((s) => s.ok && s.consequence !== undefined);
     if (f.template !== undefined && f.status === RunFlowStatus.PASS && proved)
-      names.add(f.template);
+      {names.add(f.template);}
   }
   return [...names];
 }

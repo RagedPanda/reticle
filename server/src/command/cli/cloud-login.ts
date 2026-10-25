@@ -95,7 +95,7 @@ const writeSession = async (
   await writeFile(sessionPath(home(), url), body);
   await writeFile(join(home(), SESSION_FILE), body);
   emit({ loggedIn: orgName, session: join(home(), SESSION_FILE) });
-  if (autoLink) await linkAfterLogin(url, project, link);
+  if (autoLink) {await linkAfterLogin(url, project, link);}
 };
 
 /**
@@ -242,7 +242,7 @@ export const cmdLogout = async (argv: readonly string[] = []): Promise<number> =
   await rm(sessionPath(home(), url), { force: true }).catch(() => undefined);
   // The active pointer only moves if it was pointing at the host just signed out of.
   if (null !== active && normalizeUrl(active.url) === url)
-    await writeFile(join(home(), SESSION_FILE), '').catch(() => undefined);
+    {await writeFile(join(home(), SESSION_FILE), '').catch(() => undefined);}
   emit({ loggedOut: true, url });
   return 0;
 };
@@ -272,7 +272,7 @@ export function hudSignIn(
   let pending: string | undefined;
   return (from) => {
     if (running) {
-      if (pending !== undefined) opener(pending);
+      if (pending !== undefined) {opener(pending);}
       return;
     }
     running = true;
@@ -282,8 +282,8 @@ export function hudSignIn(
       opener(url);
     })
       .then(async (code) => {
-        if (0 !== code) return;
-        if (link !== undefined && root !== undefined) await link(root).catch(() => 1);
+        if (0 !== code) {return;}
+        if (link !== undefined && root !== undefined) {await link(root).catch(() => 1);}
         onSignedIn();
       })
       .catch(() => undefined)
@@ -311,7 +311,7 @@ const ActivatedSchema = z.object({
  */
 export const chooseWorkspace = async (url: string, wanted: string | undefined): Promise<number> => {
   const session = await readSession();
-  if (null === session) return 0;
+  if (null === session) {return 0;}
   let listed: z.infer<typeof WorkspacesSchema>;
   try {
     listed = WorkspacesSchema.parse(await api('GET', `${url}/v1/me/workspaces`, session.token));
@@ -321,10 +321,10 @@ export const chooseWorkspace = async (url: string, wanted: string | undefined): 
   const names = listed.memberships.map((m) => `"${m.name}"`).join(', ');
   if (wanted === undefined) {
     if (1 < listed.memberships.length)
-      hint(
+      {hint(
         `you belong to ${String(listed.memberships.length)} workspaces (${names}); this links in ` +
           `"${session.orgName}". Another: reticle connect --workspace <name>`,
-      );
+      );}
     return 0;
   }
   const lc = wanted.toLowerCase();
@@ -333,7 +333,7 @@ export const chooseWorkspace = async (url: string, wanted: string | undefined): 
     err(`you are not a member of a workspace "${wanted}": yours are ${names}`);
     return 2;
   }
-  if (target.orgId === listed.active) return 0;
+  if (target.orgId === listed.active) {return 0;}
   const activated = ActivatedSchema.parse(
     await api(
       'POST',

@@ -75,7 +75,7 @@ describe('flow_verify feeds and reads the flake ledger', () => {
         ReplayStatus.ERROR,
       ];
       let flaky: string[] = [];
-      for (const status of rounds) flaky = await verifyRound(store, { checkout: status });
+      for (const status of rounds) {flaky = await verifyRound(store, { checkout: status });}
       expect(flaky).toContain('checkout');
     },
     LEDGER_ROUND_TIMEOUT_MS,
@@ -89,7 +89,7 @@ describe('flow_verify feeds and reads the flake ledger', () => {
       const store = new FlakeStore(fs, root);
       let flaky: string[] = [];
       for (let i = 0; i < 6; i += 1)
-        flaky = await verifyRound(store, { broken: ReplayStatus.ERROR });
+        {flaky = await verifyRound(store, { broken: ReplayStatus.ERROR });}
       expect(flaky).not.toContain('broken');
     },
     LEDGER_ROUND_TIMEOUT_MS,

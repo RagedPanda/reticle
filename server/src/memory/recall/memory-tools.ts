@@ -108,25 +108,25 @@ export const MEMORY_TOOLS: ToolDef[] = [
       if (MemoryAction.SET_ASIDE === action) {
         const id = asString(args['id']);
         if (id === undefined || 0 === id.trim().length)
-          return { error: `${action} needs \`id\`: the statement id from a read` };
+          {return { error: `${action} needs \`id\`: the statement id from a read` };}
         return setAsideStatement(deps.fs, root, id);
       }
       if (MemoryAction.FLOW === action) {
-        if (name === undefined) return { error: `${action} ${NEEDS_NAME}` };
+        if (name === undefined) {return { error: `${action} ${NEEDS_NAME}` };}
         return fetchPlatformFlow(deps.fs, root, name);
       }
       if (MemoryAction.PUSH_FLOW === action) {
-        if (name === undefined) return { error: `${action} ${NEEDS_NAME}` };
+        if (name === undefined) {return { error: `${action} ${NEEDS_NAME}` };}
         const target = safeSessionTarget(deps, sid);
         const saved = await flowsForSession(deps, target).flows.load(name, target.projectId);
         if (!saved.ok)
-          return { error: `no saved flow named "${name}" on this machine`, reason: saved.code };
+          {return { error: `no saved flow named "${name}" on this machine`, reason: saved.code };}
         return pushFlow(deps.fs, root, saved.value, target.projectId);
       }
       if (MemoryAction.ADD === action) {
         const statement = asString(args['statement']);
         if (subject === undefined || statement === undefined || 0 === statement.trim().length)
-          return { error: `${action} ${NEEDS_STATEMENT}` };
+          {return { error: `${action} ${NEEDS_STATEMENT}` };}
         return addMemoryStatement(deps.fs, root, { subject, statement });
       }
       const result = await readProjectMemory(deps.fs, root, homedir(), process.env, {
@@ -134,11 +134,11 @@ export const MEMORY_TOOLS: ToolDef[] = [
         limit: asNumber(args['limit']) ?? DEFAULT_LIMIT,
       });
       if (!result.ok)
-        return {
+        {return {
           error: 'no shared memory available for this project',
           reason: result.reason,
           advice: ADVICE[result.reason],
-        };
+        };}
       return { subject: result.subject, known: result.known, total: result.total };
     },
   },

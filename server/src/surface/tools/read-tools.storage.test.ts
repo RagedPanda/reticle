@@ -22,7 +22,7 @@ function storageDeps(snapshot: unknown): ToolDeps {
 
 function storageTool() {
   const t = READ_TOOLS.find((x) => x.name === ReticleTool.STORAGE);
-  if (t === undefined) throw new Error('no reticle_storage tool');
+  if (t === undefined) {throw new Error('no reticle_storage tool');}
   return t;
 }
 

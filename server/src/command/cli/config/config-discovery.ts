@@ -57,7 +57,7 @@ function readConfig(directory: string): FoundConfig | undefined {
   const path = join(directory, RETICLE_CONFIG_BASENAME);
   try {
     const parsed: unknown = JSON.parse(readFileSync(path, 'utf8'));
-    if ('object' !== typeof parsed || null === parsed || Array.isArray(parsed)) return undefined;
+    if ('object' !== typeof parsed || null === parsed || Array.isArray(parsed)) {return undefined;}
     const projectId = (parsed as Record<string, unknown>)['projectId'];
     return {
       path,
@@ -75,9 +75,9 @@ function readConfig(directory: string): FoundConfig | undefined {
 function repoRootOf(start: string): string | undefined {
   let dir = start;
   for (let level = 0; level <= MAX_UP_LEVELS; level += 1) {
-    if (existsSync(join(dir, '.git'))) return dir;
+    if (existsSync(join(dir, '.git'))) {return dir;}
     const parent = dirname(dir);
-    if (parent === dir) return undefined;
+    if (parent === dir) {return undefined;}
     dir = parent;
   }
   return undefined;
@@ -102,7 +102,7 @@ function declaredWorkspaceDirs(repoRoot: string): string[] {
           ? ((workspaces as Record<string, unknown>)['packages'] ?? [])
           : [];
       if (Array.isArray(globs)) {
-        for (const glob of globs) if ('string' === typeof glob) dirs.add(firstSegment(glob));
+        for (const glob of globs) {if ('string' === typeof glob) {dirs.add(firstSegment(glob));}}
       }
     }
   } catch {
@@ -113,12 +113,12 @@ function declaredWorkspaceDirs(repoRoot: string): string[] {
     for (const line of yaml.split('\n')) {
       const match = /^\s*-\s*['"]?([^'"\s]+)/.exec(line);
       const glob = match?.[1];
-      if (glob !== undefined) dirs.add(firstSegment(glob));
+      if (glob !== undefined) {dirs.add(firstSegment(glob));}
     }
   } catch {
     // Not a pnpm workspace.
   }
-  for (const conventional of CONVENTIONAL_WORKSPACES) dirs.add(conventional);
+  for (const conventional of CONVENTIONAL_WORKSPACES) {dirs.add(conventional);}
   return [...dirs].filter((dir) => dir.length > 0 && !dir.startsWith('.'));
 }
 
@@ -153,23 +153,23 @@ export function discoverProjectConfigs(cwd: string): ConfigDiscovery {
   const seen = new Set<string>();
 
   const check = (directory: string): void => {
-    if (seen.has(directory)) return;
+    if (seen.has(directory)) {return;}
     seen.add(directory);
     searched.push(directory);
     const config = readConfig(directory);
-    if (config !== undefined) found.push(config);
+    if (config !== undefined) {found.push(config);}
   };
 
   let dir = resolve(cwd);
   for (let level = 0; level <= MAX_UP_LEVELS; level += 1) {
     check(dir);
     const parent = dirname(dir);
-    if (parent === dir) break;
+    if (parent === dir) {break;}
     dir = parent;
   }
 
   const repoRoot = repoRootOf(resolve(cwd));
-  if (repoRoot === undefined) return { found, searched };
+  if (repoRoot === undefined) {return { found, searched };}
 
   for (const workspace of declaredWorkspaceDirs(repoRoot)) {
     const base = join(repoRoot, workspace);
@@ -183,7 +183,7 @@ export function discoverProjectConfigs(cwd: string): ConfigDiscovery {
     for (const entry of entries) {
       const candidate = join(base, entry);
       try {
-        if (!statSync(candidate).isDirectory()) continue;
+        if (!statSync(candidate).isDirectory()) {continue;}
       } catch {
         continue;
       }

@@ -56,11 +56,11 @@ export function mergeEventsBySeq(
       noSeq.push(event);
       continue;
     }
-    if (newest !== undefined && event.seq > newest) continue;
+    if (newest !== undefined && event.seq > newest) {continue;}
     bySeq.set(event.seq, event);
   }
   return [...bySeq.values(), ...noSeq].sort((a, b) => {
-    if (a.seq !== undefined && b.seq !== undefined) return a.seq - b.seq;
+    if (a.seq !== undefined && b.seq !== undefined) {return a.seq - b.seq;}
     return a.t - b.t;
   });
 }
@@ -116,7 +116,7 @@ export async function readJournalWriteLoss(
   reader: JournalReader | undefined,
   buffer: QueryBuffer,
 ): Promise<JournalWriteLoss | undefined> {
-  if (!readsJournal(reader, buffer)) return undefined;
+  if (!readsJournal(reader, buffer)) {return undefined;}
   return (await reader?.readWriteLoss?.()) ?? undefined;
 }
 
@@ -139,7 +139,7 @@ export function windowLost(
   buffer: LossBuffer,
   cursor: number,
 ): boolean {
-  if (buffer.lostSince(cursor)) return true;
+  if (buffer.lostSince(cursor)) {return true;}
   const lost = reader?.readLoss?.();
   return lost !== undefined && (lost.lostThroughT === undefined || lost.lostThroughT >= cursor);
 }

@@ -65,7 +65,7 @@ function memoryFs(): FileSystemPort {
       const prefix = `${norm(path)}/`;
       const names = new Set<string>();
       for (const f of files.keys()) {
-        if (f.startsWith(prefix)) names.add(f.slice(prefix.length).split('/')[0] ?? '');
+        if (f.startsWith(prefix)) {names.add(f.slice(prefix.length).split('/')[0] ?? '');}
       }
       return Promise.resolve([...names]);
     },
@@ -113,7 +113,7 @@ function fakeDeps(fs: FileSystemPort, recordings: RecordingStore): ToolDeps {
 
 function tool(name: string) {
   const t = TOOLS.find((x) => x.name === name);
-  if (t === undefined) throw new Error(`no tool ${name}`);
+  if (t === undefined) {throw new Error(`no tool ${name}`);}
   return t;
 }
 

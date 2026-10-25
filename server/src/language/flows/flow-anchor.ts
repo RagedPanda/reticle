@@ -34,14 +34,14 @@ export function editDistance(a: string, b: string): number {
   const cols = t.length + 1;
   const prev = new Array<number>(cols);
   const curr = new Array<number>(cols);
-  for (let j = 0; j < cols; j++) prev[j] = j;
+  for (let j = 0; j < cols; j++) {prev[j] = j;}
   for (let i = 1; i < rows; i++) {
     curr[0] = i;
     for (let j = 1; j < cols; j++) {
       const cost = s[i - 1] === t[j - 1] ? 0 : 1;
       curr[j] = Math.min((prev[j] ?? 0) + 1, (curr[j - 1] ?? 0) + 1, (prev[j - 1] ?? 0) + cost);
     }
-    for (let j = 0; j < cols; j++) prev[j] = curr[j] ?? 0;
+    for (let j = 0; j < cols; j++) {prev[j] = curr[j] ?? 0;}
   }
   return prev[cols - 1] ?? 0;
 }
@@ -73,7 +73,7 @@ export function nearestTestid(missing: string, present: string[]): string | null
       bestDistance = distance;
     }
   }
-  if (null === best) return null;
+  if (null === best) {return null;}
   return bestDistance <= Math.max(missing.length, best.length) / 2 ? best : null;
 }
 
@@ -105,7 +105,7 @@ const ANCHOR_SETTLE_MAX_ATTEMPTS = 40;
 /** Extract the live element refs + the zero-match near-miss hint from a QUERY command result. */
 function readQuery(result: CommandResult): { refs: string[]; hint?: QueryEmptyHint } {
   const refs = queryRefs(result);
-  if (!result.ok) return { refs };
+  if (!result.ok) {return { refs };}
   const payload = asRecord(result.result);
   const rawHint = payload['hint'];
   if ('object' === typeof rawHint && rawHint !== null) {
@@ -132,7 +132,7 @@ function readQuery(result: CommandResult): { refs: string[]; hint?: QueryEmptyHi
  * Such a drift is surfaced (with a nearest) but never auto-healed.
  */
 export function nearestIsAmbiguous(missing: string, present: string[]): boolean {
-  if (present.length < 2) return false;
+  if (present.length < 2) {return false;}
   let min = Number.POSITIVE_INFINITY;
   let count = 0;
   for (const candidate of present) {
@@ -156,7 +156,7 @@ export function testidDrift(value: string, hint: QueryEmptyHint | undefined): Dr
     anchor: value,
     nearest: nearestTestid(value, present),
   };
-  if (nearestIsAmbiguous(value, present)) drift.ambiguous = true;
+  if (nearestIsAmbiguous(value, present)) {drift.ambiguous = true;}
   return drift;
 }
 
@@ -260,7 +260,7 @@ export function ambiguityDrift(anchor: FlowAnchor, refs: readonly string[]): Dri
  * while the page still has exactly as many of them as when it was recorded. Otherwise undefined.
  */
 export function refFor(anchor: object, refs: readonly string[]): string | undefined {
-  if (1 === refs.length) return refs[0];
+  if (1 === refs.length) {return refs[0];}
   const { nth, of }: Record<string, unknown> = { ...anchor };
   return 'number' === typeof nth && of === refs.length ? refs[nth] : undefined;
 }
@@ -280,7 +280,7 @@ export function refFor(anchor: object, refs: readonly string[]): string | undefi
  */
 export function reresolved(anchor: FlowAnchor, refs: readonly string[]): Reresolved | undefined {
   const drift = ambiguityDrift(anchor, refs);
-  if (drift !== null) return { drift };
+  if (drift !== null) {return { drift };}
   const ref = refFor(anchor, refs);
   return ref === undefined ? undefined : { ref };
 }
@@ -302,7 +302,7 @@ export function expectElementDrift(value: string, hint: QueryEmptyHint | undefin
     anchor: value,
     nearest: nearestTestid(value, present),
   };
-  if (nearestIsAmbiguous(value, present)) drift.ambiguous = true;
+  if (nearestIsAmbiguous(value, present)) {drift.ambiguous = true;}
   return drift;
 }
 
@@ -331,7 +331,7 @@ async function settleTick(session: FlowReplaySession, sleep: Sleep): Promise<voi
     await new Promise<void>((resolve) => {
       let done = false;
       const finish = (): void => {
-        if (done) return;
+        if (done) {return;}
         done = true;
         resolve();
       };
@@ -393,9 +393,9 @@ export function componentLabel(
 
 /** The value of a step's primary anchor, for labelling the result row. */
 export function anchorLabel(anchor: FlowAnchor): string {
-  if (anchor.kind === AnchorKind.TESTID) return anchor.value;
-  if (anchor.kind === AnchorKind.SIGNAL) return anchor.name;
-  if (anchor.kind === AnchorKind.COMPONENT) return componentLabel(anchor);
+  if (anchor.kind === AnchorKind.TESTID) {return anchor.value;}
+  if (anchor.kind === AnchorKind.SIGNAL) {return anchor.name;}
+  if (anchor.kind === AnchorKind.COMPONENT) {return componentLabel(anchor);}
   return anchor.name ?? anchor.role;
 }
 
@@ -404,7 +404,7 @@ export function componentQueryArgs(
   anchor: Extract<FlowAnchor, { kind: typeof AnchorKind.COMPONENT }>,
 ): Record<string, unknown> {
   const args: Record<string, unknown> = { by: QueryBy.COMPONENT };
-  if (anchor.component !== undefined) args['component'] = anchor.component;
-  if (anchor.source !== undefined) args['source'] = anchor.source;
+  if (anchor.component !== undefined) {args['component'] = anchor.component;}
+  if (anchor.source !== undefined) {args['source'] = anchor.source;}
   return args;
 }

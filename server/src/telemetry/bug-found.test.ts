@@ -302,7 +302,7 @@ describe('every defect names an owner, and app is never a guess', () => {
     // testid" identically. An owner invented here is a guess in the one number we intend to publish.
     const bugs = bugsInResult('reticle_assert', { pass: false, assertion: 'element.present' });
     expect(bugs.length).toBeGreaterThan(0);
-    for (const bug of bugs) expect(bug.attribution).toBe(BugAttribution.UNCLASSIFIED);
+    for (const bug of bugs) {expect(bug.attribution).toBe(BugAttribution.UNCLASSIFIED);}
   });
 
   it('never leaves the field absent — absence and "we could not tell" are different facts', () => {
@@ -311,7 +311,7 @@ describe('every defect names an owner, and app is never a guess', () => {
       ...bugsInResult('reticle_flow_verify', { status: 'fail', failures: [{}] }),
     ];
     expect(bugs.length).toBeGreaterThan(0);
-    for (const bug of bugs) expect(bug).toHaveProperty('attribution');
+    for (const bug of bugs) {expect(bug).toHaveProperty('attribution');}
   });
 
   it('still COUNTS the defect — only the blame is gone', () => {
@@ -360,9 +360,9 @@ describe('fingerprintFinding integrates with bugsInResult to produce cross-sessi
     };
     const bugs = bugsInResult('reticle_assert', result);
     const route = routeOf(result);
-    if (route === undefined) throw new Error('expected route');
+    if (route === undefined) {throw new Error('expected route');}
     const firstBug = bugs[0];
-    if (firstBug === undefined) throw new Error('expected at least one bug');
+    if (firstBug === undefined) {throw new Error('expected at least one bug');}
     const fp = fingerprintFinding({ kind: firstBug.kind, source: firstBug.source, route });
     const fp2 = fingerprintFinding({
       kind: 'signal-contradicted',
@@ -378,7 +378,7 @@ describe('fingerprintFinding integrates with bugsInResult to produce cross-sessi
       contradictions: [{ kind: 'signal-contradicted' }],
     });
     const firstBug = bugs[0];
-    if (firstBug === undefined) throw new Error('expected at least one bug');
+    if (firstBug === undefined) {throw new Error('expected at least one bug');}
     const fpA = fingerprintFinding({ kind: firstBug.kind, source: firstBug.source, route: '/a' });
     const fpB = fingerprintFinding({ kind: firstBug.kind, source: firstBug.source, route: '/b' });
     expect(fpA).not.toBe(fpB);

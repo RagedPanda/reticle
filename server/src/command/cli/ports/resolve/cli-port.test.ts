@@ -277,7 +277,7 @@ describe('the port of a workspace app, read from the monorepo root', () => {
 
   async function app(name: string, port?: number): Promise<void> {
     await writeJson(`apps/${name}/package.json`, { name, scripts: { dev: 'vite' } });
-    if (port !== undefined) await writeJson(`apps/${name}/.reticle.json`, { port });
+    if (port !== undefined) {await writeJson(`apps/${name}/.reticle.json`, { port });}
   }
 
   it('uses the one wired app below the root', async () => {
@@ -513,11 +513,11 @@ describe('Scenario matrix — port isolation per project', () => {
  */
 describe('isLikelyDevServerPort', () => {
   it('recognises the ports frameworks actually serve on', () => {
-    for (const p of [3000, 5173, 4321, 8080]) expect(isLikelyDevServerPort(p)).toBe(true);
+    for (const p of [3000, 5173, 4321, 8080]) {expect(isLikelyDevServerPort(p)).toBe(true);}
   });
 
   it('leaves Reticle bridge ports alone, including the multi-app range people are told to use', () => {
-    for (const p of [4400, 4460, 4461, 4477]) expect(isLikelyDevServerPort(p)).toBe(false);
+    for (const p of [4400, 4460, 4461, 4477]) {expect(isLikelyDevServerPort(p)).toBe(false);}
   });
 
   it('the warning names the port, the field, and the correct default', () => {
@@ -623,7 +623,7 @@ describe('the scanned dev-server ports cover what people actually run', () => {
   // The set does double duty: it also decides whether a `.reticle.json` BRIDGE port looks like a dev
   // server. Widening it must not start warning about the multi-app bridge range people are told to use.
   it('still leaves the bridge range alone after widening', () => {
-    for (const p of [4400, 4460, 4461, 4477]) expect(isLikelyDevServerPort(p)).toBe(false);
+    for (const p of [4400, 4460, 4461, 4477]) {expect(isLikelyDevServerPort(p)).toBe(false);}
   });
 });
 

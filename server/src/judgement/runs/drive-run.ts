@@ -109,7 +109,7 @@ function verdicts(
   const out: (JournalVerdictEffect & { actionId: string })[] = [];
   for (const action of actions) {
     const parsed = JournalVerdictEffectSchema.safeParse(action.effect);
-    if (parsed.success) out.push({ ...parsed.data, actionId: action.actionId });
+    if (parsed.success) {out.push({ ...parsed.data, actionId: action.actionId });}
   }
   return out;
 }
@@ -147,7 +147,7 @@ export function driveRunId(sessionId: string): string {
 
 /** The run of the `segment`th agent session in a tab: the tab's id first, then `-2`, `-3`… */
 function segmentRunId(base: string, segment: number): string {
-  if (0 === segment) return base;
+  if (0 === segment) {return base;}
   const id = `${base}-${String(segment + 1)}`;
   return isValidRunId(id) ? id : base;
 }
@@ -175,7 +175,7 @@ export function agentRunId(sessionId: string): string {
  */
 export function runIdOfCall(sessionId: string): string {
   const scoped = currentShotRun();
-  if (scoped !== undefined) return scoped;
+  if (scoped !== undefined) {return scoped;}
   const by = currentDrivenBy();
   const harness = by === undefined ? undefined : harnessRunId(by.harness);
   return harness ?? agentRunId(sessionId);
@@ -299,7 +299,7 @@ export function driveRunFrom(
   // time somebody opens an app would be noise. A session that DID verify and resolved none of it is
   // the opposite: it is the thing they most need to see -- and those checks are now in the list
   // rather than counted in a sentence, so the row shows what happened instead of alluding to it.
-  if (0 === checks.length) return undefined;
+  if (0 === checks.length) {return undefined;}
   // A verdict that was open because the outcome had not arrived, and a later verdict on the same
   // claim that decided it, become a correction: the second cites the first and the first is left
   // exactly as it was given. See late-answer.ts for what does and does not count as an answer.
@@ -378,7 +378,7 @@ export function onHarnessNoted(listener: () => void): () => void {
 }
 
 const tellNoted = (): void => {
-  for (const listener of noted) listener();
+  for (const listener of noted) {listener();}
 };
 
 /** How long each Harness drive took, timed by the drive on the injected clock. */
@@ -391,19 +391,19 @@ const spans = new Map<string, number>();
 export function noteHarnessSpan(harness: string, ms: number): void {
   if (MAX_GOALS_HELD <= spans.size && !spans.has(harness)) {
     const oldest = spans.keys().next().value;
-    if (oldest !== undefined) spans.delete(oldest);
+    if (oldest !== undefined) {spans.delete(oldest);}
   }
   spans.set(harness, Math.max(0, ms));
   tellNoted();
 }
 
 export function noteHarnessGoal(harness: string, met: boolean | undefined): void {
-  if (met === undefined) return;
+  if (met === undefined) {return;}
   const before = goalsMissed.get(harness);
-  if (false === before) return;
+  if (false === before) {return;}
   if (MAX_GOALS_HELD <= goalsMissed.size && !goalsMissed.has(harness)) {
     const oldest = goalsMissed.keys().next().value;
-    if (oldest !== undefined) goalsMissed.delete(oldest);
+    if (oldest !== undefined) {goalsMissed.delete(oldest);}
   }
   goalsMissed.set(harness, met);
   tellNoted();
@@ -417,10 +417,10 @@ const disparities = new Map<string, readonly RunDisparity[]>();
  * platform can file a goal the agent proved and the Harness could not find.
  */
 export function noteHarnessDisparity(harness: string, found: readonly RunDisparity[]): void {
-  if (0 === found.length) return;
+  if (0 === found.length) {return;}
   if (MAX_GOALS_HELD <= disparities.size && !disparities.has(harness)) {
     const oldest = disparities.keys().next().value;
-    if (oldest !== undefined) disparities.delete(oldest);
+    if (oldest !== undefined) {disparities.delete(oldest);}
   }
   disparities.set(harness, found);
   tellNoted();
@@ -436,7 +436,7 @@ const ABSENCE_OF = 'the absence of ';
  * reads the journal's words, not the predicate.
  */
 function claimsOnlyRoute(claim: string, kind: string | undefined): boolean {
-  if (PredicateKind.ROUTE === kind) return true;
+  if (PredicateKind.ROUTE === kind) {return true;}
   return PredicateKind.NOT === kind && claim.startsWith(`${ABSENCE_OF}${ROUTE_CLAIM}`);
 }
 
@@ -454,7 +454,7 @@ function harnessRunFrom(
     ...deps,
     runId: harnessRunId(by.harness) ?? defaultRunId(),
   });
-  if (input === undefined) return undefined;
+  if (input === undefined) {return undefined;}
   // The driver's own wrong guess about where a click goes is not a failed check of the app; nor is
   // its second press of a control whose claim already held (Save again on a field the app emptied).
   const refOf = new Map(actions.map((a) => [a.actionId, asString(asRecord(a.args)['ref'])]));
@@ -463,7 +463,7 @@ function harnessRunFrom(
     const ref = check.actionId === undefined ? undefined : refOf.get(check.actionId);
     const key = ref === undefined ? undefined : `${ref}|${check.predicate}`;
     const repress = Verified.NO === check.status && key !== undefined && heldBefore.has(key);
-    if (Verified.YES === check.status && key !== undefined) heldBefore.add(key);
+    if (Verified.YES === check.status && key !== undefined) {heldBefore.add(key);}
     return Verified.NO === check.status && (repress || claimsOnlyRoute(check.predicate, check.kind))
       ? { ...check, status: Verified.UNKNOWN, reason: VerifiedReason.INCONCLUSIVE }
       : check;
@@ -531,7 +531,7 @@ export function driveRunsFrom(
   const drives = new Map<string, { by: DrivenBy; actions: JournalAction[] }>();
   for (const action of actions) {
     const by = action.drivenBy;
-    if (by === undefined) continue;
+    if (by === undefined) {continue;}
     const held = drives.get(by.harness) ?? { by, actions: [] };
     held.actions.push(action);
     drives.set(by.harness, held);

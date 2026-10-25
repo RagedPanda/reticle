@@ -57,24 +57,24 @@ export function blastRadius(
     .map((l) => l.urlContains);
   const radius: string[] = [];
   const add = (value: string): void => {
-    if (!radius.includes(value)) radius.push(value);
+    if (!radius.includes(value)) {radius.push(value);}
   };
   for (const event of observed) {
     if (event.type === EventType.NET_REQUEST) {
       const url = event.data['url'];
-      if ('string' !== typeof url) continue;
-      if (declaredUrls.some((fragment) => url.includes(fragment))) continue;
+      if ('string' !== typeof url) {continue;}
+      if (declaredUrls.some((fragment) => url.includes(fragment))) {continue;}
       // A subresource the document fetched is the page loading, not a request the action sent: one
       // navigation is a couple of hundred of them. IPC and beacons carry an initiator too, and stay.
-      if (isDocumentInitiated(event)) continue;
+      if (isDocumentInitiated(event)) {continue;}
       const method = event.data['method'];
       add(`net ${'string' === typeof method ? method : 'request'} ${url}`);
       continue;
     }
     const name = event.data['name'];
-    if (typeof name !== 'string') continue;
-    if (event.type === EventType.SIGNAL && !declaredSignals.has(name)) add(`signal ${name}`);
-    if (event.type === EventType.STATE_CHANGE && !declaredStates.has(name)) add(`state ${name}`);
+    if (typeof name !== 'string') {continue;}
+    if (event.type === EventType.SIGNAL && !declaredSignals.has(name)) {add(`signal ${name}`);}
+    if (event.type === EventType.STATE_CHANGE && !declaredStates.has(name)) {add(`state ${name}`);}
   }
   return radius;
 }

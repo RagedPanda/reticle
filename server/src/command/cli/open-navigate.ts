@@ -116,6 +116,6 @@ export function openCandidates<T extends { projectId?: string | undefined }>(
   navigate: boolean,
   myProject: string | undefined,
 ): T[] {
-  if (!navigate || myProject === undefined) return sessions;
+  if (!navigate || myProject === undefined) {return sessions;}
   return sessions.filter((s) => s.projectId === undefined || s.projectId === myProject);
 }

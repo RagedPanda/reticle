@@ -87,8 +87,8 @@ export interface ReportExtras {
 /** `path` under `home` as `~/...`, so no home directory leaves the machine in a report. */
 export function homeRelative(path: string, home: string): string {
   const inside = relative(home, path);
-  if (0 === inside.length) return '~';
-  if (inside.startsWith('..') || inside.startsWith(sep) || /^[a-zA-Z]:/.test(inside)) return path;
+  if (0 === inside.length) {return '~';}
+  if (inside.startsWith('..') || inside.startsWith(sep) || /^[a-zA-Z]:/.test(inside)) {return path;}
   return `~/${inside.split(sep).join('/')}`;
 }
 
@@ -128,8 +128,8 @@ export function mayOpen(url: string, openUrls: readonly string[]): boolean {
   } catch {
     return false;
   }
-  if ('http:' !== target.protocol && 'https:' !== target.protocol) return false;
-  if (LOOPBACK_HOSTS.has(target.hostname) || target.hostname.endsWith('.localhost')) return true;
+  if ('http:' !== target.protocol && 'https:' !== target.protocol) {return false;}
+  if (LOOPBACK_HOSTS.has(target.hostname) || target.hostname.endsWith('.localhost')) {return true;}
   return openUrls.some((open) => {
     try {
       return new URL(open).origin === target.origin;
@@ -150,7 +150,7 @@ export const withoutMarks = (raw: string): string => {
   try {
     const url = new URL(raw);
     for (const mark of [...url.searchParams.keys()])
-      if (RETICLE_MARKS.has(mark)) url.searchParams.delete(mark);
+      {if (RETICLE_MARKS.has(mark)) {url.searchParams.delete(mark);}}
     return url.href;
   } catch {
     return raw;
@@ -175,7 +175,7 @@ function mergedGaps(
   const out = new Map<string, LinkAppGap>();
   for (const gap of [...(a ?? []), ...(b ?? [])]) {
     const id = `${gap.kind}\u0000${gap.missing}`;
-    if (!out.has(id)) out.set(id, gap);
+    if (!out.has(id)) {out.set(id, gap);}
   }
   return [...out.values()];
 }
@@ -211,12 +211,12 @@ export async function appsByPlatform(
     groups.set(id, found);
     return found;
   };
-  if (undefined !== linked) group(linked);
+  if (undefined !== linked) {group(linked);}
   // A visible tab speaks for its project over a hidden one.
   const ordered = [...tabs].sort((a, b) => Number(a.hidden) - Number(b.hidden));
   for (const tab of ordered) {
     const about = await describe(tab).catch(() => undefined);
-    if (undefined === about?.platform) continue;
+    if (undefined === about?.platform) {continue;}
     const key = appKeyOf(machineId, about.dir, tab.projectId);
     const apps = group(about.platform).apps;
     // Of two tabs of one app, the one that has seen the most speaks for it (a tie keeps the earlier,
@@ -291,7 +291,7 @@ export function startAppReports(deps: AppReportDeps): AppReports {
   /** Notices already shown, by what they say: the platform repeats them on every report. */
   const told = new Set<string>();
   const tick = async (): Promise<void> => {
-    if (busy) return;
+    if (busy) {return;}
     busy = true;
     try {
       const extras = (await deps.extras?.().catch(() => undefined)) ?? {};
@@ -321,7 +321,7 @@ export function startAppReports(deps: AppReportDeps): AppReports {
             }),
             signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
           });
-          if (!res.ok) continue;
+          if (!res.ok) {continue;}
           const answer = (await res.json()) as {
             wake?: unknown;
             pendingDrive?: unknown;
@@ -329,21 +329,21 @@ export function startAppReports(deps: AppReportDeps): AppReports {
           };
           for (const notice of parseLinkNotices(answer.notices)) {
             const key = `${platform.apiKey}\u0000${notice.text}`;
-            if (told.has(key)) continue;
+            if (told.has(key)) {continue;}
             told.add(key);
             deps.notify?.(notice, platform);
           }
           const open = new Set(apps.map((app) => app.key));
           for (const wake of Array.isArray(answer.wake) ? answer.wake : []) {
             const { key, url } = (wake ?? {}) as { key?: unknown; url?: unknown };
-            if ('string' !== typeof key || 'string' !== typeof url || open.has(key)) continue;
+            if ('string' !== typeof key || 'string' !== typeof url || open.has(key)) {continue;}
             open.add(key);
             deps.log?.(`reticle: opening ${url}, asked for from the platform chat`);
             await deps.open(url, key).catch((error: unknown) => {
               deps.log?.(`reticle: could not open ${url}: ${String(error)}`);
             });
           }
-          if (true === answer.pendingDrive) deps.drivePending(platform);
+          if (true === answer.pendingDrive) {deps.drivePending(platform);}
         } catch {
           // Offline, or the platform is down: the next report tries again.
         }
@@ -360,7 +360,7 @@ export function startAppReports(deps: AppReportDeps): AppReports {
     tick,
     stop: () => {
       clearInterval(timer);
-      if (running === reports) running = undefined;
+      if (running === reports) {running = undefined;}
     },
   };
   running = reports;
@@ -390,12 +390,12 @@ export async function pickAppTab(
 ): Promise<string | null> {
   const ofApp = (): AppTab[] => tabs().filter((tab) => keyOf(tab.sessionId) === app.key);
   const now = pickDriveSession(ofApp(), goal);
-  if (now !== undefined) return now;
-  if (null === app.url) return null;
+  if (now !== undefined) {return now;}
+  if (null === app.url) {return null;}
   await open(app.url).catch(() => undefined);
   for (let waited = 0; waited <= waitMs; waited += APP_OPEN_POLL_MS) {
     const opened = pickDriveSession(ofApp(), goal);
-    if (opened !== undefined) return opened;
+    if (opened !== undefined) {return opened;}
     await new Promise((resolve) => setTimeout(resolve, APP_OPEN_POLL_MS));
   }
   return null;

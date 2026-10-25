@@ -81,7 +81,7 @@ export async function probePresence(
   },
 ): Promise<PortPresence> {
   const tcpOpen = await probes.tcpOpen(port);
-  if (!tcpOpen) return PortPresence.FREE;
+  if (!tcpOpen) {return PortPresence.FREE;}
   const status = await probes.status(port);
   return classifyPort({ tcpOpen, statusAnswered: status !== undefined });
 }

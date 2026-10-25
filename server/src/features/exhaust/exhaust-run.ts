@@ -74,7 +74,7 @@ export async function runExhaustive(input: {
     })),
   ];
   const counts: Record<string, number> = {};
-  for (const a of anomalies) counts[a.kind] = (counts[a.kind] ?? 0) + 1;
+  for (const a of anomalies) {counts[a.kind] = (counts[a.kind] ?? 0) + 1;}
   return {
     interactiveFound: report.seen.length,
     stepsRun: report.actions,

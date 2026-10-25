@@ -28,7 +28,7 @@ const REFRESH_INTERVALS_MS = 60_000;
 
 const dirs: string[] = [];
 afterEach(() => {
-  for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true });
+  for (const dir of dirs.splice(0)) {rmSync(dir, { recursive: true, force: true });}
 });
 
 /** A project directory, wired or not, optionally with a dev script to source a command from. */
@@ -82,7 +82,7 @@ function stubSessions(count = 0): Stub {
 
 /** Let the probe promise and the attach promise chained behind it both settle. */
 async function settle(): Promise<void> {
-  for (let i = 0; i < 8; i += 1) await Promise.resolve();
+  for (let i = 0; i < 8; i += 1) {await Promise.resolve();}
 }
 
 describe('auto-attach when a dev server is already running', () => {

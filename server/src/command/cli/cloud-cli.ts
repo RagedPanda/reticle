@@ -149,11 +149,11 @@ const cmdWhoami = async (): Promise<number> => {
   });
   // Signed out, `link` refuses with "run reticle login first"; `connect` does both in one go.
   if (null === cloud.config)
-    hint(
+    {hint(
       null === session
         ? 'this repo is not attached — run `reticle connect` (signs in and links in one step)'
         : 'this repo is not attached — run `reticle connect`',
-    );
+    );}
   return 0;
 };
 
@@ -294,20 +294,20 @@ const cmdConnect = async (given: readonly string[]): Promise<number> => {
     }
     if (!signedIn) {
       const code = await cmdLogin(['--url', url], cmdLink, false);
-      if (code !== 0) return code;
+      if (code !== 0) {return code;}
     }
   }
   const chosen = await chooseWorkspace(url, f['workspace']);
-  if (chosen !== 0) return chosen;
+  if (chosen !== 0) {return chosen;}
   const linkArgs = [
     '--url',
     url,
     ...(f['project'] === undefined ? [] : ['--project', f['project']]),
   ];
   const linked = await cmdLink(linkArgs, process.cwd(), PlatformLinkVia.CONNECT);
-  if (linked !== 0) return linked;
+  if (linked !== 0) {return linked;}
   const pushed = await cmdPush();
-  if (pushed !== 0) return pushed;
+  if (pushed !== 0) {return pushed;}
   hint('Connected. Open your coding agent and ask it to verify one flow in your app.');
   return 0;
 };
@@ -348,7 +348,7 @@ const cmdConfig = async (argv: readonly string[]): Promise<number> => {
   const onoff = (v: string | undefined): boolean | undefined =>
     'on' === v ? true : 'off' === v ? false : undefined;
   for (const k of ['runs', 'memory', 'flows'] as const) {
-    if (f[k] === undefined) continue;
+    if (f[k] === undefined) {continue;}
     const b = onoff(f[k]);
     if (b === undefined) {
       err(`--${k} must be on|off`);
@@ -388,7 +388,7 @@ const cmdSync = async (argv: readonly string[]): Promise<number> => {
     await reportUnsynced(fs);
     return 1;
   }
-  if (cloud.note !== undefined) err(cloud.note);
+  if (cloud.note !== undefined) {err(cloud.note);}
   const config = cloud.config;
   const full = diskSource(reticleRoot);
   const source = {
@@ -436,7 +436,7 @@ const cmdSync = async (argv: readonly string[]): Promise<number> => {
   };
 
   const watch = argv.includes(WATCH_FLAG);
-  if (!watch) return once();
+  if (!watch) {return once();}
 
   const everyMs = Number(process.env['RETICLE_SYNC_INTERVAL_MS'] ?? DEFAULT_SYNC_INTERVAL_MS);
   hint(`watching ${reticleRoot} — syncing every ${String(Math.round(everyMs / 1000))}s`);
@@ -455,7 +455,7 @@ const reportUnsynced = async (fs: ReturnType<typeof createNodeFileSystem>): Prom
     await machineUnsyncedRoots(fs, homedir(), process.env),
     process.cwd(),
   ))
-    hint(line);
+    {hint(line);}
 };
 
 /** `reticle push` — the name people already type. One cycle, same as `reticle sync`. */
@@ -483,9 +483,9 @@ const repoCloud = async (): Promise<{
   const fs = createNodeFileSystem();
   const cloud = await resolveProjectCloud(fs, linkedRoot(), homedir(), process.env);
   if (null === cloud.config)
-    throw new Error(
+    {throw new Error(
       cloud.reason ?? 'cloud not attached here: run `reticle connect`, or set RETICLE_API_KEY',
-    );
+    );}
   return { ...cloud.config, projectId: cloud.projectId };
 };
 

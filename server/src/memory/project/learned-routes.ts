@@ -24,9 +24,9 @@ export const ROUTE_PERSIST_DEBOUNCE_MS = 50;
 
 /** Convert a validated route-change payload into a bounded route identity. */
 export function routeFromEvent(event: ReticleEvent): string | undefined {
-  if (event.type !== EventType.ROUTE_CHANGE) return undefined;
+  if (event.type !== EventType.ROUTE_CHANGE) {return undefined;}
   const pathname = event.data['pathname'];
-  if ('string' !== typeof pathname || 0 === pathname.length) return undefined;
+  if ('string' !== typeof pathname || 0 === pathname.length) {return undefined;}
   return pathname;
 }
 
@@ -65,7 +65,7 @@ export function attachRouteLearning(
     const batches = [...pending];
     pending.clear();
     for (const [store, routes] of batches) {
-      if (routes.size > 0) void store.recordRoutes([...routes]).catch(() => undefined);
+      if (routes.size > 0) {void store.recordRoutes([...routes]).catch(() => undefined);}
     }
   };
 
@@ -73,23 +73,23 @@ export function attachRouteLearning(
     const routes = pending.get(store) ?? new Set<string>();
     routes.add(route);
     pending.set(store, routes);
-    if (flushTimer !== undefined) clearTimeout(flushTimer);
+    if (flushTimer !== undefined) {clearTimeout(flushTimer);}
     flushTimer = setTimeout(flush, ROUTE_PERSIST_DEBOUNCE_MS);
   };
 
   const attach = (session: RouteLearningSession): void => {
-    if (attached.has(session)) return;
+    if (attached.has(session)) {return;}
     attached.add(session);
     const store = storeFor(session.artifactRoot);
 
     const initial = routeFromUrl(session.url);
-    if (initial !== undefined) queue(store, initial);
+    if (initial !== undefined) {queue(store, initial);}
     session.onEvent((event) => {
       const route = routeFromEvent(event);
-      if (route !== undefined) queue(store, route);
+      if (route !== undefined) {queue(store, route);}
     });
   };
 
-  for (const session of bridge.sessions.all()) attach(session);
+  for (const session of bridge.sessions.all()) {attach(session);}
   bridge.attachSessionReady(attach);
 }

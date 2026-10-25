@@ -190,7 +190,7 @@ function fakeDeps(recorded?: FlowFile): ToolDeps {
 
 function flowTool(name: string): (typeof FLOW_TOOLS)[number] {
   const found = FLOW_TOOLS.find((t) => t.name === name);
-  if (found === undefined) throw new Error(`no tool ${name}`);
+  if (found === undefined) {throw new Error(`no tool ${name}`);}
   return found;
 }
 

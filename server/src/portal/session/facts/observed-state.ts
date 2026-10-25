@@ -37,12 +37,12 @@ export class ObservedState {
     // and learning it as background would teach the settle oracle to ignore real effects.
     if (event.actionId === undefined) {
       const key = ambientKeyOf(event);
-      if (key !== undefined) this.#ownAmbient[key] = (this.#ownAmbient[key] ?? 0) + 1;
+      if (key !== undefined) {this.#ownAmbient[key] = (this.#ownAmbient[key] ?? 0) + 1;}
     }
     if (event.type === EventType.BLIND_SPOT) {
       const kind = event.data['kind'];
       const count = event.data['count'];
-      if ('string' === typeof kind && 'number' === typeof count) this.#blindSpots[kind] = count;
+      if ('string' === typeof kind && 'number' === typeof count) {this.#blindSpots[kind] = count;}
     }
   }
 
@@ -101,12 +101,12 @@ export class ObservedState {
 
   /** Record a driven ref. Idempotent. */
   recordActedRef(ref: string): void {
-    if (ref.length > 0) this.#actedRefs.add(ref);
+    if (ref.length > 0) {this.#actedRefs.add(ref);}
   }
 
   /** Record a driven control's re-render-surviving label. Idempotent; empty labels are not identities. */
   recordActedLabel(label: string): void {
-    if (label.length > 0) this.#actedLabels.add(label);
+    if (label.length > 0) {this.#actedLabels.add(label);}
   }
 
   /** Every ref driven so far this session. */
@@ -126,7 +126,7 @@ export class ObservedState {
   readonly #provedLabels = new Set<string>();
 
   recordProvedLabel(label: string): void {
-    if (label.length > 0) this.#provedLabels.add(label);
+    if (label.length > 0) {this.#provedLabels.add(label);}
   }
 
   provedLabels(): ReadonlySet<string> {
@@ -146,12 +146,12 @@ export class ObservedState {
     // WHEN, beside how many: the running total above is a fact about the session, and read as one
     // it made every verdict after a single burst `unclean_capture`, however quiet its own window
     // was (#1414). Bucketed per second so a sustained flood stays a bounded list.
-    if (at === undefined || dropped <= before) return;
+    if (at === undefined || dropped <= before) {return;}
     const second = Math.floor(at / RATE_DROP_BUCKET_MS) * RATE_DROP_BUCKET_MS;
     const last = this.#rateDrops[this.#rateDrops.length - 1];
-    if (last !== undefined && last.at === second) last.count += dropped - before;
-    else this.#rateDrops.push({ at: second, count: dropped - before });
-    if (this.#rateDrops.length > MAX_RATE_DROP_BUCKETS) this.#rateDrops.shift();
+    if (last !== undefined && last.at === second) {last.count += dropped - before;}
+    else {this.#rateDrops.push({ at: second, count: dropped - before });}
+    if (this.#rateDrops.length > MAX_RATE_DROP_BUCKETS) {this.#rateDrops.shift();}
   }
 
   /**
@@ -163,7 +163,7 @@ export class ObservedState {
   rateDroppedSince(since: number): number {
     let total = 0;
     for (const bucket of this.#rateDrops) {
-      if (bucket.at + RATE_DROP_BUCKET_MS > since) total += bucket.count;
+      if (bucket.at + RATE_DROP_BUCKET_MS > since) {total += bucket.count;}
     }
     return total;
   }
@@ -176,7 +176,7 @@ export class ObservedState {
    * one early burst made every later verdict on the tab `unclean_capture` (#1414).
    */
   blindSpots(since?: number): Readonly<Record<string, number>> {
-    if (since === undefined) return this.#blindSpots;
+    if (since === undefined) {return this.#blindSpots;}
     return { ...this.#blindSpots, [BlindSpotKind.RATE_LIMITED]: this.rateDroppedSince(since) };
   }
 }
@@ -190,14 +190,14 @@ export class ObservedState {
  * and coverage read `exercised: 0` however much work had been done.
  */
 export function controlLabelsOf(payload: unknown): string[] {
-  if (typeof payload !== 'object' || null === payload) return [];
+  if (typeof payload !== 'object' || null === payload) {return [];}
   const record = payload as Record<string, unknown>;
   const labels: string[] = [];
   const testid = record['testid'];
-  if ('string' === typeof testid && testid.length > 0) labels.push(testid);
+  if ('string' === typeof testid && testid.length > 0) {labels.push(testid);}
   const role = record['role'];
   const name = record['name'];
   if ('string' === typeof role && 'string' === typeof name && role.length > 0 && name.length > 0)
-    labels.push(`${role} "${name}"`);
+    {labels.push(`${role} "${name}"`);}
   return labels;
 }

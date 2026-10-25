@@ -38,7 +38,7 @@ export async function knownRegression(reticleRoot: string): Promise<KnownRegress
       homedir(),
       process.env,
     );
-    if (null === cloud.config) return {};
+    if (null === cloud.config) {return {};}
     const broken = brokenOf(
       await api('GET', `${cloud.config.url}${REGRESSION_PATH}`, cloud.config.apiKey),
     );

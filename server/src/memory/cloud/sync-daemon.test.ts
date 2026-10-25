@@ -263,7 +263,7 @@ describe('nudge', () => {
     });
     await vi.advanceTimersByTimeAsync(6_000);
     const afterFirst = server.count();
-    for (let i = 0; i < 6; i += 1) d.nudge();
+    for (let i = 0; i < 6; i += 1) {d.nudge();}
     await vi.advanceTimersByTimeAsync(3_000);
     // One cycle's worth of requests, not six.
     const perCycle = afterFirst;
@@ -461,12 +461,12 @@ describe('how often it runs follows whether anything moved', () => {
     const request = (url: string): Promise<{ status: number; text: string }> => {
       calls += 1;
       if (url.includes('/pull'))
-        return Promise.resolve({ status: 200, text: '{"triage":[],"cursor":"0:"}' });
+        {return Promise.resolve({ status: 200, text: '{"triage":[],"cursor":"0:"}' });}
       if (url.endsWith('/v1/sync'))
-        return Promise.resolve({
+        {return Promise.resolve({
           status: 200,
           text: JSON.stringify({ runs: { accepted: 1, rejected: [] }, flows: { accepted: 0 } }),
-        });
+        });}
       return Promise.resolve({ status: 200, text: '{}' });
     };
     return { request, count: (): number => calls };
@@ -594,7 +594,7 @@ describe('a refusal is not silence', () => {
   const refusing = (url: string): Promise<{ status: number; text: string }> => {
     // The memory read each cycle makes (decisions coming down) is a read, not an offer of the run.
     if (!url.includes('/pull') && !url.includes('/status') && !url.includes('/v1/memory'))
-      posts += 1;
+      {posts += 1;}
     const body = url.includes('/pull')
       ? { triage: [], cursor: '0:' }
       : url.includes('/status')
@@ -641,7 +641,7 @@ describe('a root nothing will send is said out loud', () => {
     const sibling = join(mkdtempSync(join(tmpdir(), 'reticle-unsent-')), '.reticle');
     mkdirSync(join(sibling, 'runs'), { recursive: true });
     for (const id of ['r1', 'r2', 'r3'])
-      writeFileSync(join(sibling, 'runs', `${id}.json`), JSON.stringify({ runId: id }));
+      {writeFileSync(join(sibling, 'runs', `${id}.json`), JSON.stringify({ runId: id }));}
     const lines: string[] = [];
     const spy = vi.spyOn(process.stderr, 'write').mockImplementation((chunk: unknown): boolean => {
       lines.push(String(chunk));
@@ -677,7 +677,7 @@ describe("the sync's memory read", () => {
       url: string,
       init?: { headers?: Record<string, string> },
     ): Promise<{ status: number; text: string }> => {
-      if (url.includes('/v1/memory')) seen.push({ ...(init?.headers ?? {}) });
+      if (url.includes('/v1/memory')) {seen.push({ ...(init?.headers ?? {}) });}
       const body = url.includes('/pull') ? { triage: [], cursor: '0:' } : {};
       return Promise.resolve({ status: 200, text: JSON.stringify(body) });
     };
@@ -790,7 +790,7 @@ describe('a change under .reticle wakes the sync', () => {
   it('coalesces a burst of writes into one cycle', async () => {
     const w = watched();
     await vi.advanceTimersByTimeAsync(6_000);
-    for (let i = 0; i < 40; i += 1) w.change(`runs/run-${String(i)}.json`);
+    for (let i = 0; i < 40; i += 1) {w.change(`runs/run-${String(i)}.json`);}
     await vi.advanceTimersByTimeAsync(5_000);
     expect(w.cycles()).toBe(2);
     w.d.stop();
@@ -803,7 +803,7 @@ describe('a change under .reticle wakes the sync', () => {
     // Everything the real cycle just wrote into this root, reported as a watcher would.
     const written = readdirSync(root, { recursive: true, encoding: 'utf8' });
     expect(written.length, 'the cycle wrote its bookkeeping').toBeGreaterThan(0);
-    for (const path of written) w.change(path);
+    for (const path of written) {w.change(path);}
     // And the tmp files its atomic writes rename into place, which the watcher also sees.
     w.change(`cloud-state.json.${String(process.pid)}.tmp`);
     w.change(`issues.json.${String(process.pid)}.tmp`);
@@ -832,7 +832,7 @@ describe('a change under .reticle wakes the sync', () => {
     w.change('runs/a.json');
     await vi.advanceTimersByTimeAsync(2_500); // the second cycle starts and stalls
     expect(w.cycles()).toBe(2);
-    for (let i = 0; i < 10; i += 1) w.change(`runs/b-${String(i)}.json`);
+    for (let i = 0; i < 10; i += 1) {w.change(`runs/b-${String(i)}.json`);}
     await vi.advanceTimersByTimeAsync(10_000);
     expect(w.cycles(), 'never a cycle on top of a running one').toBe(2);
     release?.();
@@ -888,7 +888,7 @@ describe('a change under .reticle wakes the sync', () => {
     const sibling = mkdtempSync(join(tmpdir(), 'reticle-sibling-'));
     const order: string[] = [];
     const request = (url: string): Promise<{ status: number; text: string }> => {
-      if (url.includes('/v1/sync/status')) order.push(new URL(url).host);
+      if (url.includes('/v1/sync/status')) {order.push(new URL(url).host);}
       const body = url.includes('/pull') ? { triage: [], cursor: '0:' } : {};
       return Promise.resolve({ status: 200, text: JSON.stringify(body) });
     };
@@ -915,7 +915,7 @@ describe('a change under .reticle wakes the sync', () => {
     const sibling = mkdtempSync(join(tmpdir(), 'reticle-sibling-'));
     const hosts: string[] = [];
     const request = (url: string): Promise<{ status: number; text: string }> => {
-      if (url.includes('/v1/sync/status')) hosts.push(new URL(url).host);
+      if (url.includes('/v1/sync/status')) {hosts.push(new URL(url).host);}
       const body = url.includes('/pull') ? { triage: [], cursor: '0:' } : {};
       return Promise.resolve({ status: 200, text: JSON.stringify(body) });
     };
@@ -1018,7 +1018,7 @@ describe('a change under .reticle wakes the sync', () => {
     expect(between[0]).toBe(60_000);
     expect(Math.max(...between)).toBe(600_000);
     for (let i = 1; i < between.length; i += 1)
-      expect(between[i]).toBeGreaterThanOrEqual(between[i - 1] ?? 0);
+      {expect(between[i]).toBeGreaterThanOrEqual(between[i - 1] ?? 0);}
     d.stop();
   });
 
@@ -1062,7 +1062,7 @@ describe('a change under .reticle wakes the sync', () => {
       cloud: () => {
         times.push(Date.now());
         // Back online from the third cycle on.
-        if (times.length >= 3) server.state.down = false;
+        if (times.length >= 3) {server.state.down = false;}
         return Promise.resolve(LINKED);
       },
       request: server.request,

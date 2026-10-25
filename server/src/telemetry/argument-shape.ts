@@ -53,8 +53,8 @@ export const OTHER_VALUE = 'other';
  */
 export function allowParamValues(name: string, values: Iterable<string>): void {
   const allowed = SAFE_ENUM_PARAMS.get(name);
-  if (allowed === undefined) return;
-  for (const value of values) allowed.add(value);
+  if (allowed === undefined) {return;}
+  for (const value of values) {allowed.add(value);}
 }
 
 /**
@@ -63,8 +63,8 @@ export function allowParamValues(name: string, values: Iterable<string>): void {
  */
 export function describeParam(name: string, value: unknown): string {
   const allowed = SAFE_ENUM_PARAMS.get(name);
-  if (allowed === undefined) return name;
-  if (typeof value !== 'string') return name;
+  if (allowed === undefined) {return name;}
+  if (typeof value !== 'string') {return name;}
   return `${name}:${allowed.has(value) ? value : OTHER_VALUE}`;
 }
 
@@ -100,8 +100,8 @@ export function describeCliFlags(argv: readonly string[]): string[] {
   const flags = new Set<string>();
   for (const arg of argv) {
     // A bare `--` ends the options: everything after it is passed through to something else.
-    if (END_OF_OPTIONS === arg) break;
-    if (!arg.startsWith('--')) continue;
+    if (END_OF_OPTIONS === arg) {break;}
+    if (!arg.startsWith('--')) {continue;}
     // `--port=9000` — split so the NAME is reported and the value is discarded with everything else.
     const name = arg.split('=')[0] ?? arg;
     flags.add(KNOWN_CLI_FLAGS.has(name) ? name : OTHER_VALUE);

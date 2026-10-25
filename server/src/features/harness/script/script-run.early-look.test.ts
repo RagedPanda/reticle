@@ -39,10 +39,10 @@ function ports(driveCalls: ToolOutcome[]): ScriptPorts {
       tools: [],
       invoke(name) {
         if (ReticleTool.SNAPSHOT === name)
-          return Promise.resolve({
+          {return Promise.resolve({
             tree: driven ? `- paragraph "${END}: notes"` : '- button "Generate" (ref=e1)',
             status: { route: '/compose' },
-          });
+          });}
         return Promise.resolve({ pass: driven, verified: driven ? Verified.YES : Verified.NO });
       },
     }),

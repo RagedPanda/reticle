@@ -101,6 +101,6 @@ export type OnRequest = (typeof OnRequest)[keyof typeof OnRequest];
  * on its own" and "something already is".
  */
 export function onClientRequest(connected: boolean, dormant: boolean): OnRequest {
-  if (connected) return OnRequest.SEND;
+  if (connected) {return OnRequest.SEND;}
   return dormant ? OnRequest.WAKE : OnRequest.QUEUE;
 }

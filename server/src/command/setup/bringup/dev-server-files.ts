@@ -79,7 +79,7 @@ export async function handedOverUrl(
   deps: { alive: (pid: number) => boolean; answers: (url: string) => Promise<boolean> },
 ): Promise<string | undefined> {
   const record = readRecord(join(dir, recordName(appDir)));
-  if (undefined === record || record.appDir !== appDir || !deps.alive(record.pid)) return undefined;
+  if (undefined === record || record.appDir !== appDir || !deps.alive(record.pid)) {return undefined;}
   return (await deps.answers(record.url)) ? record.url : undefined;
 }
 
@@ -98,7 +98,7 @@ export function stopHandedOver(
 ): boolean {
   const path = join(dir, recordName(appDir));
   const record = readRecord(path);
-  if (undefined === record || record.appDir !== appDir || !deps.alive(record.pid)) return false;
+  if (undefined === record || record.appDir !== appDir || !deps.alive(record.pid)) {return false;}
   deps.kill(record.pid);
   rmSync(path, { force: true });
   return true;
@@ -128,7 +128,7 @@ export function sweepDeadDevServers(
     files.map((f) => OWN_FILE.exec(f)?.[1]).filter((k): k is string => undefined !== k),
   );
   for (const key of keys) {
-    if (key === keepKey) continue;
+    if (key === keepKey) {continue;}
     const log = join(dir, `${DEV_SERVER_PREFIX}${key}${LOG_SUFFIX}`);
     const recordPath = join(dir, `${DEV_SERVER_PREFIX}${key}${RECORD_SUFFIX}`);
     const record = readRecord(recordPath);
@@ -136,8 +136,8 @@ export function sweepDeadDevServers(
       undefined === record
         ? deps.now - lastWrittenAt(log) > UNRECORDED_LOG_MAX_AGE_MS
         : !deps.alive(record.pid);
-    if (!dead) continue;
-    for (const path of [log, `${log}${ROTATED_SUFFIX}`, recordPath]) rmSync(path, { force: true });
+    if (!dead) {continue;}
+    for (const path of [log, `${log}${ROTATED_SUFFIX}`, recordPath]) {rmSync(path, { force: true });}
   }
 }
 

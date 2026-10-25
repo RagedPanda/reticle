@@ -25,7 +25,7 @@ function captureTrace(): { lines: TraceLine[]; restore: () => void } {
   const lines: TraceLine[] = [];
   const spy = vi.spyOn(process.stderr, 'write').mockImplementation((chunk: unknown) => {
     const parsed: unknown = JSON.parse(String(chunk));
-    if ('object' === typeof parsed && parsed !== null) lines.push(parsed as TraceLine);
+    if ('object' === typeof parsed && parsed !== null) {lines.push(parsed as TraceLine);}
     return true;
   });
   return { lines, restore: () => spy.mockRestore() };

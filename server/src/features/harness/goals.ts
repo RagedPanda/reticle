@@ -87,11 +87,11 @@ export function writtenByHarness(shown: string, goal: string, own: readonly stri
   const cut = full.endsWith(CUT);
   const text = cut ? full.slice(0, -CUT.length).trimEnd() : full;
   const wanted = collapse(goal);
-  if (text.length <= wanted.length) return false;
+  if (text.length <= wanted.length) {return false;}
   return own.some((o) => {
     const mine = collapse(o);
-    if (0 === mine.length || !mine.includes(wanted)) return false;
-    if (cut && mine.startsWith(text)) return true;
+    if (0 === mine.length || !mine.includes(wanted)) {return false;}
+    if (cut && mine.startsWith(text)) {return true;}
     // Its own text first ("<journey> and 5 more"): what follows it is not the Harness's.
     return text.startsWith(mine) && !text.slice(mine.length).includes(wanted);
   });
@@ -104,7 +104,7 @@ export function writtenByHarness(shown: string, goal: string, own: readonly stri
 function shownByApp(tree: string, goal: string, own: readonly string[]): boolean {
   const wanted = collapse(goal);
   const mine = own.map(collapse).filter((o) => wanted.length < o.length && o.includes(wanted));
-  if (0 === mine.length) return tree.includes(goal);
+  if (0 === mine.length) {return tree.includes(goal);}
   return tree.split('\n').some((line) => {
     let rest = collapse(line);
     for (const o of mine) {
@@ -121,7 +121,7 @@ function withoutCutStart(line: string, own: string, min: number): string {
   for (let at = rest.indexOf(CUT); -1 !== at; at = rest.indexOf(CUT, at + 1)) {
     const before = rest.slice(0, at);
     for (let n = Math.min(own.length, before.length); min < n; n -= 1) {
-      if (!before.endsWith(own.slice(0, n))) continue;
+      if (!before.endsWith(own.slice(0, n))) {continue;}
       rest = `${rest.slice(0, at - n)}${rest.slice(at + CUT.length)}`;
       at -= n;
       break;
@@ -139,11 +139,11 @@ export function endOf(goal: string): string | undefined {
 
 /** The observable goals in a persona: whatever it quoted, each marked absent when it was negated. */
 export function parseGoals(persona: string | undefined): Goal[] {
-  if (persona === undefined) return [];
+  if (persona === undefined) {return [];}
   const out = new Map<string, Goal>();
   for (const m of persona.matchAll(QUOTED)) {
     const text = (m[1] ?? m[2] ?? '').trim();
-    if (0 === text.length || out.has(text)) continue;
+    if (0 === text.length || out.has(text)) {continue;}
     const absent = NEGATED_BEFORE.test(persona.slice(0, m.index));
     out.set(text, absent ? { text, absent } : { text });
   }
@@ -178,7 +178,7 @@ export async function checkGoals(
   for (const goal of goals.slice(0, MAX_GOALS)) {
     const g = 'string' === typeof goal ? { text: goal } : goal;
     const text = g.text.trim().slice(0, MAX_GOAL_LENGTH);
-    if (0 < text.length && !byText.has(text)) byText.set(text, { ...g, text });
+    if (0 < text.length && !byText.has(text)) {byText.set(text, { ...g, text });}
   }
   const all = [...byText.values()];
   const before = new Set(
@@ -191,14 +191,14 @@ export async function checkGoals(
     reason,
   });
   const todo = all.filter((g) => !before.has(g.text));
-  if (0 === todo.length) return all.map((g) => unchecked(g, ALREADY_SHOWN));
+  if (0 === todo.length) {return all.map((g) => unchecked(g, ALREADY_SHOWN));}
   await settle(invoke);
   const page = await readOpening(invoke);
   const found = new Set<string>();
   for (const g of todo) {
-    if (true === g.absent) continue;
+    if (true === g.absent) {continue;}
     if ((await scrolledTo(invoke, g.text, own)) || shownByApp(page ?? '', g.text, own))
-      found.add(g.text);
+      {found.add(g.text);}
   }
   const unreached = todo.some((g) => true !== g.absent && !found.has(g.text));
   const absences = unreached ? [] : todo.filter((g) => true === g.absent);
@@ -209,16 +209,16 @@ export async function checkGoals(
   // so a goal that held is not graded "no" for a neighbour that did not.
   const each = new Map<string, string>();
   if (Verified.NO === verified && 1 < recorded.length)
-    for (const g of recorded) each.set(g.text, await assertGoals(invoke, [g]));
+    {for (const g of recorded) {each.set(g.text, await assertGoals(invoke, [g]));}}
   const verdictOf = (g: Goal): string => each.get(g.text) ?? verified;
   return all.map((g) => {
-    if (before.has(g.text)) return unchecked(g, ALREADY_SHOWN);
+    if (before.has(g.text)) {return unchecked(g, ALREADY_SHOWN);}
     if (true === g.absent) {
       return unreached
         ? unchecked(g, ABSENCE_UNREACHED)
         : { text: g.text, absent: true, verified: verdictOf(g) };
     }
-    if (!found.has(g.text)) return unchecked(g, NOT_REACHED);
+    if (!found.has(g.text)) {return unchecked(g, NOT_REACHED);}
     // Seen on the page yet the text check says no: a field's value, or text the check cannot read.
     return Verified.NO === verdictOf(g)
       ? unchecked(g, SHOWN_NOT_HELD)
@@ -250,7 +250,7 @@ export async function lookFor(
   own: readonly string[] = [],
 ): Promise<boolean> {
   await settle(invoke);
-  if (shownByApp((await readOpening(invoke)) ?? '', text, own)) return true;
+  if (shownByApp((await readOpening(invoke)) ?? '', text, own)) {return true;}
   return scrolledTo(invoke, text, own);
 }
 
@@ -342,7 +342,7 @@ export async function checkExpect(
   let verified: string = Verified.UNKNOWN;
   try {
     const result = asRecord(await invoke(ReticleTool.ASSERT, { predicate }));
-    if ('string' === typeof result['verified']) verified = result['verified'];
+    if ('string' === typeof result['verified']) {verified = result['verified'];}
   } catch {
     /* stays unknown: the outcome was not proved */
   }
@@ -368,14 +368,14 @@ export function goalOfDrive(
 ): boolean | undefined {
   // Proved goals are the evidence: a `yes` was not on the page before the drive (that reads
   // already_true), so the run reached it, by the drive or by the hunt after it.
-  if (0 < checks.length) return true === goalsMet(checks);
+  if (0 < checks.length) {return true === goalsMet(checks);}
   return claimed === undefined ? undefined : acted && claimed;
 }
 
 /** One line naming the goals the drive did not prove, or undefined when it proved them all. */
 export function unprovedGoals(checks: readonly GoalCheck[]): string | undefined {
   const missed = checks.filter((c) => Verified.YES !== c.verified);
-  if (0 === missed.length) return undefined;
+  if (0 === missed.length) {return undefined;}
   return (
     `Not proved: ${missed.map((c) => `${true === c.absent ? 'no ' : ''}"${c.text}" (${c.reason ?? c.verified})`).join(', ')}. ` +
     'The drive did not finish the job it was given, whatever its own account says.'

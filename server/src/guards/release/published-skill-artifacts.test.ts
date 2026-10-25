@@ -73,7 +73,7 @@ function frontmatter(
 ): { name: string | undefined; description: string | undefined } | null {
   // The CLI's own expression, character for character — see parseFrontmatter in its bundle.
   const match = readFileSync(file, 'utf8').match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
-  if (null === match) return null;
+  if (null === match) {return null;}
   const block = match[1] ?? '';
   let data: unknown;
   try {
@@ -83,7 +83,7 @@ function frontmatter(
     // rather than a throw so the caller reports WHICH skill, not merely that something failed.
     return null;
   }
-  if ('object' !== typeof data || null === data) return null;
+  if ('object' !== typeof data || null === data) {return null;}
   const read = (key: string): string | undefined => {
     const value = (data as Record<string, unknown>)[key];
     return 'string' === typeof value ? value : undefined;
@@ -124,7 +124,7 @@ describe('every published skill is one the registry can actually install', () =>
     const thin: string[] = [];
     for (const skill of publishedSkills()) {
       const description = frontmatter(join(SKILLS, skill, 'SKILL.md'))?.description ?? '';
-      if (description.length < 120 || !/\buse\b/i.test(description)) thin.push(skill);
+      if (description.length < 120 || !/\buse\b/i.test(description)) {thin.push(skill);}
     }
     expect(
       thin,
@@ -161,7 +161,7 @@ describe('the root SKILL.md stays the paste-URL artifact, not a skill', () => {
 /** The release version out of the root `package.json`, narrowed rather than trusted. */
 function releaseVersion(): string | null {
   const parsed: unknown = JSON.parse(readFileSync(join(REPO, 'package.json'), 'utf8'));
-  if ('object' !== typeof parsed || null === parsed || !('version' in parsed)) return null;
+  if ('object' !== typeof parsed || null === parsed || !('version' in parsed)) {return null;}
   return 'string' === typeof parsed.version ? parsed.version : null;
 }
 
@@ -180,7 +180,7 @@ describe('every reference a skill links to actually ships with it', () => {
   for (const skill of publishedSkills()) {
     const body = readFileSync(join(SKILLS, skill, 'SKILL.md'), 'utf8');
     const links = [...new Set([...body.matchAll(LINK)].map((m) => m[1]))];
-    if (0 === links.length) continue;
+    if (0 === links.length) {continue;}
     it(`${skill} links only to reference files that exist`, () => {
       const missing = links.filter((rel) => !existsSync(join(SKILLS, skill, rel ?? '')));
       expect(missing, `${skill} links to files that are not there: ${missing.join(', ')}`).toEqual(
@@ -197,10 +197,10 @@ describe('every reference a skill links to actually ships with it', () => {
     const orphans: string[] = [];
     for (const skill of publishedSkills()) {
       const dir = join(SKILLS, skill, 'references');
-      if (!existsSync(dir)) continue;
+      if (!existsSync(dir)) {continue;}
       const body = readFileSync(join(SKILLS, skill, 'SKILL.md'), 'utf8');
       for (const file of readdirSync(dir))
-        if (!body.includes(`references/${file}`)) orphans.push(`${skill}/references/${file}`);
+        {if (!body.includes(`references/${file}`)) {orphans.push(`${skill}/references/${file}`);}}
     }
     expect(orphans, `nothing links to these:\n${orphans.join('\n')}`).toEqual([]);
   });
@@ -219,14 +219,14 @@ describe('the Claude Code plugin manifests are ones the loader can resolve', () 
   const DIR = join(REPO, '.claude-plugin');
   const readJson = (file: string): Record<string, unknown> => {
     const parsed: unknown = JSON.parse(readFileSync(MANIFEST[file] ?? join(DIR, file), 'utf8'));
-    if ('object' !== typeof parsed || null === parsed) throw new Error(`${file} is not an object`);
+    if ('object' !== typeof parsed || null === parsed) {throw new Error(`${file} is not an object`);}
     return parsed as Record<string, unknown>;
   };
 
   it('plugin.json carries the identity a directory listing shows', () => {
     const manifest = readJson('plugin.json');
     for (const field of ['name', 'description', 'version', 'author'])
-      expect(manifest[field], `plugin.json is missing ${field}`).toBeTruthy();
+      {expect(manifest[field], `plugin.json is missing ${field}`).toBeTruthy();}
   });
 
   it('both manifests agree on the plugin slug, which is immutable once published', () => {
@@ -244,8 +244,8 @@ describe('the Claude Code plugin manifests are ones the loader can resolve', () 
     const missing: string[] = [];
     for (const entry of Array.isArray(entries) ? entries : []) {
       const source = (entry as Record<string, unknown>)['source'];
-      if ('string' !== typeof source) continue;
-      if (!existsSync(join(REPO, source))) missing.push(source);
+      if ('string' !== typeof source) {continue;}
+      if (!existsSync(join(REPO, source))) {missing.push(source);}
     }
     expect(
       missing,
@@ -318,7 +318,7 @@ describe('the Claude Code plugin ships the version everything else ships', () =>
       const text = readFileSync(MANIFEST[file] ?? '', 'utf8');
       const versions = [...text.matchAll(/"version":\s*"([^"]+)"/g)].map((m) => m[1]);
       expect(versions.length, `${file} declares no version`).toBeGreaterThan(0);
-      for (const version of versions) expect(version, `${file} is stale`).toBe(release);
+      for (const version of versions) {expect(version, `${file} is stale`).toBe(release);}
     });
   }
 });
@@ -342,7 +342,7 @@ describe('the Claude Code plugin ships the version everything else ships', () =>
 describe('frontmatter is read whatever the line endings', () => {
   const dirs: string[] = [];
   afterEach(() => {
-    for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true });
+    for (const dir of dirs.splice(0)) {rmSync(dir, { recursive: true, force: true });}
   });
 
   function skillWith(newline: string): string {

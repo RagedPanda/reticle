@@ -31,7 +31,7 @@ describe('FlakeStore', () => {
     'accrues outcomes and quarantines a flow once it is intermittently failing',
     async () => {
       const store = new FlakeStore(fs, root);
-      for (const passed of [true, false, true, true, false]) await store.record('checkout', passed);
+      for (const passed of [true, false, true, true, false]) {await store.record('checkout', passed);}
       expect(await store.flakyFlows()).toEqual(['checkout']);
     },
     FLAKE_LEDGER_IO_TIMEOUT_MS,
@@ -41,7 +41,7 @@ describe('FlakeStore', () => {
     'does not quarantine a consistently passing flow',
     async () => {
       const store = new FlakeStore(fs, root);
-      for (let i = 0; i < 5; i += 1) await store.record('login', true);
+      for (let i = 0; i < 5; i += 1) {await store.record('login', true);}
       expect(await store.flakyFlows()).toEqual([]);
     },
     FLAKE_LEDGER_IO_TIMEOUT_MS,
@@ -79,7 +79,7 @@ describe('FlakeStore', () => {
       'needs enough runs before judging — three samples is not evidence',
       async () => {
         const store = new FlakeStore(fs, root);
-        for (const passed of [true, false, true]) await store.record('early', passed);
+        for (const passed of [true, false, true]) {await store.record('early', passed);}
         expect(await store.flakyFlows()).not.toContain('early');
       },
       FLAKE_LEDGER_IO_TIMEOUT_MS,
@@ -89,7 +89,7 @@ describe('FlakeStore', () => {
       'does NOT report a flow that always fails — that is a regression, not a flake',
       async () => {
         const store = new FlakeStore(fs, root);
-        for (let i = 0; i < 5; i += 1) await store.record('broken', false);
+        for (let i = 0; i < 5; i += 1) {await store.record('broken', false);}
         expect(await store.flakyFlows()).not.toContain('broken');
       },
       FLAKE_LEDGER_IO_TIMEOUT_MS,
@@ -99,7 +99,7 @@ describe('FlakeStore', () => {
       'does NOT report a flow that always passes',
       async () => {
         const store = new FlakeStore(fs, root);
-        for (let i = 0; i < 5; i += 1) await store.record('stable', true);
+        for (let i = 0; i < 5; i += 1) {await store.record('stable', true);}
         expect(await store.flakyFlows()).not.toContain('stable');
       },
       FLAKE_LEDGER_IO_TIMEOUT_MS,

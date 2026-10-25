@@ -31,7 +31,7 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
-  for (const ws of open.splice(0)) ws.close();
+  for (const ws of open.splice(0)) {ws.close();}
   await bridge.close();
 });
 
@@ -61,7 +61,7 @@ function connect(sessionId: string, projectId: string): Promise<void> {
 }
 
 async function connected(...tabs: [string, string][]): Promise<void> {
-  for (const [id, project] of tabs) await connect(id, project);
+  for (const [id, project] of tabs) {await connect(id, project);}
   for (let i = 0; i < 100 && bridge.sessions.count() < tabs.length; i++) {
     await new Promise<void>((r) => setTimeout(r, 20));
   }
@@ -74,7 +74,7 @@ const drive = (id: string): void => {
 
 const yieldNow = async (args: Record<string, unknown> = {}) => {
   const tool = LIVE_CONTROL_TOOLS.find((t): t is ToolDef => t.name === ReticleTool.YIELD);
-  if (tool === undefined) throw new Error('no yield tool');
+  if (tool === undefined) {throw new Error('no yield tool');}
   return (await tool.handler({ sessions: bridge.sessions } as never, {
     mode: PresenterTone.WAITING,
     ...args,

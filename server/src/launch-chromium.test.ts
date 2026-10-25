@@ -41,7 +41,7 @@ function machine(
     env: opts.env ?? {},
     install: () => {
       installs += 1;
-      if (false !== opts.installSucceeds) files.add(BUNDLED);
+      if (false !== opts.installSucceeds) {files.add(BUNDLED);}
       return Promise.resolve(false !== opts.installSucceeds);
     },
     announce: (line) => announced.push(line),

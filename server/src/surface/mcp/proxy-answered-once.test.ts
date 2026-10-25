@@ -89,7 +89,7 @@ function startFakeDaemon(): Promise<FakeDaemon> {
     const index = streams.length;
     streams.push(res);
     res.writeHead(200, SSE_HEADERS);
-    if (!withholdEndpoint.has(index)) res.write(endpointFrame(index));
+    if (!withholdEndpoint.has(index)) {res.write(endpointFrame(index));}
   });
   return new Promise<FakeDaemon>((resolve) => {
     server.listen(0, LOOPBACK_HOST, () => {
@@ -100,7 +100,7 @@ function startFakeDaemon(): Promise<FakeDaemon> {
         withholdEndpoint,
         close: () =>
           new Promise<void>((done) => {
-            for (const stream of streams) stream.socket?.destroy();
+            for (const stream of streams) {stream.socket?.destroy();}
             server.close(() => done());
           }),
       });
@@ -115,7 +115,7 @@ describe('a settled request is never posted', () => {
   const cleanups: (() => Promise<void> | void)[] = [];
 
   afterEach(async () => {
-    for (const cleanup of cleanups.splice(0).reverse()) await cleanup();
+    for (const cleanup of cleanups.splice(0).reverse()) {await cleanup();}
     vi.restoreAllMocks();
     vi.unstubAllEnvs();
     resetOutageReporting();

@@ -41,7 +41,7 @@ function invalidate(): void {
 /** Record what a session declared sensitive. Called when its hello lands. */
 export function declareDrivenRedactionKeys(sessionId: string, keys: readonly string[]): void {
   if (0 === keys.length) {
-    if (declaredBySession.delete(sessionId)) invalidate();
+    if (declaredBySession.delete(sessionId)) {invalidate();}
     return;
   }
   declaredBySession.set(sessionId, [...keys]);
@@ -50,13 +50,13 @@ export function declareDrivenRedactionKeys(sessionId: string, keys: readonly str
 
 /** Drop a session's declarations when it disconnects, so a closed tab stops widening the union. */
 export function forgetDrivenRedactionKeys(sessionId: string): void {
-  if (declaredBySession.delete(sessionId)) invalidate();
+  if (declaredBySession.delete(sessionId)) {invalidate();}
 }
 
 /** Every key declared by any connected session, sorted so the memo signature is stable. */
 export function drivenRedactionKeys(): string[] {
   const all = new Set<string>();
-  for (const keys of declaredBySession.values()) for (const key of keys) all.add(key);
+  for (const keys of declaredBySession.values()) {for (const key of keys) {all.add(key);}}
   return [...all].sort();
 }
 

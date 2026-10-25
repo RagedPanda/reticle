@@ -87,7 +87,7 @@ function step(value: string, expectTestid?: string): FlowStep {
     action: ActionType.CLICK,
     args: {},
   };
-  if (expectTestid !== undefined) s.expect = { kind: 'element', query: { testid: expectTestid } };
+  if (expectTestid !== undefined) {s.expect = { kind: 'element', query: { testid: expectTestid } };}
   return s;
 }
 
@@ -166,7 +166,7 @@ describe('replayFlow expect.element drift is not anchor drift', () => {
     const drift = steps[0]?.drift;
 
     expect(drift).toBeDefined();
-    if (drift !== undefined) expect(proposeRebind(drift, 0)).toBeUndefined();
+    if (drift !== undefined) {expect(proposeRebind(drift, 0)).toBeUndefined();}
   });
 });
 

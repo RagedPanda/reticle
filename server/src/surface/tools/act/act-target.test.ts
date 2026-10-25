@@ -64,7 +64,7 @@ describe('resolveActTarget — a document-key press needs no locator', () => {
     ]) {
       const r = await resolveActTarget(session, args);
       expect(r.kind, JSON.stringify(args)).toBe('error');
-      if ('error' !== r.kind) return;
+      if ('error' !== r.kind) {return;}
       expect(r.message).toMatch(/`ref`/);
       expect(r.message).toMatch(/`target`/);
       expect(r.message, 'names the exception so the next call can omit the locator').toMatch(

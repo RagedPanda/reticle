@@ -37,7 +37,7 @@ function declaredDepth(file: string): number | undefined {
 describe('both walkers look the same distance for .reticle.json', () => {
   it('each one declares a depth at all', () => {
     // Without this, a rename would leave both undefined and the check below would pass on nothing.
-    for (const file of WALKERS) expect(declaredDepth(file), file).toBeGreaterThan(0);
+    for (const file of WALKERS) {expect(declaredDepth(file), file).toBeGreaterThan(0);}
   });
 
   it('they agree', () => {

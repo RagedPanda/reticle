@@ -26,8 +26,8 @@ export function refusalForUndeclared(
   declared: readonly string[] | undefined,
 ): string | undefined {
   // Too old to say. Unknown, never "nothing".
-  if (declared === undefined) return undefined;
-  if (declared.includes(name)) return undefined;
+  if (declared === undefined) {return undefined;}
+  if (declared.includes(name)) {return undefined;}
   return (
     `this page does not serve "${name}". It declared ${String(declared.length)} command(s) when ` +
     `it connected, and this is not one of them: ${declared.join(', ')}. Nothing was sent, so ` +

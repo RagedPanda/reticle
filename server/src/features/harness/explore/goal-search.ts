@@ -73,14 +73,14 @@ export async function searchForGoal(
   /** Look here, then press what a person would press here, deeper while presses are left. */
   const explore = async (depth: number): Promise<boolean> => {
     const page = await readPage(invoke);
-    if (page === undefined) return false;
+    if (page === undefined) {return false;}
     searched.push(page.route);
     looked.add(page.route);
     if (await lookFor(invoke, goal, options.own)) {
       at = page.route;
       return true;
     }
-    if (MAX_DEPTH <= depth) return false;
+    if (MAX_DEPTH <= depth) {return false;}
     // Read again, settled by the look: a page read as it loaded offered none of its controls.
     const lines = parseTree((await readPage(invoke))?.tree ?? page.tree);
     // A menu or dialog the drive left open hides the page behind it: the live drive's hunt read the
@@ -106,12 +106,12 @@ export async function searchForGoal(
     const overlaid = overlayOpen(lines);
     for (const name of tries) {
       const key = `${page.route}: ${name}`;
-      if (pressed.has(key)) continue;
-      if (left <= 0) return false;
+      if (pressed.has(key)) {continue;}
+      if (left <= 0) {return false;}
       // Found again on a fresh read: a ref does not survive the page coming back.
       const now = await readPage(invoke);
       const line = parseTree(now?.tree ?? '').find((l) => l.ref !== undefined && label(l) === name);
-      if (line?.ref === undefined) continue;
+      if (line?.ref === undefined) {continue;}
       pressed.add(key);
       left -= 1;
       searched.push(key);
@@ -120,11 +120,11 @@ export async function searchForGoal(
       } catch {
         continue;
       }
-      if (await explore(depth + 1)) return true;
+      if (await explore(depth + 1)) {return true;}
       // Back where it pressed from, with nothing it opened left over the page to hide the rest.
       const back = await readPage(invoke);
       const leftOpen = !overlaid && overlayOpen(parseTree(back?.tree ?? ''));
-      if (back !== undefined && (back.route !== page.route || leftOpen)) await go(page.route);
+      if (back !== undefined && (back.route !== page.route || leftOpen)) {await go(page.route);}
     }
     return false;
   };
@@ -139,7 +139,7 @@ export async function searchForGoal(
   };
 
   const start = await readPage(invoke);
-  if (await explore(0)) return { found: true, ...(at === undefined ? {} : { at }), searched };
+  if (await explore(0)) {return { found: true, ...(at === undefined ? {} : { at }), searched };}
 
   // A search or a filter that emptied the list, undone.
   const elsewhere = [
@@ -151,9 +151,9 @@ export async function searchForGoal(
     ...[...(options.reached ?? [])].reverse(),
   ];
   for (const route of elsewhere) {
-    if (looked.has(route) || left <= 0) continue;
-    if (!(await go(route))) continue;
-    if (await explore(1)) return { found: true, ...(at === undefined ? {} : { at }), searched };
+    if (looked.has(route) || left <= 0) {continue;}
+    if (!(await go(route))) {continue;}
+    if (await explore(1)) {return { found: true, ...(at === undefined ? {} : { at }), searched };}
   }
   const gaveUpAt = searched.at(-1);
   return { found: false, searched, ...(gaveUpAt === undefined ? {} : { gaveUpAt }) };
@@ -165,7 +165,7 @@ export function mappedPagesFor(
   goal: string,
   journey: string,
 ): string[] {
-  if (map === undefined) return [];
+  if (map === undefined) {return [];}
   const wanted = goal.toLowerCase();
   const said = journey.toLowerCase();
   const showing = map.pages.filter((p) => p.texts.some((t) => t.toLowerCase().includes(wanted)));

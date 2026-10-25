@@ -119,9 +119,9 @@ function ceilingJournal(text: string): CeilingJournal {
           ? Promise.reject(new Error(V8_STRING_LIMIT_MESSAGE))
           : Promise.resolve(text),
       readFileFrom: (path: string, byteOffset: number, maxBytes?: number) => {
-        if (!path.endsWith(EVENTS_FILE)) return Promise.resolve({ text: '', size: 0 });
+        if (!path.endsWith(EVENTS_FILE)) {return Promise.resolve({ text: '', size: 0 });}
         const size = bytes.length;
-        if (byteOffset >= size) return Promise.resolve({ text: '', size, from: byteOffset });
+        if (byteOffset >= size) {return Promise.resolve({ text: '', size, from: byteOffset });}
         const start =
           maxBytes !== undefined && size - byteOffset > maxBytes ? size - maxBytes : byteOffset;
         spans.push(size - start);
@@ -176,7 +176,7 @@ describe('SessionJournal — a read too large to be one string', () => {
     await journal.readEvents().catch(() => undefined);
 
     expect(spans.length).toBeGreaterThan(0);
-    for (const span of spans) expect(span).toBeLessThanOrEqual(READ_CEILING_BYTES);
+    for (const span of spans) {expect(span).toBeLessThanOrEqual(READ_CEILING_BYTES);}
   });
 
   it('declares the records it could not reach rather than returning a short answer silently', async () => {

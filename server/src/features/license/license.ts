@@ -73,7 +73,7 @@ export function verifyLicenseKey(
   publicKey: KeyObject,
   now: number,
 ): LicenseCheck {
-  if (key === undefined || 0 === key.length) return { status: LicenseStatus.MISSING };
+  if (key === undefined || 0 === key.length) {return { status: LicenseStatus.MISSING };}
   const parts = key.split(KEY_SEP);
   if (
     parts.length !== 2 ||
@@ -89,7 +89,7 @@ export function verifyLicenseKey(
   try {
     json = Buffer.from(parts[0], 'base64url').toString('utf8');
     const parsed = LicensePayloadSchema.safeParse(JSON.parse(json));
-    if (!parsed.success) return { status: LicenseStatus.MALFORMED };
+    if (!parsed.success) {return { status: LicenseStatus.MALFORMED };}
     payload = parsed.data;
   } catch {
     return { status: LicenseStatus.MALFORMED };
@@ -106,8 +106,8 @@ export function verifyLicenseKey(
   } catch {
     return { status: LicenseStatus.BAD_SIGNATURE };
   }
-  if (!signatureOk) return { status: LicenseStatus.BAD_SIGNATURE };
-  if (payload.exp <= now) return { status: LicenseStatus.EXPIRED, payload };
+  if (!signatureOk) {return { status: LicenseStatus.BAD_SIGNATURE };}
+  if (payload.exp <= now) {return { status: LicenseStatus.EXPIRED, payload };}
   return { status: LicenseStatus.VALID, payload };
 }
 
@@ -166,16 +166,16 @@ export function assertEnterprise(
   env: NodeJS.ProcessEnv = process.env,
   baked?: string,
 ): void {
-  if (!ctx.requireLicense) return;
+  if (!ctx.requireLicense) {return;}
 
   // Resolved exactly as the env-entry point resolves it: BAKED first, env only as the dev/test
   // hatch. Reading the environment alone denies every valid licence on a real release, where the key
   // is baked and no env var is set. Two gates, one truth.
   const publicKey = ctx.publicKey ?? loadPublicKey(resolveIssuerPublicKeyPem(env, baked));
-  if (publicKey === undefined) throw new EnterpriseLicenseError(feature, 'no-issuer-key');
+  if (publicKey === undefined) {throw new EnterpriseLicenseError(feature, 'no-issuer-key');}
 
   const check = verifyLicenseKey(ctx.key, publicKey, ctx.now());
-  if (check.status !== LicenseStatus.VALID) throw new EnterpriseLicenseError(feature, check.status);
+  if (check.status !== LicenseStatus.VALID) {throw new EnterpriseLicenseError(feature, check.status);}
 
   const { features } = check.payload;
   if (features !== undefined && !features.includes(feature)) {
@@ -205,7 +205,7 @@ function resolveIssuerPublicKeyPem(
   env: NodeJS.ProcessEnv,
   baked: string = BAKED_ISSUER_PUBLIC_KEY_PEM,
 ): string | undefined {
-  if (baked.length > 0) return baked;
+  if (baked.length > 0) {return baked;}
   const envPem = env[LICENSE_PUBLIC_KEY_ENV];
   return envPem !== undefined && envPem.length > 0 ? envPem : undefined;
 }
@@ -250,7 +250,7 @@ const LICENSE_OFFER: { readonly gated: readonly string[]; readonly contact: stri
 };
 
 function loadPublicKey(pem: string | undefined): KeyObject | undefined {
-  if (pem === undefined || 0 === pem.length) return undefined;
+  if (pem === undefined || 0 === pem.length) {return undefined;}
   try {
     return createPublicKey(pem);
   } catch {
@@ -287,11 +287,11 @@ export function describeLicense(
   }
   const publicKey = loadPublicKey(pem);
   if (publicKey === undefined)
-    return {
+    {return {
       ...LICENSE_OFFER,
       status: LicenseActivation.INVALID,
       detail: `${LICENSE_PUBLIC_KEY_ENV} is not a valid public key`,
-    };
+    };}
 
   const check = verifyLicenseKey(env[LICENSE_KEY_ENV], publicKey, now);
   if (check.status === LicenseStatus.VALID) {

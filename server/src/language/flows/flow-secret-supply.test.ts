@@ -107,7 +107,7 @@ describe('a redacted fill is supplied however the step is anchored', () => {
             result: { elements: [{ ref: 'e1' }] },
           } as unknown as CommandResult);
         }
-        if (ReticleCommand.ACT === name) seen = args['args'] as Record<string, unknown>;
+        if (ReticleCommand.ACT === name) {seen = args['args'] as Record<string, unknown>;}
         return Promise.resolve({ kind: 'command_result', id: 'a', ok: true } as CommandResult);
       },
       eventsSince: () => [],

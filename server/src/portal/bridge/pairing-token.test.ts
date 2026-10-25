@@ -89,8 +89,8 @@ describe('readOrCreatePairingTokenSync — the same mint, for init and Next', ()
     try {
       expect(readOrCreatePairingTokenSync(defaultPairingTokenDir())).toBe('from-override');
     } finally {
-      if (prev === undefined) delete process.env[ReticleEnv.PAIRING_TOKEN_DIR];
-      else process.env[ReticleEnv.PAIRING_TOKEN_DIR] = prev;
+      if (prev === undefined) {delete process.env[ReticleEnv.PAIRING_TOKEN_DIR];}
+      else {process.env[ReticleEnv.PAIRING_TOKEN_DIR] = prev;}
     }
   });
 });

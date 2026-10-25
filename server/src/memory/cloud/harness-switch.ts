@@ -42,7 +42,7 @@ export async function writeHarnessSwitch(
   timeoutMs: number = TIMEOUT_MS,
 ): Promise<boolean> {
   const cloud = platformCredentialFrom(env);
-  if (cloud === undefined) return false;
+  if (cloud === undefined) {return false;}
   const key = cloud.apiKey;
   const host = cloud.url;
 

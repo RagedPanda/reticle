@@ -106,7 +106,7 @@ export class Session implements HandshakeFacts {
   projectId: ProjectId | undefined;
   /** Take a later HELLO's project id when the first carried none. A set project is kept. */
   adoptProject(projectId: string): boolean {
-    if (this.projectId !== undefined) return false;
+    if (this.projectId !== undefined) {return false;}
     this.projectId = asProjectId(projectId);
     return true;
   }
@@ -243,8 +243,8 @@ export class Session implements HandshakeFacts {
     if (isKnownRealm(runtime)) {
       this.#runtime = runtime;
     }
-    if (engine !== undefined) this.#engine = engine;
-    if (brand !== undefined) this.#brand = brand;
+    if (engine !== undefined) {this.#engine = engine;}
+    if (brand !== undefined) {this.#brand = brand;}
   }
 
   /** The shell (web/electron/tauri) and rendering engine the SDK reported. Undefined on an older SDK. */
@@ -356,17 +356,17 @@ export class Session implements HandshakeFacts {
     // verdict, settle window or agent read can ever see a person's clicks on Reticle's own panel.
     if (event.type === EventType.HUD_USED) {
       const use = HudUseDataSchema.safeParse(event.data);
-      if (use.success) reportHudUse(use.data, this.id);
+      if (use.success) {reportHudUse(use.data, this.id);}
       return;
     }
-    if (event.documentId !== undefined) this.#documentId = event.documentId;
+    if (event.documentId !== undefined) {this.#documentId = event.documentId;}
     notePageLoaded(this.id, event, this.#clock());
-    if (event.editEpoch !== undefined) this.#editEpoch = event.editEpoch;
+    if (event.editEpoch !== undefined) {this.#editEpoch = event.editEpoch;}
     if (event.type === EventType.PAGE_HEALTH) {
       const r = readHealthEvent(event.data);
       Object.assign(this.page, r.page);
       // A hidden tab's HUD is not being looked at: its time stops until the tab is in front again.
-      if (r.hidden !== undefined) noteHudTabHidden(this.id, r.hidden);
+      if (r.hidden !== undefined) {noteHudTabHidden(this.id, r.hidden);}
       this.applyHealth(
         r.hidden ?? this.#hidden,
         r.focused ?? this.#focused,
@@ -379,12 +379,12 @@ export class Session implements HandshakeFacts {
     // (fingerprinted, variables stripped) so a broken observer is as visible as a broken tool.
     if (event.type === EventType.SDK_FAILED) {
       const sdk = parseEventPayload(EventType.SDK_FAILED, event.data);
-      if (sdk.success) recordSdkFailure(sdk.data as { site: string; message: string });
+      if (sdk.success) {recordSdkFailure(sdk.data as { site: string; message: string });}
     }
     if (event.type === EventType.HUMAN_CONTROL) {
       // Narrow unknown at the boundary; an invalid/unknown control is ignored (never thrown).
       const parsed = HumanControlDataSchema.safeParse(event.data);
-      if (parsed.success) this.applyHumanControl(parsed.data);
+      if (parsed.success) {this.applyHumanControl(parsed.data);}
     }
     if (event.type === EventType.HUMAN_MARK) {
       // A human pinned a mistake to an element. Narrow at the boundary; an invalid mark is ignored.
@@ -400,7 +400,7 @@ export class Session implements HandshakeFacts {
       // pushState/replaceState/popstate; without this the URL stays frozen at the hello value, and
       // URL-based CDP correlation (real input) silently breaks after the first client-side nav.
       const to = event.data['to'];
-      if ('string' === typeof to && to.length > 0) this.url = to;
+      if ('string' === typeof to && to.length > 0) {this.url = to;}
     }
     this.#departureNote.observe(event, this.elapsed());
     const t = this.elapsed();
@@ -445,12 +445,12 @@ export class Session implements HandshakeFacts {
    * against the same control after a re-render gave it a different ref.
    */
   private recordActedLabelFrom(result: CommandResult): void {
-    for (const label of controlLabelsOf(result.result)) this.#observed.recordActedLabel(label);
+    for (const label of controlLabelsOf(result.result)) {this.#observed.recordActedLabel(label);}
   }
 
   /** A control whose action PROVED its declared consequence — the coverage ledger's `proved`. */
   recordProvedFrom(actPayload: unknown): void {
-    for (const label of controlLabelsOf(actPayload)) this.#observed.recordProvedLabel(label);
+    for (const label of controlLabelsOf(actPayload)) {this.#observed.recordProvedLabel(label);}
   }
 
   provedLabels(): ReadonlySet<string> {
@@ -620,7 +620,7 @@ export class Session implements HandshakeFacts {
    * already ended.
    */
   autoEnd(text?: string, tone: PresenterTone = PresenterTone.WARN): void {
-    if (this.#live.isEnded()) return;
+    if (this.#live.isEnded()) {return;}
     this.#autoEnded = true;
     this.setState(SessionState.ENDED, text, tone);
   }
@@ -664,7 +664,7 @@ export class Session implements HandshakeFacts {
     timeoutMs: number = DEFAULT_COMMAND_TIMEOUT_MS,
   ): Promise<CommandResult> {
     // The production policy decides here, where every driven action passes, and never in the page.
-    if (this.production === undefined) return this.#dispatch(name, args, timeoutMs);
+    if (this.production === undefined) {return this.#dispatch(name, args, timeoutMs);}
     return this.production.gate(name, args, (n, a) => this.#dispatch(n, a, timeoutMs));
   }
 
@@ -672,17 +672,17 @@ export class Session implements HandshakeFacts {
     // Recorded here, where every driven action passes (act_sequence and flow replay too). A reload
     // sent from here is ours, so the page coming back is not a person reloading mid-drive.
     const ref = args['ref'];
-    if (name === ReticleCommand.ACT && 'string' === typeof ref) this.recordActedRef(ref);
-    if (name === ReticleCommand.REFRESH) noteOwnReload(this.id, this.#clock());
+    if (name === ReticleCommand.ACT && 'string' === typeof ref) {this.recordActedRef(ref);}
+    if (name === ReticleCommand.REFRESH) {noteOwnReload(this.id, this.#clock());}
     // Refused before it is sent, when the page said it does not serve this. The rule, and why
     // an absent declaration is not an empty list, live in `undeclared-command.ts`.
     const refused = refusedResult(name, this.commands, `${COMMAND_ID_PREFIX}refused`);
-    if (refused !== undefined) return Promise.resolve(refused);
+    if (refused !== undefined) {return Promise.resolve(refused);}
     // The page already re-dialled under this same id. Nothing has been sent yet, so handing the
     // command to the live connection cannot perform anything twice — it is the call the agent would
     // have made itself after a `reticle_sessions` round trip, minus the round trip.
     const successor = this.#liveSuccessor();
-    if (successor !== undefined) return successor.command(name, args, ms);
+    if (successor !== undefined) {return successor.command(name, args, ms);}
     const id = this.#pending.nextId(COMMAND_ID_PREFIX);
     const payload = commandPayload(id, this.id, name, args);
     // The timeout message is built LAZILY: health can change while a command is in flight, and the
@@ -705,7 +705,7 @@ export class Session implements HandshakeFacts {
         this.#unansweredCommands = 0;
         // The label is only knowable from the REPLY — the request carries a ref, and a ref dies with
         // the next re-render. Recorded here so coverage survives frameworks that replace nodes.
-        if (name === ReticleCommand.ACT) this.recordActedLabelFrom(notedAct(this, result));
+        if (name === ReticleCommand.ACT) {this.recordActedLabelFrom(notedAct(this, result));}
         return result;
       })
       .finally(() => recordBrowserLatency(Date.now() - sentAt))
@@ -717,15 +717,15 @@ export class Session implements HandshakeFacts {
         // simply not been answered in budget was read as "you were replaced, ask again" — and
         // against a page re-dialling in a loop that turned one read into hundreds of commands on the
         // wire, minutes of wall clock, and an answer still quoting the budget it had blown.
-        if (error instanceof CommandTimeoutError) this.#unansweredCommands += 1;
+        if (error instanceof CommandTimeoutError) {this.#unansweredCommands += 1;}
         const next = error instanceof CommandTimeoutError ? undefined : this.#liveSuccessor();
-        if (next === undefined || !REBINDABLE_COMMANDS.has(name)) throw error;
+        if (next === undefined || !REBINDABLE_COMMANDS.has(name)) {throw error;}
         // What is LEFT of the caller's budget, not a fresh copy of it. Re-issuing with the original
         // timeout means a caller who granted 8s can wait 16, and across a chain of replacements the
         // total is unbounded — a wait nobody asked for, on the path that exists to save a round trip.
         // A budget already spent means there is nothing left to retry into, so the error stands.
         const remaining = ms - (Date.now() - sentAt);
-        if (remaining <= 0) throw error;
+        if (remaining <= 0) {throw error;}
         return next.command(name, args, remaining);
       });
   }
@@ -741,7 +741,7 @@ export class Session implements HandshakeFacts {
   rejectAll(reason: string, replaced = false): void {
     this.#pending.rejectAll(reason, replaced);
     noteHudTabClosed(this.id);
-    for (const listener of this.#disconnectListeners) listener();
+    for (const listener of this.#disconnectListeners) {listener();}
     this.#disconnectListeners.clear();
   }
 
@@ -759,7 +759,7 @@ export class Session implements HandshakeFacts {
   succeededBy(next: Session): void {
     // A session is never its own replacement; guarding here keeps `command` from recursing forever
     // if a registry ever re-adds the same object.
-    if (next !== this) this.#successor = next;
+    if (next !== this) {this.#successor = next;}
   }
 
   /**
@@ -777,7 +777,7 @@ export class Session implements HandshakeFacts {
     // unbounded walk over one is a hang — which is worse than the error it was trying to avoid.
     let next = this.#successor;
     for (let hops = 0; next !== undefined && hops < MAX_SUCCESSOR_HOPS; hops += 1) {
-      if (next.#socket.readyState === WS_OPEN) return next;
+      if (next.#socket.readyState === WS_OPEN) {return next;}
       next = next.#successor;
     }
     return undefined;
@@ -829,7 +829,7 @@ export class Session implements HandshakeFacts {
   /** Queued human notes, cleared as they are read (delivered-once); the HUD shows them as seen. */
   drainInbox(): InboxMessage[] {
     const taken = this.#live.drain(callingAgent());
-    if (0 < taken.length) this.#repaintNotes();
+    if (0 < taken.length) {this.#repaintNotes();}
     return taken;
   }
 
@@ -875,7 +875,7 @@ export class Session implements HandshakeFacts {
    */
   applyHumanControl(data: HumanControlData): void {
     const next = this.#live.nextStateFor(data);
-    if (next !== undefined) this.setState(next);
+    if (next !== undefined) {this.setState(next);}
     if (data.kind === HumanControlKind.MESSAGE && data.text !== undefined) {
       this.pushMessage(data.text);
     }
@@ -888,15 +888,15 @@ export class Session implements HandshakeFacts {
   pushImpact(read: () => ImpactSnapshot | undefined, immediate = false): void {
     const send = (): void => {
       const snapshot = read();
-      if (snapshot === undefined) return; // each push carries this tab's own coverage
+      if (snapshot === undefined) {return;} // each push carries this tab's own coverage
       const post = (): void =>
         this.#post(ReticleCommand.IMPACT, { snapshot: withInstrumentation(this, snapshot) });
       post();
       void probeMarkers([this]).then((learned) => learned && post()); // what the page carries
     };
     // A new tab's first record goes out at once: debounced, it reads "nothing recorded" over history.
-    if (immediate) return send();
-    if (this.#impactTimer !== undefined) return;
+    if (immediate) {return send();}
+    if (this.#impactTimer !== undefined) {return;}
     this.#impactTimer = setTimeout(() => {
       this.#impactTimer = undefined;
       send();
@@ -913,8 +913,8 @@ export class Session implements HandshakeFacts {
   /** `mirror: false` for a notice about THIS page (its SDK is behind), which every tab says itself. */
   pushNarration(text: string, mirror = true, by?: NarrationBy): void {
     const args = narrationArgs(text, by);
-    if (mirror) this.#post(ReticleCommand.NARRATE, args);
-    else this.#send(ReticleCommand.NARRATE, args);
+    if (mirror) {this.#post(ReticleCommand.NARRATE, args);}
+    else {this.#send(ReticleCommand.NARRATE, args);}
   }
 
   /** A HUD replay's progress, or the Harness's drive plan: pictures the HUD redraws as they change. */
@@ -927,7 +927,7 @@ export class Session implements HandshakeFacts {
 
   /** The one-time lease block on the first agent command, then undefined forever after. */
   takeSessionLease(): SessionLease | undefined {
-    if (this.#firstCommandDone) return undefined;
+    if (this.#firstCommandDone) {return undefined;}
     this.#firstCommandDone = true;
     return buildSessionLease(this.id, this.#startedAt);
   }
@@ -960,9 +960,9 @@ export class Session implements HandshakeFacts {
    */
   #post(name: string, args: Record<string, unknown>): void {
     this.#send(name, args);
-    if (!MIRRORED_COMMANDS.has(name)) return;
+    if (!MIRRORED_COMMANDS.has(name)) {return;}
     for (const viewer of this.#viewers?.() ?? []) {
-      if (viewer === this) continue;
+      if (viewer === this) {continue;}
       // Straight to the raw send, so a mirrored row is never mirrored again.
       viewer.#send(name, name === ReticleCommand.NARRATE ? this.#labelled(args) : args);
     }
@@ -971,12 +971,12 @@ export class Session implements HandshakeFacts {
   /** A narration row re-addressed to a tab that is watching rather than being driven. */
   #labelled(args: Record<string, unknown>): Record<string, unknown> {
     const text = args['text'];
-    if ('string' !== typeof text) return args;
+    if ('string' !== typeof text) {return args;}
     return { ...args, text: mirroredNarration(this.id, text) };
   }
 
   #send(name: string, args: Record<string, unknown>): void {
-    if (this.#socket.readyState !== WS_OPEN) return;
+    if (this.#socket.readyState !== WS_OPEN) {return;}
     // Shares the same counter as tracked commands, so a fire-and-forget id can never collide with
     // one that IS awaiting a reply.
     // Recorded HERE rather than at the tool call sites: this is the one place every driven action
@@ -985,7 +985,7 @@ export class Session implements HandshakeFacts {
     // still wrong, and it made the number depend on which tool the agent happened to use.
     if (name === ReticleCommand.ACT) {
       const ref = args['ref'];
-      if ('string' === typeof ref) this.recordActedRef(ref);
+      if ('string' === typeof ref) {this.recordActedRef(ref);}
     }
     const id = this.#pending.nextId(COMMAND_ID_PREFIX);
     const payload = commandPayload(id, this.id, name, args);

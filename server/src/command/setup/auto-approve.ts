@@ -66,7 +66,7 @@ function addToList(
         ? { ...(current[outer] as Record<string, unknown>) }
         : {};
   const list = Array.isArray(scope[key]) ? (scope[key] as unknown[]) : [];
-  if (list.includes(value)) return current;
+  if (list.includes(value)) {return current;}
   const next = { ...scope, [key]: [...list, value] };
   return null === outer ? next : { ...current, [outer]: next };
 }
@@ -173,7 +173,7 @@ export function grantAutoApproval(
     const file = join(where.home, grant.paths[where.platform]);
     const base = { id: grant.id, name: grant.name, file, rule: grant.rule };
     const installed = grant.markers.some((m) => io.exists(join(where.home, m[where.platform])));
-    if (!installed) return { ...base, outcome: ApprovalOutcome.ABSENT };
+    if (!installed) {return { ...base, outcome: ApprovalOutcome.ABSENT };}
     try {
       const existed = io.exists(file);
       if (true === grant.supersedesInApp && !existed) {
@@ -189,7 +189,7 @@ export function grantAutoApproval(
         ? (JSON.parse(io.readFile(file)) as Record<string, unknown>)
         : ({} as Record<string, unknown>);
       const next = grant.grant(current);
-      if (next === current) return { ...base, outcome: ApprovalOutcome.ALREADY };
+      if (next === current) {return { ...base, outcome: ApprovalOutcome.ALREADY };}
       io.mkdirp(parentOf(file));
       io.writeFile(file, `${JSON.stringify(next, null, INDENT)}\n`);
       return { ...base, outcome: ApprovalOutcome.GRANTED };

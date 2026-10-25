@@ -70,7 +70,7 @@ describe('the conformance binding exercises everything the SPI requires', () => 
       // `dispatch` is protected and unreachable by design: `perform` is the sealed entry point
       // that refuses an undeclared capability before dispatching, and calling dispatch directly
       // would skip exactly that check.
-      if ('dispatch' === name) return !code.includes('.perform(');
+      if ('dispatch' === name) {return !code.includes('.perform(');}
       return !code.includes(`.${name}(`);
     });
     expect(

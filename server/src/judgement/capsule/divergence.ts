@@ -81,7 +81,7 @@ function observedFor(
   }
   const subject =
     ConsequenceKind.SIGNAL === link.kind ? `signal "${link.name}"` : `state "${link.name}"`;
-  if (truncated) return `${subject} was not observed — capture truncated, so absence is unproven`;
+  if (truncated) {return `${subject} was not observed — capture truncated, so absence is unproven`;}
   return ConsequenceKind.SIGNAL === link.kind
     ? `${subject} never fired`
     : `${subject} never changed`;

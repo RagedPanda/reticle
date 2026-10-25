@@ -16,7 +16,7 @@ export const REDACTED = '[redacted:prod-preview]';
  * the repair block (source-naming) is dropped and stateAssertion values are redacted.
  */
 export function redactForProfile(run: ReticleVerificationRun): ReticleVerificationRun {
-  if (run.profile !== RunProfile.PROD_PREVIEW) return run;
+  if (run.profile !== RunProfile.PROD_PREVIEW) {return run;}
 
   const evidence = {
     ...run.evidence,

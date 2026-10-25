@@ -166,8 +166,8 @@ export class IntentShardStore {
   async #subjectsOnDisk(): Promise<string[]> {
     const subjects: string[] = [];
     for (const entry of await this.#entries()) {
-      if (entry.endsWith(JSON_SUFFIX)) continue;
-      if (await this.#fs.exists(this.#shardPath(entry))) subjects.push(entry);
+      if (entry.endsWith(JSON_SUFFIX)) {continue;}
+      if (await this.#fs.exists(this.#shardPath(entry))) {subjects.push(entry);}
     }
     return subjects;
   }
@@ -218,9 +218,9 @@ export class IntentShardStore {
   async all(): Promise<IntentRecord[]> {
     const merged = new Map<string, IntentRecord>();
     for (const legacy of await this.#legacySources()) {
-      for (const record of legacy.records) merged.set(record.id, record);
+      for (const record of legacy.records) {merged.set(record.id, record);}
     }
-    for (const record of await this.#storedRecords()) merged.set(record.id, record);
+    for (const record of await this.#storedRecords()) {merged.set(record.id, record);}
     return [...merged.values()].sort(
       (a, b) => a.declaredAt - b.declaredAt || a.id.localeCompare(b.id),
     );
@@ -258,9 +258,9 @@ export class IntentShardStore {
       await this.#retireLabels();
       const existing = (await this.#storedRecords()).find((r) => id === r.id);
       const next = transform(existing);
-      if (next === undefined) return existing;
+      if (next === undefined) {return existing;}
       const record = this.#recordFrom(amendIntent(existing, next), existing, facts);
-      if (existing !== undefined && comparable(existing) === comparable(record)) return existing;
+      if (existing !== undefined && comparable(existing) === comparable(record)) {return existing;}
       await this.#write(record, existing?.subject);
       return record;
     });
@@ -316,9 +316,9 @@ export class IntentShardStore {
     existing: IntentRecord | undefined,
     asked: IntentStatus | undefined,
   ): IntentStatus {
-    if (asked !== undefined) return asked;
-    if (IntentState.PROVED === next.state) return IntentStatus.PROVED;
-    if (IntentStatus.PROVED === existing?.status) return statusFromState(next.state);
+    if (asked !== undefined) {return asked;}
+    if (IntentState.PROVED === next.state) {return IntentStatus.PROVED;}
+    if (IntentStatus.PROVED === existing?.status) {return statusFromState(next.state);}
     return existing?.status ?? IntentStatus.PROPOSED;
   }
 
@@ -379,7 +379,7 @@ export class IntentShardStore {
    */
   async #migrateLegacy(): Promise<{ migrated: IntentRecord[] }> {
     const sources = await this.#legacySources();
-    if (0 === sources.length) return { migrated: [] };
+    if (0 === sources.length) {return { migrated: [] };}
     const known = new Set((await this.#storedRecords()).map((r) => r.id));
     const incoming = sources.flatMap((s) => s.records).filter((r) => !known.has(r.id));
     for (const shard of shardsFrom(incoming)) {
@@ -387,7 +387,7 @@ export class IntentShardStore {
       await this.#putShard({ ...current, intents: { ...shard.intents, ...current.intents } });
     }
     for (const source of sources) {
-      if (source.parsed) await this.#fs.rm(source.path).catch(() => undefined);
+      if (source.parsed) {await this.#fs.rm(source.path).catch(() => undefined);}
     }
     await this.#writeIndex();
     return { migrated: incoming };
@@ -402,7 +402,7 @@ export class IntentShardStore {
     const labels = (await this.#storedRecords()).filter(
       (r) => IntentStatus.STALE !== r.status && isActionLabel(r.statement),
     );
-    if (0 === labels.length) return 0;
+    if (0 === labels.length) {return 0;}
     for (const subject of new Set(labels.map((r) => r.subject))) {
       const shard = await this.#shardForWrite(subject);
       for (const record of labels.filter((r) => subject === r.subject)) {

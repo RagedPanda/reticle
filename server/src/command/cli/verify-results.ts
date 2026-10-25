@@ -21,9 +21,9 @@ export interface VerifyResults {
 }
 
 function journeyVerdict(status: RunFlowStatus): JourneyVerdict {
-  if (RunFlowStatus.FAIL === status) return Verified.NO;
+  if (RunFlowStatus.FAIL === status) {return Verified.NO;}
   // A heal is consequence-verified before it is reported, so it proves as much as a pass.
-  if (RunFlowStatus.PASS === status || RunFlowStatus.HEALED === status) return Verified.YES;
+  if (RunFlowStatus.PASS === status || RunFlowStatus.HEALED === status) {return Verified.YES;}
   return Verified.UNKNOWN;
 }
 

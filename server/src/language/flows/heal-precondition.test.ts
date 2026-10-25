@@ -32,7 +32,7 @@ function step(value: string, withConsequence: boolean): FlowStep {
     action: ActionType.CLICK,
     args: {},
   };
-  if (withConsequence) s.expect = { kind: 'signal', name: 'order:saved' };
+  if (withConsequence) {s.expect = { kind: 'signal', name: 'order:saved' };}
   return s;
 }
 

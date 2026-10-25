@@ -62,7 +62,7 @@ function count(value: unknown): number | undefined {
  */
 export function readRetainPolicy(config: Record<string, unknown> | undefined): RetainPolicy {
   const raw = config?.[RETAIN_KEY];
-  if ('object' !== typeof raw || null === raw || Array.isArray(raw)) return DEFAULT_RETAIN;
+  if ('object' !== typeof raw || null === raw || Array.isArray(raw)) {return DEFAULT_RETAIN;}
   const retain = raw as Record<string, unknown>;
   const mb = count(retain['budgetMb']);
   return {

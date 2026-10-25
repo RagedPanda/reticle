@@ -31,11 +31,11 @@ function fromSessionFile(home: string): AccountState | undefined {
     const raw: unknown = JSON.parse(
       readFileSync(join(home, ReticleDir.ROOT, SESSION_FILE), 'utf8'),
     );
-    if ('object' !== typeof raw || null === raw) return undefined;
+    if ('object' !== typeof raw || null === raw) {return undefined;}
     const record = raw as Record<string, unknown>;
     // A half-written or hand-edited file must not read as authenticated. `signedIn: true` is the
     // claim that costs something when wrong, because it hides the way in.
-    if ('string' !== typeof record['token'] || 0 === record['token'].length) return undefined;
+    if ('string' !== typeof record['token'] || 0 === record['token'].length) {return undefined;}
     const org = record['orgName'];
     const email = record['email'];
     const host = record['url'];

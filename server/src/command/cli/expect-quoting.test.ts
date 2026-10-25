@@ -24,7 +24,7 @@ describe('--expect quoting', () => {
   it('parses the ordinary POSIX form', () => {
     const parsed = verify(PREDICATE);
     expect(parsed.kind).toBe('ok');
-    if ('ok' !== parsed.kind) return;
+    if ('ok' !== parsed.kind) {return;}
     expect(parsed.expect).toEqual({ kind: 'signal', name: 'order:placed' });
   });
 
@@ -32,7 +32,7 @@ describe('--expect quoting', () => {
   it('undoes the literal single quotes cmd.exe leaves behind', () => {
     const parsed = verify(`'${PREDICATE}'`);
     expect(parsed.kind).toBe('ok');
-    if ('ok' !== parsed.kind) return;
+    if ('ok' !== parsed.kind) {return;}
     expect(parsed.expect).toEqual({ kind: 'signal', name: 'order:placed' });
   });
 
@@ -44,14 +44,14 @@ describe('--expect quoting', () => {
   it('names PowerShell quote-stripping instead of blaming the predicate', () => {
     const parsed = verify('{kind:signal,name:order:placed}');
     expect(parsed.kind).toBe('error');
-    if ('error' !== parsed.kind) return;
+    if ('error' !== parsed.kind) {return;}
     expect(parsed.message).toContain('--expect-file');
   });
 
   it('still reports ordinary malformed JSON as malformed JSON', () => {
     const parsed = verify('{"kind":"signal",');
     expect(parsed.kind).toBe('error');
-    if ('error' !== parsed.kind) return;
+    if ('error' !== parsed.kind) {return;}
     expect(parsed.message).toContain('JSON predicate');
   });
 });
@@ -63,7 +63,7 @@ describe('--expect-file, the form with no quoting at all', () => {
       4400,
     );
     expect(parsed.kind).toBe('ok');
-    if ('ok' !== parsed.kind) return;
+    if ('ok' !== parsed.kind) {return;}
     expect(parsed.expectFile).toBe('check.json');
   });
 

@@ -52,31 +52,31 @@ function name(list: readonly string[]): string {
  * interrupted.
  */
 export function gateHookMessage(exit: number, input: GateHookInput): string | undefined {
-  if (GateExit.FAIL !== exit && GateExit.REGRESSION !== exit) return undefined;
+  if (GateExit.FAIL !== exit && GateExit.REGRESSION !== exit) {return undefined;}
   const lines: string[] = ['Reticle: this change is not verified.'];
   if (input.regressed !== undefined && 0 < input.regressed)
-    lines.push(
+    {lines.push(
       `  ${String(input.regressed)} flow(s) that passed before are broken now — \`reticle runs regression\` names them`,
-    );
-  if (input.uncovered.length > 0) lines.push(`  no passing run covers: ${name(input.uncovered)}`);
+    );}
+  if (input.uncovered.length > 0) {lines.push(`  no passing run covers: ${name(input.uncovered)}`);}
   if (input.downgraded.length > 0)
-    lines.push(
+    {lines.push(
       `  assertions weakened to something fakeable: ${name(input.downgraded)} — a check that cannot fail is not a check`,
-    );
+    );}
   if (input.deleted.length > 0)
-    lines.push(`  coverage deleted while its files changed: ${name(input.deleted)}`);
+    {lines.push(`  coverage deleted while its files changed: ${name(input.deleted)}`);}
   if (input.unflowed !== undefined && input.unflowed.length > 0)
-    lines.push(
+    {lines.push(
       `  changed, and no saved flow drives it: ${name(input.unflowed)} — drive it with reticle_act_and_wait and a declared \`until\``,
-    );
+    );}
   if (input.coverageRegressed !== undefined && input.coverageRegressed.length > 0)
-    lines.push(
+    {lines.push(
       `  coverage fell: ${name(input.coverageRegressed)} — something new is uncovered; reticle_verify { action: "crawl", exhaustive: true } names it. If the drop was intended, \`reticle gate --accept-coverage\` records it`,
-    );
+    );}
   if (input.unexecuted !== undefined && input.unexecuted.length > 0)
-    lines.push(`  changed, and no drive ever ran it: ${name(input.unexecuted)}`);
+    {lines.push(`  changed, and no drive ever ran it: ${name(input.unexecuted)}`);}
   if (input.quarantined.length > 0)
-    lines.push(`  held back as flaky, so proving nothing: ${name(input.quarantined)}`);
+    {lines.push(`  held back as flaky, so proving nothing: ${name(input.quarantined)}`);}
   lines.push('');
   lines.push('  Replay them: npx @reticlehq/server verify <your app url>');
   lines.push(`  Or proceed anyway: ${GATE_SKIP_ENV}=1 — it is recorded, not silent.`);

@@ -81,19 +81,19 @@ describe('reticle_run_export (MCP persona)', () => {
   });
 
   it('returns the latest run as JSON by default', async () => {
-    if (tool === undefined) return;
+    if (tool === undefined) {return;}
     const out = (await tool.handler(deps, {})) as { run?: { runId: string } };
     expect(out.run?.runId).toBe('run-a');
   });
 
   it('returns a specific run by id', async () => {
-    if (tool === undefined) return;
+    if (tool === undefined) {return;}
     const out = (await tool.handler(deps, { runId: 'run-a' })) as { run?: { runId: string } };
     expect(out.run?.runId).toBe('run-a');
   });
 
   it('returns the OpenVerification artifact with format:"open-verification"', async () => {
-    if (tool === undefined) return;
+    if (tool === undefined) {return;}
     const out = (await tool.handler(deps, { format: 'open-verification' })) as {
       artifact?: { kind?: string; runId?: string; subject?: { name?: string } };
     };
@@ -105,7 +105,7 @@ describe('reticle_run_export (MCP persona)', () => {
   });
 
   it('exports the same artifact twice, so a consumer can diff two exports meaningfully', async () => {
-    if (tool === undefined) return;
+    if (tool === undefined) {return;}
     // `toArtifact` is pure by design -- it reads no clock, precisely so that exporting one run
     // twice cannot produce two different documents. Wiring it to a tool is the step that could
     // break that, by stamping a time on the way out.
@@ -121,26 +121,26 @@ describe('reticle_run_export (MCP persona)', () => {
   });
 
   it('returns a legible text report with format:"report"', async () => {
-    if (tool === undefined) return;
+    if (tool === undefined) {return;}
     const out = (await tool.handler(deps, { format: 'report' })) as { report?: string };
     expect(out.report).toContain('Reticle verification — demo');
     expect(out.report).toContain('✗ FAIL');
   });
 
   it('returns an error for an unknown runId', async () => {
-    if (tool === undefined) return;
+    if (tool === undefined) {return;}
     const out = (await tool.handler(deps, { runId: 'nope' })) as { error?: string };
     expect(out.error).toContain("no run 'nope'");
   });
 
   it('format:"diff" errors when fewer than two runs exist', async () => {
-    if (tool === undefined) return;
+    if (tool === undefined) {return;}
     const out = (await tool.handler(deps, { format: 'diff' })) as { error?: string };
     expect(out.error).toContain('at least two');
   });
 
   it('format:"diff" returns the run-to-run delta once a second run exists', async () => {
-    if (tool === undefined) return;
+    if (tool === undefined) {return;}
     // A later run so latestTwo sees [run-a, run-b] oldest-first.
     await new RunStore(deps.fs, root).write(buildVerificationRun(failingRun('run-b'), () => 2000));
     const out = (await tool.handler(deps, { format: 'diff' })) as {

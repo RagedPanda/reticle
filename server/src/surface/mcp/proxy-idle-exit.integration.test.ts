@@ -74,7 +74,7 @@ describe('the MCP proxy idle exit wired through the real transport', () => {
   let stdoutSpy: MockInstance | undefined;
 
   afterEach(async () => {
-    for (const cleanup of cleanups.splice(0).reverse()) await cleanup();
+    for (const cleanup of cleanups.splice(0).reverse()) {await cleanup();}
     stdoutSpy?.mockRestore();
     stdoutSpy = undefined;
     vi.unstubAllEnvs();

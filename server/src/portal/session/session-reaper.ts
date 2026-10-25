@@ -31,7 +31,7 @@ const IDLE_WAITING_SUMMARY = 'Agent idle — your turn. Continue in your termina
  * it rides the end banner so the human can copy it into their terminal. No notes → the base unchanged.
  */
 export function composeEndedNotice(base: string, undelivered: string[]): string {
-  if (0 === undelivered.length) return base;
+  if (0 === undelivered.length) {return base;}
   const notes = undelivered.map((text) => `"${text}"`).join(', ');
   return `${base} · ${UNDELIVERED_NOTES_LABEL} ${notes}`;
 }
@@ -52,13 +52,13 @@ function endWithUndelivered(session: Session, base: string, tone: PresenterTone)
 export function reapIdleSessions(sessions: SessionManager): string[] {
   const ended: string[] = [];
   for (const session of sessions.all()) {
-    if (session.isEnded()) continue;
+    if (session.isEnded()) {continue;}
     if (session.agentIdleMs() >= session.idleEndMs()) {
       endWithUndelivered(session, IDLE_WAITING_SUMMARY, PresenterTone.WAITING);
       ended.push(session.id);
     }
   }
-  if (ended.length > 0) log('session_reaped_idle', { sessions: ended });
+  if (ended.length > 0) {log('session_reaped_idle', { sessions: ended });}
   return ended;
 }
 
@@ -96,12 +96,12 @@ export function reapEndedSessions(
   const dropped: string[] = [];
   // Snapshot first: `remove` mutates the map this iterates.
   for (const session of [...sessions.all()]) {
-    if (!session.isEnded()) continue;
-    if (session.socketOpen()) continue;
-    if (session.staleMs() < staleAfterMs) continue;
-    if (sessions.remove(session)) dropped.push(session.id);
+    if (!session.isEnded()) {continue;}
+    if (session.socketOpen()) {continue;}
+    if (session.staleMs() < staleAfterMs) {continue;}
+    if (sessions.remove(session)) {dropped.push(session.id);}
   }
-  if (dropped.length > 0) log('session_reaped_ended', { sessions: dropped });
+  if (dropped.length > 0) {log('session_reaped_ended', { sessions: dropped });}
   return dropped;
 }
 
@@ -109,14 +109,14 @@ export function reapEndedSessions(
 export function endAllSessions(sessions: SessionManager, reason: string): string[] {
   const ended: string[] = [];
   for (const session of sessions.all()) {
-    if (session.isEnded()) continue;
+    if (session.isEnded()) {continue;}
     // WAITING, not WARN: a dropped MCP connection is far more often an agent that finished its turn
     // than one that crashed, and the daemon cannot tell them apart. Red at the end of every
     // completed Harness or agent run read as an error the run never had.
     endWithUndelivered(session, reason, PresenterTone.WAITING);
     ended.push(session.id);
   }
-  if (ended.length > 0) log('sessions_ended', { reason, sessions: ended });
+  if (ended.length > 0) {log('sessions_ended', { reason, sessions: ended });}
   return ended;
 }
 
@@ -135,7 +135,7 @@ export class SessionReaper {
   }
 
   start(): void {
-    if (this.#timer !== undefined) return;
+    if (this.#timer !== undefined) {return;}
     this.#timer = setInterval(() => {
       reapIdleSessions(this.#sessions);
       // Second rule, same sweep, kept as its own function: one ends a live session that went
@@ -147,7 +147,7 @@ export class SessionReaper {
   }
 
   stop(): void {
-    if (this.#timer === undefined) return;
+    if (this.#timer === undefined) {return;}
     clearInterval(this.#timer);
     this.#timer = undefined;
   }

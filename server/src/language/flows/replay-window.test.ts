@@ -148,7 +148,7 @@ describe('a replayed step carries the structured digest of what the app did', ()
     for (const [key, count] of Object.entries(summary ?? {})) {
       expect(count, `${key} is a count`).toBeTypeOf('number');
       // The whole point of the cut: nothing is sent just to say it did not happen.
-      if ('total' !== key) expect(count, `${key} is present, so it moved`).not.toBe(0);
+      if ('total' !== key) {expect(count, `${key} is present, so it moved`).not.toBe(0);}
     }
   });
 });

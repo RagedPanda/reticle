@@ -48,7 +48,7 @@ const harnessDriving = (): void => {
 
 describe('one driver per tab', () => {
   it("refuses the agent's action while the Harness drives its tab, and says how to wait or stop", async () => {
-    if (act === undefined) throw new Error('no act_and_wait');
+    if (act === undefined) {throw new Error('no act_and_wait');}
     harnessDriving();
     const answer = (await runTool(act, deps, { ref: 'e1', action: 'click' })) as { error?: string };
     expect(answer.error).toMatch(/Reticle Harness is driving this tab now \(run harness-h1\)/);

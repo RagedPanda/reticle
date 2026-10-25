@@ -79,7 +79,7 @@ export async function waitForDaemon(
   let presence: PortPresence = PortPresence.FREE;
   while (Date.now() < deadline) {
     presence = await probePresence(port, probes);
-    if (presenceIsUsable(presence)) return;
+    if (presenceIsUsable(presence)) {return;}
     attempt++;
     await delay(daemonPollDelayMs(attempt));
   }
@@ -107,8 +107,8 @@ export async function waitForDaemonBind(port: number): Promise<boolean> {
   const deadline = Date.now() + BIND_TIMEOUT_MS;
   for (;;) {
     const presence = await probePresence(port, { tcpOpen: probeDaemon, status: fetchStatus });
-    if (presence === PortPresence.DAEMON) return true;
-    if (Date.now() >= deadline) return false;
+    if (presence === PortPresence.DAEMON) {return true;}
+    if (Date.now() >= deadline) {return false;}
     await delay(BIND_POLL_MS);
   }
 }

@@ -55,9 +55,9 @@ function fakePorts(
               true === options.guarded?.includes(String(args['flowName'])) &&
               true !== args['confirmDangerous']
             )
-              throw new Error(
+              {throw new Error(
                 'potentially destructive action blocked; retry with args.confirmDangerous=true',
-              );
+              );}
             const failed = true === options.failing?.includes(String(args['flowName']));
             // A failing journey's replay ran and did not hold: a drift would be undecided.
             return { status: failed ? ReplayStatus.ERROR : ReplayStatus.OK };
@@ -199,7 +199,7 @@ describe('running a drive script', () => {
     let seen = 0;
     const run = await runScript(twoLanes, fake.ports, () => {
       seen += 1;
-      if (3 === seen) fake.stopNow();
+      if (3 === seen) {fake.stopNow();}
     });
     expect(run.stopped).toBe(true);
     expect(fake.stats().released).toBe(1);
@@ -361,8 +361,8 @@ describe('an open goal that quotes where it ends', () => {
     toolset: (): HarnessToolset => ({
       tools: [],
       invoke(name, args) {
-        if (ReticleTool.SNAPSHOT === name) return Promise.resolve({ tree: page });
-        if (ReticleTool.ASSERT !== name) return Promise.resolve({});
+        if (ReticleTool.SNAPSHOT === name) {return Promise.resolve({ tree: page });}
+        if (ReticleTool.ASSERT !== name) {return Promise.resolve({});}
         const contains = String((args['predicate'] as { contains?: unknown }).contains);
         const shown = page.includes(contains);
         return Promise.resolve({ pass: shown, verified: shown ? Verified.YES : Verified.NO });
@@ -454,8 +454,8 @@ describe('a drive that finishes short of the end its goal names', () => {
       toolset: (): HarnessToolset => ({
         tools: [],
         invoke(name, args) {
-          if (ReticleTool.SNAPSHOT === name) return Promise.resolve({ tree: page });
-          if (ReticleTool.ASSERT !== name) return Promise.resolve({});
+          if (ReticleTool.SNAPSHOT === name) {return Promise.resolve({ tree: page });}
+          if (ReticleTool.ASSERT !== name) {return Promise.resolve({});}
           const contains = String((args['predicate'] as { contains?: unknown }).contains);
           const shown = page.includes(contains);
           return Promise.resolve({ pass: shown, verified: shown ? Verified.YES : Verified.NO });
@@ -463,7 +463,7 @@ describe('a drive that finishes short of the end its goal names', () => {
       }),
       drive: (_tools, goal, maxSteps) => {
         asked.push([goal, maxSteps]);
-        if (reachesOn === asked.length) page = 'cell "acme-checkout"';
+        if (reachesOn === asked.length) {page = 'cell "acme-checkout"';}
         return Promise.resolve({
           stopReason: StopReason.FINISHED,
           summary: '',
@@ -617,13 +617,13 @@ describe('a journey that does not build on the one before it in its lane', () =>
         tools: [],
         invoke(name, args) {
           if (ReticleTool.SNAPSHOT === name)
-            return Promise.resolve({ tree: tree(), status: { route: '/checkout' } });
+            {return Promise.resolve({ tree: tree(), status: { route: '/checkout' } });}
           if (ReticleTool.NAVIGATE === name) {
             navigated.push(args['url']);
             confirmed = sticky && confirmed;
             return Promise.resolve({ ok: true });
           }
-          if (ReticleTool.ASSERT !== name) return Promise.resolve({});
+          if (ReticleTool.ASSERT !== name) {return Promise.resolve({});}
           const shown = tree().includes(
             String((args['predicate'] as { contains?: unknown }).contains),
           );

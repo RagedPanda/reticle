@@ -110,9 +110,9 @@ const NO_TOOL_EQUIVALENT: readonly {
 /** `reticle_session { action: "list" }` for a name that merged; the bare tool for one that did not. */
 function replacementFor(name: string, advertised: ReadonlySet<string>): string | undefined {
   const redirect = mergedNameRedirect(name);
-  if (redirect === undefined) return undefined;
+  if (redirect === undefined) {return undefined;}
   // A redirect into a tool this surface also lacks is no better than the name we started with.
-  if (!advertised.has(redirect.tool)) return undefined;
+  if (!advertised.has(redirect.tool)) {return undefined;}
   return redirect.action === undefined
     ? redirect.tool
     : `${redirect.tool} { action: "${redirect.action}" }`;
@@ -133,7 +133,7 @@ export function liveCallText(text: string, advertised: ReadonlySet<string>): str
   for (const { needs, pattern, instead } of NO_TOOL_EQUIVALENT) {
     // Gated per entry: a surface keeping `reticle_flow` but dropping `reticle_lease` should have
     // its flow advice left exactly as written.
-    if (needs.every((name) => advertised.has(name))) continue;
+    if (needs.every((name) => advertised.has(name))) {continue;}
     out = out.replace(pattern, instead);
   }
   /**
@@ -153,8 +153,8 @@ export function liveCallText(text: string, advertised: ReadonlySet<string>): str
   );
   const subject = explainsItsSubject?.[1];
   return out.replace(TOOL_TOKEN, (name, offset: number) => {
-    if (name === subject && 0 === offset) return name;
-    if (advertised.has(name)) return name;
+    if (name === subject && 0 === offset) {return name;}
+    if (advertised.has(name)) {return name;}
     return replacementFor(name, advertised) ?? name;
   });
 }
@@ -188,8 +188,8 @@ const IDENTITY_KEYS: ReadonlySet<string> = new Set(['name', 'tool']);
  * caller could no longer match to their questions. See `IDENTITY_KEYS`.
  */
 export function liveCallValues(value: unknown, advertised: ReadonlySet<string>): unknown {
-  if ('string' === typeof value) return liveCallText(value, advertised);
-  if (Array.isArray(value)) return value.map((each) => liveCallValues(each, advertised));
+  if ('string' === typeof value) {return liveCallText(value, advertised);}
+  if (Array.isArray(value)) {return value.map((each) => liveCallValues(each, advertised));}
   if (null !== value && 'object' === typeof value) {
     const out: Record<string, unknown> = {};
     for (const [key, each] of Object.entries(value as Record<string, unknown>)) {

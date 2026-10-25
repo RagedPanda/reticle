@@ -17,22 +17,22 @@ export function parseCompactSource(value: string): StepSource | undefined {
   const match = /^(.+?):(\d+)(?::\d+)?$/.exec(value);
   const file = match?.[1];
   const line = match?.[2];
-  if (file === undefined || line === undefined) return undefined;
+  if (file === undefined || line === undefined) {return undefined;}
   return { file, line: Number(line) };
 }
 
 function keyOf(args: Record<string, unknown> | undefined): string | undefined {
-  if (args === undefined) return undefined;
+  if (args === undefined) {return undefined;}
   const by = asString(args['by']);
   const value = asString(args['value']);
-  if (by === undefined || value === undefined) return undefined;
+  if (by === undefined || value === undefined) {return undefined;}
   return JSON.stringify([by, value, asString(args['name']) ?? null]);
 }
 
 /** The one element a query found, when exactly one was found and it carries a stamp. */
 function soleSource(result: unknown): StepSource | undefined {
   const elements = asRecord(result)?.['elements'];
-  if (!Array.isArray(elements) || elements.length !== 1) return undefined;
+  if (!Array.isArray(elements) || elements.length !== 1) {return undefined;}
   const source = asString(asRecord(elements[0])?.['source']);
   return source === undefined ? undefined : parseCompactSource(source);
 }
@@ -55,7 +55,7 @@ export function recordingSources(inner: FlowReplaySession): {
         const result = await target.command(name, args);
         const key = name === ReticleCommand.QUERY ? keyOf(args) : undefined;
         const source = result.ok ? soleSource(result.result) : undefined;
-        if (key !== undefined && source !== undefined) sources.set(key, source);
+        if (key !== undefined && source !== undefined) {sources.set(key, source);}
         return result;
       };
     },
@@ -74,7 +74,7 @@ function learnSteps(
       step.source === undefined
         ? sources.get(keyOf(anchorQueryArgs(step.anchor) ?? undefined) ?? '')
         : undefined;
-    if (learned === undefined && nested?.changed !== true) return step;
+    if (learned === undefined && nested?.changed !== true) {return step;}
     changed = true;
     return {
       ...step,
@@ -90,7 +90,7 @@ export function withLearnedSources(
   flow: FlowFile,
   sources: ReadonlyMap<string, StepSource>,
 ): FlowFile | undefined {
-  if (0 === sources.size) return undefined;
+  if (0 === sources.size) {return undefined;}
   const { steps, changed } = learnSteps(flow.steps, sources);
   return changed ? { ...flow, steps } : undefined;
 }

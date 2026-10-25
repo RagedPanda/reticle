@@ -63,7 +63,7 @@ export function withSessionEnvelope(
   _name: string,
   outputSchema: z.ZodRawShape | undefined,
 ): z.ZodRawShape | undefined {
-  if (outputSchema === undefined) return outputSchema;
+  if (outputSchema === undefined) {return outputSchema;}
   return { ...sessionEnvelopeShape, ...outputSchema };
 }
 
@@ -440,7 +440,7 @@ type InputValidator = (tool: unknown, args: unknown, toolName: string) => Promis
 
 /** Argument keys the tool never declared. Empty when the tool's shape is unknown to us. */
 function unknownKeys(args: unknown, allowed?: ReadonlySet<string>): string[] {
-  if (allowed === undefined || typeof args !== 'object' || null === args) return [];
+  if (allowed === undefined || typeof args !== 'object' || null === args) {return [];}
   return Object.keys(args as Record<string, unknown>).filter((key) => !allowed.has(key));
 }
 
@@ -515,10 +515,10 @@ export function installFriendlyArgErrors(
  * the predicate is not what broke.
  */
 function predicateMessage(args: unknown): string | undefined {
-  if (typeof args !== 'object' || null === args) return undefined;
+  if (typeof args !== 'object' || null === args) {return undefined;}
   const record = args as Record<string, unknown>;
   const predicate = record['predicate'] ?? record['until'];
-  if (predicate === undefined) return undefined;
+  if (predicate === undefined) {return undefined;}
   try {
     parsePredicate(predicate);
     return undefined;
@@ -569,7 +569,7 @@ function installUnadvertisedToolHelp(
     const help = name === undefined ? undefined : unadvertisedToolHelp(name, advertised, known);
     // A failed RESULT, not a JSON-RPC error: a client that reads only `result` rendered the error
     // as an empty success, and the agent believed `reticle_flow_save` had saved its flow.
-    if (help !== undefined) return { content: [{ type: 'text', text: help }], isError: true };
+    if (help !== undefined) {return { content: [{ type: 'text', text: help }], isError: true };}
     return original(request, extra);
   });
 }
@@ -594,9 +594,9 @@ function asCallOf(request: unknown, tool: string, action: string): unknown {
 
 /** The requested tool name, when the request has the shape we expect. */
 function toolNameOf(request: unknown): string | undefined {
-  if (typeof request !== 'object' || null === request) return undefined;
+  if (typeof request !== 'object' || null === request) {return undefined;}
   const params = (request as { params?: unknown }).params;
-  if (typeof params !== 'object' || null === params) return undefined;
+  if (typeof params !== 'object' || null === params) {return undefined;}
   const name = (params as { name?: unknown }).name;
   return 'string' === typeof name ? name : undefined;
 }
@@ -678,7 +678,7 @@ export function createMcpServer(
    */
   server.server.oninitialized = () => {
     const info = server.server.getClientVersion();
-    if (info?.name === undefined) return;
+    if (info?.name === undefined) {return;}
     getSessionMetrics().recordClient(info.name, info.version);
     // So the HUD can say which agent is connected, and credit a note to the one that read it.
     noteAgentAttached(deps.attachId, info.name);
@@ -701,7 +701,7 @@ export function createMcpServer(
     // Still records, because a client that skipped the handshake path above (a replayed initialize
     // through the proxy, a transport that reconnects) is a client we would otherwise lose entirely.
     // `recordClient` is idempotent per name.
-    if (info?.name !== undefined) getSessionMetrics().recordClient(info.name, info.version);
+    if (info?.name !== undefined) {getSessionMetrics().recordClient(info.name, info.version);}
     return info === undefined ? undefined : { name: info.name, version: info.version };
   });
   // Cast once to our bridge type so every per-tool call site is typed without `any`.

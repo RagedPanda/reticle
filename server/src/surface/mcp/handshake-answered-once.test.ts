@@ -78,7 +78,7 @@ describe('the handshake against a port a stranger holds', () => {
   const cleanups: (() => Promise<void> | void)[] = [];
 
   afterEach(async () => {
-    for (const cleanup of cleanups.splice(0).reverse()) await cleanup();
+    for (const cleanup of cleanups.splice(0).reverse()) {await cleanup();}
     vi.restoreAllMocks();
     vi.unstubAllEnvs();
     resetOutageReporting();
@@ -95,7 +95,7 @@ describe('the handshake against a port a stranger holds', () => {
     const replies: JsonRpcReply[] = [];
     vi.spyOn(process.stdout, 'write').mockImplementation((chunk: unknown): boolean => {
       for (const line of String(chunk).split('\n')) {
-        if ('' === line.trim()) continue;
+        if ('' === line.trim()) {continue;}
         try {
           replies.push(JSON.parse(line) as JsonRpcReply);
         } catch {
@@ -148,7 +148,7 @@ describe('the handshake against a port a stranger holds', () => {
     const replies: JsonRpcReply[] = [];
     vi.spyOn(process.stdout, 'write').mockImplementation((chunk: unknown): boolean => {
       for (const line of String(chunk).split('\n')) {
-        if ('' === line.trim()) continue;
+        if ('' === line.trim()) {continue;}
         try {
           replies.push(JSON.parse(line) as JsonRpcReply);
         } catch {

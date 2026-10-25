@@ -90,7 +90,7 @@ export function screensOf(map: AppMap): MapScreen[] {
 
 const linesOf = <T>(text: string, parse: (raw: unknown) => T | undefined): T[] =>
   text.split('\n').flatMap((line) => {
-    if (0 === line.trim().length) return [];
+    if (0 === line.trim().length) {return [];}
     try {
       const value = parse(JSON.parse(line));
       return value === undefined ? [] : [value];
@@ -183,7 +183,7 @@ export const MAP_TOOLS: ToolDef[] = [
     },
     handler: async (deps: ToolDeps, args) => {
       const map = graphOfSessions(await sessionsFor(deps, asString(args['sessionId'])));
-      if (map === undefined) return { screens: [] };
+      if (map === undefined) {return { screens: [] };}
       const to = asString(args['to']);
       const path = to === undefined ? undefined : pathTo(map, asString(args['from']) ?? '/', to);
       return {

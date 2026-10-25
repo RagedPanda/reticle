@@ -157,8 +157,8 @@ const rec = (v: unknown): Record<string, unknown> =>
 /** Strip the transport keys the contract allows to go, recursively — what evidence must still equal. */
 const NOISE = new Set(['initiatorStack', 'requestShape', 'contentType', 'statusText']);
 function decidingEvidence(v: unknown): unknown {
-  if (Array.isArray(v)) return v.map(decidingEvidence);
-  if ('object' !== typeof v || null === v) return v;
+  if (Array.isArray(v)) {return v.map(decidingEvidence);}
+  if ('object' !== typeof v || null === v) {return v;}
   return Object.fromEntries(
     Object.entries(v as Record<string, unknown>)
       .filter(
@@ -290,9 +290,9 @@ describe('compact envelope: decisive-evidence contract', () => {
       const got = decisiveOfCompact(compact);
       // An empty fresh-gap list and an absent one say the same thing.
       if (Array.isArray(want['freshGaps']) && 0 === want['freshGaps'].length)
-        want['freshGaps'] = undefined;
+        {want['freshGaps'] = undefined;}
       if (Array.isArray(want['undeclaredRequests']) && 0 === want['undeclaredRequests'].length)
-        want['undeclaredRequests'] = undefined;
+        {want['undeclaredRequests'] = undefined;}
       // Beside a `changed` line only the undeclared requests are kept; without one the whole blast
       // radius stays, so read its requests out of what the compact result actually carries.
       if (compact['changed'] === undefined) {

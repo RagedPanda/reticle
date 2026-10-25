@@ -68,10 +68,10 @@ function sourceFiles(dir: string, found: string[] = []): string[] {
       sourceFiles(full, found);
       continue;
     }
-    if (!entry.endsWith('.ts')) continue;
+    if (!entry.endsWith('.ts')) {continue;}
     // `.test.ts` files call handlers constantly and by design — that is what a unit test of a tool
     // IS. Excluding them is not a loophole: a test emits no telemetry anybody counts.
-    if (entry.endsWith('.test.ts')) continue;
+    if (entry.endsWith('.test.ts')) {continue;}
     found.push(full);
   }
   return found;

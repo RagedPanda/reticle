@@ -86,10 +86,10 @@ function danglingPaths(): string[] {
     const text = readFileSync(join(REPO_ROOT, document), 'utf8');
     for (const match of text.matchAll(PATH_LIKE)) {
       const path = match[1];
-      if (undefined === path) continue;
-      if (path.includes('node_modules')) continue;
-      if (NOT_OUR_TREE.some((pattern) => pattern.test(path))) continue;
-      if (resolves(document, path)) continue;
+      if (undefined === path) {continue;}
+      if (path.includes('node_modules')) {continue;}
+      if (NOT_OUR_TREE.some((pattern) => pattern.test(path))) {continue;}
+      if (resolves(document, path)) {continue;}
       dangling.push(`${document} names ${path}`);
     }
   }

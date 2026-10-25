@@ -109,7 +109,7 @@ function memoryPath(stateDir: string, port: number): string {
 function read(stateDir: string, port: number): AttachRecord {
   try {
     const parsed: unknown = JSON.parse(readFileSync(memoryPath(stateDir, port), 'utf8'));
-    if ('object' !== typeof parsed || null === parsed) return EMPTY;
+    if ('object' !== typeof parsed || null === parsed) {return EMPTY;}
     const record = parsed as Partial<Record<keyof AttachRecord, unknown>>;
     return {
       attached: true === record.attached,
@@ -134,7 +134,7 @@ function write(stateDir: string, port: number, record: AttachRecord): void {
 /** Record that an MCP client started the proxy on this port. */
 export function rememberProxyStarted(stateDir: string, port: number): void {
   const known = read(stateDir, port);
-  if (known.attached) return;
+  if (known.attached) {return;}
   write(stateDir, port, { ...known, attached: true });
 }
 
@@ -146,7 +146,7 @@ export function rememberProxyStarted(stateDir: string, port: number): void {
  */
 export function rememberToolCalled(stateDir: string, port: number): void {
   const known = read(stateDir, port);
-  if (known.called) return;
+  if (known.called) {return;}
   write(stateDir, port, { ...known, called: true });
 }
 
@@ -159,7 +159,7 @@ export function rememberToolCalled(stateDir: string, port: number): void {
  */
 export function rememberEnumerated(stateDir: string, port: number): void {
   const known = read(stateDir, port);
-  if (known.enumerated) return;
+  if (known.enumerated) {return;}
   write(stateDir, port, { ...known, attached: true, enumerated: true });
 }
 
@@ -168,8 +168,8 @@ export function attachState(stateDir: string, port: number): AttachState {
   const known = read(stateDir, port);
   // Ordered outward along the chain: attached, then listed, then actually used. The last hop is
   // the one every component check misses, so it is asked last and answered explicitly.
-  if (!known.attached) return AttachState.NEVER_ATTACHED;
-  if (!known.enumerated) return AttachState.NEVER_ENUMERATED;
+  if (!known.attached) {return AttachState.NEVER_ATTACHED;}
+  if (!known.enumerated) {return AttachState.NEVER_ENUMERATED;}
   return known.called ? AttachState.ENUMERATED : AttachState.NEVER_CALLED;
 }
 
@@ -180,9 +180,9 @@ export function attachState(stateDir: string, port: number): AttachState {
  * something is still wrong, which is its own kind of lie.
  */
 export function describeAttachState(state: AttachState): string | undefined {
-  if (state === AttachState.NEVER_ENUMERATED) return NEVER_ENUMERATED_ACTION;
-  if (state === AttachState.NEVER_ATTACHED) return NEVER_ATTACHED_ACTION;
-  if (state === AttachState.NEVER_CALLED) return NEVER_CALLED_ACTION;
+  if (state === AttachState.NEVER_ENUMERATED) {return NEVER_ENUMERATED_ACTION;}
+  if (state === AttachState.NEVER_ATTACHED) {return NEVER_ATTACHED_ACTION;}
+  if (state === AttachState.NEVER_CALLED) {return NEVER_CALLED_ACTION;}
   return undefined;
 }
 

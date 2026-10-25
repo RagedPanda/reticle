@@ -34,7 +34,7 @@ async function navigateLease(
 ): Promise<Record<string, unknown>> {
   const timeoutMs = asNumber(args['timeout_ms']) ?? ARRIVAL_TIMEOUT_MS;
   const went = (await deps.pool?.gotoLease(sessionId, url, timeoutMs)) ?? false;
-  if (!went) return { ok: false, url, reason: 'the leased page did not navigate' };
+  if (!went) {return { ok: false, url, reason: 'the leased page did not navigate' };}
   const back = await waitForSession(deps, sessionId, timeoutMs);
   return back
     ? { ok: true, url, confirmed: true, sessionId }
@@ -49,8 +49,8 @@ async function waitForSession(
 ): Promise<boolean> {
   const start = deps.now();
   for (;;) {
-    if (deps.sessions.get(sessionId) !== undefined) return true;
-    if (deps.now() - start >= timeoutMs) return false;
+    if (deps.sessions.get(sessionId) !== undefined) {return true;}
+    if (deps.now() - start >= timeoutMs) {return false;}
     await new Promise((resolve) => setTimeout(resolve, LEASE_POLL_MS));
   }
 }
@@ -137,7 +137,7 @@ export const BROWSER_TOOLS: ToolDef[] = [
       }
       const requested = asString(args['url']);
       if (requested === undefined || 0 === requested.length)
-        return { ok: false, reason: 'url required' };
+        {return { ok: false, reason: 'url required' };}
       assertNotPaymentNavigation(requested);
       const named = asString(args['sessionId']);
       // A lease whose page has no SDK right now (it was navigated to an image, a PDF, another site):

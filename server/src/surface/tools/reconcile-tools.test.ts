@@ -41,7 +41,7 @@ function reconcileDeps(pages: Record<string, unknown>): ToolDeps {
 
 function reconcileTool() {
   const t = RECONCILE_TOOLS.find((x) => x.name === ReticleTool.RECONCILE);
-  if (t === undefined) throw new Error('no reticle_reconcile tool');
+  if (t === undefined) {throw new Error('no reticle_reconcile tool');}
   return t;
 }
 

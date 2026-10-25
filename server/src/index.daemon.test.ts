@@ -12,12 +12,12 @@ import { FakeBrowser, waitUntil } from './portal/bridge/bridge.test-harness.js';
 describe('resolveBridgeSecurity', () => {
   const ENV_KEYS = [ReticleEnv.TOKEN, ReticleEnv.HOST, ReticleEnv.ALLOWED_ORIGINS] as const;
   const saved = new Map<string, string | undefined>();
-  for (const k of ENV_KEYS) saved.set(k, process.env[k]);
+  for (const k of ENV_KEYS) {saved.set(k, process.env[k]);}
   afterEach(() => {
     for (const k of ENV_KEYS) {
       const v = saved.get(k);
-      if (v === undefined) delete process.env[k];
-      else process.env[k] = v;
+      if (v === undefined) {delete process.env[k];}
+      else {process.env[k] = v;}
     }
   });
 
@@ -55,9 +55,9 @@ describe('startDaemon port collision', () => {
   afterEach(async () => {
     await server?.close();
     server = undefined;
-    if (blocker !== undefined) await new Promise<void>((r) => blocker?.close(() => r()));
+    if (blocker !== undefined) {await new Promise<void>((r) => blocker?.close(() => r()));}
     blocker = undefined;
-    if (root !== undefined) await removeTempDir(join(root, '..'));
+    if (root !== undefined) {await removeTempDir(join(root, '..'));}
     root = undefined;
   });
 
@@ -100,7 +100,7 @@ describe('a daemon that nothing connected to', () => {
   afterEach(async () => {
     await server?.close();
     server = undefined;
-    if (dir !== undefined) await removeTempDir(dir);
+    if (dir !== undefined) {await removeTempDir(dir);}
     dir = undefined;
   });
 

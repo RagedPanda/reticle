@@ -72,14 +72,14 @@ export function createMemoryFs(): MemoryFs {
       for (const key of written.keys()) {
         if (key.startsWith(prefix)) {
           const rest = key.slice(prefix.length).split('/')[0];
-          if (rest !== undefined && rest.length > 0) names.add(rest);
+          if (rest !== undefined && rest.length > 0) {names.add(rest);}
         }
       }
       return Promise.resolve([...names]);
     },
     rename(from, to) {
       const value = written.get(norm(from));
-      if (value === undefined) return Promise.reject(notFound());
+      if (value === undefined) {return Promise.reject(notFound());}
       written.set(norm(to), value);
       written.delete(norm(from));
       return Promise.resolve();

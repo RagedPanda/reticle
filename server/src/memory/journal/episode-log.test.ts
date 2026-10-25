@@ -157,7 +157,7 @@ describe('the episode log', () => {
       git: () => Promise.resolve({ failed: 'not a git repository' }),
     });
     for (const n of [1, 2, 3])
-      log.record({ tool: 't', args: { n }, startedAt: n, endedAt: n, result: n });
+      {log.record({ tool: 't', args: { n }, startedAt: n, endedAt: n, result: n });}
     await log.flush();
     const all = lines(episodePath(reticleRoot, 'nogit'));
     expect(all.filter((l) => EpisodeRecordKind.START === l['kind'])).toHaveLength(1);

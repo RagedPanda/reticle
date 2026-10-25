@@ -140,44 +140,44 @@ export function parseVerifySuffix(args: string[], defaultPort: number): VerifySu
   let i = 0;
   while (i < args.length) {
     const arg = args[i];
-    if (arg === undefined) break;
+    if (arg === undefined) {break;}
     if (arg === HEADED_FLAG) {
       headless = false;
     } else if (arg === PORT_FLAG) {
       i++;
       const n = args[i];
-      if (n === undefined) return missingValue(PORT_FLAG);
+      if (n === undefined) {return missingValue(PORT_FLAG);}
       const parsed = parseInt(n, 10);
-      if (isNaN(parsed)) return notANumber(PORT_FLAG, n);
+      if (isNaN(parsed)) {return notANumber(PORT_FLAG, n);}
       port = parsed;
     } else if (arg === TIMEOUT_FLAG) {
       i++;
       const n = args[i];
-      if (n === undefined) return missingValue(TIMEOUT_FLAG);
+      if (n === undefined) {return missingValue(TIMEOUT_FLAG);}
       const parsed = parseInt(n, 10);
-      if (isNaN(parsed)) return notANumber(TIMEOUT_FLAG, n);
+      if (isNaN(parsed)) {return notANumber(TIMEOUT_FLAG, n);}
       timeoutMs = parsed;
     } else if (arg === STORAGE_STATE_FLAG) {
       i++;
       const v = args[i];
-      if (v === undefined) return missingValue(STORAGE_STATE_FLAG);
+      if (v === undefined) {return missingValue(STORAGE_STATE_FLAG);}
       storageState = v;
     } else if (arg === SESSION_ID_FLAG) {
       i++;
       const v = args[i];
-      if (v === undefined) return missingValue(SESSION_ID_FLAG);
+      if (v === undefined) {return missingValue(SESSION_ID_FLAG);}
       sessionId = v;
     } else if (arg === SELECT_FLAG) {
       i++;
       const v = args[i];
-      if (v === undefined) return missingValue(SELECT_FLAG);
+      if (v === undefined) {return missingValue(SELECT_FLAG);}
       // Repeatable rather than comma-split: a label is free-form, and a comma inside one would
       // silently become two selections that match nothing.
       select.push(v);
     } else if (arg === RESULTS_JSON_FLAG) {
       i++;
       const v = args[i];
-      if (v === undefined) return missingValue(RESULTS_JSON_FLAG);
+      if (v === undefined) {return missingValue(RESULTS_JSON_FLAG);}
       resultsJson = v;
     } else if (arg === EXPLORE_FLAG) {
       explore = true;
@@ -186,7 +186,7 @@ export function parseVerifySuffix(args: string[], defaultPort: number): VerifySu
     } else if (arg === PERSONA_FLAG) {
       i++;
       const v = args[i];
-      if (v === undefined) return missingValue(PERSONA_FLAG);
+      if (v === undefined) {return missingValue(PERSONA_FLAG);}
       // A persona is what to explore AS, so naming one is asking for the drive. Requiring both
       // flags would only give a user a way to say something they cannot mean.
       persona = v;
@@ -194,14 +194,14 @@ export function parseVerifySuffix(args: string[], defaultPort: number): VerifySu
     } else if (arg === EXPECT_FLAG) {
       i++;
       const v = args[i];
-      if (v === undefined) return missingValue(EXPECT_FLAG);
+      if (v === undefined) {return missingValue(EXPECT_FLAG);}
       const read = parseExpect(v);
-      if ('error' === read.kind) return read;
+      if ('error' === read.kind) {return read;}
       expect = read.value;
     } else if (arg === EXPECT_FILE_FLAG) {
       i++;
       const v = args[i];
-      if (v === undefined) return missingValue(EXPECT_FILE_FLAG);
+      if (v === undefined) {return missingValue(EXPECT_FILE_FLAG);}
       expectFile = v;
     } else if (arg.startsWith('--')) {
       return unknownArgument(arg);
@@ -212,7 +212,7 @@ export function parseVerifySuffix(args: string[], defaultPort: number): VerifySu
     }
     i++;
   }
-  if (url === undefined) return missingOperand(VERIFY_COMMAND, 'a url');
+  if (url === undefined) {return missingOperand(VERIFY_COMMAND, 'a url');}
   // Two ways to say the same thing, and no way to say two different things. Preferring one
   // silently is how a run asserts something the person did not write.
   if (expect !== undefined && expectFile !== undefined) {

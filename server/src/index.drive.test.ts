@@ -51,7 +51,7 @@ function makeFakeLaunched(navigateRejects?: DriveError): FakeLaunched {
     ...(navigateRejects !== undefined ? { navigateRejects } : {}),
     navigate() {
       this.navigateCalls += 1;
-      if (this.navigateRejects !== undefined) return Promise.reject(this.navigateRejects);
+      if (this.navigateRejects !== undefined) {return Promise.reject(this.navigateRejects);}
       return Promise.resolve();
     },
     dispose() {
@@ -128,7 +128,7 @@ function depsWith(realInput: RealInputProvider | undefined, state: { actCalls: n
     reticleRoot: '/tmp/reticle-test/.reticle',
     now: () => 0,
   };
-  if (realInput !== undefined) deps.realInput = realInput;
+  if (realInput !== undefined) {deps.realInput = realInput;}
   return deps;
 }
 
@@ -138,7 +138,7 @@ interface ActResult {
 
 async function runClick(deps: ToolDeps): Promise<ActResult> {
   const tool = TOOLS.find((t) => t.name === ReticleTool.ACT);
-  if (tool === undefined) throw new Error('no act tool');
+  if (tool === undefined) {throw new Error('no act tool');}
   // native:true so the launched provider drives the gesture (clicks default to synthetic otherwise).
   return (await tool.handler(deps, {
     ref: 'e1',
@@ -202,7 +202,7 @@ describe('start({ driveUrl }) wiring', () => {
         return makeFakeLaunched();
       },
     });
-    if (prev !== undefined) process.env['RETICLE_CDP_URL'] = prev;
+    if (prev !== undefined) {process.env['RETICLE_CDP_URL'] = prev;}
 
     expect(factoryCalled).toBe(false);
     expect(running.realInput).toBeUndefined();
@@ -223,8 +223,8 @@ describe('start({ driveUrl }) wiring', () => {
       driveUrl: DRIVE_URL,
       realInputFactory: () => fake,
     });
-    if (prev === undefined) delete process.env['RETICLE_CDP_URL'];
-    else process.env['RETICLE_CDP_URL'] = prev;
+    if (prev === undefined) {delete process.env['RETICLE_CDP_URL'];}
+    else {process.env['RETICLE_CDP_URL'] = prev;}
 
     expect(running.realInput).toBe(fake);
     expect(fake.navigateCalls).toBe(1);

@@ -47,11 +47,11 @@ describe('the session envelope cannot drift from what is spliced onto results', 
     const src = readFileSync(INVOKE_TOOL, 'utf8');
     const spliced = new Set<string>();
     // `envelope['x'] = …`
-    for (const m of src.matchAll(/envelope\['([a-z_]+)'\]\s*=/g)) spliced.add(m[1] ?? '');
+    for (const m of src.matchAll(/envelope\['([a-z_]+)'\]\s*=/g)) {spliced.add(m[1] ?? '');}
     // `...(x !== undefined ? { some_key: x } : {})` — the object-spread form used above the
     // envelope, which lands the same keys on the same result. Both sites use `EnvelopeKey` today;
     // these patterns exist to catch the next one that does not.
-    for (const m of src.matchAll(/\?\s*\{\s*'?([a-z_]+)'?:/g)) spliced.add(m[1] ?? '');
+    for (const m of src.matchAll(/\?\s*\{\s*'?([a-z_]+)'?:/g)) {spliced.add(m[1] ?? '');}
 
     const known = new Set<string>(Object.values(EnvelopeKey));
     // Only assert over keys that LOOK like envelope channels — the regexes above also catch

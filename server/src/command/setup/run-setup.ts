@@ -263,9 +263,9 @@ const asProgress = (input: SetupInput, o: Partial<SetupOutcome>): Progress => ({
 
 /** The connect step a web page stopped at. A bundle-connect page's HTML never shows the SDK. */
 const connectStop = (finding: PageFinding, htmlCarriesSdk: boolean): InitStop => {
-  if (PageFinding.NOT_SERVED === finding) return InitStop.PAGE_NOT_SERVED;
-  if (PageFinding.TLS_REFUSED === finding) return InitStop.PAGE_TLS_REFUSED;
-  if (PageFinding.SDK_MISSING === finding && htmlCarriesSdk) return InitStop.SDK_MISSING;
+  if (PageFinding.NOT_SERVED === finding) {return InitStop.PAGE_NOT_SERVED;}
+  if (PageFinding.TLS_REFUSED === finding) {return InitStop.PAGE_TLS_REFUSED;}
+  if (PageFinding.SDK_MISSING === finding && htmlCarriesSdk) {return InitStop.SDK_MISSING;}
   return InitStop.NO_SESSION;
 };
 
@@ -297,7 +297,7 @@ const stop = (
  * an exception: the page finding below still prints and the run still ends with its own verdict.
  */
 async function daemonWhy(fx: SetupEffects): Promise<DaemonReason | undefined> {
-  if (undefined === fx.daemonWhy) return undefined;
+  if (undefined === fx.daemonWhy) {return undefined;}
   try {
     const why = await fx.daemonWhy();
     return undefined === why || 0 === why.lead.length ? undefined : why;
@@ -311,7 +311,7 @@ export async function runSetupPhases(input: SetupInput, fx: SetupEffects): Promi
   const note = (line: string): void => {
     // The page is probed before the browser opens and again after the wait, and an unchanged page
     // gave the reader the same paragraph twice in a row.
-    if (notes.at(-1) === line) return;
+    if (notes.at(-1) === line) {return;}
     notes.push(line);
     fx.note(line);
   };
@@ -352,7 +352,7 @@ export async function runSetupPhases(input: SetupInput, fx: SetupEffects): Promi
         note(splitDevPortNote(input.devPort, lone));
         return stop(input, SetupPhase.DEV_SERVER, { stop: InitStop.SPLIT_LOOPBACK }, notes);
       }
-      if (true === input.devCommandIsStaticPage) note(STATIC_PAGE_URL_HINT);
+      if (true === input.devCommandIsStaticPage) {note(STATIC_PAGE_URL_HINT);}
       await fx.startDevServer(input.devCommand, input.appDir);
       const startedAt = fx.now();
       // This loop used to poll in complete silence. Reported as thirty minutes of nothing ending in a
@@ -428,7 +428,7 @@ export async function runSetupPhases(input: SetupInput, fx: SetupEffects): Promi
   // ── and something has to connect from inside it ──────────────────────────────────────────────
   const policy = policyFor(input.shape);
   // Through `note`, not `fx.note`: a caller reading the result should see it too.
-  if (undefined !== policy.note) note(policy.note);
+  if (undefined !== policy.note) {note(policy.note);}
   const listed = await fx.listSessions();
   const requiredRuntime = isDesktop(input.shape) ? input.shape : undefined;
   // A tab already on this URL is the answer. Opening another is how three sessions appear.
@@ -472,7 +472,7 @@ export async function runSetupPhases(input: SetupInput, fx: SetupEffects): Promi
       note(`Could not open ${url} in a Reticle-owned browser either: ${owned.failed}`);
       return undefined;
     }
-    if (true !== owned.zeroInstall) return owned;
+    if (true !== owned.zeroInstall) {return owned;}
     injected.add(owned.sessionId);
     await releaseLease(owned);
     return undefined;
@@ -513,7 +513,7 @@ export async function runSetupPhases(input: SetupInput, fx: SetupEffects): Promi
       openedBrowser = input.openBrowser;
       if (undefined !== fx.openLease && (!input.openBrowser || undefined !== launcherFailed)) {
         lease = await keepLease(await fx.openLease(url));
-        if (undefined !== lease) openedBrowser = true;
+        if (undefined !== lease) {openedBrowser = true;}
       }
     }
   }
@@ -537,8 +537,8 @@ export async function runSetupPhases(input: SetupInput, fx: SetupEffects): Promi
     // the same three names, so the shape IS the requirement — see session-pick.
     const listedNow = (await fx.listSessions()).filter((s) => !injected.has(s.sessionId));
     session = pickSession(listedNow, url, before, requiredRuntime);
-    if (null !== session) break;
-    if (deadline <= fx.now()) break;
+    if (null !== session) {break;}
+    if (deadline <= fx.now()) {break;}
     if (
       !leaseFallbackTried &&
       undefined === lease &&

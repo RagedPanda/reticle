@@ -35,7 +35,7 @@ export function takeHumanNotes(
       (tab) => 0 < tab.inboxSize(),
     );
     const first = holding[0];
-    if (first === undefined) return undefined;
+    if (first === undefined) {return undefined;}
     return {
       state: first.getState(),
       guidance: holding.flatMap((tab) => tab.drainInbox().map((message) => message.text)),

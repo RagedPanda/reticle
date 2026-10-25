@@ -48,10 +48,10 @@ const DEFAULT_CONTENT_TYPE = 'application/json';
  */
 export function matchMock(rules: MockRule[], req: { url: string; method: string }): MockOutcome {
   for (const rule of rules) {
-    if (!req.url.includes(rule.urlContains)) continue;
+    if (!req.url.includes(rule.urlContains)) {continue;}
     if (rule.method !== undefined && rule.method.toUpperCase() !== req.method.toUpperCase())
-      continue;
-    if (true === rule.abort) return { kind: 'abort' };
+      {continue;}
+    if (true === rule.abort) {return { kind: 'abort' };}
     /*
      * A rule that says only WHEN says nothing about WHAT.
      *
@@ -77,8 +77,8 @@ export function matchMock(rules: MockRule[], req: { url: string; method: string 
       status: rule.status ?? DEFAULT_STATUS,
       contentType: rule.contentType ?? DEFAULT_CONTENT_TYPE,
     };
-    if (rule.body !== undefined) outcome.body = rule.body;
-    if (rule.delayMs !== undefined) outcome.delayMs = rule.delayMs;
+    if (rule.body !== undefined) {outcome.body = rule.body;}
+    if (rule.delayMs !== undefined) {outcome.delayMs = rule.delayMs;}
     return outcome;
   }
   return { kind: 'continue' };
@@ -93,7 +93,7 @@ export async function applyOutcome(
   if ('continue' === outcome.kind) {
     // Sleep FIRST, then let it through: the delay is the whole perturbation, and the response that
     // comes back is the server's own.
-    if (outcome.delayMs !== undefined && outcome.delayMs > 0) await sleep(outcome.delayMs);
+    if (outcome.delayMs !== undefined && outcome.delayMs > 0) {await sleep(outcome.delayMs);}
     await route.continue();
     return;
   }
@@ -101,7 +101,7 @@ export async function applyOutcome(
     await route.abort('failed');
     return;
   }
-  if (outcome.delayMs !== undefined && outcome.delayMs > 0) await sleep(outcome.delayMs);
+  if (outcome.delayMs !== undefined && outcome.delayMs > 0) {await sleep(outcome.delayMs);}
   await route.fulfill({
     status: outcome.status ?? DEFAULT_STATUS,
     contentType: outcome.contentType ?? DEFAULT_CONTENT_TYPE,
@@ -122,7 +122,7 @@ export async function installNetworkMocks(
   sleep: (ms: number) => Promise<void> = realSleep,
 ): Promise<void> {
   await page.unroute('**/*').catch(() => undefined);
-  if (0 === rules.length) return;
+  if (0 === rules.length) {return;}
   await page.route('**/*', (route) => {
     const req = route.request();
     const outcome = matchMock(rules, { url: req.url(), method: req.method() });

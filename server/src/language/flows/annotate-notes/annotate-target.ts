@@ -18,6 +18,6 @@ export function resolveAnnotateTarget(
   explicit: string | undefined,
   active: readonly string[],
 ): string {
-  if (explicit !== undefined && explicit.length > 0) return explicit;
+  if (explicit !== undefined && explicit.length > 0) {return explicit;}
   return 1 === active.length ? (active[0] ?? DEFAULT_RECORDING) : DEFAULT_RECORDING;
 }

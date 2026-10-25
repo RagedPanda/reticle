@@ -36,7 +36,7 @@ function deps(seen: { cmd?: string }): ToolDeps {
 
 const inspect = () => {
   const tool = TOOLS.find((t) => t.name === ReticleTool.INSPECT);
-  if (tool === undefined) throw new Error('reticle_inspect is not on the surface');
+  if (tool === undefined) {throw new Error('reticle_inspect is not on the surface');}
   return tool;
 };
 
@@ -83,7 +83,7 @@ describe('inspecting an element without naming one', () => {
   it('holds through the merged reticle_look', async () => {
     const seen: { cmd?: string } = {};
     const look = MERGED_TOOLS.find((t) => t.name === ReticleTool.LOOK);
-    if (look === undefined) throw new Error('reticle_look is not on the merged surface');
+    if (look === undefined) {throw new Error('reticle_look is not on the merged surface');}
     const error = await look
       .handler(deps(seen), { action: 'element', testid: 'awkward-icon' })
       .catch((e: unknown) => (e instanceof Error ? e.message : String(e)));

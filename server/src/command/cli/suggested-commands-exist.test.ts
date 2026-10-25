@@ -46,10 +46,10 @@ const IS_COMMENT = /^\s*(?:\/\/|\*|\/\*)/;
 function sourceFiles(dir: string): string[] {
   const out: string[] = [];
   for (const entry of readdirSync(dir)) {
-    if ('node_modules' === entry || 'dist' === entry) continue;
+    if ('node_modules' === entry || 'dist' === entry) {continue;}
     const full = join(dir, entry);
-    if (statSync(full).isDirectory()) out.push(...sourceFiles(full));
-    else if (entry.endsWith('.ts') && !entry.endsWith('.test.ts')) out.push(full);
+    if (statSync(full).isDirectory()) {out.push(...sourceFiles(full));}
+    else if (entry.endsWith('.ts') && !entry.endsWith('.test.ts')) {out.push(full);}
   }
   return out;
 }
@@ -65,12 +65,12 @@ describe('every reticle command we suggest is a command we dispatch', () => {
     const bad: string[] = [];
     for (const file of files) {
       for (const raw of readFileSync(file, 'utf8').split('\n')) {
-        if (IS_COMMENT.test(raw)) continue;
+        if (IS_COMMENT.test(raw)) {continue;}
         const line = raw.replaceAll('\\', '');
         for (const match of line.matchAll(SUGGESTION)) {
           const verb = match[1] ?? '';
-          if (!COMMANDLIKE.test(match[2] ?? '')) continue; // prose, not advice
-          if ('unknown' === knownCommand(verb)) bad.push(`${file.slice(SRC.length + 1)}: ${verb}`);
+          if (!COMMANDLIKE.test(match[2] ?? '')) {continue;} // prose, not advice
+          if ('unknown' === knownCommand(verb)) {bad.push(`${file.slice(SRC.length + 1)}: ${verb}`);}
         }
       }
     }

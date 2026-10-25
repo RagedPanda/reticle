@@ -107,9 +107,9 @@ describe('what every other package knows about itself', () => {
       const manifest = JSON.parse(readFileSync(join(REPO_ROOT, path), 'utf8')) as {
         private?: boolean;
       };
-      if (true === manifest.private) continue;
-      if (owned.has(pkg)) continue;
-      if (!existsSync(join(REPO_ROOT, pkg, 'src'))) continue;
+      if (true === manifest.private) {continue;}
+      if (owned.has(pkg)) {continue;}
+      if (!existsSync(join(REPO_ROOT, pkg, 'src'))) {continue;}
       unguarded.push(pkg);
     }
     expect(

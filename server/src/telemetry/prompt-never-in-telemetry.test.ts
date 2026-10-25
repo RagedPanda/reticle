@@ -86,6 +86,6 @@ describe('a captured prompt and telemetry', () => {
   it('no event field can carry a prompt', () => {
     const fields = Object.keys(TelemetryEventSchema.shape);
     for (const name of ['prompt', 'request', 'statements', 'userPrompt'])
-      expect(fields, name).not.toContain(name);
+      {expect(fields, name).not.toContain(name);}
   });
 });

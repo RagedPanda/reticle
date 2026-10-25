@@ -83,7 +83,7 @@ const STEP_STRUCTURE_KEYS: ReadonlySet<string> = new Set([
 export function sequenceStepArgs(step: Record<string, unknown>): Record<string, unknown> {
   const flat: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(step)) {
-    if (!STEP_STRUCTURE_KEYS.has(key)) flat[key] = value;
+    if (!STEP_STRUCTURE_KEYS.has(key)) {flat[key] = value;}
   }
   const nested = step['args'];
   if ('string' === typeof nested) {
@@ -156,8 +156,8 @@ export function assertSequenceSteps(steps: readonly unknown[]): void {
       }
       return;
     }
-    if (step['target'] !== undefined) return;
-    if (isGlobalPressCall(step)) return;
+    if (step['target'] !== undefined) {return;}
+    if (isGlobalPressCall(step)) {return;}
     throw new Error(
       `step ${String(i)} has no \`ref\` or \`target\`. ` +
         'Sequence steps take `ref` (from reticle_query/reticle_snapshot) or `target` ' +
@@ -177,11 +177,11 @@ export function preflightAct(actArgs: Record<string, unknown>, until: unknown): 
   // the agent its trusted click had happened. See act-danger.
   assertNativeInputSupported(actArgs);
   const unevaluable = unevaluablePredicateReason(until);
-  if (unevaluable !== undefined) throw new Error(unevaluable);
+  if (unevaluable !== undefined) {throw new Error(unevaluable);}
   // A predicate that was already true when it was written answered `no-fault` / `already_true` —
   // verdict-shaped, and carrying no proof of anything the action did. See vacuousPredicateReason.
   const vacuous = vacuousPredicateReason(until);
-  if (vacuous !== undefined) throw new Error(vacuous);
+  if (vacuous !== undefined) {throw new Error(vacuous);}
 }
 
 /**
@@ -201,7 +201,7 @@ export async function dispatchAct<T>(send: () => Promise<T>): Promise<T | null> 
   try {
     return await send();
   } catch (error: unknown) {
-    if (error instanceof SessionReplacedError || isDocumentGoneError(error)) return null;
+    if (error instanceof SessionReplacedError || isDocumentGoneError(error)) {return null;}
     throw error;
   }
 }

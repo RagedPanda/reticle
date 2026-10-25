@@ -66,7 +66,7 @@ describe('a journey that fills the same secret field twice', () => {
       })),
     });
     const loaded = await store.load('sign-in-retry');
-    if (!loaded.ok) throw new Error('expected a saved flow');
+    if (!loaded.ok) {throw new Error('expected a saved flow');}
     return loaded.value;
   }
 
@@ -86,7 +86,7 @@ describe('a journey that fills the same secret field twice', () => {
     expect(bytes).not.toContain('fictional-correct-password');
     await store.saveFlow(flow);
     const resaved = await store.load(flow.name);
-    if (!resaved.ok) throw new Error('expected a resaved flow');
+    if (!resaved.ok) {throw new Error('expected a resaved flow');}
     expect(resaved.value).toEqual(flow);
     const savedBytes = await readFile(join(root, 'flows', 'sign-in-retry.json'), 'utf8');
     await store.saveFlow(resaved.value);
@@ -116,7 +116,7 @@ describe('a journey that fills the same secret field twice', () => {
     };
     const first = flow.steps[0];
     const second = flow.steps[1];
-    if (first === undefined || second === undefined) throw new Error('expected two fills');
+    if (first === undefined || second === undefined) {throw new Error('expected two fills');}
     expect((await runRoleStep(session, first, 0, anchor, false, () => Promise.resolve())).ok).toBe(
       true,
     );
@@ -137,9 +137,9 @@ describe('a journey that fills the same secret field twice', () => {
       'drive-saved-',
     );
     expect(result.ok).toBe(true);
-    if (!result.ok) throw new Error('expected a saved journey');
+    if (!result.ok) {throw new Error('expected a saved journey');}
     const loaded = await store.load(result.value.name);
-    if (!loaded.ok) throw new Error('expected the new journey');
+    if (!loaded.ok) {throw new Error('expected the new journey');}
     expect(unsuppliedSecrets(loaded.value, {})).toEqual([
       { field: 'Password', envKey: FIRST_KEY },
       { field: 'Password', envKey: SECOND_KEY },
@@ -160,7 +160,7 @@ describe('a journey that fills the same secret field twice', () => {
       ],
     });
     const loaded = await store.load('sign-in-retry');
-    if (!loaded.ok) throw new Error('expected a saved sequence');
+    if (!loaded.ok) {throw new Error('expected a saved sequence');}
     expect(unsuppliedSecrets(loaded.value, {})).toEqual([
       { field: 'Password', envKey: FIRST_KEY },
       { field: 'Password', envKey: SECOND_KEY },
@@ -178,7 +178,7 @@ describe('a journey that fills the same secret field twice', () => {
       ],
     });
     const loaded = await store.load('sign-in-retry');
-    if (!loaded.ok) throw new Error('expected a saved flow');
+    if (!loaded.ok) {throw new Error('expected a saved flow');}
     expect(unsuppliedSecrets(loaded.value, {}).map((secret) => secret.envKey)).toEqual([
       FIRST_KEY,
       'RETICLE_SECRET_PASSWORD_3',
@@ -196,7 +196,7 @@ describe('a journey that fills the same secret field twice', () => {
     const bytes = JSON.stringify(legacy);
     await writeFile(path, bytes);
     const loaded = await store.load(flow.name);
-    if (!loaded.ok) throw new Error('expected a legacy flow');
+    if (!loaded.ok) {throw new Error('expected a legacy flow');}
     expect(unsuppliedSecrets(loaded.value, {}).map((secret) => secret.envKey)).toEqual([FIRST_KEY]);
     expect(unsuppliedSecrets(loaded.value, { [FIRST_KEY]: 'legacy-password' })).toEqual([]);
     expect(await readFile(path, 'utf8')).toBe(bytes);
@@ -207,7 +207,7 @@ describe('a journey that fills the same secret field twice', () => {
     ).toEqual(['legacy-password', 'legacy-password']);
     await store.saveFlow(loaded.value);
     const resaved = await store.load(flow.name);
-    if (!resaved.ok) throw new Error('expected a resaved legacy flow');
+    if (!resaved.ok) {throw new Error('expected a resaved legacy flow');}
     expect(unsuppliedSecrets(resaved.value, { [FIRST_KEY]: 'legacy-password' })).toEqual([]);
   });
 
@@ -222,7 +222,7 @@ describe('a journey that fills the same secret field twice', () => {
     };
     await writeFile(join(root, 'flows', 'sign-in-retry.json'), JSON.stringify(legacy));
     const loaded = await store.load(flow.name);
-    if (!loaded.ok) throw new Error('expected an existing named flow');
+    if (!loaded.ok) {throw new Error('expected an existing named flow');}
     await withCallSecrets({ [FIRST_KEY]: 'legacy-call-password' }, () => {
       expect(unsuppliedSecrets(loaded.value, {})).toEqual([]);
       expect(
@@ -245,7 +245,7 @@ describe('a journey that fills the same secret field twice', () => {
       };
       await writeFile(join(root, 'flows', 'sign-in-retry.json'), JSON.stringify(legacy));
       const loaded = await store.load(flow.name);
-      if (!loaded.ok) throw new Error('expected a legacy named flow');
+      if (!loaded.ok) {throw new Error('expected a legacy named flow');}
       const result =
         'learning' === write
           ? await store.recordLearned(flow.name, [
@@ -254,7 +254,7 @@ describe('a journey that fills the same secret field twice', () => {
           : await store.saveFlow(loaded.value);
       expect(result.ok).toBe(true);
       const reloaded = await store.load(flow.name);
-      if (!reloaded.ok) throw new Error('expected the updated legacy flow');
+      if (!reloaded.ok) {throw new Error('expected the updated legacy flow');}
       vi.stubEnv(FIRST_KEY, 'legacy-environment');
       expect(unsuppliedSecrets(reloaded.value, { [FIRST_KEY]: 'legacy-environment' })).toEqual([]);
       expect(
@@ -286,7 +286,7 @@ describe('a journey that fills the same secret field twice', () => {
     expect(single.args[SECRET_FIELD_ARG]).toBe(true);
     await store.save({ name: 'connexion', version: 1, steps: [single, sequence] });
     const loaded = await store.load('connexion');
-    if (!loaded.ok) throw new Error('expected the marked secret flow');
+    if (!loaded.ok) {throw new Error('expected the marked secret flow');}
     expect(unsuppliedSecrets(loaded.value, {})).toEqual([
       { field: name, envKey: first },
       { field: name, envKey: second },
@@ -340,7 +340,7 @@ describe('a journey that fills the same secret field twice', () => {
   ])('ignores an unrelated or malformed secret name %s', async (name) => {
     const flow = await saved();
     const first = flow.steps[0];
-    if (first === undefined) throw new Error('expected a fill');
+    if (first === undefined) {throw new Error('expected a fill');}
     const args = { value: REDACTED_FILL, secret: name };
     const invalid = { ...flow, steps: [{ ...first, args }] };
     vi.stubEnv(name, 'unrelated-environment');
@@ -365,7 +365,7 @@ describe('a journey that fills the same secret field twice', () => {
     const values: unknown[] = [];
     const session: FlowReplaySession = {
       command: (name, args = {}): Promise<CommandResult> => {
-        if (ReticleCommand.ACT === name) values.push(args['args']);
+        if (ReticleCommand.ACT === name) {values.push(args['args']);}
         return Promise.resolve({
           kind: 'command_result',
           id: 'secret-call',
@@ -381,7 +381,7 @@ describe('a journey that fills the same secret field twice', () => {
       expect(unsuppliedSecrets(flow, {})).toEqual([]);
       const first = flow.steps[0];
       const second = flow.steps[1];
-      if (first === undefined || second === undefined) throw new Error('expected two fills');
+      if (first === undefined || second === undefined) {throw new Error('expected two fills');}
       expect(
         (await runRoleStep(session, first, 0, anchor, false, () => Promise.resolve())).ok,
       ).toBe(true);

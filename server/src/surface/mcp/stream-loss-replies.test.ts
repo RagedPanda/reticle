@@ -32,7 +32,7 @@ describe('streamLossReplies', () => {
     );
 
     expect(replies.map((r) => r.id).sort()).toEqual([7, 'abc']);
-    for (const r of replies) expect(r.error?.message).toContain('sse_ended');
+    for (const r of replies) {expect(r.error?.message).toContain('sse_ended');}
   });
 
   it('says nothing when nothing was in flight', () => {

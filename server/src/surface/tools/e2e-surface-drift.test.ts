@@ -118,12 +118,12 @@ function specFiles(): string[] {
 /** Every .mjs under a directory, recursively — harnesses live several directories deep. */
 function harnessFiles(dir: string): string[] {
   const out: string[] = [];
-  if (!existsSync(dir)) return out;
+  if (!existsSync(dir)) {return out;}
   for (const entry of readdirSync(dir)) {
-    if ('node_modules' === entry || 'dist' === entry || '.next' === entry) continue;
+    if ('node_modules' === entry || 'dist' === entry || '.next' === entry) {continue;}
     const full = join(dir, entry);
-    if (statSync(full).isDirectory()) out.push(...harnessFiles(full));
-    else if (entry.endsWith('.mjs')) out.push(full);
+    if (statSync(full).isDirectory()) {out.push(...harnessFiles(full));}
+    else if (entry.endsWith('.mjs')) {out.push(full);}
   }
   return out;
 }
@@ -267,12 +267,12 @@ const ANY_TOOL_MENTION = /reticle_[a-z0-9_]+/g;
 function serverSources(dir: string = SERVER_SRC): string[] {
   const out: string[] = [];
   for (const entry of readdirSync(dir)) {
-    if ('node_modules' === entry || 'dist' === entry) continue;
+    if ('node_modules' === entry || 'dist' === entry) {continue;}
     const full = join(dir, entry);
-    if (statSync(full).isDirectory()) out.push(...serverSources(full));
+    if (statSync(full).isDirectory()) {out.push(...serverSources(full));}
     // tool-names.ts DECLARES the constants; the names there are the vocabulary, not advice.
     else if (entry.endsWith('.ts') && !entry.includes('.test.') && entry !== 'tool-names.ts')
-      out.push(full);
+      {out.push(full);}
   }
   return out;
 }
@@ -297,14 +297,14 @@ describe('user-facing guidance never names a tool an agent cannot call', () => {
         // guidance. Found when one legitimately described a tool by name.
         const trimmed = line.trimStart();
         if (trimmed.startsWith('*') || trimmed.startsWith('//') || trimmed.startsWith('/*'))
-          continue;
+          {continue;}
         for (const match of line.match(ANY_TOOL_MENTION) ?? []) {
-          if (PROFILE_GATED.has(match)) continue;
+          if (PROFILE_GATED.has(match)) {continue;}
           if (!DECLARED_TOOLS.has(match) || advertised.has(match) || KNOWN_REMOVED.has(match))
-            continue;
+            {continue;}
           // A facade is BUILT from its members' constants — `members: { start: ReticleTool.RECORD_START }`
           // wires the surface rather than advising anyone to call it. Only a bare literal is advice.
-          if (!/['`"]/.test(line.slice(0, line.indexOf(match)))) continue;
+          if (!/['`"]/.test(line.slice(0, line.indexOf(match)))) {continue;}
           dead.push(`${file.replace(SERVER_SRC, '')}: ${match}`);
         }
       }
@@ -336,13 +336,13 @@ describe('shipped docs never name a tool a reader cannot call', () => {
   function docFiles(dir: string = DOCS): string[] {
     const out: string[] = [];
     for (const entry of readdirSync(dir)) {
-      if ('node_modules' === entry || entry.startsWith('.')) continue;
+      if ('node_modules' === entry || entry.startsWith('.')) {continue;}
       const full = join(dir, entry);
-      if (statSync(full).isDirectory()) out.push(...docFiles(full));
+      if (statSync(full).isDirectory()) {out.push(...docFiles(full));}
       // `.mdx` as well as `.md`. The reference pages are all `.mdx` and every one of them is a
       // list of tool names, so scanning only `.md` meant the guard was blind to precisely the
       // pages most likely to name a tool wrong.
-      else if (entry.endsWith('.md') || entry.endsWith('.mdx')) out.push(full);
+      else if (entry.endsWith('.md') || entry.endsWith('.mdx')) {out.push(full);}
     }
     return out;
   }
@@ -355,12 +355,12 @@ describe('shipped docs never name a tool a reader cannot call', () => {
    * it. Same rule, wider net.
    */
   function walkSkills(dir: string): string[] {
-    if (!existsSync(dir)) return [];
+    if (!existsSync(dir)) {return [];}
     const out: string[] = [];
     for (const entry of readdirSync(dir)) {
       const full = join(dir, entry);
-      if (statSync(full).isDirectory()) out.push(...walkSkills(full));
-      else if (entry.endsWith('.md')) out.push(full);
+      if (statSync(full).isDirectory()) {out.push(...walkSkills(full));}
+      else if (entry.endsWith('.md')) {out.push(full);}
     }
     return out;
   }
@@ -397,7 +397,7 @@ describe('shipped docs never name a tool a reader cannot call', () => {
     const out = [join(REPO, 'README.md')];
     for (const dir of publishedPackageDirs()) {
       const readme = join(dir, 'README.md');
-      if (existsSync(readme)) out.push(readme);
+      if (existsSync(readme)) {out.push(readme);}
     }
     return out;
   }
@@ -437,8 +437,8 @@ describe('shipped docs never name a tool a reader cannot call', () => {
     ]) {
       const text = readFileSync(file, 'utf8');
       for (const match of text.match(ANY_TOOL_MENTION) ?? []) {
-        if (!DECLARED_TOOLS.has(match) || advertised.has(match)) continue;
-        if (PROFILE_GATED.has(match) || KNOWN_REMOVED.has(match)) continue;
+        if (!DECLARED_TOOLS.has(match) || advertised.has(match)) {continue;}
+        if (PROFILE_GATED.has(match) || KNOWN_REMOVED.has(match)) {continue;}
         dead.push(`${file.replace(REPO, '')}: ${match}`);
       }
     }
@@ -469,7 +469,7 @@ describe('shipped docs never name a tool a reader cannot call', () => {
       const text = readFileSync(file, 'utf8');
       text.split('\n').forEach((line, i) => {
         if (/npx\s+(--[a-z-]+\s+)*reticle(?![a-z@/-])/.test(line))
-          wrong.push(`${file.replace(REPO, '')}:${i + 1}: ${line.trim()}`);
+          {wrong.push(`${file.replace(REPO, '')}:${i + 1}: ${line.trim()}`);}
       });
     }
     expect(
@@ -517,12 +517,12 @@ describe('shipped docs never name a tool a reader cannot call', () => {
           fence = null === fence ? (open[1] ?? '') : null;
           return;
         }
-        if (null === fence || !RUNNABLE.has(fence)) return;
+        if (null === fence || !RUNNABLE.has(fence)) {return;}
         if (
           /^\s*(\$ )?reticle\s+[a-z]/.test(line) &&
           !(readmeInstaller >= 0 && i > readmeInstaller)
         )
-          bare.push(`${file.replace(REPO, '')}:${i + 1}: ${line.trim()}`);
+          {bare.push(`${file.replace(REPO, '')}:${i + 1}: ${line.trim()}`);}
       });
     }
     expect(
@@ -559,7 +559,7 @@ describe('shipped docs never name a tool a reader cannot call', () => {
             inFence = !inFence;
             return;
           }
-          if (inFence) return;
+          if (inFence) {return;}
           if (line.replace(/`[^`]*`/g, '').includes('—')) {
             wrong.push(`${file.replace(REPO, '')}:${i + 1}: ${line.trim()}`);
           }

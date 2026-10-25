@@ -35,7 +35,7 @@ describe('proxy log rotation', () => {
     const deps = ops(0);
     let since = 0;
     for (let i = 0; i < 100; i++)
-      since = accountProxyLogWrite(since, 100, '/x/proxy-4400.log', deps);
+      {since = accountProxyLogWrite(since, 100, '/x/proxy-4400.log', deps);}
     expect(deps.stats).toEqual([]);
     expect(since).toBe(100 * 100);
   });

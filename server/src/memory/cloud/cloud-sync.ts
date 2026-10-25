@@ -92,7 +92,7 @@ const CREDENTIAL_SOURCE: Readonly<Record<string, string>> = {
  */
 function assertSendableHeaders(headers: Record<string, string>): void {
   for (const [name, value] of Object.entries(headers)) {
-    if (!UNSENDABLE_HEADER_CHAR.test(value)) continue;
+    if (!UNSENDABLE_HEADER_CHAR.test(value)) {continue;}
     const source = CREDENTIAL_SOURCE[name];
     throw new Error(
       `the ${name} header carries a character that cannot be sent, which means the value is truncated — ` +
@@ -178,7 +178,7 @@ export async function syncFlowToCloud(
   projectId: string | undefined,
   fetchImpl: FetchLike,
 ): Promise<SyncResult> {
-  if (null === config) return { outcome: SyncOutcome.SKIPPED };
+  if (null === config) {return { outcome: SyncOutcome.SKIPPED };}
   try {
     const res = await fetchImpl(`${config.url}${CLOUD_FLOWS_PATH}`, {
       method: 'POST',
@@ -211,7 +211,7 @@ export async function syncRunToCloud(
   config: CloudConfig | null,
   fetchImpl: FetchLike,
 ): Promise<SyncResult> {
-  if (null === config) return { outcome: SyncOutcome.SKIPPED };
+  if (null === config) {return { outcome: SyncOutcome.SKIPPED };}
   try {
     const res = await fetchImpl(`${config.url}${CLOUD_RUNS_PATH}`, {
       method: 'POST',
@@ -243,7 +243,7 @@ export async function syncRunRecordToCloud(
   config: CloudConfig | null,
   fetchImpl: FetchLike,
 ): Promise<SyncResult> {
-  if (null === config) return { outcome: SyncOutcome.SKIPPED };
+  if (null === config) {return { outcome: SyncOutcome.SKIPPED };}
   try {
     const res = await fetchImpl(`${config.url}${CLOUD_PROJECT_RUNS_PATH}`, {
       method: 'POST',
@@ -280,7 +280,7 @@ export async function fetchProjectRegressionFromCloud(
   projectId: string | undefined,
   fetchImpl: FetchGetLike,
 ): Promise<unknown> {
-  if (null === config) return null;
+  if (null === config) {return null;}
   try {
     const query = projectId === undefined ? '' : `?projectId=${encodeURIComponent(projectId)}`;
     const res = await fetchImpl(`${config.url}${CLOUD_PROJECT_REGRESSION_PATH}${query}`, {
@@ -320,14 +320,14 @@ export async function submitServerVerification(
   config: CloudConfig | null,
   fetchImpl: FetchPostJsonLike,
 ): Promise<ServerVerification | null> {
-  if (null === config) return null;
+  if (null === config) {return null;}
   try {
     const res = await fetchImpl(`${config.url}${CLOUD_VERIFICATIONS_PATH}`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: `Bearer ${config.apiKey}` },
       body: JSON.stringify(body),
     });
-    if (!res.ok) return null;
+    if (!res.ok) {return null;}
     const parsed = ServerVerificationSchema.safeParse(await res.json());
     return parsed.success ? parsed.data : null;
   } catch {
@@ -366,8 +366,8 @@ export async function syncProgressToCloud(
   config: CloudConfig | null,
   fetchImpl: FetchLike,
 ): Promise<SyncResult> {
-  if (null === config) return { outcome: SyncOutcome.SKIPPED };
-  if (0 === events.length) return { outcome: SyncOutcome.SKIPPED };
+  if (null === config) {return { outcome: SyncOutcome.SKIPPED };}
+  if (0 === events.length) {return { outcome: SyncOutcome.SKIPPED };}
   try {
     const res = await fetchImpl(`${config.url}${CLOUD_PROGRESS_PATH}`, {
       method: 'POST',
@@ -431,7 +431,7 @@ export function createProgressReporter(
   let timer: ReturnType<typeof setInterval> | null = null;
 
   const flush = async (): Promise<void> => {
-    if (!dirty || 0 === accumulated.length) return;
+    if (!dirty || 0 === accumulated.length) {return;}
     // Cleared BEFORE the await so a slow flush does not let the next tick send the same window
     // again; a genuinely new event during the send re-sets it and the next tick picks it up.
     dirty = false;
@@ -439,23 +439,23 @@ export function createProgressReporter(
   };
 
   const start = (): void => {
-    if (null !== timer || null === config) return;
+    if (null !== timer || null === config) {return;}
     timer = setInterval(() => void flush(), flushMs);
     timer.unref?.();
   };
 
   return {
     onProgress: (event: VerifyProgressEvent): void => {
-      if (null === config) return; // not logged in: nothing is buffered and nothing is sent
+      if (null === config) {return;} // not logged in: nothing is buffered and nothing is sent
       // Bounded, keeping the NEWEST: they are the ones somebody is waiting on.
-      if (accumulated.length >= VERIFY_PROGRESS_MAX_EVENTS) accumulated.shift();
+      if (accumulated.length >= VERIFY_PROGRESS_MAX_EVENTS) {accumulated.shift();}
       accumulated.push(event);
       dirty = true;
       start();
     },
     flush,
     stop: (): void => {
-      if (null !== timer) clearInterval(timer);
+      if (null !== timer) {clearInterval(timer);}
       timer = null;
     },
   };

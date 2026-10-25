@@ -246,7 +246,7 @@ async function waitForExpectation(
       settle + WAIT_CALL_SLACK_MS,
     );
     const refused = runRefusal(waited);
-    if (refused !== undefined) return { refused };
+    if (refused !== undefined) {return { refused };}
     // By `pass`, which every wait answers with: a "not yet" carries no `verified`.
     const report = verdictOf(waited, 'pass');
     const resume = report?.['resume_ms'];
@@ -281,7 +281,7 @@ const PROVED = 'yes';
 
 export function endpointFor(port: number, token: string | undefined): URL {
   const url = new URL(`http://${LOOPBACK_HOST}:${String(port)}${MCP_SSE_PATH}`);
-  if (token !== undefined && token.length > 0) url.searchParams.set(TOKEN_QUERY_PARAM, token);
+  if (token !== undefined && token.length > 0) {url.searchParams.set(TOKEN_QUERY_PARAM, token);}
   return url;
 }
 
@@ -327,10 +327,10 @@ export function verdictOf(
 /** The report object inside an MCP text part, when the result carried it there instead. */
 function verdictFromText(result: unknown, field: string): Record<string, unknown> | undefined {
   const content = (result as { content?: unknown } | undefined)?.content;
-  if (!Array.isArray(content)) return undefined;
+  if (!Array.isArray(content)) {return undefined;}
   for (const part of content) {
     const text = (part as { text?: unknown }).text;
-    if ('string' !== typeof text) continue;
+    if ('string' !== typeof text) {continue;}
     try {
       const parsed: unknown = JSON.parse(text);
       // Only a shape that actually carries a verdict — anything else stays `unknown`, which is the
@@ -354,12 +354,12 @@ function verdictFromText(result: unknown, field: string): Record<string, unknown
  */
 export function refusalText(result: unknown): string | undefined {
   const r = result as { isError?: unknown; content?: unknown } | undefined;
-  if (true !== r?.isError || !Array.isArray(r.content)) return undefined;
+  if (true !== r?.isError || !Array.isArray(r.content)) {return undefined;}
   const text = r.content
     .map((part) => (part as { text?: unknown }).text)
     .filter((t): t is string => 'string' === typeof t)
     .join('\n');
-  if (0 === text.length) return undefined;
+  if (0 === text.length) {return undefined;}
   // The tools answer with a JSON envelope whose `error` is the sentence; unwrap when it is one.
   try {
     const parsed: unknown = JSON.parse(text);
@@ -410,7 +410,7 @@ export async function runAdhocVerdict(options: AdhocVerdictOptions): Promise<Adh
     }
     if (url !== undefined && options.sessionId === undefined && options.sessions !== undefined) {
       const opened = await leaseIfNoTab(caller, url, options.sessions, options.root);
-      if ('failed' in opened) return { code: 1, lines: ['verified: unknown', ...opened.failed] };
+      if ('failed' in opened) {return { code: 1, lines: ['verified: unknown', ...opened.failed] };}
       leased = opened.leased;
       alreadyAt = true === opened.alreadyAt;
     }
@@ -422,7 +422,7 @@ export async function runAdhocVerdict(options: AdhocVerdictOptions): Promise<Adh
       await caller.call(ReticleTool.NAVIGATE, { url, ...pin });
     }
     const waited = await waitForExpectation(caller, options.predicate, pin, options.timeoutMs);
-    if ('refused' in waited) return { code: 1, lines: ['verified: unknown', waited.refused] };
+    if ('refused' in waited) {return { code: 1, lines: ['verified: unknown', waited.refused] };}
     const result = waited.result;
     const refusal = refusalText(result);
     if (refusal !== undefined) {
@@ -448,7 +448,7 @@ export async function runAdhocVerdict(options: AdhocVerdictOptions): Promise<Adh
       ],
     };
   } finally {
-    if (leased !== undefined) await releaseLease(caller, leased);
+    if (leased !== undefined) {await releaseLease(caller, leased);}
     await caller.close().catch(() => undefined);
   }
 }
@@ -489,7 +489,7 @@ export async function exploreToEnd(
     const report = verdictOf(result, 'status');
     const runId = report?.['runId'];
     if (DRIVE_RUNNING !== report?.['status'] || 'string' !== typeof runId || now() >= deadline)
-      return result;
+      {return result;}
     result = await ask({ runId });
   }
 }

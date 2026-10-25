@@ -117,7 +117,7 @@ describe('when a sub-step declares what its own action should make true', () => 
             result: { elements: [{ ref: 'e1' }] },
           } as unknown as CommandResult);
         }
-        if (ReticleCommand.ACT_SEQUENCE === name) batches += 1;
+        if (ReticleCommand.ACT_SEQUENCE === name) {batches += 1;}
         return Promise.resolve({ kind: 'command_result', id: 'a', ok: true } as CommandResult);
       },
       eventsSince: () => [],
@@ -140,7 +140,7 @@ describe('when a sub-step declares what its own action should make true', () => 
             result: { elements: [{ ref: 'e1' }] },
           } as unknown as CommandResult);
         }
-        if (ReticleCommand.ACT_SEQUENCE === name) commandTimeout = timeoutMs;
+        if (ReticleCommand.ACT_SEQUENCE === name) {commandTimeout = timeoutMs;}
         return Promise.resolve({ kind: 'command_result', id: 'a', ok: true } as CommandResult);
       },
       eventsSince: () => [],
@@ -172,7 +172,7 @@ describe('when a sub-step declares what its own action should make true', () => 
             result: { elements: [{ ref: 'e1' }] },
           } as unknown as CommandResult);
         }
-        if (ReticleCommand.ACT_SEQUENCE === name) commandTimeout = timeoutMs;
+        if (ReticleCommand.ACT_SEQUENCE === name) {commandTimeout = timeoutMs;}
         return Promise.resolve({ kind: 'command_result', id: 'a', ok: true } as CommandResult);
       },
       eventsSince: () => [],
@@ -204,7 +204,7 @@ describe('when a sub-step declares what its own action should make true', () => 
             result: { elements: [{ ref: 'e1' }] },
           } as unknown as CommandResult);
         }
-        if (ReticleCommand.ACT_SEQUENCE === name) commandTimeout = timeoutMs;
+        if (ReticleCommand.ACT_SEQUENCE === name) {commandTimeout = timeoutMs;}
         return Promise.resolve({ kind: 'command_result', id: 'a', ok: true } as CommandResult);
       },
       eventsSince: () => [],

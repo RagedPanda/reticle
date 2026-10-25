@@ -136,7 +136,7 @@ function fakeDeps(events: ReticleEvent[]): ToolDeps {
 
 function observeTool() {
   const tool = TOOLS.find((t) => t.name === ReticleTool.OBSERVE);
-  if (tool === undefined) throw new Error('no reticle_observe tool');
+  if (tool === undefined) {throw new Error('no reticle_observe tool');}
   return tool;
 }
 

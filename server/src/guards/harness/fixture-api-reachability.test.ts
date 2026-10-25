@@ -48,7 +48,7 @@ function sourceFiles(dir: string): string[] {
       out.push(...sourceFiles(full));
       continue;
     }
-    if (/\.tsx?$/.test(entry)) out.push(full);
+    if (/\.tsx?$/.test(entry)) {out.push(full);}
   }
   return out;
 }

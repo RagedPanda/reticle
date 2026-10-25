@@ -30,12 +30,12 @@ function readLink(dir: string): { orgId?: string } | undefined {
     const raw: unknown = JSON.parse(
       readFileSync(join(dir, ReticleDir.ROOT, ReticleDir.CLOUD_LINK_FILE), 'utf8'),
     );
-    if ('object' !== typeof raw || null === raw) return undefined;
+    if ('object' !== typeof raw || null === raw) {return undefined;}
     const o = raw as Record<string, unknown>;
     const projectId = o['projectId'];
     const url = o['url'];
-    if ('string' !== typeof projectId || 0 === projectId.length) return undefined;
-    if ('string' !== typeof url || 0 === url.length) return undefined;
+    if ('string' !== typeof projectId || 0 === projectId.length) {return undefined;}
+    if ('string' !== typeof url || 0 === url.length) {return undefined;}
     const orgId = o['orgId'];
     return 'string' === typeof orgId && 0 < orgId.length && orgId.length <= MAX_WORKSPACE_ID
       ? { orgId }

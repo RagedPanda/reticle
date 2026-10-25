@@ -31,7 +31,7 @@ function deps(
       status: () => Promise.resolve(over.status),
       replace: () => {
         calls.replaced += 1;
-        if (false !== over.replaced) running = false;
+        if (false !== over.replaced) {running = false;}
         return Promise.resolve(false !== over.replaced);
       },
       spawn: () => {

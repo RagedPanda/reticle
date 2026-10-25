@@ -77,7 +77,7 @@ function deps(session: Session): ToolDeps {
 
 function tool(name: string) {
   const found = TOOLS.find((t) => t.name === name);
-  if (found === undefined) throw new Error(`no ${name}`);
+  if (found === undefined) {throw new Error(`no ${name}`);}
   return found;
 }
 

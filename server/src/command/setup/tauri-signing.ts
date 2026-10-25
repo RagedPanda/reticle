@@ -63,9 +63,9 @@ const asText = (value: unknown): string | undefined =>
 
 /** The extra env for starting a Tauri dev build signed, or `{}` when there is nothing to sign with. */
 export function tauriSigningEnv(deps: SigningDeps): Record<string, string> {
-  if (DARWIN !== deps.platform) return {};
+  if (DARWIN !== deps.platform) {return {};}
   const raw = deps.read(TAURI_CONF);
-  if (raw === undefined) return {};
+  if (raw === undefined) {return {};}
   let conf: Record<string, unknown>;
   try {
     conf = asRecord(JSON.parse(raw));
@@ -75,13 +75,13 @@ export function tauriSigningEnv(deps: SigningDeps): Record<string, string> {
   const macOS = asRecord(asRecord(conf['bundle'])['macOS']);
   const identity = asText(deps.env[SigningEnv.APPLE]) ?? asText(macOS['signingIdentity']);
   const identifier = asText(conf['identifier']);
-  if (identity === undefined || AD_HOC === identity || identifier === undefined) return {};
+  if (identity === undefined || AD_HOC === identity || identifier === undefined) {return {};}
   // A project that runs its builds through a runner of its own keeps it.
-  if (RUNNER_VARS.some((name) => deps.env[name] !== undefined)) return {};
+  if (RUNNER_VARS.some((name) => deps.env[name] !== undefined)) {return {};}
   const runner = deps.writeRunner(RUNNER_FILE, RUNNER_SCRIPT);
   // Cargo splits a runner given in the environment on whitespace, so a path with a space in it
   // would run the wrong program. ponytail: skip it; doctor still explains the prompt.
-  if (/\s/.test(runner)) return {};
+  if (/\s/.test(runner)) {return {};}
   return {
     [SigningEnv.IDENTITY]: identity,
     [SigningEnv.IDENTIFIER]: identifier,

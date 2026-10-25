@@ -44,11 +44,11 @@ export async function resolveSessionWithin<S>(
   } catch (first) {
     // Nothing to wait FOR unless the map is empty, and nothing to wait WITH unless a budget was
     // given. Either way the caller gets the same error it would have got before.
-    if (timeoutMs <= 0 || sessions.count() > 0) throw first;
+    if (timeoutMs <= 0 || sessions.count() > 0) {throw first;}
     const deadline = deps.now() + timeoutMs;
     for (;;) {
       const remaining = deadline - deps.now();
-      if (remaining <= 0) throw first;
+      if (remaining <= 0) {throw first;}
       await deps.sleep(Math.min(POLL_MS, remaining));
       try {
         return sessions.resolve(sessionId);

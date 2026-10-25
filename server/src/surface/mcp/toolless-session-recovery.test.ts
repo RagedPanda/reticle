@@ -30,7 +30,7 @@ interface InitResult {
 }
 
 const parse = (line: string | null): InitResult => {
-  if (null === line) throw new Error('expected a handshake response');
+  if (null === line) {throw new Error('expected a handshake response');}
   return JSON.parse(line) as InitResult;
 };
 

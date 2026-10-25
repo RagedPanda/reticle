@@ -28,7 +28,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  for (const ws of open.splice(0)) ws.close();
+  for (const ws of open.splice(0)) {ws.close();}
   await bridge.close();
 });
 
@@ -71,7 +71,7 @@ function connect(opts: { sessionId: string; version?: string; contract?: string 
  */
 async function waitForSession(sessionId: string): Promise<void> {
   for (let i = 0; i < 200; i++) {
-    if (bridge.sessions.get(sessionId) !== undefined) return;
+    if (bridge.sessions.get(sessionId) !== undefined) {return;}
     await new Promise<void>((r) => setTimeout(r, 20));
   }
   throw new Error(`session ${sessionId} never connected`);
@@ -79,7 +79,7 @@ async function waitForSession(sessionId: string): Promise<void> {
 
 const call = (name: string, args: Record<string, unknown> = {}): Promise<unknown> => {
   const tool = TOOLS.find((t) => t.name === name);
-  if (tool === undefined) throw new Error(`no tool ${name}`);
+  if (tool === undefined) {throw new Error(`no tool ${name}`);}
   return runTool(tool, deps, args);
 };
 

@@ -42,7 +42,7 @@ function unwired(): { deps: ToolDeps; opens: () => number } {
   let opens = 0;
   const sessions: Partial<SessionManager> = {
     resolve: () => {
-      if (tab === undefined) throw new Error('no browser session connected');
+      if (tab === undefined) {throw new Error('no browser session connected');}
       return tab;
     },
     list: () =>

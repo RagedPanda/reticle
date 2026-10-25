@@ -115,7 +115,7 @@ describe('advertised surface sizes', () => {
       // `merged` advertises every tool it has, so there is nothing to reach through it; the LOOKUP
       // half of the pair, which every trimmed surface needs because its schemas are lean, is
       // asserted for all of them above.
-      if (profile !== TOOL_SURFACE.MERGED) expect(names, profile).toContain('reticle_run');
+      if (profile !== TOOL_SURFACE.MERGED) {expect(names, profile).toContain('reticle_run');}
     }
   });
 

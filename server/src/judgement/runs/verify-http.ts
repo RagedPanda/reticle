@@ -81,8 +81,8 @@ function toVerifyOptions(body: VerifyRequestBody): VerifyOptions {
 
 /** Constant-time token check. Empty expected token ⇒ open (localhost-only deployments). */
 export function tokenOk(provided: string | undefined, expected: string): boolean {
-  if (0 === expected.length) return true;
-  if (provided === undefined) return false;
+  if (0 === expected.length) {return true;}
+  if (provided === undefined) {return false;}
   const a = Buffer.from(provided);
   const b = Buffer.from(expected);
   return a.length === b.length && timingSafeEqual(a, b);
@@ -111,16 +111,16 @@ export async function handleVerifyRequest(
   expectedToken: string,
   persist?: (run: ReticleVerificationRun) => Promise<void>,
 ): Promise<VerifyHttpResponse> {
-  if (req.path !== VERIFY_PATH) return { status: 404, body: { error: 'not found' } };
-  if (req.method !== 'POST') return { status: 405, body: { error: 'method not allowed' } };
-  if (!tokenOk(req.token, expectedToken)) return { status: 401, body: { error: 'unauthorized' } };
+  if (req.path !== VERIFY_PATH) {return { status: 404, body: { error: 'not found' } };}
+  if (req.method !== 'POST') {return { status: 405, body: { error: 'method not allowed' } };}
+  if (!tokenOk(req.token, expectedToken)) {return { status: 401, body: { error: 'unauthorized' } };}
 
   const parsed = VerifyRequestSchema.safeParse(req.body ?? {});
-  if (!parsed.success) return { status: 400, body: { error: 'invalid request body' } };
+  if (!parsed.success) {return { status: 400, body: { error: 'invalid request body' } };}
 
   try {
     const run = await runner.verify(toVerifyOptions(parsed.data));
-    if (persist !== undefined) await persist(run);
+    if (persist !== undefined) {await persist(run);}
     return { status: 200, body: { run } };
   } catch {
     return { status: 500, body: { error: 'verify failed' } };

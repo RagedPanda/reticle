@@ -39,7 +39,7 @@ interface RegisteredProject {
 export function registeredProjects(home: string): RegisteredProject[] {
   try {
     const path = join(home, ReticleDir.ROOT, PROJECT_REGISTRY_FILE);
-    if (!existsSync(path)) return [];
+    if (!existsSync(path)) {return [];}
     const registry = parseProjectRegistry(JSON.parse(readFileSync(path, 'utf8')));
     return projectCandidates(registry).map((candidate) => ({
       directory: candidate.directory,
@@ -79,6 +79,6 @@ export function isUnscopedRoot(directory: string, home: string): boolean {
  * reporting it as such would tell a correctly-scoped daemon to go and look somewhere else.
  */
 export function registeredElsewhere(home: string, directory: string): RegisteredProject[] {
-  if (!isUnscopedRoot(directory, home)) return [];
+  if (!isUnscopedRoot(directory, home)) {return [];}
   return registeredProjects(home).filter((project) => project.directory !== directory);
 }

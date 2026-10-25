@@ -37,7 +37,7 @@ import type { ToolDef, ToolDeps } from './tool-kit.js';
 function assertSameProject(deps: ToolDeps, sessionId: string | undefined): void {
   const mine = deps.projectId;
   const theirs = deps.sessions.resolve(sessionId).projectId;
-  if (mine === undefined || theirs === undefined || mine === theirs) return;
+  if (mine === undefined || theirs === undefined || mine === theirs) {return;}
   throw new Error(
     `refusing to save: this session belongs to project '${theirs}', but this daemon writes to ` +
       `project '${mine}' (.reticle/ in the directory it was started in). Saving would put one ` +
@@ -80,11 +80,11 @@ export const CONTRACT_TOOLS: ToolDef[] = [
       if (true === args[FROM_DISK_ARG]) {
         const r = await readContract(deps.fs, sessionRoot(deps, asString(args['sessionId'])));
         if (!r.ok)
-          throw new Error(
+          {throw new Error(
             r.reason === ContractReadError.MISSING
               ? 'no .reticle/contract.json on disk — run reticle_contract_save first (or omit fromDisk to read the live session)'
               : '.reticle/contract.json is malformed — fix or regenerate it with reticle_contract_save',
-          );
+          );}
         return { ...r.capabilities, source: 'disk', generatedAt: r.generatedAt };
       }
       const caps = await commandOrThrow(

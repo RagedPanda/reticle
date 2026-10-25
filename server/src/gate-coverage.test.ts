@@ -61,9 +61,9 @@ function declaredJobs(yaml: string): string[] {
   const found: string[] = [];
   for (const line of lines.slice(start + 1)) {
     // A new top-level key ends the jobs block.
-    if (/^[a-zA-Z]/.test(line)) break;
+    if (/^[a-zA-Z]/.test(line)) {break;}
     const match = /^ {2}([a-zA-Z][\w-]*):\s*$/.exec(line);
-    if (match?.[1] !== undefined) found.push(match[1]);
+    if (match?.[1] !== undefined) {found.push(match[1]);}
   }
   return found;
 }

@@ -53,7 +53,7 @@ describe('a saved drive', () => {
   };
   const load = async (name: string): Promise<FlowFile> => {
     const res = await store.load(name);
-    if (!res.ok) throw new Error(`${name}: ${res.code}`);
+    if (!res.ok) {throw new Error(`${name}: ${res.code}`);}
     return res.value;
   };
 

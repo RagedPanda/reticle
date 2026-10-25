@@ -16,7 +16,7 @@ export function lastSource(steps: readonly FlowStep[]): { file: string; line: nu
       if (step.anchor.kind === AnchorKind.COMPONENT && step.anchor.source !== undefined) {
         found = { file: step.anchor.source.file, line: step.anchor.source.line };
       }
-      if (step.steps !== undefined) walk(step.steps);
+      if (step.steps !== undefined) {walk(step.steps);}
     }
   };
   walk(steps);
@@ -35,7 +35,7 @@ export function instrumentationGapsForFlows(
   for (const name of unassertedFlows) {
     const steps = flowStepsByName.get(name);
     const source = steps === undefined ? undefined : lastSource(steps);
-    if (source === undefined) continue;
+    if (source === undefined) {continue;}
     gaps.push({
       kind: InstrumentationGapKind.NO_SIGNAL_ON_MUTATION,
       file: source.file,

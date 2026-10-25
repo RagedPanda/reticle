@@ -64,7 +64,7 @@ function parsesSomeHonestWay(body: string): boolean {
     }
   }
   const lines = body.split('\n').filter((line) => '' !== line.trim());
-  if (lines.length < 2) return false;
+  if (lines.length < 2) {return false;}
   return lines.every((line) => {
     try {
       JSON.parse(line) as unknown;
@@ -91,11 +91,11 @@ function markdownFiles(): string[] {
         walk(full);
         continue;
       }
-      if (entry.endsWith('.md') || entry.endsWith('.mdx')) out.push(full);
+      if (entry.endsWith('.md') || entry.endsWith('.mdx')) {out.push(full);}
     }
   };
-  for (const root of DOC_ROOTS) walk(join(REPO, root));
-  for (const doc of ROOT_DOCS) out.push(join(REPO, doc));
+  for (const root of DOC_ROOTS) {walk(join(REPO, root));}
+  for (const doc of ROOT_DOCS) {out.push(join(REPO, doc));}
   return out;
 }
 
@@ -108,7 +108,7 @@ function blocksIn(file: string): Block[] {
   for (const [i, line] of lines.entries()) {
     const fence = /^\s*```(\w*)\s*$/.exec(line);
     if (null === fence) {
-      if (lang !== undefined) body.push(line);
+      if (lang !== undefined) {body.push(line);}
       continue;
     }
     if (lang === undefined) {
@@ -138,9 +138,9 @@ describe('code blocks a reader is told to copy', () => {
   it('every JSON block parses', () => {
     const broken: string[] = [];
     for (const block of allBlocks) {
-      if (block.lang !== 'json') continue;
-      if ('' === block.body.trim() || ELIDED.test(block.body)) continue;
-      if (parsesSomeHonestWay(block.body)) continue;
+      if (block.lang !== 'json') {continue;}
+      if ('' === block.body.trim() || ELIDED.test(block.body)) {continue;}
+      if (parsesSomeHonestWay(block.body)) {continue;}
       try {
         JSON.parse(block.body) as unknown;
       } catch (error) {
@@ -185,7 +185,7 @@ describe('code blocks a reader is told to copy', () => {
     const unbalanced: string[] = [];
     for (const file of markdownFiles()) {
       const fences = (readFileSync(file, 'utf8').match(/^\s*```/gm) ?? []).length;
-      if (fences % 2 !== 0) unbalanced.push(`${relative(REPO, file)} — ${String(fences)} fences`);
+      if (fences % 2 !== 0) {unbalanced.push(`${relative(REPO, file)} — ${String(fences)} fences`);}
     }
     expect(
       unbalanced,

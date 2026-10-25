@@ -68,7 +68,7 @@ function depsFor(
 
 function tool(name: string) {
   const t = TOOLS.find((x) => x.name === name);
-  if (t === undefined) throw new Error(`no tool ${name}`);
+  if (t === undefined) {throw new Error(`no tool ${name}`);}
   return t;
 }
 
@@ -164,7 +164,7 @@ describe('reticle_flow_list reports paths in the session project', () => {
 
     // FLOW_LIST is merged into the `reticle_flow` facade, so it is not in TOOLS by its own name.
     const listTool = FLOW_TOOLS.find((t) => t.name === ReticleTool.FLOW_LIST);
-    if (listTool === undefined) throw new Error('no flow_list tool');
+    if (listTool === undefined) {throw new Error('no flow_list tool');}
     const res = (await listTool.handler(deps, {})) as {
       flows: { name: string; path: string }[];
     };
@@ -184,7 +184,7 @@ describe('reticle_flow_list reports paths in the session project', () => {
 describe('reticle_flow load and delete resolve the session project, as list and replay do', () => {
   const flowTool = (name: string) => {
     const t = FLOW_TOOLS.find((x) => x.name === name);
-    if (t === undefined) throw new Error(`no tool ${name}`);
+    if (t === undefined) {throw new Error(`no tool ${name}`);}
     return t;
   };
   const projectId = asProjectId('acme-web-9f3c1d');

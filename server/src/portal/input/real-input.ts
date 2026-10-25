@@ -288,7 +288,7 @@ async function pressViaKeyboard(
     pressed.push(k);
   };
   try {
-    for (const modifier of modifiers) await pressDown(modifier);
+    for (const modifier of modifiers) {await pressDown(modifier);}
     await pressDown(key);
   } catch (error) {
     // The chord is PARTIALLY down. Release what is held before reporting the failure; if that
@@ -358,7 +358,7 @@ async function releaseKeys(page: Page, pressed: readonly string[]): Promise<void
  * exists to carry. Anything that is neither an Error nor a string says so rather than pretending.
  */
 function describeFailure(error: unknown): string {
-  if (error instanceof Error) return error.message;
+  if (error instanceof Error) {return error.message;}
   return 'string' === typeof error ? error : 'an unknown error';
 }
 
@@ -387,7 +387,7 @@ export function unspellablePressReason(
   if (explicitCodeFromArgs(args) !== undefined) {
     return InputModeReason.SYNTHETIC_KEY_CODE_PRESS_PREFERRED;
   }
-  if (0 < ref.length) return InputModeReason.SYNTHETIC_ELEMENT_PRESS_PREFERRED;
+  if (0 < ref.length) {return InputModeReason.SYNTHETIC_ELEMENT_PRESS_PREFERRED;}
   return undefined;
 }
 
@@ -443,7 +443,7 @@ export async function performGesture(
     return real(true);
   }
   if (action === ActionType.DRAG) {
-    if (args.toBox === undefined) return real(false);
+    if (args.toBox === undefined) {return real(false);}
     const dst = boxCenter(args.toBox);
     const steps = args.steps ?? DEFAULT_DRAG_STEPS;
     await page.mouse.move(cx, cy);
@@ -561,7 +561,7 @@ export class CdpRealInputProvider implements RealInputProvider {
   /** Attach the response listener the first time we see a page; a no-op afterwards. */
   #listen(page: Page): void {
     const sink = this.#onNetworkDetail;
-    if (sink === undefined || this.#listening.has(page)) return;
+    if (sink === undefined || this.#listening.has(page)) {return;}
     this.#listening.add(page);
     attachNetworkDetail(page, sink);
   }
@@ -574,7 +574,7 @@ export class CdpRealInputProvider implements RealInputProvider {
       // Playwright's Browser exposes isConnected(); a test fake may not, so only an EXPLICIT false
       // drops the cache — a fake without the method is assumed live.
       const alive = this.#browser.isConnected?.() ?? true;
-      if (alive) return this.#browser;
+      if (alive) {return this.#browser;}
       this.#browser = undefined; // fall through and reconnect
     }
     try {
@@ -588,12 +588,12 @@ export class CdpRealInputProvider implements RealInputProvider {
 
   async #pageFor(sessionUrl: string): Promise<Page | undefined> {
     const browser = await this.#ensureBrowser();
-    if (browser === undefined) return undefined;
+    if (browser === undefined) {return undefined;}
     const page = selectPage(
       browser.contexts().flatMap((c) => c.pages()),
       sessionUrl,
     );
-    if (page !== undefined) this.#listen(page);
+    if (page !== undefined) {this.#listen(page);}
     return page;
   }
 
@@ -617,21 +617,21 @@ export class CdpRealInputProvider implements RealInputProvider {
     args: RealInputArgs,
   ): Promise<RealInputResult> {
     const page = await this.#pageFor(sessionUrl);
-    if (page === undefined) return undriven(action, box);
+    if (page === undefined) {return undriven(action, box);}
     return performGesture(page, action, box, args, this.#sleep, this.#now);
   }
 
   /** PNG of the correlated page, or undefined if none matches. */
   async screenshot(sessionUrl: string, opts: ScreenshotOpts): Promise<Uint8Array | undefined> {
     const page = await this.#pageFor(sessionUrl);
-    if (page === undefined) return undefined;
+    if (page === undefined) {return undefined;}
     return capturePage(page, opts);
   }
 
   /** The context's cookies and per-origin storage; undefined when no driven page matches. */
   async storageState(sessionUrl: string): Promise<unknown> {
     const page = await this.#pageFor(sessionUrl);
-    if (page === undefined) return undefined;
+    if (page === undefined) {return undefined;}
     return page.context().storageState();
   }
 
@@ -643,18 +643,18 @@ export class CdpRealInputProvider implements RealInputProvider {
    */
   async applyStorageState(sessionUrl: string, state: unknown): Promise<boolean> {
     const page = await this.#pageFor(sessionUrl);
-    if (page === undefined) return false;
+    if (page === undefined) {return false;}
     const saved = state as {
       cookies?: Parameters<ReturnType<Page['context']>['addCookies']>[0];
       origins?: { origin: string; localStorage?: { name: string; value: string }[] }[];
     };
-    if (saved.cookies !== undefined) await page.context().addCookies(saved.cookies);
+    if (saved.cookies !== undefined) {await page.context().addCookies(saved.cookies);}
     for (const origin of saved.origins ?? []) {
       // Only the document for an origin can write that origin's localStorage, so this is applied in
       // the page rather than through the context. A page sitting on a different origin cannot be
       // given another origin's storage, and silently succeeding there would be the quiet half-restore
       // this whole path exists to avoid.
-      if (!page.url().startsWith(origin.origin)) continue;
+      if (!page.url().startsWith(origin.origin)) {continue;}
       await page.evaluate((entries: { name: string; value: string }[]) => {
         // Reached through `globalThis` rather than `window`: this body is serialised and runs in the
         // PAGE, but it is typechecked here, and this package never pulls in the DOM lib — a server
@@ -662,8 +662,8 @@ export class CdpRealInputProvider implements RealInputProvider {
         const store = (
           globalThis as { localStorage?: { setItem(key: string, value: string): void } }
         ).localStorage;
-        if (store === undefined) return;
-        for (const entry of entries) store.setItem(entry.name, entry.value);
+        if (store === undefined) {return;}
+        for (const entry of entries) {store.setItem(entry.name, entry.value);}
       }, origin.localStorage ?? []);
     }
     return true;
@@ -672,7 +672,7 @@ export class CdpRealInputProvider implements RealInputProvider {
   /** Apply network-mock rules to the correlated page; false when no driven page matches. */
   async setMocks(sessionUrl: string, rules: MockRule[]): Promise<boolean> {
     const page = await this.#pageFor(sessionUrl);
-    if (page === undefined) return false;
+    if (page === undefined) {return false;}
     await installNetworkMocks(page, rules);
     return true;
   }
@@ -680,7 +680,7 @@ export class CdpRealInputProvider implements RealInputProvider {
   /** Pin the correlated page's viewport to fixed dimensions; false when no driven page matches. */
   async setViewport(sessionUrl: string, size: { width: number; height: number }): Promise<boolean> {
     const page = await this.#pageFor(sessionUrl);
-    if (page === undefined) return false;
+    if (page === undefined) {return false;}
     await page.setViewportSize({ width: size.width, height: size.height });
     return true;
   }
@@ -689,7 +689,7 @@ export class CdpRealInputProvider implements RealInputProvider {
   async dispose(): Promise<void> {
     const browser = this.#browser;
     this.#browser = undefined;
-    if (browser !== undefined) await browser.close();
+    if (browser !== undefined) {await browser.close();}
   }
 }
 
@@ -785,7 +785,7 @@ export class LaunchedRealInputProvider implements OwnedRealInputProvider {
     );
     this.#page = page;
     // Capture CDP-authoritative response detail into the driven session's journal (best-effort).
-    if (this.#onNetworkDetail !== undefined) attachNetworkDetail(page, this.#onNetworkDetail);
+    if (this.#onNetworkDetail !== undefined) {attachNetworkDetail(page, this.#onNetworkDetail);}
     try {
       // Same navigation rule as the pool, and for the same measured reason: Playwright's default
       // waits for `load`, which an app with one never-finishing subresource never fires — 30s of
@@ -810,7 +810,7 @@ export class LaunchedRealInputProvider implements OwnedRealInputProvider {
    */
   async #tryInjectConnect(page: Page): Promise<void> {
     const opts = this.#injectConnect;
-    if (opts === undefined) return;
+    if (opts === undefined) {return;}
     try {
       await page.waitForFunction('!!globalThis.__reticleInstance', {
         timeout: INJECT_CONNECT_WAIT_MS,
@@ -834,7 +834,7 @@ export class LaunchedRealInputProvider implements OwnedRealInputProvider {
    */
   #livePage(): Page | undefined {
     const page = this.#page;
-    if (page === undefined) return undefined;
+    if (page === undefined) {return undefined;}
     if (true === page.isClosed?.()) {
       this.#page = undefined; // never ask a corpse twice
       return undefined;
@@ -844,8 +844,8 @@ export class LaunchedRealInputProvider implements OwnedRealInputProvider {
 
   isAvailableFor(sessionUrl: string): Promise<boolean> {
     const page = this.#livePage();
-    if (page === undefined) return Promise.resolve(false);
-    if (page.url() === sessionUrl) return Promise.resolve(true);
+    if (page === undefined) {return Promise.resolve(false);}
+    if (page.url() === sessionUrl) {return Promise.resolve(true);}
     return Promise.resolve(stripVolatile(page.url()) === stripVolatile(sessionUrl));
   }
 
@@ -859,7 +859,7 @@ export class LaunchedRealInputProvider implements OwnedRealInputProvider {
    */
   async storageState(_sessionUrl: string): Promise<unknown> {
     const page = this.#livePage();
-    if (page === undefined) return undefined;
+    if (page === undefined) {return undefined;}
     return page.context().storageState();
   }
 
@@ -869,22 +869,22 @@ export class LaunchedRealInputProvider implements OwnedRealInputProvider {
    */
   async applyStorageState(_sessionUrl: string, state: unknown): Promise<boolean> {
     const page = this.#livePage();
-    if (page === undefined) return false;
+    if (page === undefined) {return false;}
     const saved = state as {
       cookies?: Parameters<ReturnType<Page['context']>['addCookies']>[0];
       origins?: { origin: string; localStorage?: { name: string; value: string }[] }[];
     };
-    if (saved.cookies !== undefined) await page.context().addCookies(saved.cookies);
+    if (saved.cookies !== undefined) {await page.context().addCookies(saved.cookies);}
     for (const origin of saved.origins ?? []) {
       // A page sitting on a different origin cannot be given another origin's storage, and silently
       // succeeding there is the quiet half-restore this whole path exists to avoid.
-      if (!page.url().startsWith(origin.origin)) continue;
+      if (!page.url().startsWith(origin.origin)) {continue;}
       await page.evaluate((entries: { name: string; value: string }[]) => {
         const store = (
           globalThis as { localStorage?: { setItem(key: string, value: string): void } }
         ).localStorage;
-        if (store === undefined) return;
-        for (const entry of entries) store.setItem(entry.name, entry.value);
+        if (store === undefined) {return;}
+        for (const entry of entries) {store.setItem(entry.name, entry.value);}
       }, origin.localStorage ?? []);
     }
     return true;
@@ -897,14 +897,14 @@ export class LaunchedRealInputProvider implements OwnedRealInputProvider {
     args: RealInputArgs,
   ): Promise<RealInputResult> {
     const page = this.#livePage();
-    if (page === undefined) return Promise.resolve(undriven(action, box));
+    if (page === undefined) {return Promise.resolve(undriven(action, box));}
     return performGesture(page, action, box, args, this.#sleep, this.#now);
   }
 
   /** PNG of the owned page, or undefined before navigate / after dispose. */
   screenshot(_sessionUrl: string, opts: ScreenshotOpts): Promise<Uint8Array | undefined> {
     const page = this.#livePage();
-    if (page === undefined) return Promise.resolve(undefined);
+    if (page === undefined) {return Promise.resolve(undefined);}
     return capturePage(page, opts);
   }
 
@@ -921,7 +921,7 @@ export class LaunchedRealInputProvider implements OwnedRealInputProvider {
     size: { width: number; height: number },
   ): Promise<boolean> {
     const page = this.#livePage();
-    if (page === undefined) return false;
+    if (page === undefined) {return false;}
     await page.setViewportSize({ width: size.width, height: size.height });
     return true;
   }
@@ -934,7 +934,7 @@ export class LaunchedRealInputProvider implements OwnedRealInputProvider {
   /** Apply network-mock rules to the owned page; false before navigate / after dispose. */
   async setMocks(_sessionUrl: string, rules: MockRule[]): Promise<boolean> {
     const page = this.#livePage();
-    if (page === undefined) return false;
+    if (page === undefined) {return false;}
     await installNetworkMocks(page, rules);
     return true;
   }
@@ -944,7 +944,7 @@ export class LaunchedRealInputProvider implements OwnedRealInputProvider {
     const browser = this.#browser;
     this.#browser = undefined;
     this.#page = undefined;
-    if (browser !== undefined) await browser.close();
+    if (browser !== undefined) {await browser.close();}
   }
 }
 
@@ -967,7 +967,7 @@ export function selectPage<T extends { url(): string }>(
   sessionUrl: string,
 ): T | undefined {
   const exact = pages.find((p) => p.url() === sessionUrl);
-  if (exact !== undefined) return exact;
+  if (exact !== undefined) {return exact;}
   const target = stripVolatile(sessionUrl);
   const loose = pages.filter((p) => stripVolatile(p.url()) === target);
   return 1 === loose.length ? loose[0] : undefined;

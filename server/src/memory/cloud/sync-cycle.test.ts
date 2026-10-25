@@ -1434,7 +1434,7 @@ describe('a large backlog goes up in bounded batches', () => {
     const posts = calls.filter((c) => 'POST' === c.method);
     expect(posts.length).toBeGreaterThan(1);
     for (const p of posts)
-      expect(JSON.stringify(p.body).length).toBeLessThanOrEqual(SYNC_BATCH_LIMITS.MAX_BYTES);
+      {expect(JSON.stringify(p.body).length).toBeLessThanOrEqual(SYNC_BATCH_LIMITS.MAX_BYTES);}
   });
 
   it('maps a rejection in a later batch back to the run it names', async () => {

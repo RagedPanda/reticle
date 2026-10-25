@@ -24,7 +24,7 @@ function recorder(): {
   return {
     runs,
     emit: (_k, e) => {
-      if (e?.harness !== undefined) runs.push(e.harness);
+      if (e?.harness !== undefined) {runs.push(e.harness);}
       return Promise.resolve(true);
     },
   };

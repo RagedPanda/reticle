@@ -168,7 +168,7 @@ export const CRAWL_TOOLS: ToolDef[] = [
         ...routesFromEvents(session.eventsSince(since)),
       ];
       if (routes.length > 0)
-        await projectForRoot(deps, sessionRoot(deps, session.id)).recordRoutes(routes);
+        {await projectForRoot(deps, sessionRoot(deps, session.id)).recordRoutes(routes);}
       return report;
     },
   },

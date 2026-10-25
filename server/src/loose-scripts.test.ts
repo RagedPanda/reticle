@@ -99,13 +99,13 @@ function trackedFiles(): string[] {
  */
 function runnableFilesUnder(directory: string, found: string[] = []): string[] {
   for (const name of readdirSync(join(REPO_ROOT, directory))) {
-    if ('node_modules' === name || 'dist' === name || '.turbo' === name) continue;
+    if ('node_modules' === name || 'dist' === name || '.turbo' === name) {continue;}
     const path = join(directory, name);
     if (statSync(join(REPO_ROOT, path)).isDirectory()) {
       runnableFilesUnder(path, found);
       continue;
     }
-    if (!RUNNABLE.test(name)) continue;
+    if (!RUNNABLE.test(name)) {continue;}
     found.push(path);
   }
   return found;
@@ -138,7 +138,7 @@ function looseScripts(): string[] {
  * have covered that one too.
  */
 function collectedByAGate(script: string, runners: readonly string[]): boolean {
-  if (!/\.test\.[cm]?[jt]sx?$/.test(script)) return false;
+  if (!/\.test\.[cm]?[jt]sx?$/.test(script)) {return false;}
   const parts = script.split('/');
   // Any ancestor directory named on a runner's command line collects this file.
   const namedByRoot = parts.some((_, index) => {
@@ -147,7 +147,7 @@ function collectedByAGate(script: string, runners: readonly string[]): boolean {
       ancestor !== script && runners.some((command) => command.split(/\s+/).includes(ancestor))
     );
   });
-  if (namedByRoot) return true;
+  if (namedByRoot) {return true;}
   /*
    * Or the file's OWN package runs a test runner over itself.
    *
@@ -225,8 +225,8 @@ describe('every loose script is reachable from somewhere', () => {
   it('no loose script is unreachable, unless it is declared', () => {
     const runners = runnerCommands();
     const unreachable = scripts.filter((script) => {
-      if (DECLARED_UNREACHABLE[script] !== undefined) return false;
-      if (collectedByAGate(script, runners)) return false;
+      if (DECLARED_UNREACHABLE[script] !== undefined) {return false;}
+      if (collectedByAGate(script, runners)) {return false;}
       return !haystack.some(([file, text]) => file !== script && mentions(text, script));
     });
     expect(unreachable).toEqual([]);

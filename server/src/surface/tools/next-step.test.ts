@@ -10,7 +10,7 @@ const root = (files: Record<string, unknown> = {}): string => {
   const dir = join(mkdtempSync(join(tmpdir(), 'reticle-next-')), '.reticle');
   mkdirSync(dir);
   for (const [name, body] of Object.entries(files))
-    writeFileSync(join(dir, name), JSON.stringify(body));
+    {writeFileSync(join(dir, name), JSON.stringify(body));}
   return dir;
 };
 /** A run this session wrote, stamped at the session's own clock. */
@@ -214,8 +214,8 @@ describe('a project that sends through the key in the environment', () => {
       const r = root({ 'request.json': { at: NOW } });
       expect(verdict(r)).toBe(NextText.FINISH_LINKED);
     } finally {
-      if (previous === undefined) delete process.env['RETICLE_API_KEY'];
-      else process.env['RETICLE_API_KEY'] = previous;
+      if (previous === undefined) {delete process.env['RETICLE_API_KEY'];}
+      else {process.env['RETICLE_API_KEY'] = previous;}
     }
   });
 });

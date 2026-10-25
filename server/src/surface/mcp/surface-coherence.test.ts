@@ -115,7 +115,7 @@ describe('the instructions, SKILL.md and the advertised surface describe the sam
     for (const { label, text } of sources()) {
       const reachable = runFormTools(text);
       for (const name of mentionedTools(text)) {
-        if (DEFAULT_ADVERTISED.has(name) || META.has(name) || reachable.has(name)) continue;
+        if (DEFAULT_ADVERTISED.has(name) || META.has(name) || reachable.has(name)) {continue;}
         unreachable.push(`${label}: ${name}`);
       }
     }
@@ -152,7 +152,7 @@ describe('the instructions, SKILL.md and the advertised surface describe the sam
         .join('\n');
       const reachable = runFormTools(text);
       for (const name of mentionedTools(text)) {
-        if (live.has(name) || reachable.has(name)) continue;
+        if (live.has(name) || reachable.has(name)) {continue;}
         wrong.push(`${surface}: ${name}`);
       }
     }
@@ -172,9 +172,9 @@ describe('the instructions, SKILL.md and the advertised surface describe the sam
       const live = new Set(advertised.map((tool) => tool.name));
       // Where `reticle_run` is advertised every listed tool is callable through it, so there is
       // nothing to check. Where it is not, the catalogue IS the list of what can be called.
-      if (live.has(ReticleTool.RUN)) continue;
+      if (live.has(ReticleTool.RUN)) {continue;}
       const catalogue = advertised.find((tool) => tool.name === ReticleTool.TOOLS);
-      if (catalogue === undefined) continue;
+      if (catalogue === undefined) {continue;}
       dead.push(
         `${surface}: catalogue advertised with no dispatch hatch — assert its contents here`,
       );

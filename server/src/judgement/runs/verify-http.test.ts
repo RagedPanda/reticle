@@ -71,7 +71,7 @@ describe('handleVerifyRequest', () => {
     );
     expect(res.status).toBe(200);
     expect('run' in res.body).toBe(true);
-    if ('run' in res.body) expect(res.body.run.verdict.status).toBe(VerdictStatus.PASS);
+    if ('run' in res.body) {expect(res.body.run.verdict.status).toBe(VerdictStatus.PASS);}
     expect(persist).toHaveBeenCalledOnce();
   });
 });

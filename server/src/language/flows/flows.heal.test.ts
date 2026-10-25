@@ -188,7 +188,7 @@ async function driftKinds(
   name: string,
 ): Promise<DriftReason[]> {
   const loaded = await store.load(name);
-  if (!loaded.ok) throw new Error('expected ok');
+  if (!loaded.ok) {throw new Error('expected ok');}
   const steps = await replayFlow(session, loaded.value, waitForPredicate, FLOW_SIGNAL_TIMEOUT_MS);
   return steps.flatMap((step) => (step.drift === undefined ? [] : [step.drift.reasonKind]));
 }
@@ -250,7 +250,7 @@ function fakeDeps(store: FlowStore, session: FakeSession): ToolDeps {
 
 function healTool() {
   const t = FLOW_TOOLS.find((x) => x.name === ReticleTool.FLOW_HEAL);
-  if (t === undefined) throw new Error('no reticle_flow_heal tool');
+  if (t === undefined) {throw new Error('no reticle_flow_heal tool');}
   return t;
 }
 
@@ -286,7 +286,7 @@ describe('FlowStore.heal + reticle_flow_heal', () => {
     expect(res.changed).toEqual([{ step: 0, from: 'old-id', to: 'new-id' }]);
 
     const loaded = await store.load('chat');
-    if (!loaded.ok) throw new Error('expected ok');
+    if (!loaded.ok) {throw new Error('expected ok');}
     expect(loaded.value.steps[0]?.anchor).toEqual({ kind: AnchorKind.TESTID, value: 'new-id' });
 
     // A subsequent replay (the renamed anchor now resolves) is fully green.
@@ -308,7 +308,7 @@ describe('FlowStore.heal + reticle_flow_heal', () => {
     expect(res.changed).toEqual([{ step: 0, from: 'old-id', to: 'new-id' }]);
 
     const loaded = await store.load('chat');
-    if (!loaded.ok) throw new Error('expected ok');
+    if (!loaded.ok) {throw new Error('expected ok');}
     expect(loaded.value.steps[0]?.anchor).toEqual({ kind: AnchorKind.TESTID, value: 'new-id' });
   });
 
@@ -619,9 +619,9 @@ describe('FlowStore.heal + reticle_flow_heal', () => {
     const session = new FakeSession(
       (testid) => {
         if ('old-id' === testid)
-          return { elements: [], hint: present(['new-id', 'delete-everything']) };
+          {return { elements: [], hint: present(['new-id', 'delete-everything']) };}
         if ('save' === testid)
-          return { elements: [], hint: present(['new-id', 'delete-everything']) };
+          {return { elements: [], hint: present(['new-id', 'delete-everything']) };}
         return { elements: [el(`e-${testid}`, testid)] };
       },
       true,
@@ -635,7 +635,7 @@ describe('FlowStore.heal + reticle_flow_heal', () => {
     expect(res.changed).toEqual([{ step: 0, from: 'old-id', to: 'new-id' }]);
 
     const loaded = await store.load('multi');
-    if (!loaded.ok) throw new Error('expected ok');
+    if (!loaded.ok) {throw new Error('expected ok');}
     expect(loaded.value.steps[0]?.anchor).toEqual({ kind: AnchorKind.TESTID, value: 'new-id' });
     expect(loaded.value.steps[1]?.anchor).toEqual({ kind: AnchorKind.TESTID, value: 'save' });
   });
@@ -679,7 +679,7 @@ describe('FlowStore.heal + reticle_flow_heal', () => {
     expect(raw.endsWith('\n\n')).toBe(false);
     const parsed = FlowFileSchema.safeParse(JSON.parse(raw));
     expect(parsed.success).toBe(true);
-    if (parsed.success) expect(parsed.data.createdAt).toBe(FROZEN);
+    if (parsed.success) {expect(parsed.data.createdAt).toBe(FROZEN);}
   });
 });
 
@@ -705,13 +705,13 @@ describe('FlowStore.heal — writer', () => {
       flowFile('multi', [clickStep('keep-a'), clickStep('old-id'), clickStep('keep-b')]),
     );
     const before = await store.load('multi');
-    if (!before.ok) throw new Error('expected ok');
+    if (!before.ok) {throw new Error('expected ok');}
 
     const res = await store.heal('multi', [{ step: 1, from: 'old-id', to: 'new-id' }]);
     expect(res.ok).toBe(true);
 
     const after = await store.load('multi');
-    if (!after.ok) throw new Error('expected ok');
+    if (!after.ok) {throw new Error('expected ok');}
     expect(after.value.steps[0]?.anchor).toEqual(before.value.steps[0]?.anchor);
     expect(after.value.steps[2]?.anchor).toEqual(before.value.steps[2]?.anchor);
     expect(after.value.steps[1]?.anchor).toEqual({ kind: AnchorKind.TESTID, value: 'new-id' });
@@ -721,13 +721,13 @@ describe('FlowStore.heal — writer', () => {
     const writeSpy = vi.spyOn(fsPort, 'writeFile');
     const res = await store.heal('../escape', [{ step: 0, from: 'a', to: 'b' }]);
     expect(res.ok).toBe(false);
-    if (!res.ok) expect(res.code).toBe(FlowErrorCode.INVALID_NAME);
+    if (!res.ok) {expect(res.code).toBe(FlowErrorCode.INVALID_NAME);}
     expect(writeSpy).not.toHaveBeenCalled();
   });
 
   it('returns NOT_FOUND for a missing flow', async () => {
     const res = await store.heal('ghost', [{ step: 0, from: 'a', to: 'b' }]);
     expect(res.ok).toBe(false);
-    if (!res.ok) expect(res.code).toBe(FlowErrorCode.NOT_FOUND);
+    if (!res.ok) {expect(res.code).toBe(FlowErrorCode.NOT_FOUND);}
   });
 });

@@ -27,7 +27,7 @@ import { markStallClock, STALL_AFTER_MS, stallUptime } from '@/portal/session/st
  * missing.
  */
 function installFacts(cwd: string, port: number | undefined): InstallFacts | undefined {
-  if (port === undefined) return undefined;
+  if (port === undefined) {return undefined;}
   try {
     return {
       appConnectedBefore: hasProjectConnectedBefore(reticleStateHome(), port, readProjectId(cwd)),
@@ -157,7 +157,7 @@ export function installDaemonTelemetry(
           'the install may be incomplete. Restart the dev server if you added the Reticle plugin.\n',
       );
     }
-    if (metrics.empty) return; // an idle window is not worth an event
+    if (metrics.empty) {return;} // an idle window is not worth an event
     // NOT daemon_stopped: the daemon is still running. See SESSION_PROGRESS.
     void getTelemetry().emit(TelemetryEventKind.SESSION_PROGRESS, {
       session: withNudgeState(metrics.summarize(false)),

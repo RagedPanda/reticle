@@ -52,7 +52,7 @@ function revealingPage(
             } as CommandResult);
           }
           performed.push(testid);
-          for (const shown of reveals[testid] ?? []) present.add(shown);
+          for (const shown of reveals[testid] ?? []) {present.add(shown);}
         }
       }
       return Promise.resolve({ kind: 'command_result', id: 'a', ok: true } as CommandResult);

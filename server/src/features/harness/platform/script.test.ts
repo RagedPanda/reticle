@@ -337,7 +337,7 @@ describe('a plan that never got to run', () => {
       'The Reticle Harness is off for this project.',
       (url, init) => {
         if ('POST' === init.method)
-          posted.push({ url, body: 'string' === typeof init.body ? init.body : '' });
+          {posted.push({ url, body: 'string' === typeof init.body ? init.body : '' });}
         return Promise.resolve(new Response(JSON.stringify({ planId: 'hp_1', script: saved })));
       },
     );

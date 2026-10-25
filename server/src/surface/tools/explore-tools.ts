@@ -250,9 +250,9 @@ export async function answerExplore(
   const sessionId = str(args['sessionId']);
   const asked = str(args['runId']);
   if (asked !== undefined) {
-    if (true === args['stop']) stopDrive(asked);
+    if (true === args['stop']) {stopDrive(asked);}
     const say = str(args['say']);
-    if (say !== undefined) sayToDrive(asked, say);
+    if (say !== undefined) {sayToDrive(asked, say);}
     return answerDrive(deps, asked, waitMs, call, sessionId, false);
   }
   const running = runningDrive(sessionId);
@@ -292,7 +292,7 @@ export async function answerExplore(
   if (locked !== undefined) {
     reportHarnessBlocked(runStart, locked.reason);
     if (planId !== undefined && platform !== undefined)
-      await reportPlanBlocked(platform, planId, firstLine(locked.text));
+      {await reportPlanBlocked(platform, planId, firstLine(locked.text));}
     throw new Error(locked.text);
   }
   if (!harnessAvailable(env)) {
@@ -301,7 +301,7 @@ export async function answerExplore(
   }
   const harness = randomUUID();
   const runId = harnessRunId(harness);
-  if (runId === undefined) throw new Error(`could not name a run for drive ${harness}`);
+  if (runId === undefined) {throw new Error(`could not name a run for drive ${harness}`);}
   startDrive({
     harness,
     runId,
@@ -337,7 +337,7 @@ async function answerDrive(
     progress === undefined ? undefined : (r) => progress(r.steps, r.lastLine),
   );
   const record = driveRecord(runId) ?? (await readDriveFile(deps, sessionId, runId));
-  if (record === undefined) return fromPlatform(deps, runId);
+  if (record === undefined) {return fromPlatform(deps, runId);}
   if (DriveStatus.RUNNING === record.status) {
     const elapsedS = Math.max(0, Math.round((deps.now() - record.startedAt) / MS_PER_S));
     return {
@@ -359,7 +359,7 @@ async function answerDrive(
       ...(fix === undefined ? {} : { instruction: fix }),
     };
   }
-  if (refuseBroken && record.error !== undefined) throw new Error(record.error);
+  if (refuseBroken && record.error !== undefined) {throw new Error(record.error);}
   return { status: record.status, runId, steps: record.steps, error: record.error ?? 'no result' };
 }
 
@@ -375,22 +375,22 @@ export function fixRequest(result: Record<string, unknown>): string | undefined 
   const rerun =
     'Fix the code, then start the same drive again (the same persona or planId) to verify the fix. ' +
     'Do not report it fixed before that drive passes.';
-  if (0 < findings.length) return `The Harness found a defect: ${findings.join(' ')} ${rerun}`;
+  if (0 < findings.length) {return `The Harness found a defect: ${findings.join(' ')} ${rerun}`;}
   if ('number' === typeof failed && failed >= 1)
-    return (
+    {return (
       `The Harness found a defect: ${String(failed)} check${1 === failed ? '' : 's'} failed. Read ` +
       `\`summary\` and \`goals\` for what failed. ${rerun}`
-    );
+    );}
   // A drive that ran to its end and still missed its goal is not a pass either: on the broken
   // checkout every check held while the order went out at full price. It is a lead, not a verdict,
   // so the agent is asked to find out which, not told there is a defect.
   if (StopReason.FINISHED === result['stopReason'] && false === result['goalMet'])
-    return (
+    {return (
       'The Harness drive did not reach its goal, so nothing is proved. Read `summary` and check the ' +
       'outcome the goal names (for example the request body with reticle_observe). If it shows a ' +
       'defect, fix the code, then start the same drive again (the same persona or planId) to verify ' +
       'the fix. Do not report it fixed before that drive passes.'
-    );
+    );}
   return undefined;
 }
 
@@ -412,9 +412,9 @@ export function platformFindings(summary: string): string[] {
 /** A run this machine no longer holds, from the platform it synced to. */
 async function fromPlatform(deps: ToolDeps, runId: string): Promise<unknown> {
   const platform = serverOptionsFromEnv(await withLinkedCredential(deps, process.env));
-  if (platform === undefined) throw new Error(msgNoDrive(runId));
+  if (platform === undefined) {throw new Error(msgNoDrive(runId));}
   const got = await fetchPlatformRun(platform, runId);
-  if ('error' in got) throw new Error(got.error);
+  if ('error' in got) {throw new Error(got.error);}
   return platformRunAnswer(runId, got.run);
 }
 
@@ -442,7 +442,7 @@ async function readDriveFile(
   try {
     const parsed = asRecord(JSON.parse(await deps.fs.readFile(driveFile(deps, sessionId, runId))));
     const status = Object.values(DriveStatus).find((s) => s === parsed['status']);
-    if (status === undefined || runId !== parsed['harnessRun']) return undefined;
+    if (status === undefined || runId !== parsed['harnessRun']) {return undefined;}
     // A record left `running` by a daemon that has since gone will never finish.
     const lost = DriveStatus.RUNNING === status;
     return {
@@ -460,8 +460,8 @@ const MSG_DRIVE_LOST =
 
 /** How a drive ended, as the registry records it. */
 function statusOf(stopReason: StopReason): DriveStatus {
-  if (StopReason.STOPPED === stopReason) return DriveStatus.STOPPED;
-  if (StopReason.BROKEN === stopReason) return DriveStatus.BROKEN;
+  if (StopReason.STOPPED === stopReason) {return DriveStatus.STOPPED;}
+  if (StopReason.BROKEN === stopReason) {return DriveStatus.BROKEN;}
   return DriveStatus.DONE;
 }
 
@@ -655,10 +655,10 @@ const NOTHING_RECORDED: Record<StopReason, string> = {
  */
 async function driveToEnd(out: Record<string, unknown>): Promise<Record<string, unknown>> {
   const runId = out['runId'];
-  if (DriveStatus.RUNNING !== out['status'] || 'string' !== typeof runId) return out;
+  if (DriveStatus.RUNNING !== out['status'] || 'string' !== typeof runId) {return out;}
   await awaitDrive(runId, undefined);
   const record = driveRecord(runId);
-  if (record?.result !== undefined) return { status: record.status, runId, ...record.result };
+  if (record?.result !== undefined) {return { status: record.status, runId, ...record.result };}
   return {
     status: record?.status,
     runId,
@@ -682,7 +682,7 @@ export async function driveForChat(
   confirmDangerous?: boolean,
 ): Promise<RemoteDriveOutcome> {
   const explore = EXPLORE_TOOLS.find((tool) => ReticleTool.VERIFY_EXPLORE === tool.name);
-  if (explore === undefined) throw new Error('this build has no Harness drive');
+  if (explore === undefined) {throw new Error('this build has no Harness drive');}
   const out = await driveToEnd(
     asRecord(
       await runTool(explore, deps, {

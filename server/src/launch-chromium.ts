@@ -73,8 +73,8 @@ export function channelExecutableCandidates(
   env: NodeJS.ProcessEnv,
 ): string[] {
   const paths = CHANNEL_PATHS[channel];
-  if ('darwin' === platform) return [paths.darwin];
-  if ('linux' === platform) return [paths.linux];
+  if ('darwin' === platform) {return [paths.darwin];}
+  if ('linux' === platform) {return [paths.linux];}
   if ('win32' === platform) {
     return WINDOWS_INSTALL_ROOTS.flatMap((key) => {
       const root = env[key];
@@ -150,7 +150,7 @@ export async function resolveChromiumTarget(deps: ChromiumTargetDeps): Promise<C
     // rather than download ~150 MiB on a guess.
     return { found: true };
   }
-  if (deps.exists(bundled)) return { found: true };
+  if (deps.exists(bundled)) {return { found: true };}
   const channel = findInstalledChannel(deps);
   if (channel !== undefined) {
     deps.announce(usingChannelLine(channel));
@@ -158,7 +158,7 @@ export async function resolveChromiumTarget(deps: ChromiumTargetDeps): Promise<C
   }
   deps.announce(installingLine(chromiumInstallCommand(bundledPlaywrightVersion())));
   const ok = await deps.install();
-  if (ok && deps.exists(bundled)) return { found: true };
+  if (ok && deps.exists(bundled)) {return { found: true };}
   deps.announce(INSTALL_FAILED_LINE);
   return { found: false };
 }
@@ -203,7 +203,7 @@ function installPinnedChromium(): Promise<boolean> {
       child.on('error', () => resolve(false));
       child.on('exit', (code) => resolve(0 === code));
     }).then((ok) => {
-      if (!ok) installing = undefined;
+      if (!ok) {installing = undefined;}
       return ok;
     });
   }
@@ -224,7 +224,7 @@ export interface LaunchableChromium<B> {
 export function announceOnce(write: (line: string) => void): (line: string) => void {
   const said = new Set<string>();
   return (line) => {
-    if (said.has(line)) return;
+    if (said.has(line)) {return;}
     said.add(line);
     write(line);
   };
@@ -292,11 +292,11 @@ export async function probeLaunchableChromium(
   machine: ProbeMachine = THIS_MACHINE,
 ): Promise<ChromiumProbe> {
   const configured = configuredChromiumProbe(machine.env, machine.pathProblem);
-  if (configured !== undefined) return configured;
+  if (configured !== undefined) {return configured;}
   try {
     const { chromium } = await import('playwright');
     const target = await resolveChromiumTarget(defaultDeps(chromium));
-    if (target.found) return { exists: true };
+    if (target.found) {return { exists: true };}
   } catch {
     // No playwright at all — probeChromium below says so, with where it looked.
   }
@@ -311,9 +311,9 @@ export async function probeChromiumWithFallback(
   machine: ProbeMachine = THIS_MACHINE,
 ): Promise<ChromiumProbe> {
   const configured = configuredChromiumProbe(machine.env, machine.pathProblem);
-  if (configured !== undefined) return configured;
+  if (configured !== undefined) {return configured;}
   const probe = await probeChromium();
-  if (probe.exists) return probe;
+  if (probe.exists) {return probe;}
   const channel = findInstalledChannel({
     exists: machine.exists,
     platform: process.platform,

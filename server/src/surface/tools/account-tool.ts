@@ -60,9 +60,9 @@ export function accountFacts(input: AccountInput): Record<string, unknown> {
     linked: input.platform !== undefined,
     ...(input.dashboardUrl === undefined ? {} : { dashboardUrl: input.dashboardUrl }),
   };
-  if (!input.signedIn) return { ...base, next: ACCOUNT_NEXT.SIGN_IN };
-  if (input.platform === undefined) return { ...base, next: ACCOUNT_NEXT.LINK };
-  if (null === input.platform) return { ...base, next: ACCOUNT_NEXT.unreachable(input.cloudUrl) };
+  if (!input.signedIn) {return { ...base, next: ACCOUNT_NEXT.SIGN_IN };}
+  if (input.platform === undefined) {return { ...base, next: ACCOUNT_NEXT.LINK };}
+  if (null === input.platform) {return { ...base, next: ACCOUNT_NEXT.unreachable(input.cloudUrl) };}
   const p = input.platform;
   const rawCredits = asRecord(p['credits']);
   const used = num(rawCredits['used']);
@@ -118,14 +118,14 @@ export function accountFacts(input: AccountInput): Record<string, unknown> {
 async function platformConfig(
   platform: { url: string; apiKey: string } | null,
 ): Promise<Record<string, unknown> | null | undefined> {
-  if (null === platform) return undefined;
+  if (null === platform) {return undefined;}
   try {
     const res = await fetch(`${platform.url.replace(/\/+$/, '')}${CONFIG_PATH}`, {
       method: 'GET',
       headers: platformHeaders(platform),
       signal: AbortSignal.timeout(CONFIG_TIMEOUT_MS),
     });
-    if (!res.ok) return null;
+    if (!res.ok) {return null;}
     return asRecord(JSON.parse(await res.text()) as unknown);
   } catch {
     return null;

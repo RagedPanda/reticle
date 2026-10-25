@@ -45,11 +45,11 @@ function publishableDirs(): string[] {
   for (const rel of out.split('\n').filter((l) => l.length > 0)) {
     const raw = readFileSync(join(REPO_ROOT, rel), 'utf8');
     const parsed: unknown = JSON.parse(raw);
-    if ('object' !== typeof parsed || null === parsed) continue;
+    if ('object' !== typeof parsed || null === parsed) {continue;}
     const manifest = parsed as Record<string, unknown>;
-    if (true === manifest['private'] || 'string' !== typeof manifest['name']) continue;
+    if (true === manifest['private'] || 'string' !== typeof manifest['name']) {continue;}
     const dir = rel.replace(/\/?package\.json$/, '');
-    if ('' !== dir) dirs.push(dir);
+    if ('' !== dir) {dirs.push(dir);}
   }
   return dirs;
 }
@@ -64,7 +64,7 @@ function builtFiles(dist: string): string[] {
         walk(full);
         continue;
       }
-      if (/\.(js|cjs|mjs|d\.ts|d\.cts)$/.test(entry)) found.push(full);
+      if (/\.(js|cjs|mjs|d\.ts|d\.cts)$/.test(entry)) {found.push(full);}
     }
   };
   walk(dist);

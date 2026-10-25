@@ -21,7 +21,7 @@ const CLOUD_COMMANDS = ['login', 'logout', 'whoami', 'link', 'project', 'push', 
 describe('asking any command what it does gets an answer, not an attempt', () => {
   it('the cloud commands really are dispatched separately', () => {
     // The premise. If this stops being true the rest of the file is checking nothing.
-    for (const cmd of CLOUD_COMMANDS) expect(isCloudCommand(cmd), cmd).toBe(true);
+    for (const cmd of CLOUD_COMMANDS) {expect(isCloudCommand(cmd), cmd).toBe(true);}
   });
 
   it('the local parser already answers help for the commands it owns', () => {

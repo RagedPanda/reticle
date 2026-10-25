@@ -25,9 +25,9 @@ const NULL_NOISE = new Set(['occludedBy', 'focusMoved']);
 function leanEffect(effect: Record<string, unknown>): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(effect)) {
-    if (TRUE_NOISE.has(k) && true === v) continue;
-    if (FALSE_NOISE.has(k) && false === v) continue;
-    if (NULL_NOISE.has(k) && null === v) continue;
+    if (TRUE_NOISE.has(k) && true === v) {continue;}
+    if (FALSE_NOISE.has(k) && false === v) {continue;}
+    if (NULL_NOISE.has(k) && null === v) {continue;}
     out[k] = v;
   }
   return out;
@@ -35,10 +35,10 @@ function leanEffect(effect: Record<string, unknown>): Record<string, unknown> {
 
 /** Return a copy of an act command result with its `effect` block leaned. Non-objects pass through. */
 export function leanActResult(result: unknown): unknown {
-  if (null === result || typeof result !== 'object') return result;
+  if (null === result || typeof result !== 'object') {return result;}
   const r = result as Record<string, unknown>;
   const effect = r['effect'];
-  if (null === effect || typeof effect !== 'object') return result;
+  if (null === effect || typeof effect !== 'object') {return result;}
   return { ...r, effect: leanEffect(effect as Record<string, unknown>) };
 }
 
@@ -50,7 +50,7 @@ export function leanActResult(result: unknown): unknown {
  */
 export function mutatedWithin(result: Record<string, unknown>): number | undefined {
   const effect = result['effect'];
-  if (typeof effect !== 'object' || null === effect) return undefined;
+  if (typeof effect !== 'object' || null === effect) {return undefined;}
   const value = (effect as Record<string, unknown>)['domMutatedWithin'];
   return 'number' === typeof value ? value : 0;
 }

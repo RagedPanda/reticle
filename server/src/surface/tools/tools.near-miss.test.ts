@@ -33,7 +33,7 @@ function depsWith(events: ReticleEvent[]): ToolDeps {
 
 function tool(name: string) {
   const t = TOOLS.find((x) => x.name === name);
-  if (t === undefined) throw new Error(`no tool ${name}`);
+  if (t === undefined) {throw new Error(`no tool ${name}`);}
   return t;
 }
 

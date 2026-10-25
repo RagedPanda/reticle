@@ -67,7 +67,7 @@ import {
 
 /** Narrow the `/status` payload to the two fields the daemon line reads. */
 function asIdentity(payload: unknown): DaemonIdentity {
-  if (typeof payload !== 'object' || null === payload) return {};
+  if (typeof payload !== 'object' || null === payload) {return {};}
   const record = payload as Record<string, unknown>;
   const pick = (key: string): string | undefined => {
     const value = record[key];
@@ -129,7 +129,7 @@ export async function handleDoctor(port: number): Promise<void> {
       contract: CONTRACT_FINGERPRINT,
     });
     line(built.text);
-    if (built.skew !== undefined) line(doctorRow(DoctorRow.VERSION, `✗ ${built.skew}`));
+    if (built.skew !== undefined) {line(doctorRow(DoctorRow.VERSION, `✗ ${built.skew}`));}
     // The same payload already carries whether anything has CONNECTED, and doctor was reading
     // `version` off it and dropping the rest. Without this the command is silent on the one step the
     // funnel stalls on: wired correctly, daemon up, and no page has ever dialled in.
@@ -170,11 +170,11 @@ export async function handleDoctor(port: number): Promise<void> {
       ),
     );
   }
-  if (sessions !== undefined) line(sessions.text);
-  for (const row of coverageLines(daemonStatus)) line(row);
+  if (sessions !== undefined) {line(sessions.text);}
+  for (const row of coverageLines(daemonStatus)) {line(row);}
   // Runs nothing will send, named by folder with the one command that sends them.
   for (const entry of await machineUnsyncedRoots(createNodeFileSystem(), homedir(), process.env))
-    line(doctorRow(DoctorRow.UNSYNCED, `✗ ${describeUnsynced(entry, process.cwd())}`));
+    {line(doctorRow(DoctorRow.UNSYNCED, `✗ ${describeUnsynced(entry, process.cwd())}`));}
   line(
     doctorRow(
       DoctorRow.BRIDGE_PORT,
@@ -183,7 +183,7 @@ export async function handleDoctor(port: number): Promise<void> {
   );
   const projectPort = readProjectPort(process.cwd());
   const mismatch = diagnosePortMismatch(port, projectPort);
-  if (mismatch !== undefined) line(doctorRow(DoctorRow.PORT_CHECK, `✗ ${mismatch}`));
+  if (mismatch !== undefined) {line(doctorRow(DoctorRow.PORT_CHECK, `✗ ${mismatch}`));}
 
   const projectId = readProjectId(process.cwd());
   // The hop between the agent and this daemon, stated as its own row rather than inferred from the
@@ -219,7 +219,7 @@ export async function handleDoctor(port: number): Promise<void> {
   // it is the daemon this app wants — somebody else's daemon looks the same from here.
   const occupiedSiblings = await findOccupiedSiblings(port, probeDaemon);
   const siblingNote = siblingListenerNote(port, occupiedSiblings);
-  if (siblingNote !== undefined) line(doctorRow(DoctorRow.SIBLING, siblingNote));
+  if (siblingNote !== undefined) {line(doctorRow(DoctorRow.SIBLING, siblingNote));}
   // The check this checklist was missing: is the APP wired, not just the tools. Everything above can
   // be green in a project that has never been through `init`, and that combination is precisely the
   // one `doctor` gets run to explain.
@@ -233,7 +233,7 @@ export async function handleDoctor(port: number): Promise<void> {
     }),
   );
   // Are prompts reaching `.reticle/`, and is the work reaching the user's own workspace.
-  for (const row of await captureAndSyncLines(process.cwd(), process.env)) line(row);
+  for (const row of await captureAndSyncLines(process.cwd(), process.env)) {line(row);}
   // Where to LOOK when something is wrong. The daemon has always written a structured log here and
   // nothing ever said so, so the first move in every investigation was reading source instead of
   // reading the log. `RETICLE_TRACE=1` turns the same stream into a per-stage trace — see
@@ -330,7 +330,7 @@ export async function handleDoctor(port: number): Promise<void> {
     line(doctorRow(DoctorRow.DESKTOP, '✓ desktop wiring looks right'));
   }
   const keychain = keychainNoteFor({ read: readProjectFile });
-  if (keychain !== undefined) line(doctorRow(DoctorRow.DESKTOP, `⚠ ${keychain}`));
+  if (keychain !== undefined) {line(doctorRow(DoctorRow.DESKTOP, `⚠ ${keychain}`));}
 }
 
 /**
@@ -362,6 +362,6 @@ async function captureAndSyncLines(cwd: string, env: NodeJS.ProcessEnv): Promise
       : `last push ${new Date(state.lastPushAt).toISOString()}`;
   lines.push(doctorRow(DoctorRow.SYNC, `${on ? '✓ on' : '✗ off'}: ${gate.why}; ${last}`));
   if (state.lastError !== undefined)
-    lines.push(doctorRow(DoctorRow.SYNC, `✗ last error: ${state.lastError}`));
+    {lines.push(doctorRow(DoctorRow.SYNC, `✗ last error: ${state.lastError}`));}
   return lines;
 }

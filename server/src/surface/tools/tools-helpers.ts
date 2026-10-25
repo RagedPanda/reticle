@@ -22,13 +22,13 @@ export const SESSION_ID_ARG = 'sessionId';
  */
 export function sessionIdFromArgs(args: Record<string, unknown>): string | undefined {
   const top = asString(args[SESSION_ID_ARG]);
-  if (top !== undefined) return top;
+  if (top !== undefined) {return top;}
   const steps = args['steps'];
-  if (!Array.isArray(steps)) return undefined;
+  if (!Array.isArray(steps)) {return undefined;}
   let found: string | undefined;
   for (const raw of steps) {
     const id = asString(asRecord(raw)[SESSION_ID_ARG]);
-    if (id === undefined) continue;
+    if (id === undefined) {continue;}
     if (found !== undefined && found !== id) {
       throw new Error(
         `reticle_act_sequence steps name different sessionIds ('${found}' and '${id}'). ` +
@@ -49,9 +49,9 @@ export function sessionIdFromArgs(args: Record<string, unknown>): string | undef
  */
 export function spentRefFromArgs(args: Record<string, unknown>): string | undefined {
   const top = asString(args['ref']);
-  if (top !== undefined) return top;
+  if (top !== undefined) {return top;}
   const steps = args['steps'];
-  if (!Array.isArray(steps) || 0 === steps.length) return undefined;
+  if (!Array.isArray(steps) || 0 === steps.length) {return undefined;}
   return asString(asRecord(steps[0])['ref']);
 }
 
@@ -65,12 +65,12 @@ export function spentRefFromArgs(args: Record<string, unknown>): string | undefi
 export function sourceOf(
   value: unknown,
 ): { file: string; line: number; column?: number } | undefined {
-  if (null === value || typeof value !== 'object') return undefined;
+  if (null === value || typeof value !== 'object') {return undefined;}
   const record = value as Record<string, unknown>;
   const file = record['file'];
   const line = record['line'];
-  if (typeof file !== 'string' || 0 === file.length || typeof line !== 'number') return undefined;
+  if (typeof file !== 'string' || 0 === file.length || typeof line !== 'number') {return undefined;}
   const out: { file: string; line: number; column?: number } = { file, line };
-  if ('number' === typeof record['column']) out.column = record['column'];
+  if ('number' === typeof record['column']) {out.column = record['column'];}
   return out;
 }

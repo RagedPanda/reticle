@@ -127,7 +127,7 @@ describe('nothing was thrown away', () => {
 
   it('the branches that had a differential still carry one', () => {
     const wired = BRANCHES.find((b) => 'wired and silent' === b.name);
-    if (wired === undefined) throw new Error('fixture missing');
+    if (wired === undefined) {throw new Error('fixture missing');}
     const { detail } = explainNoSession(wired.facts);
     expect(detail ?? '').not.toBe('');
     // The clauses that exist because somebody was sent the wrong way without them.

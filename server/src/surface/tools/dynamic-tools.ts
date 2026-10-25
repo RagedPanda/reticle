@@ -57,9 +57,9 @@ function boundsOf(schema: z.ZodTypeAny): { min?: number; max?: number } {
       inner = inner.removeDefault() as z.ZodTypeAny;
     } else if (inner instanceof z.ZodEffects) {
       inner = inner.innerType() as z.ZodTypeAny;
-    } else break;
+    } else {break;}
   }
-  if (!(inner instanceof z.ZodNumber)) return {};
+  if (!(inner instanceof z.ZodNumber)) {return {};}
   const { minValue: min, maxValue: max } = inner;
   return { ...(null === min ? {} : { min }), ...(null === max ? {} : { max }) };
 }
@@ -263,7 +263,7 @@ export function buildDynamicTools(
         tools: names.map((n) => {
           const t = byName.get(n);
           if (t !== undefined)
-            return { name: n, description: t.description, params: paramInfo(t.inputSchema) };
+            {return { name: n, description: t.description, params: paramInfo(t.inputSchema) };}
           // `reticle_run` has answered a merged name with its replacement for a while; the tool
           // asked to DISCOVER tools still said "unknown tool", which is the wrong answer in the one
           // place an agent goes to resolve a name it is unsure of. Same redirect, same derivation.
@@ -327,7 +327,7 @@ export function buildDynamicTools(
         // ...and for 22 of those names the capability DOES exist, it just moved when tools merged.
         // Answering "unknown tool" there is simply wrong; see merged-name-redirect.
         const absent = explainAbsent(name);
-        if ('unknown tool' !== absent.error) return absent;
+        if ('unknown tool' !== absent.error) {return absent;}
         return { error: `unknown tool '${name}'`, available: reachable.map((t) => t.name) };
       }
       // The outer aim, forwarded ONLY to a tool that declares a session — injecting it into one that

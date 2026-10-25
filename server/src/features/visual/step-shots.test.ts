@@ -67,7 +67,7 @@ async function setup(fakes: Fakes): Promise<{ deps: ToolDeps; root: string; sess
     artifactRoot: root,
     isEnded: () => false,
     command: (name: string) => {
-      if (name !== ReticleCommand.RENDER) return Promise.resolve({ ok: false, error: 'no' });
+      if (name !== ReticleCommand.RENDER) {return Promise.resolve({ ok: false, error: 'no' });}
       const result = fakes.render?.();
       return Promise.resolve(
         result === undefined
@@ -253,7 +253,7 @@ const FRAME_BUDGET_TIMEOUT_MS = 60_000;
 
 describe('frames between steps', () => {
   afterEach(() => {
-    for (let i = 0; i <= tabs; i += 1) stopFilming(`s${String(i)}`);
+    for (let i = 0; i <= tabs; i += 1) {stopFilming(`s${String(i)}`);}
   });
 
   it('films a driven tab into the run of its last step, and skips a page that did not change', async () => {
@@ -276,7 +276,7 @@ describe('frames between steps', () => {
     let n = 0;
     const { deps, root, sessionId } = await setup({ browser: () => fakeJpeg(8, 6, n++ % 2) });
     await takeStepShot(deps, sessionId, 'reticle_act');
-    for (let i = 0; i < 20; i += 1) await filmNow(sessionId);
+    for (let i = 0; i < 20; i += 1) {await filmNow(sessionId);}
     await shotsLanded(root, `drive-${sessionId}`);
     const shots = await readStepShots(deps.fs, root, `drive-${sessionId}`);
     expect(shots.filter((s) => FRAME.TOOL === s.tool).length).toBeLessThanOrEqual(2);
@@ -293,7 +293,7 @@ describe('frames between steps', () => {
     });
     await takeStepShot(deps, sessionId, 'reticle_act');
     const afterStep = captures;
-    for (let i = 0; i < 64; i += 1) await filmNow(sessionId);
+    for (let i = 0; i < 64; i += 1) {await filmNow(sessionId);}
     expect(captures - afterStep).toBeLessThanOrEqual(8);
   });
 
@@ -312,7 +312,7 @@ describe('frames between steps', () => {
       let n = 0;
       const { deps, root, sessionId } = await setup({ browser: () => fakeJpeg(8, 6, n++ % 250) });
       await takeStepShot(deps, sessionId, 'reticle_act');
-      for (let i = 0; i < 2_000; i += 1) await filmNow(sessionId);
+      for (let i = 0; i < 2_000; i += 1) {await filmNow(sessionId);}
       await takeStepShot(deps, sessionId, 'reticle_act');
       await shotsLanded(root, `drive-${sessionId}`);
       const shots = await readStepShots(deps.fs, root, `drive-${sessionId}`);

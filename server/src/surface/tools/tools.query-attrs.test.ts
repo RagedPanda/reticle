@@ -28,7 +28,7 @@ function depsCapturing(seen: { args?: Record<string, unknown> | undefined }): To
 
 const queryTool = () => {
   const tool = TOOLS.find((t) => t.name === ReticleTool.QUERY);
-  if (tool === undefined) throw new Error('reticle_query is not on the surface');
+  if (tool === undefined) {throw new Error('reticle_query is not on the surface');}
   return tool;
 };
 
@@ -84,11 +84,11 @@ describe('QUERY output schema declares every field a descriptor can carry', () =
     const elements = query?.outputSchema?.['elements'];
     // elements is ZodOptional<ZodArray<ZodObject>>. Walk it with zod's PUBLIC api (no _def spelunking).
     if (!(elements instanceof z.ZodOptional))
-      throw new Error('elements is not optional as expected');
+      {throw new Error('elements is not optional as expected');}
     const arr = elements.unwrap() as z.ZodTypeAny;
-    if (!(arr instanceof z.ZodArray)) throw new Error('elements is not an array as expected');
+    if (!(arr instanceof z.ZodArray)) {throw new Error('elements is not an array as expected');}
     const obj = arr.element as z.ZodTypeAny;
-    if (!(obj instanceof z.ZodObject)) throw new Error('element is not an object as expected');
+    if (!(obj instanceof z.ZodObject)) {throw new Error('element is not an object as expected');}
     const keys = Object.keys((obj as z.ZodObject<z.ZodRawShape>).shape);
     expect(keys).toContain('chart');
     expect(keys).toContain('source');
@@ -122,7 +122,7 @@ describe('QUERY output schema declares every field a descriptor can carry', () =
       'verdict'
     ];
     if (!(verdict instanceof z.ZodObject))
-      throw new Error('act_and_wait verdict is not an object schema');
+      {throw new Error('act_and_wait verdict is not an object schema');}
     expect(Object.keys((verdict as z.ZodObject<z.ZodRawShape>).shape)).toContain('inconclusive');
   });
 });

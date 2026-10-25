@@ -30,6 +30,6 @@ export async function withTimeout<T>(
       }),
     ]);
   } finally {
-    if (timer !== undefined) clearTimeout(timer);
+    if (timer !== undefined) {clearTimeout(timer);}
   }
 }

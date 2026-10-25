@@ -15,7 +15,7 @@ const isRecord = (v: unknown): v is Record<string, unknown> => 'object' === type
 export function versionsIn(value: unknown): Record<string, string> {
   const out: Record<string, string> = {};
   if (isRecord(value))
-    for (const [name, v] of Object.entries(value)) if ('string' === typeof v) out[name] = v;
+    {for (const [name, v] of Object.entries(value)) {if ('string' === typeof v) {out[name] = v;}}}
   return out;
 }
 
@@ -31,8 +31,8 @@ export function flowBases(
   const out: Record<string, string | null> = {};
   for (const { name } of pending) {
     const v = versions[name];
-    if (v !== undefined) out[name] = v;
-    else if (sentHashes[name] === undefined) out[name] = null;
+    if (v !== undefined) {out[name] = v;}
+    else if (sentHashes[name] === undefined) {out[name] = null;}
   }
   return out;
 }

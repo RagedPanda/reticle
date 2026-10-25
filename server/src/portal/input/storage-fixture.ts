@@ -45,7 +45,7 @@ export async function fixturePortFor(
   if (provider.storageState === undefined || provider.applyStorageState === undefined) {
     return undefined;
   }
-  if (!(await provider.isAvailableFor(sessionUrl))) return undefined;
+  if (!(await provider.isAvailableFor(sessionUrl))) {return undefined;}
   return {
     /** Verbatim, and opaque: only the browser that wrote this can read it back. */
     capture: () => provider.storageState?.(sessionUrl) ?? Promise.resolve(undefined),
@@ -99,17 +99,17 @@ interface SavedContextState {
  * asked to boot with one would pay the isolation cost for no state.
  */
 export function seedFromStorageState(state: unknown, pageUrl: string): SeedStorage | undefined {
-  if ('object' !== typeof state || null === state) return undefined;
+  if ('object' !== typeof state || null === state) {return undefined;}
   const saved = state as SavedContextState;
   const local: Record<string, string> = {};
   for (const origin of saved.origins ?? []) {
-    if (!pageUrl.startsWith(origin.origin)) continue;
-    for (const entry of origin.localStorage ?? []) local[entry.name] = entry.value;
+    if (!pageUrl.startsWith(origin.origin)) {continue;}
+    for (const entry of origin.localStorage ?? []) {local[entry.name] = entry.value;}
   }
   const cookies = saved.cookies ?? [];
   const hasCookies = Array.isArray(cookies) ? cookies.length > 0 : Object.keys(cookies).length > 0;
   const hasLocal = Object.keys(local).length > 0;
-  if (!hasCookies && !hasLocal) return undefined;
+  if (!hasCookies && !hasLocal) {return undefined;}
   return {
     ...(hasCookies ? { cookies } : {}),
     ...(hasLocal ? { local } : {}),

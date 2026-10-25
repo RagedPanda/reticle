@@ -26,10 +26,10 @@ export function publishedPackageDirs(): string[] {
   const yaml = readFileSync(join(REPO_ROOT, 'pnpm-workspace.yaml'), 'utf8');
   const found: string[] = [];
   for (const glob of workspaceGlobs(yaml)) {
-    if (glob.startsWith('apps')) continue;
+    if (glob.startsWith('apps')) {continue;}
     const [head, ...rest] = glob.split('/');
     const start = join(REPO_ROOT, head ?? '');
-    if (!existsSync(start)) continue;
+    if (!existsSync(start)) {continue;}
     collect(start, rest.length, found);
   }
   return found;
@@ -38,10 +38,10 @@ export function publishedPackageDirs(): string[] {
 /** Walk exactly `levels` directories down, keeping anything that has a manifest. */
 function collect(dir: string, levels: number, into: string[]): void {
   if (0 === levels) {
-    if (existsSync(join(dir, 'package.json'))) into.push(dir);
+    if (existsSync(join(dir, 'package.json'))) {into.push(dir);}
     return;
   }
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    if (entry.isDirectory()) collect(join(dir, entry.name), levels - 1, into);
+    if (entry.isDirectory()) {collect(join(dir, entry.name), levels - 1, into);}
   }
 }

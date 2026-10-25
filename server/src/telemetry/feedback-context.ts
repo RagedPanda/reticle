@@ -96,7 +96,7 @@ function stackOfManifest(dir: string, read: (path: string) => string): ManifestS
   const deps = { ...pkg.devDependencies, ...pkg.dependencies };
   for (const [dep, stack] of STACK_BY_DEP) {
     const range = deps[dep];
-    if (range === undefined) continue;
+    if (range === undefined) {continue;}
     const stackMajor = parseMajor(range);
     return { kind: 'found', stack, ...(stackMajor !== undefined ? { stackMajor } : {}) };
   }
@@ -150,7 +150,7 @@ export function detectStack(
       }
       // A manifest we READ and did not recognise is evidence about the app; a directory with no
       // manifest is not an app at all and says nothing either way.
-      if ('unrecognised' === found.kind) sawWorkspaceApp = true;
+      if ('unrecognised' === found.kind) {sawWorkspaceApp = true;}
     }
   } catch {
     // Discovery touches the filesystem; a permission error must never cost us the profile event.
@@ -300,9 +300,9 @@ export function reconcileStack(
   adapters: readonly string[] | undefined,
 ): { stack?: string; stackMajor?: number } {
   const claimed = adapters?.find((adapter) => adapter in ADAPTER_IMPLIES);
-  if (claimed === undefined) return fromCwd;
+  if (claimed === undefined) {return fromCwd;}
   const consistent = ADAPTER_IMPLIES[claimed] ?? [];
-  if (fromCwd.stack !== undefined && consistent.includes(fromCwd.stack)) return fromCwd;
+  if (fromCwd.stack !== undefined && consistent.includes(fromCwd.stack)) {return fromCwd;}
   // The major belonged to the directory's framework, so it cannot travel with a different stack.
   return { stack: claimed };
 }

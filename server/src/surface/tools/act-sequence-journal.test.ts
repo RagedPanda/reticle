@@ -110,7 +110,7 @@ function depsFor(session: Session, recordings = new RecordingStore()): ToolDeps 
 
 function tool(name: string) {
   const found = [...TOOLS, ...LIVE_CONTROL_TOOLS].find((t) => t.name === name);
-  if (found === undefined) throw new Error(`no ${name} tool`);
+  if (found === undefined) {throw new Error(`no ${name} tool`);}
   return found;
 }
 

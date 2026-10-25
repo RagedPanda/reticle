@@ -33,9 +33,9 @@ const PROBE_MAX_BYTES = 200_000;
 
 /** Pure: the verdict for a document body we managed to read. Exported so the rule is testable. */
 export function readSdkMarker(body: string): boolean | undefined {
-  if (body.includes(RETICLE_RENDER_PREHOOK)) return true;
+  if (body.includes(RETICLE_RENDER_PREHOOK)) {return true;}
   // Case-insensitive and deliberately broad: ANY mention is enough to withhold the accusation.
-  if (!/reticle/i.test(body)) return false;
+  if (!/reticle/i.test(body)) {return false;}
   return undefined;
 }
 
@@ -45,7 +45,7 @@ export async function probeSdkMarker(url: string): Promise<boolean | undefined> 
   const timer = setTimeout(() => controller.abort(), PROBE_TIMEOUT_MS);
   try {
     const res = await fetch(url, { signal: controller.signal });
-    if (!res.ok) return undefined;
+    if (!res.ok) {return undefined;}
     const body = (await res.text()).slice(0, PROBE_MAX_BYTES);
     return readSdkMarker(body);
   } catch {

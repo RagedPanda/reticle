@@ -228,16 +228,17 @@ const COMMANDS: readonly CommandDoc[] = [
   },
   {
     name: 'hook',
-    synopsis: 'hook [install|uninstall|status|prompt --agent <id>]',
+    synopsis: 'hook [install|uninstall|status|prompt --agent <id>|tool --agent <id>]',
     summary: 'Save each prompt you send to .reticle/, through your agent hooks',
     group: HelpGroup.MORE,
     detail:
       '  hook install      add the prompt-capture hook for the agents used here\n' +
       '  hook uninstall    remove exactly the entries hook install added\n' +
       '  hook status       which agents capture prompts, and which rely on the MCP instructions\n' +
-      '  hook prompt --agent <id>   what the agent hook runs; reads the prompt on stdin\n\n' +
+      '  hook prompt --agent <id>   what the agent hook runs; reads the prompt on stdin\n' +
+      '  hook tool --agent <id>     what the post-tool hook runs; keeps the call in .reticle/episodes/\n\n' +
       'Off for one project: "promptCapture": false in .reticle.json. Off on this machine:\n' +
-      'RETICLE_PROMPT_CAPTURE=0.',
+      'RETICLE_PROMPT_CAPTURE=0. Tool calls follow the journal: "journal": false or RETICLE_JOURNAL=0.',
   },
   {
     name: 'mcp',
@@ -323,12 +324,12 @@ export function renderHelp(
   topic: string | undefined,
   renamed: ReadonlyMap<string, string> = new Map(),
 ): string {
-  if (topic === undefined) return CLI_USAGE;
-  if (HELP_ALL_TOPIC === topic) return CLI_USAGE_ALL;
+  if (topic === undefined) {return CLI_USAGE;}
+  if (HELP_ALL_TOPIC === topic) {return CLI_USAGE_ALL;}
   const now = renamed.get(topic);
   const target = now?.split(' ')[0] ?? topic;
   const doc = COMMANDS.find((c) => c.name === target);
-  if (doc === undefined) return CLI_USAGE;
+  if (doc === undefined) {return CLI_USAGE;}
   return [
     `usage:  reticle ${doc.synopsis}`,
     ...(now === undefined ? [] : [`        (\`reticle ${topic}\` is now \`reticle ${now}\`)`]),

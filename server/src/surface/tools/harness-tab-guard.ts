@@ -20,7 +20,7 @@ export function harnessDriving<Ext>(
   args: Record<string, unknown>,
 ): string | undefined {
   // No drive anywhere is the usual case, and it touches nothing: not even which tab this call is.
-  if (currentDrivenBy() !== undefined || 0 === runningDrives().length) return undefined;
+  if (currentDrivenBy() !== undefined || 0 === runningDrives().length) {return undefined;}
   let sessionId: string | undefined;
   try {
     sessionId = deps.sessions.resolve(sessionIdFromArgs(args)).id;

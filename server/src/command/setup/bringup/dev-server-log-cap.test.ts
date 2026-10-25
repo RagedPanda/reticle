@@ -25,7 +25,7 @@ describe('the bounded log', () => {
     const dir = mkdtempSync(join(tmpdir(), 'bounded-log-'));
     const path = join(dir, 'dev.log');
     const log = new BoundedLog(path, 1_000);
-    for (let i = 0; i < 500; i += 1) log.write(Buffer.from(`line ${String(i)}\n`));
+    for (let i = 0; i < 500; i += 1) {log.write(Buffer.from(`line ${String(i)}\n`));}
     log.close();
     expect(size(path)).toBeLessThanOrEqual(1_000);
     expect(size(`${path}${ROTATED_SUFFIX}`)).toBeLessThanOrEqual(1_000);
@@ -53,7 +53,7 @@ describe('the bounded log', () => {
     mkdirSync(`${path}${ROTATED_SUFFIX}`);
     writeFileSync(join(`${path}${ROTATED_SUFFIX}`, 'occupied'), 'x');
     const log = new BoundedLog(path, 100);
-    for (let i = 0; i < 50; i += 1) log.write(Buffer.from(`line ${String(i)}\n`));
+    for (let i = 0; i < 50; i += 1) {log.write(Buffer.from(`line ${String(i)}\n`));}
     log.close();
     expect(readFileSync(path, 'utf8')).toContain('line 49');
     expect(size(path)).toBeLessThanOrEqual(100);

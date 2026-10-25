@@ -40,8 +40,8 @@ function runInstaller(box: Sandbox): { code: number | null; out: string; home: s
   const bin = join(root, 'bin');
   const prefix = join(root, 'global');
   const cwd = join(root, 'cwd');
-  for (const dir of [home, bin, prefix, cwd]) mkdirSync(dir, { recursive: true });
-  if (true === box.inApp) writeFileSync(join(cwd, 'package.json'), '{}');
+  for (const dir of [home, bin, prefix, cwd]) {mkdirSync(dir, { recursive: true });}
+  if (true === box.inApp) {writeFileSync(join(cwd, 'package.json'), '{}');}
   symlinkSync(process.execPath, join(bin, 'node'));
   if (true === box.shadow) {
     writeFileSync(join(bin, 'reticle'), '#!/bin/sh\necho OLD-RETICLE-RAN\n');
@@ -161,7 +161,7 @@ describe.skipIf('win32' === process.platform)('install.sh', () => {
   });
 
   it('parses and runs under dash, the /bin/sh of Debian and Ubuntu', () => {
-    if (!existsSync('/bin/dash')) return;
+    if (!existsSync('/bin/dash')) {return;}
     const { code, out } = runInstaller({
       shell: '/bin/dash',
       result: 'RETICLE_INSTALL agents=0 app=here',

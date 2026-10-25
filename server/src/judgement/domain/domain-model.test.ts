@@ -16,7 +16,7 @@ function testidStep(value: string): FlowStep {
 
 function flow(name: string, steps: FlowStep[], success?: Predicate): FlowFile {
   const f: FlowFile = { version: FLOW_FILE_VERSION, name, createdAt: 0, steps };
-  if (success !== undefined) f.success = success;
+  if (success !== undefined) {f.success = success;}
   return f;
 }
 

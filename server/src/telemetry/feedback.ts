@@ -214,7 +214,7 @@ const REDACTIONS: readonly {
     replace: (name) => {
       const labels = name.toLowerCase().split('.');
       const last = labels[labels.length - 1] ?? '';
-      if (FILE_EXTENSIONS.has(last)) return name;
+      if (FILE_EXTENSIONS.has(last)) {return name;}
       return labels.length > 2 || COMMON_TLDS.has(last) ? REDACTED : name;
     },
   },
@@ -227,7 +227,7 @@ function luhnValid(digits: string): boolean {
     let d = Number(digits[digits.length - 1 - i]);
     if (1 === i % 2) {
       d *= 2;
-      if (9 < d) d -= 9;
+      if (9 < d) {d -= 9;}
     }
     sum += d;
   }
@@ -251,7 +251,7 @@ export function redactFeedbackText(input: string, max: number): Redaction {
       // sees WHAT was removed, not just that something was.
       const out =
         replace === undefined ? `${captures[0] ?? ''}${REDACTED}` : replace(match, ...captures);
-      if (out !== match) removed.add(label);
+      if (out !== match) {removed.add(label);}
       return out;
     });
   }
@@ -454,8 +454,8 @@ export async function submitFeedback(
     void telemetry
       .emit(TelemetryEventKind.FEEDBACK_SUBMITTED, { feedback: parsed.data })
       .then((ok) => {
-        if (ok) markDelivered(queued);
-        else noteFeedbackUndelivered('the telemetry endpoint did not accept it');
+        if (ok) {markDelivered(queued);}
+        else {noteFeedbackUndelivered('the telemetry endpoint did not accept it');}
       })
       .catch((error: unknown) => {
         noteFeedbackUndelivered(error instanceof Error ? error.message : String(error));
@@ -495,8 +495,8 @@ export async function submitFeedback(
 function redactAuthorFields(input: Record<string, unknown>): Map<string, Redaction> {
   const redactions = new Map<string, Redaction>();
   for (const [key, value] of Object.entries(input)) {
-    if (typeof value !== 'string' || '' === value) continue;
-    if (!AUTHOR_WRITTEN_FIELDS.has(key)) continue;
+    if (typeof value !== 'string' || '' === value) {continue;}
+    if (!AUTHOR_WRITTEN_FIELDS.has(key)) {continue;}
     if (TRACE_FIELD === key) {
       const summary = summarizeTrace(value);
       redactions.set(key, {
@@ -522,17 +522,17 @@ export async function drainFeedbackOutbox(
   telemetry: Telemetry = getTelemetry(),
   home: string = homedir(),
 ): Promise<number> {
-  if (!telemetry.enabled || feedbackDisabled()) return 0;
+  if (!telemetry.enabled || feedbackDisabled()) {return 0;}
   let delivered = 0;
   for (const entry of readOutbox(home).slice(0, OUTBOX_DRAIN_MAX)) {
     const queued = FeedbackSchema.safeParse(entry.payload);
     // A payload that cannot pass the schema can never be sent; it stays where a person can read it.
-    if (!queued.success) continue;
+    if (!queued.success) {continue;}
     const fields = Object.fromEntries(
       [...redactAuthorFields(queued.data)].map(([key, r]) => [key, r.text]),
     );
     const parsed = FeedbackSchema.safeParse({ ...queued.data, ...fields });
-    if (!parsed.success) continue;
+    if (!parsed.success) {continue;}
     try {
       if (await telemetry.emit(TelemetryEventKind.FEEDBACK_SUBMITTED, { feedback: parsed.data })) {
         markDelivered(entry.id, home);

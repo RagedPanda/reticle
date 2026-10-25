@@ -61,16 +61,16 @@ export function parsePortHolder(stdout: string): PortHolder | null {
   let command: string | undefined;
   for (const raw of stdout.split('\n')) {
     const line = raw.trim();
-    if (0 === line.length) continue;
+    if (0 === line.length) {continue;}
     const value = line.slice(1);
     if (line.startsWith(PID_FIELD)) {
-      if (pid !== undefined) break; // a second record: the first one is the answer
+      if (pid !== undefined) {break;} // a second record: the first one is the answer
       const parsed = Number(value);
-      if (!Number.isInteger(parsed) || parsed <= 0) return null;
+      if (!Number.isInteger(parsed) || parsed <= 0) {return null;}
       pid = parsed;
       continue;
     }
-    if (line.startsWith(COMMAND_FIELD) && command === undefined) command = value;
+    if (line.startsWith(COMMAND_FIELD) && command === undefined) {command = value;}
   }
   return pid === undefined || command === undefined ? null : { pid, command };
 }
@@ -147,7 +147,7 @@ const NAME_FIELD = 'n';
 /** The path in `lsof -a -p <pid> -d cwd -Fn` output, or null when it printed none. */
 export function parseProcessCwd(stdout: string): string | null {
   for (const raw of stdout.split('\n')) {
-    if (raw.startsWith(NAME_FIELD) && raw.length > NAME_FIELD.length) return raw.slice(1);
+    if (raw.startsWith(NAME_FIELD) && raw.length > NAME_FIELD.length) {return raw.slice(1);}
   }
   return null;
 }
@@ -164,7 +164,7 @@ export function findListenerCwd(
   exec: (command: string, args: readonly string[]) => string | null,
 ): string | null {
   const holder = findPortHolder(port, exec);
-  if (null === holder) return null;
+  if (null === holder) {return null;}
   const out = exec('lsof', ['-a', '-p', String(holder.pid), '-d', 'cwd', '-Fn']);
   return null === out ? null : parseProcessCwd(out);
 }

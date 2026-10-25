@@ -58,7 +58,7 @@ function wire(readyState = 1): Wired {
     sent,
     reply: (result: unknown): void => {
       const last = sent[sent.length - 1];
-      if (last === undefined) throw new Error('nothing was sent');
+      if (last === undefined) {throw new Error('nothing was sent');}
       const { id } = JSON.parse(last) as { id: string };
       session.handleResult({ kind: MessageKind.COMMAND_RESULT, id, ok: true, result });
     },

@@ -65,12 +65,12 @@ export function attachDriveRunFlush<S extends FlushableSession>(
     }
     const session = deps.resolve(sessionId);
     // Gone already. Teardown owns the final write, so there is nothing to rescue and nothing wrong.
-    if (session === undefined) return;
+    if (session === undefined) {return;}
     try {
       await deps.write(session);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      if (reported.has(message)) return;
+      if (reported.has(message)) {return;}
       reported.add(message);
       log(`drive run flush failed: ${message}`);
     }
@@ -78,7 +78,7 @@ export function attachDriveRunFlush<S extends FlushableSession>(
 
   const schedule = (sessionId: string): void => {
     const existing = pending.get(sessionId);
-    if (existing !== undefined) clearTimeout(existing);
+    if (existing !== undefined) {clearTimeout(existing);}
     const timer = setTimeout(() => {
       void flush(sessionId);
     }, wait);
@@ -89,12 +89,12 @@ export function attachDriveRunFlush<S extends FlushableSession>(
   };
   const off = onHook(HookEvent.VERDICT, (payload: HookPayload) => {
     const sessionId = 'sessionId' in payload ? payload.sessionId : undefined;
-    if (sessionId !== undefined) schedule(sessionId);
+    if (sessionId !== undefined) {schedule(sessionId);}
   });
   // A Harness drive is graded after its last verdict: rewrite the runs so the grade reaches them.
   // ponytail: every live session, since a note names a drive, not a tab; drives end rarely.
   const offNoted = onHarnessNoted(() => {
-    for (const session of deps.all?.() ?? []) schedule(session.id);
+    for (const session of deps.all?.() ?? []) {schedule(session.id);}
   });
 
   const flushAll = async (): Promise<void> => {
@@ -108,7 +108,7 @@ export function attachDriveRunFlush<S extends FlushableSession>(
       off();
       unregister();
       offNoted();
-      for (const timer of pending.values()) clearTimeout(timer);
+      for (const timer of pending.values()) {clearTimeout(timer);}
       pending.clear();
     },
   };

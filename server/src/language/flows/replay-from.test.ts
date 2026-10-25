@@ -144,7 +144,7 @@ describe('resuming past a step that commits', () => {
   const committing = (values: string[], commitsAt: number): FlowFile => {
     const f = flow(values);
     const target = f.steps[commitsAt];
-    if (target !== undefined) target.effect = StepEffect.COMMITS;
+    if (target !== undefined) {target.effect = StepEffect.COMMITS;}
     return f;
   };
 
@@ -206,7 +206,7 @@ describe('the setup prefix is not checked', () => {
     const f = flow(['one', 'two', 'three']);
     const first = f.steps[0];
     // A signal that never fires: checked, this step would drift.
-    if (first !== undefined) first.expect = { kind: PredicateKind.SIGNAL, name: 'never' };
+    if (first !== undefined) {first.expect = { kind: PredicateKind.SIGNAL, name: 'never' };}
     const results = await replayFlow(session, f, waitForPredicate, FAST, false, undefined, {
       from: 1,
     });
@@ -221,7 +221,7 @@ describe('the setup prefix is not checked', () => {
     const session = new FakeSession(ALL);
     const f = flow(['one', 'two']);
     const second = f.steps[1];
-    if (second !== undefined) second.expect = { kind: PredicateKind.SIGNAL, name: 'never' };
+    if (second !== undefined) {second.expect = { kind: PredicateKind.SIGNAL, name: 'never' };}
     const results = await replayFlow(session, f, waitForPredicate, FAST, false, undefined, {
       from: 1,
     });

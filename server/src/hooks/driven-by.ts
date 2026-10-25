@@ -36,7 +36,7 @@ export function currentDrivenBy(): DrivenBy | undefined {
  */
 export function bindDrivenBy<A extends unknown[]>(fn: (...args: A) => void): (...args: A) => void {
   const by = current.getStore();
-  if (by === undefined) return fn;
+  if (by === undefined) {return fn;}
   return (...args: A): void => {
     current.run(by, () => fn(...args));
   };
@@ -58,7 +58,7 @@ export function runSavedFlow<T>(fn: () => Promise<T>): Promise<T> {
  */
 export function harnessOutwardAllowed(): OutwardAction[] | undefined {
   const by = current.getStore();
-  if (by === undefined || true === savedFlow.getStore()) return undefined;
+  if (by === undefined || true === savedFlow.getStore()) {return undefined;}
   // The person's words, never a planner's: a plan the platform invented ("press Invite") is not a
   // request anybody made.
   return outwardActionsAsked(askedStore.getStore() ?? '');

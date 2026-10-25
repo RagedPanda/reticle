@@ -54,7 +54,7 @@ describe('the sentence each finding contributes', () => {
   });
 
   it('always names the url, so the sentence stands alone in a log', () => {
-    for (const f of Object.values(PageFinding)) expect(describePage(f, URL)).toContain(URL);
+    for (const f of Object.values(PageFinding)) {expect(describePage(f, URL)).toContain(URL);}
   });
 });
 

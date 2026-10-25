@@ -26,9 +26,9 @@ export function expectedDevPort(facts: {
   framework?: string | undefined;
   devConfig?: string | undefined;
 }): number | undefined {
-  if (facts.pinned !== undefined) return facts.pinned;
-  if (facts.framework === undefined) return undefined;
-  if (facts.devConfig !== undefined && CONFIG_SETS_PORT.test(facts.devConfig)) return undefined;
+  if (facts.pinned !== undefined) {return facts.pinned;}
+  if (facts.framework === undefined) {return undefined;}
+  if (facts.devConfig !== undefined && CONFIG_SETS_PORT.test(facts.devConfig)) {return undefined;}
   return frameworkDevPort(facts.framework);
 }
 
@@ -122,10 +122,10 @@ export function pinnedDevPort(appDir: string): number | undefined {
   const body = DEV_SCRIPTS.map((name) => scripts[name]).find(
     (value): value is string => 'string' === typeof value && 0 < value.trim().length,
   );
-  if (body === undefined) return undefined;
+  if (body === undefined) {return undefined;}
   for (const pattern of PINNED_PORT) {
     const digits = pattern.exec(body)?.[1];
-    if (digits !== undefined) return Number.parseInt(digits, 10);
+    if (digits !== undefined) {return Number.parseInt(digits, 10);}
   }
   return undefined;
 }

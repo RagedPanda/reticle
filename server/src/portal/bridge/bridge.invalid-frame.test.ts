@@ -30,7 +30,7 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
-  for (const b of browsers.splice(0)) b.close();
+  for (const b of browsers.splice(0)) {b.close();}
   await bridge.close();
 });
 
@@ -40,7 +40,7 @@ async function liveSession(): Promise<FakeBrowser> {
   const browser = new FakeBrowser(port, 'tab-1');
   browsers.push(browser);
   await browser.open();
-  for (let i = 0; i < 100 && 0 === bridge.sessions.count(); i++) await settle(20);
+  for (let i = 0; i < 100 && 0 === bridge.sessions.count(); i++) {await settle(20);}
   return browser;
 }
 

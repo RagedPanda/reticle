@@ -80,12 +80,12 @@ export interface DomainModel {
  * would quietly shrink the model that decides which flows a change affects.
  */
 function walkClauses(predicate: Predicate | undefined): readonly Predicate[] {
-  if (predicate === undefined) return [];
+  if (predicate === undefined) {return [];}
   if (PredicateKind.ALL_OF === predicate.kind || PredicateKind.ANY_OF === predicate.kind) {
     return predicate.predicates.flatMap(walkClauses);
   }
-  if (PredicateKind.NOT === predicate.kind) return walkClauses(predicate.predicate);
-  if (PredicateKind.COMPARE === predicate.kind) return compareSourceClauses(predicate);
+  if (PredicateKind.NOT === predicate.kind) {return walkClauses(predicate.predicate);}
+  if (PredicateKind.COMPARE === predicate.kind) {return compareSourceClauses(predicate);}
   return [predicate];
 }
 
@@ -105,20 +105,20 @@ function elementTestidsIn(predicate: Predicate | undefined): string[] {
 function flowSignals(flow: FlowFile): string[] {
   const set = new Set<string>();
   for (const step of flatten(flow.steps)) {
-    if (step.anchor.kind === AnchorKind.SIGNAL) set.add(step.anchor.name);
-    for (const name of signalNamesIn(step.expect)) set.add(name);
+    if (step.anchor.kind === AnchorKind.SIGNAL) {set.add(step.anchor.name);}
+    for (const name of signalNamesIn(step.expect)) {set.add(name);}
   }
-  for (const name of signalNamesIn(flow.success)) set.add(name);
+  for (const name of signalNamesIn(flow.success)) {set.add(name);}
   return [...set];
 }
 
 function flowTestids(flow: FlowFile): string[] {
   const set = new Set<string>();
   for (const step of flatten(flow.steps)) {
-    if (step.anchor.kind === AnchorKind.TESTID) set.add(step.anchor.value);
-    for (const testid of elementTestidsIn(step.expect)) set.add(testid);
+    if (step.anchor.kind === AnchorKind.TESTID) {set.add(step.anchor.value);}
+    for (const testid of elementTestidsIn(step.expect)) {set.add(testid);}
   }
-  for (const testid of elementTestidsIn(flow.success)) set.add(testid);
+  for (const testid of elementTestidsIn(flow.success)) {set.add(testid);}
   return [...set];
 }
 
@@ -142,9 +142,9 @@ export function buildDomainModel(
       signals: flowSignals(flow),
       testids: flowTestids(flow),
     };
-    if (flow.success !== undefined) summary.mustHold = successLabel(flow.success);
-    if (c.warning !== undefined) summary.warning = c.warning;
-    if (hasHistory) summary.risk = flowRisk(c.grade, latestRun(flow.name, runs));
+    if (flow.success !== undefined) {summary.mustHold = successLabel(flow.success);}
+    if (c.warning !== undefined) {summary.warning = c.warning;}
+    if (hasHistory) {summary.risk = flowRisk(c.grade, latestRun(flow.name, runs));}
     return summary;
   });
 

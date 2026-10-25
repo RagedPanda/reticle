@@ -11,7 +11,7 @@ function fakeIo(files: Record<string, string>): AgentWriterIo & { files: Record<
     files: store,
     exists: (p) => p in store || Object.keys(store).some((f) => f.startsWith(`${p}/`)),
     readFile: (p) => {
-      if (!(p in store)) throw new Error(`ENOENT ${p}`);
+      if (!(p in store)) {throw new Error(`ENOENT ${p}`);}
       return store[p] ?? '';
     },
     writeFile: (p, c) => {

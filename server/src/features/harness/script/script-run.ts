@@ -132,8 +132,8 @@ const msgReplayUndecided = (flow: string): string =>
 /** The flows a journey replayed or saved, each once, in the order it touched them. */
 function flowsOf(calls: readonly ToolOutcome[]): string[] {
   const names = calls.flatMap((call) => {
-    if (ReticleTool.FLOW_REPLAY === call.name) return [asString(asRecord(call.args)['flowName'])];
-    if (ReticleTool.FLOW_SAVE !== call.name || call.isError) return [];
+    if (ReticleTool.FLOW_REPLAY === call.name) {return [asString(asRecord(call.args)['flowName'])];}
+    if (ReticleTool.FLOW_SAVE !== call.name || call.isError) {return [];}
     const args = asRecord(call.args);
     return [
       asString(asRecord(call.result)['name']) ??
@@ -185,7 +185,7 @@ function mergeRuns(a: JourneyRun, b: JourneyRun): JourneyRun {
 
 /** How a journey was answered, as its line says it: only what was measured. */
 function byText(run: JourneyRun | undefined): string {
-  if (run?.by === undefined) return '';
+  if (run?.by === undefined) {return '';}
   return JourneyBy.REPLAY === run.by
     ? ' · replayed, no model tokens'
     : ` · driven by the model, ${String(run.tokens)} tokens`;
@@ -239,7 +239,7 @@ export async function runScript(
   const firstLane = new Map<string, string>();
   for (const lane of script.lanes) {
     for (const id of lane.journeys) {
-      if (firstLane.has(id)) continue;
+      if (firstLane.has(id)) {continue;}
       firstLane.set(id, lane.id);
       let settle: (status: ScriptStatus) => void = () => undefined;
       const promise = new Promise<ScriptStatus>((resolve) => (settle = resolve));
@@ -259,7 +259,7 @@ export async function runScript(
   const runLane = async (lane: DriveScript['lanes'][number], laneIndex: number): Promise<void> => {
     const cards = view.lanes[laneIndex]?.journeys ?? [];
     const settleOwned = (id: string, status: ScriptStatus): void => {
-      if (firstLane.get(id) === lane.id) outcome.get(id)?.settle(status);
+      if (firstLane.get(id) === lane.id) {outcome.get(id)?.settle(status);}
     };
     let lease: { sessionId?: string; release(): Promise<void> } | undefined;
     let blocked = false;
@@ -270,7 +270,7 @@ export async function runScript(
       for (const [position, id] of lane.journeys.entries()) {
         const card = cards[position];
         const journey = journeyById.get(id);
-        if (card === undefined || journey === undefined) continue;
+        if (card === undefined || journey === undefined) {continue;}
         const ended = (dep: string): Promise<ScriptStatus> =>
           outcome.get(dep)?.promise ?? Promise.resolve(ScriptStatus.BLOCKED);
         const waits = await Promise.all(barriersOf(script, lane.id, id).map(ended));
@@ -284,7 +284,7 @@ export async function runScript(
           ports.stopped() ||
           waits.some((s) => ScriptStatus.PASSED !== s)
         ) {
-          if (when === undefined) blocked = true;
+          if (when === undefined) {blocked = true;}
           card.status = ScriptStatus.BLOCKED;
           settleOwned(id, ScriptStatus.BLOCKED);
           tell();
@@ -302,11 +302,11 @@ export async function runScript(
         // Kept for a journey with a fallback too: its goal starts where the journey began, not
         // on the page its own replays left (where the end may already show).
         if (0 === driven.size && (1 < lane.journeys.length || journey.fallback !== undefined))
-          start = asString(
+          {start = asString(
             asRecord(asRecord(await call(raw, ReticleTool.SNAPSHOT, {}))['status'])['route'],
-          );
+          );}
         else if (start !== undefined && !continuesLane(journey, driven))
-          await call(raw, ReticleTool.NAVIGATE, { url: start });
+          {await call(raw, ReticleTool.NAVIGATE, { url: start });}
         driven.add(id);
         // This journey's calls alone too: lanes share `toolCalls`, and its replays decide its fallback.
         const mine: ToolOutcome[] = [];
@@ -345,10 +345,10 @@ export async function runScript(
             !endBefore &&
             (await lookFor(raw.invoke.bind(raw), end, ports.own)) &&
             (await holds(tools, { kind: PredicateKind.TEXT, contains: end }));
-          if (replayReachedEnd) ran = { ok: true };
-          else refused = await ports.fallbackRefused?.();
+          if (replayReachedEnd) {ran = { ok: true };}
+          else {refused = await ports.fallbackRefused?.();}
           if (!replayReachedEnd && refused === undefined) {
-            if (start !== undefined) await call(raw, ReticleTool.NAVIGATE, { url: start });
+            if (start !== undefined) {await call(raw, ReticleTool.NAVIGATE, { url: start });}
             ran = await runFallback(journey.fallback.goal, tools, ports, own, stop);
           }
         }
@@ -358,7 +358,7 @@ export async function runScript(
         const cutDrive = own.find((d) => StopReason.BROKEN === d.stopReason);
         const cut =
           refused === undefined ? cutDrive : { error: refused, stopReason: StopReason.BROKEN };
-        if (cut !== undefined) broken.set(lane.id, cut.error ?? StopReason.BROKEN);
+        if (cut !== undefined) {broken.set(lane.id, cut.error ?? StopReason.BROKEN);}
         card.status = ok
           ? ScriptStatus.PASSED
           : cut !== undefined
@@ -368,16 +368,16 @@ export async function runScript(
               : true === ran.undecided
                 ? ScriptStatus.UNDECIDED
                 : ScriptStatus.FAILED;
-        if (ran.notTaken !== undefined) card.why = ran.notTaken;
-        if (ran.why !== undefined) card.why = ran.why;
+        if (ran.notTaken !== undefined) {card.why = ran.notTaken;}
+        if (ran.why !== undefined) {card.why = ran.why;}
         drives.push(...own);
         const thisRun = journeyRun(id, mine, own);
         runOf.set(card, thisRun);
         const before = runs.get(id);
         runs.set(id, before === undefined ? thisRun : mergeRuns(before, thisRun));
-        if (!ok && own.some((d) => false === d.goalMet)) goalMissed.add(card);
+        if (!ok && own.some((d) => false === d.goalMet)) {goalMissed.add(card);}
         // A conditional journey that failed leaves the lane as it found it: it was a side road.
-        if (when === undefined) blocked = !ok;
+        if (when === undefined) {blocked = !ok;}
         settleOwned(id, card.status);
         tell();
       }
@@ -390,7 +390,7 @@ export async function runScript(
           card.status = ScriptStatus.BLOCKED;
         }
       }
-      for (const id of lane.journeys) settleOwned(id, ScriptStatus.BLOCKED);
+      for (const id of lane.journeys) {settleOwned(id, ScriptStatus.BLOCKED);}
       tell();
     } finally {
       await lease?.release().catch(() => undefined);
@@ -401,7 +401,7 @@ export async function runScript(
   const worker = async (): Promise<void> => {
     for (let index = next++; index < script.lanes.length; index = next++) {
       const lane = script.lanes[index];
-      if (lane !== undefined) await runLane(lane, index);
+      if (lane !== undefined) {await runLane(lane, index);}
     }
   };
   await Promise.all(Array.from({ length: view.parallel }, worker));
@@ -443,7 +443,7 @@ async function runJourney(
   let replayed = false;
   for (const [index, step] of journey.steps.entries()) {
     const card = cards[index];
-    if (card === undefined) continue;
+    if (card === undefined) {continue;}
     if (ports.stopped()) {
       card.status = ScriptStatus.BLOCKED;
       tell();
@@ -463,14 +463,14 @@ async function runJourney(
         ok = await runBranch(step, checkpoints.get(step.at), tools, ports, drives, stop);
       } else {
         ok = await runLeaf(step, tools, ports, drives, stop, replayed);
-        if (ScriptStepKind.REPLAY === step.kind) replayed = true;
+        if (ScriptStepKind.REPLAY === step.kind) {replayed = true;}
       }
     } catch (error) {
       if (error instanceof Undecided) {
         why = error.message;
         undecided = true;
-      } else if (error instanceof StepNotTaken) notTaken = error.message;
-      else throw error;
+      } else if (error instanceof StepNotTaken) {notTaken = error.message;}
+      else {throw error;}
       ok = false;
     }
     card.status = ok
@@ -482,7 +482,7 @@ async function runJourney(
           : ScriptStatus.FAILED;
     tell();
     if (!ok) {
-      for (const rest of cards.slice(index + 1)) rest.status = ScriptStatus.BLOCKED;
+      for (const rest of cards.slice(index + 1)) {rest.status = ScriptStatus.BLOCKED;}
       tell();
       return {
         ok: false,
@@ -508,7 +508,7 @@ async function runFallback(
     return ok ? { ok } : { ok, why: FELL_BACK };
   } catch (error) {
     if (error instanceof Undecided)
-      return { ok: false, why: error.message, undecided: true as const };
+      {return { ok: false, why: error.message, undecided: true as const };}
     throw error;
   }
 }
@@ -544,13 +544,13 @@ async function runBranch(
 ): Promise<boolean> {
   let all = true;
   for (const [index, branchCase] of step.cases.entries()) {
-    if (ports.stopped()) return false;
+    if (ports.stopped()) {return false;}
     if (0 < index) {
-      if (reenter === undefined) return false;
+      if (reenter === undefined) {return false;}
       const back = await replay(tools, { flowName: reenter.flow, to: reenter.to });
-      if (!back) return false;
+      if (!back) {return false;}
     }
-    if (branchCase.when !== undefined && !(await holds(tools, branchCase.when))) continue;
+    if (branchCase.when !== undefined && !(await holds(tools, branchCase.when))) {continue;}
     for (const leaf of branchCase.steps) {
       if (!(await runLeaf(leaf, tools, ports, drives, stop))) {
         all = false;
@@ -587,10 +587,10 @@ async function runLeaf(
         // Parsed before the drive: an end the page already shows is already true, never proved.
         const ending = endOf(step.goal);
         if (ending !== undefined && (await lookFor(tools.invoke.bind(tools), ending, ports.own)))
-          throw new EndAlreadyShown(msgEndAlreadyShown(ending));
+          {throw new EndAlreadyShown(msgEndAlreadyShown(ending));}
         let drive = await ports.drive(tools, step.goal, budget);
         drives.push(drive);
-        if (StopReason.STOPPED === drive.stopReason) stop();
+        if (StopReason.STOPPED === drive.stopReason) {stop();}
         // A goal that quotes where it ends is judged there, by an assert kept as the run's check:
         // the model clicked a counter with no `until` and the journey failed on a counter that worked.
         // ponytail: the LAST quote the goal does not negate is the end state ("from "count: 0" to
@@ -599,10 +599,10 @@ async function runLeaf(
         if (end === undefined) {
           // Passed means its checks held, not that it ran one: a refund journey whose two checks
           // both failed was marked passed because a check had run.
-          if (0 < checkTally(drive.toolCalls).failed) return false;
-          if (0 < checkTally(drive.toolCalls).held) return false !== drive.goalMet;
+          if (0 < checkTally(drive.toolCalls).failed) {return false;}
+          if (0 < checkTally(drive.toolCalls).held) {return false !== drive.goalMet;}
           // Reached, by its own word, with nothing checked: not proved, and not a failure either.
-          if (true === drive.goalMet) throw new Undecided(MSG_GOAL_WITHOUT_CHECK);
+          if (true === drive.goalMet) {throw new Undecided(MSG_GOAL_WITHOUT_CHECK);}
           return false;
         }
         // The drive's failures are judged after its end is: the model's own early look at the end
@@ -615,16 +615,16 @@ async function runLeaf(
         // opened Runs, never clicked Team), is sent on once from where it stands, not graded there.
         const left = budget - drive.steps;
         if (!shown && StopReason.FINISHED === drive.stopReason && MIN_CONTINUE_STEPS <= left) {
-          if (failedBeside(drive.toolCalls, false)) return false;
+          if (failedBeside(drive.toolCalls, false)) {return false;}
           drive = await ports.drive(tools, continueGoal(step.goal, end), left);
           drives.push(drive);
-          if (StopReason.STOPPED === drive.stopReason) stop();
+          if (StopReason.STOPPED === drive.stopReason) {stop();}
           shown = await lookFor(tools.invoke.bind(tools), end, ports.own);
         }
         // Never reached is the journey's miss, not a failed check on the app: no assert is kept. The
         // page decides it, not the driver's word: an end the page shows was reached, whatever the
         // driver said (a drive started on a dead link reached it and was failed on its own "no").
-        if (!shown) return false;
+        if (!shown) {return false;}
         const endHeld = await holds(tools, { kind: PredicateKind.TEXT, contains: end });
 
         // Passed means its checks held, not that it ran one.
@@ -643,15 +643,15 @@ async function runLeaf(
 
 async function replay(tools: HarnessToolset, args: Record<string, unknown>): Promise<boolean> {
   const result = asRecord(await call(tools, ReticleTool.FLOW_REPLAY, args));
-  if (ReplayStatus.OK === result['status']) return true;
+  if (ReplayStatus.OK === result['status']) {return true;}
   const error = result['error'];
   const message = asString(error) ?? asString(asRecord(error)['message']) ?? '';
-  if (message.includes(DESTRUCTIVE_REFUSAL)) throw new StepNotTaken(MSG_NOT_TAKEN);
+  if (message.includes(DESTRUCTIVE_REFUSAL)) {throw new StepNotTaken(MSG_NOT_TAKEN);}
   const [outcome] = replayedFlows([
     { id: 'replay', name: ReticleTool.FLOW_REPLAY, args, result, isError: false },
   ]);
   if (UNDECIDED_REPLAY.has(outcome?.status))
-    throw new Undecided(msgReplayUndecided(String(args['flowName'])));
+    {throw new Undecided(msgReplayUndecided(String(args['flowName'])));}
   return false;
 }
 
@@ -711,7 +711,7 @@ export function planView(script: DriveScript, parallel: number): PlanView {
       id: lane.id,
       journeys: lane.journeys.flatMap((id) => {
         const journey = byId.get(id);
-        if (journey === undefined) return [];
+        if (journey === undefined) {return [];}
         return [
           {
             id,
@@ -731,7 +731,7 @@ export function planView(script: DriveScript, parallel: number): PlanView {
 }
 
 function mark(status: string): string {
-  if (ScriptStatus.PASSED === status) return '✓';
-  if (ScriptStatus.FAILED === status) return '✗';
+  if (ScriptStatus.PASSED === status) {return '✓';}
+  if (ScriptStatus.FAILED === status) {return '✗';}
   return '○';
 }

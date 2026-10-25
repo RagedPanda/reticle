@@ -26,9 +26,9 @@ export interface AgentVerdict {
 /** The decided verdicts the connected agent itself made: actions no Harness drove. */
 export function agentVerdictsIn(actions: readonly JournalAction[]): AgentVerdict[] {
   return actions.flatMap((action) => {
-    if (action.drivenBy !== undefined) return [];
+    if (action.drivenBy !== undefined) {return [];}
     const parsed = JournalVerdictEffectSchema.safeParse(action.effect);
-    if (!parsed.success) return [];
+    if (!parsed.success) {return [];}
     const { claim, verified } = parsed.data;
     return Verified.YES === verified || Verified.NO === verified ? [{ claim, verified }] : [];
   });
@@ -40,10 +40,10 @@ export function disparityFor(
   agent: readonly AgentVerdict[],
   search: GoalSearch | undefined,
 ): RunDisparity | undefined {
-  if (true === check.absent) return undefined;
+  if (true === check.absent) {return undefined;}
   const wanted = comparable(check.text);
   const said = agent.filter((v) => claimed(v.claim).includes(wanted)).at(-1);
-  if (said === undefined) return undefined;
+  if (said === undefined) {return undefined;}
   // On the page before the drive began: plainly findable, never "hard to find" (persona 22).
   const alreadyShown = true === check.reason?.startsWith(VerifiedReason.ALREADY_TRUE);
   const harnessYes = Verified.YES === check.verified || alreadyShown;

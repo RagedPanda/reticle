@@ -50,7 +50,7 @@ describe('a daemon that keeps writing past the cap', () => {
       logGuard: file,
     });
 
-    for (let i = 0; 20 > i; i += 1) hb.beat();
+    for (let i = 0; 20 > i; i += 1) {hb.beat();}
 
     // Bounded by the cap plus at most one beat's worth of writing after the last check. Without a
     // mid-run check this is 60MB and climbing, and nothing trims it until the daemon restarts.

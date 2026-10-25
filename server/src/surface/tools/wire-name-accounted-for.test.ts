@@ -24,7 +24,7 @@ describe('every wire name is accounted for on the merged surface', () => {
     const discover = buildDynamicTools(table, { active: surface, source: 'test' }, callable).find(
       (tool) => tool.name === ReticleTool.TOOLS,
     );
-    if (discover === undefined) throw new Error('reticle_tools was not built');
+    if (discover === undefined) {throw new Error('reticle_tools was not built');}
     const names = [...new Set(Object.values(ReticleTool))];
     const out = (await discover.handler(NO_DEPS, { names })) as {
       tools: { name: string; error?: string; description?: string }[];
@@ -54,7 +54,7 @@ describe('every wire name is accounted for on the merged surface', () => {
     const discover = buildDynamicTools(table, { active: surface, source: 'test' }, callable).find(
       (tool) => tool.name === ReticleTool.TOOLS,
     );
-    if (discover === undefined) throw new Error('reticle_tools was not built');
+    if (discover === undefined) {throw new Error('reticle_tools was not built');}
     const out = (await discover.handler(NO_DEPS, { names: ['reticle_not_a_tool'] })) as {
       tools: { error?: string }[];
     };

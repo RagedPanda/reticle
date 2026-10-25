@@ -31,7 +31,7 @@ export interface HealRefusal {
 
 export function healPrecondition(flow: FlowFile): HealRefusal | undefined {
   const { grade } = classifyFlowAssertions(flow);
-  if (grade === FlowAssertionGrade.ASSERTED) return undefined;
+  if (grade === FlowAssertionGrade.ASSERTED) {return undefined;}
   const why =
     grade === FlowAssertionGrade.PRESENCE_ONLY
       ? 'it only checks that an element is present, which is exactly what a wrong rebind makes true'

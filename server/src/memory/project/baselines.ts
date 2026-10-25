@@ -23,7 +23,7 @@ export function normalizeLines(tree: string): string[] {
 
 function frequency(lines: string[]): Map<string, number> {
   const map = new Map<string, number>();
-  for (const line of lines) map.set(line, (map.get(line) ?? 0) + 1);
+  for (const line of lines) {map.set(line, (map.get(line) ?? 0) + 1);}
   return map;
 }
 
@@ -35,11 +35,11 @@ export function diffLines(baseline: string[], current: string[]): DiffResult {
   const added: string[] = [];
   for (const [line, n] of b) {
     const have = c.get(line) ?? 0;
-    for (let i = 0; i < n - have; i += 1) removed.push(line);
+    for (let i = 0; i < n - have; i += 1) {removed.push(line);}
   }
   for (const [line, n] of c) {
     const had = b.get(line) ?? 0;
-    for (let i = 0; i < n - had; i += 1) added.push(line);
+    for (let i = 0; i < n - had; i += 1) {added.push(line);}
   }
   return { removed, added };
 }

@@ -199,7 +199,7 @@ export function reticleToolset(
         ? desktopBackendClaims(pinned)
         : pinned;
       const drivenBy = options.drivenBy;
-      if (drivenBy !== undefined) noteDriveStep(drivenBy.harness, tool.name);
+      if (drivenBy !== undefined) {noteDriveStep(drivenBy.harness, tool.name);}
       return withTimeout(
         drivenBy === undefined
           ? runTool(tool, deps, scoped)
@@ -220,10 +220,10 @@ export function requestMustSucceed(args: Record<string, unknown>): Record<string
   const out = { ...args };
   for (const key of ['until', 'predicate']) {
     const claim = args[key];
-    if ('object' !== typeof claim || null === claim) continue;
+    if ('object' !== typeof claim || null === claim) {continue;}
     const p = claim as Record<string, unknown>;
     if (PredicateKind.NET === p['kind'] && undefined === p['status'] && undefined === p['ok'])
-      out[key] = { ...p, ok: true };
+      {out[key] = { ...p, ok: true };}
   }
   return out;
 }
@@ -242,7 +242,7 @@ export function pinSession(
   sessionId: string | undefined,
   locked = false,
 ): Record<string, unknown> {
-  if (sessionId === undefined || (!locked && 'sessionId' in args)) return args;
+  if (sessionId === undefined || (!locked && 'sessionId' in args)) {return args;}
   return { ...args, sessionId };
 }
 
@@ -269,8 +269,8 @@ function isDesktopSession(deps: ToolDeps, sessionId: unknown): boolean {
  */
 export function desktopBackendClaims(args: Record<string, unknown>): Record<string, unknown> {
   const rewrite = (value: unknown): unknown => {
-    if (Array.isArray(value)) return value.map(rewrite);
-    if ('object' !== typeof value || null === value) return value;
+    if (Array.isArray(value)) {return value.map(rewrite);}
+    if ('object' !== typeof value || null === value) {return value;}
     const record = value as Record<string, unknown>;
     const method = record['method'];
     const ipc =

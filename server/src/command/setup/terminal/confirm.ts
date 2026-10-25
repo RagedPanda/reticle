@@ -99,11 +99,11 @@ export async function confirmAppConnected(deps: ConfirmDeps): Promise<InitConfir
     const ids = await deps.listSessionIds();
     // A port nobody is listening on cannot receive a session, and no amount of waiting changes that.
     // One look settles it; polling on would spend the whole window to re-learn the first answer.
-    if (null === ids) return InitConfirmation.NO_DAEMON;
+    if (null === ids) {return InitConfirmation.NO_DAEMON;}
     const baseline = before;
-    if (baseline === undefined) before = new Set(ids);
-    else if (ids.some((id) => !baseline.has(id))) return InitConfirmation.CONNECTED;
-    if (deadline <= deps.now()) return InitConfirmation.NO_SESSION;
+    if (baseline === undefined) {before = new Set(ids);}
+    else if (ids.some((id) => !baseline.has(id))) {return InitConfirmation.CONNECTED;}
+    if (deadline <= deps.now()) {return InitConfirmation.NO_SESSION;}
     await deps.sleep(deps.pollMs ?? CONFIRM_POLL_MS);
   }
 }
@@ -133,7 +133,7 @@ export function sharpenWithDevServers(
   confirmation: InitConfirmation,
   running: readonly DevServerEntry[],
 ): InitConfirmation {
-  if (confirmation !== InitConfirmation.NO_SESSION) return confirmation;
+  if (confirmation !== InitConfirmation.NO_SESSION) {return confirmation;}
   return 0 === running.length ? InitConfirmation.NO_SESSION : InitConfirmation.NO_PAGE;
 }
 
@@ -222,7 +222,7 @@ export async function confirmInstall(
   const outcome = result.outcome;
   // No outcome means a dry run or an exit that already reported for itself (no package.json). A
   // preview is not an install and must not land in the funnel as either a success or a failure.
-  if (outcome === undefined) return;
+  if (outcome === undefined) {return;}
   if (!deps.interactive) {
     // Still no waiting — see unwatchedMessage for why it speaks anyway.
     io.print('');
@@ -256,7 +256,7 @@ export function nodeConfirmDeps(port: number = RETICLE_DEFAULT_PORT): ConfirmDep
       const payload = await fetchStatus(port);
       // `fetchStatus` resolves undefined when nothing answered, which is precisely the "no daemon"
       // case — a zero-session daemon and an absent one need opposite messages.
-      if (payload === undefined) return null;
+      if (payload === undefined) {return null;}
       return summarizeStatus(payload).sessions.map((s) => s.sessionId);
     },
     now: () => Date.now(),

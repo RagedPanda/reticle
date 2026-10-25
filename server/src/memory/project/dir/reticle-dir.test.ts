@@ -56,7 +56,7 @@ describe('reticle-dir — temp-dir filesystem, never touches the repo', () => {
     await writeContract(fs, root, SAMPLE, frozenClock);
     const r = await readContract(fs, root);
     expect(r.ok).toBe(true);
-    if (!r.ok) throw new Error('expected ok');
+    if (!r.ok) {throw new Error('expected ok');}
     expect(r.capabilities).toEqual(SAMPLE);
     expect(r.generatedAt).toBe(FROZEN);
   });

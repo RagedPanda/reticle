@@ -55,7 +55,7 @@ export class IdleShutdown {
 
   /** Run one idle check. Exposed so a test can drive it deterministically with an injected clock. */
   check(): void {
-    if (this.#fired || this.#graceMs <= 0) return; // graceMs <= 0 ⇒ disabled (never self-shut-down)
+    if (this.#fired || this.#graceMs <= 0) {return;} // graceMs <= 0 ⇒ disabled (never self-shut-down)
     if (!this.#isIdle()) {
       this.#idleSince = null;
       return;
@@ -80,13 +80,13 @@ export class IdleShutdown {
   }
 
   start(): void {
-    if (this.#graceMs <= 0 || this.#timer !== undefined) return; // 0 = disabled
+    if (this.#graceMs <= 0 || this.#timer !== undefined) {return;} // 0 = disabled
     this.#timer = setInterval(() => this.check(), this.#checkMs);
     this.#timer.unref();
   }
 
   stop(): void {
-    if (this.#timer === undefined) return;
+    if (this.#timer === undefined) {return;}
     clearInterval(this.#timer);
     this.#timer = undefined;
   }
@@ -98,9 +98,9 @@ export class IdleShutdown {
  * the default rather than meaning anything.
  */
 export function resolveIdleCheckMs(raw: string | undefined): number {
-  if (raw === undefined || '' === raw.trim()) return SESSION_LIFECYCLE.DAEMON_IDLE_CHECK_MS;
+  if (raw === undefined || '' === raw.trim()) {return SESSION_LIFECYCLE.DAEMON_IDLE_CHECK_MS;}
   const n = Number(raw);
-  if (!Number.isFinite(n) || n <= 0) return SESSION_LIFECYCLE.DAEMON_IDLE_CHECK_MS;
+  if (!Number.isFinite(n) || n <= 0) {return SESSION_LIFECYCLE.DAEMON_IDLE_CHECK_MS;}
   return Math.floor(n);
 }
 
@@ -116,8 +116,8 @@ export function resolveIdleCheckMs(raw: string | undefined): number {
  * broken.
  */
 export function resolveIdleShutdownMs(raw: string | undefined): number {
-  if (raw === undefined || '' === raw.trim()) return SESSION_LIFECYCLE.DAEMON_IDLE_SHUTDOWN_MS;
+  if (raw === undefined || '' === raw.trim()) {return SESSION_LIFECYCLE.DAEMON_IDLE_SHUTDOWN_MS;}
   const n = Number(raw);
-  if (!Number.isFinite(n) || n < 0) return SESSION_LIFECYCLE.DAEMON_IDLE_SHUTDOWN_MS;
+  if (!Number.isFinite(n) || n < 0) {return SESSION_LIFECYCLE.DAEMON_IDLE_SHUTDOWN_MS;}
   return Math.floor(n);
 }

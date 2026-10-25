@@ -27,19 +27,19 @@ export function appControlsOf(
 ): { appControls?: string[] } {
   const seen: string[] = [];
   for (const call of calls) {
-    if (ReticleTool.SNAPSHOT !== call.name || call.isError) continue;
+    if (ReticleTool.SNAPSHOT !== call.name || call.isError) {continue;}
     const result = asRecord(call.result);
     const tree = result['tree'];
     const route = asRecord(result['status'])['route'];
-    if ('string' !== typeof tree || 'string' !== typeof route) continue;
+    if ('string' !== typeof tree || 'string' !== typeof route) {continue;}
     for (const item of parseInteractive(tree)) {
       const named = NAMED_CONTROL.exec(item.desc.trim());
-      if (named !== null) seen.push(`${pageOf(route)}: ${String(named[1])} "${String(named[2])}"`);
+      if (named !== null) {seen.push(`${pageOf(route)}: ${String(named[1])} "${String(named[2])}"`);}
     }
   }
   const visited = asRecord(crawled?.result)['visited'];
   if (Array.isArray(visited))
-    seen.push(...visited.filter((v): v is string => 'string' === typeof v));
+    {seen.push(...visited.filter((v): v is string => 'string' === typeof v));}
   const names = [...new Set(seen)];
   return 0 === names.length ? {} : { appControls: names.slice(0, MAX_APP_CONTROLS) };
 }

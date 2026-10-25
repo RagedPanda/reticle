@@ -119,7 +119,7 @@ function startFakeDaemon(): Promise<FakeDaemon> {
         echoReplayedHandshake,
         close: () =>
           new Promise<void>((done) => {
-            for (const stream of streams) stream.socket?.destroy();
+            for (const stream of streams) {stream.socket?.destroy();}
             server.close(() => done());
           }),
       });
@@ -131,7 +131,7 @@ describe('MCP proxy chaos — compound failure sequences', () => {
   const cleanups: (() => Promise<void> | void)[] = [];
 
   afterEach(async () => {
-    for (const cleanup of cleanups.splice(0).reverse()) await cleanup();
+    for (const cleanup of cleanups.splice(0).reverse()) {await cleanup();}
     vi.restoreAllMocks();
     vi.unstubAllEnvs();
     resetOutageReporting();
@@ -222,7 +222,7 @@ describe('MCP proxy chaos — compound failure sequences', () => {
       await vi.waitFor(() => expect(daemon.posts.length).toBe(1));
 
       // Send 5 calls. The daemon accepts the POSTs but never sends a response — simulating slow.
-      for (let i = 10; 15 > i; i++) stdin.write(clientCall(i));
+      for (let i = 10; 15 > i; i++) {stdin.write(clientCall(i));}
       await vi.waitFor(() => {
         const inFlight = daemon.posts.filter((p) => p.includes('"id":1') || /"id":1[0-4]/.test(p));
         expect(inFlight.length).toBeGreaterThanOrEqual(5);

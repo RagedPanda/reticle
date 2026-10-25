@@ -57,15 +57,15 @@ interface QueryShaped {
  * truncated result, and overwriting it would replace a fact about THIS answer with a general remark.
  */
 export function noteRenderedOnly(result: unknown): unknown {
-  if (typeof result !== 'object' || null === result) return result;
+  if (typeof result !== 'object' || null === result) {return result;}
   const shaped = result as QueryShaped;
   const matched = Array.isArray(shaped.elements)
     ? shaped.elements.length
     : 'number' === typeof shaped.count
       ? shaped.count
       : undefined;
-  if (0 !== matched) return result;
-  if ('string' === typeof shaped.note && shaped.note.length > 0) return result;
+  if (0 !== matched) {return result;}
+  if ('string' === typeof shaped.note && shaped.note.length > 0) {return result;}
   return { ...result, note: RENDERED_ONLY_NOTE };
 }
 

@@ -46,8 +46,8 @@ async function cycle(
     state,
     now: () => 1_700_000_000_000,
     request: (url, init) => {
-      if (url.includes('/v1/sync/status')) return Promise.resolve({ status: 200, text: '{}' });
-      if (url.includes('/v1/sync/pull')) return Promise.resolve({ status: 200, text: '{}' });
+      if (url.includes('/v1/sync/status')) {return Promise.resolve({ status: 200, text: '{}' });}
+      if (url.includes('/v1/sync/pull')) {return Promise.resolve({ status: 200, text: '{}' });}
       const body = JSON.parse(init.body ?? '{}') as Record<string, unknown>;
       posts.push(body);
       return Promise.resolve({ status: 200, text: JSON.stringify(answer(body)) });

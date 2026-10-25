@@ -54,7 +54,7 @@ export function reportAppInstrumented(
   facts: InstrumentationFacts,
   now: () => number = () => Date.now(),
 ): void {
-  if (reported) return;
+  if (reported) {return;}
   reported = true;
   try {
     // Still once per RUN: `daemon_started` minus `app_instrumented`, joined on sessionId, is the

@@ -62,7 +62,7 @@ const NEXT_APP_CONNECT = ['app', 'src/app'].flatMap((d) =>
  * names chunks, not modules, so it stays silent.
  */
 export function htmlCarriesSdk(framework: string, exists: (path: string) => boolean): boolean {
-  if (HTML_CARRIES_SDK.has(framework)) return true;
+  if (HTML_CARRIES_SDK.has(framework)) {return true;}
   return Framework.NEXT === framework && NEXT_APP_CONNECT.some(exists);
 }
 
@@ -123,7 +123,7 @@ const licenseIo = {
  * thing as an install working.
  */
 function printRelaunch(parsed: InitRuntimeArgs, io: RuntimePrintIo, cwd: string): void {
-  if (true !== parsed.relaunch) return;
+  if (true !== parsed.relaunch) {return;}
   io.print(
     relaunchDecision({
       ...(undefined === process.env['CLAUDE_CODE_SESSION_ID']
@@ -147,8 +147,8 @@ export async function continueAfterInit(
 ): Promise<void> {
   const port = parsed.port ?? RETICLE_DEFAULT_PORT;
   const stop = (): void => {
-    if (true === parsed.keepGoing) process.exitCode = 1;
-    else process.exit(1);
+    if (true === parsed.keepGoing) {process.exitCode = 1;}
+    else {process.exit(1);}
   };
 
   // Real installs persist the key whichever way setup ends. A preview must leave .env and
@@ -177,14 +177,14 @@ export async function continueAfterInit(
       registerOtherAgents(io.print);
     }
     return confirmInstall(result, io, nodeConfirmDeps(port)).then(() => {
-      if (true === parsed.json) process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
-      if (!result.ok) stop();
+      if (true === parsed.json) {process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);}
+      if (!result.ok) {stop();}
     });
   }
 
   // From here on init left the ask to us, so it is the last thing on every exit below.
   const ask = (spaced = true): void => {
-    if (spaced) io.print('');
+    if (spaced) {io.print('');}
     io.print(FEEDBACK_HINT);
   };
   // `init` deferred its outcome to this phase, so every exit below reports it, and only once: the
@@ -192,7 +192,7 @@ export async function continueAfterInit(
   // would double the funnel this event exists to measure.
   let outcomeReported = false;
   const reportOnce = (init: InitOutcome): void => {
-    if (outcomeReported) return;
+    if (outcomeReported) {return;}
     outcomeReported = true;
     reportInitOutcome(init);
   };
@@ -200,9 +200,9 @@ export async function continueAfterInit(
   if (context === undefined) {
     // Nothing was established, so there is nothing to run against. init has already said why, and
     // the outcome it deferred (a failed dependency install, usually) is reported here or nowhere.
-    if (result.outcome !== undefined) reportOnce(result.outcome);
+    if (result.outcome !== undefined) {reportOnce(result.outcome);}
     ask();
-    if (true === parsed.json) process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    if (true === parsed.json) {process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);}
     stop();
     return;
   }
@@ -289,8 +289,8 @@ export async function continueAfterInit(
       // A plain page with no dev script gets Reticle's own static server, so the page is actually
       // served and the connect can be proved, instead of stopping at "start the app yourself".
       ...((): { devCommand?: string; devCommandIsStaticPage?: boolean } => {
-        if (undefined !== context.devCommand) return { devCommand: context.devCommand };
-        if (undefined !== parsed.url) return {};
+        if (undefined !== context.devCommand) {return { devCommand: context.devCommand };}
+        if (undefined !== parsed.url) {return {};}
         const devCommand = staticPageDevCommand({
           appDir: context.appDir,
           isStaticPage: Framework.HTML === context.framework,
@@ -321,14 +321,14 @@ export async function continueAfterInit(
               outcome.reachedPhase === SetupPhase.DEV_SERVER
                 ? InitFailure.DEV_SERVER
                 : InitFailure.APP_CONNECTION;
-            if (outcome.stop !== undefined) init.stop = outcome.stop;
+            if (outcome.stop !== undefined) {init.stop = outcome.stop;}
           }
           reportOnce(init);
         }
         // One object, so an agent reads a result instead of interpreting a report.
         if (true === parsed.json) {
           process.stdout.write(`${JSON.stringify(outcome, null, 2)}\n`);
-          if (!outcome.ok) stop();
+          if (!outcome.ok) {stop();}
           return;
         }
         io.print('');
@@ -354,7 +354,7 @@ export async function continueAfterInit(
           // The connect already said "connected, nothing verified yet" and listed what to do next;
           // repeating it here was the same sentence twice, three lines apart.
           for (const [i, step] of outcome.fallback.entries())
-            io.print(`   ${String(i + 1)}. ${step}`);
+            {io.print(`   ${String(i + 1)}. ${step}`);}
           // Already spaced by the blank line above when nothing was listed.
           ask(0 < outcome.fallback.length);
           return;
@@ -370,7 +370,7 @@ export async function continueAfterInit(
         // A run that produced no verdict did not succeed, and the exit code is the one place a caller
         // reads that without parsing anything.
         io.print('⚠ setup did not finish. To carry on from here:');
-        for (const [i, step] of outcome.fallback.entries()) io.print(`   ${i + 1}. ${step}`);
+        for (const [i, step] of outcome.fallback.entries()) {io.print(`   ${i + 1}. ${step}`);}
         ask();
         stop();
       },
@@ -393,12 +393,12 @@ function reportOnInterrupt(report: () => void): () => void {
       report();
       // Before setup installs its own handler ours may be the only one, and a listener present
       // means Node no longer exits on the signal by itself: without this, Ctrl-C would be ignored.
-      if (1 === process.listenerCount(signal)) process.exit(INTERRUPT_EXIT_CODE[signal]);
+      if (1 === process.listenerCount(signal)) {process.exit(INTERRUPT_EXIT_CODE[signal]);}
     };
     process.on(signal, handler);
     return { signal, handler };
   });
   return () => {
-    for (const { signal, handler } of handlers) process.off(signal, handler);
+    for (const { signal, handler } of handlers) {process.off(signal, handler);}
   };
 }

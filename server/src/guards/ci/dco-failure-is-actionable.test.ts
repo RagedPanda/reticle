@@ -59,6 +59,6 @@ describe('the DCO failure tells a contributor how to fix it', () => {
     // If CONTRIBUTING.md ever documents it, this may reference it again — but only then.
     const contributing = readFileSync(join(REPO, 'CONTRIBUTING.md'), 'utf8');
     const documented = /sign[- ]?off|signed-off-by|commit -s/i.test(contributing);
-    if (!documented) expect(EMITTED).not.toContain('CONTRIBUTING.md');
+    if (!documented) {expect(EMITTED).not.toContain('CONTRIBUTING.md');}
   });
 });

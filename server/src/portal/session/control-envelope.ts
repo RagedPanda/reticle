@@ -58,7 +58,7 @@ type ControlSpread = { control?: ControlEnvelope };
 export function buildControlEnvelope(session: Session): ControlEnvelope | undefined {
   const state = session.getState();
   const guidance = session.drainInbox().map((m) => m.text);
-  if (state === SessionState.ACTIVE && 0 === guidance.length) return undefined;
+  if (state === SessionState.ACTIVE && 0 === guidance.length) {return undefined;}
   return { state, guidance };
 }
 
@@ -70,7 +70,7 @@ export function buildControlEnvelope(session: Session): ControlEnvelope | undefi
  * also surface in a piggyback, guaranteeing delivered-once.
  */
 export function pausedShortCircuit(session: Session): PausedResult | undefined {
-  if (session.getState() !== SessionState.PAUSED) return undefined;
+  if (session.getState() !== SessionState.PAUSED) {return undefined;}
   return { paused: true, guidance: session.drainInbox().map((m) => m.text), hint: PAUSE_HINT };
 }
 

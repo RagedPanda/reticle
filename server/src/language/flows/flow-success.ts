@@ -49,17 +49,17 @@ export function successLabel(success: Predicate | undefined): string {
    * sentence: "order:placed" is what must hold.
    */
   const signal = clauseOfKind(success, PredicateKind.SIGNAL);
-  if (signal?.name !== undefined) return signal.name;
+  if (signal?.name !== undefined) {return signal.name;}
   const net = clauseOfKind(success, PredicateKind.NET);
-  if (net !== undefined) return net.urlContains ?? net.method ?? 'net';
+  if (net !== undefined) {return net.urlContains ?? net.method ?? 'net';}
   const console_ = clauseOfKind(success, PredicateKind.CONSOLE);
   if (console_ !== undefined) {
     return `console:${true === console_.absent ? 'clean' : (console_.level ?? 'error')}`;
   }
   const state = clauseOfKind(success, PredicateKind.STATE);
-  if (state !== undefined) return `state:${state.path}`;
+  if (state !== undefined) {return `state:${state.path}`;}
   const text = clauseOfKind(success, PredicateKind.TEXT);
-  if (text?.contains !== undefined) return `text:${text.contains}`;
+  if (text?.contains !== undefined) {return `text:${text.contains}`;}
   const element = clauseOfKind(success, PredicateKind.ELEMENT);
   const q = element?.query;
   return q?.testid ?? q?.name ?? q?.role ?? 'success';
@@ -85,9 +85,9 @@ export function successToPredicate(
   success: Predicate | FlowExpect | undefined,
   dynamic: ReadonlySet<string>,
 ): Predicate | undefined {
-  if (success === undefined) return undefined;
+  if (success === undefined) {return undefined;}
   const predicate = 'kind' in success ? success : flowExpectToPredicate(success);
-  if (predicate === undefined) return undefined;
+  if (predicate === undefined) {return undefined;}
   return withoutClauses(
     predicate,
     (clause) =>
@@ -112,7 +112,7 @@ export async function assertSuccess(
   since = 0,
 ): Promise<EvalResult> {
   const predicate = successToPredicate(success, dynamic);
-  if (predicate === undefined) return { pass: true };
+  if (predicate === undefined) {return { pass: true };}
   // `since` floors the window at the start of THIS replay so a success signal left in the buffer by
   // a prior replay/run (or, in heal, by the pre-heal drift replay) cannot fake a pass.
   return waitForSignal(session, predicate, timeoutMs, since);

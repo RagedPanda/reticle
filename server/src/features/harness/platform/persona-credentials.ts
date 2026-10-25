@@ -65,15 +65,15 @@ export function personaCredentials(persona: string): PersonaCredentials {
     secrets[`${SECRET_ENV_PREFIX}FIRST_NAME`] = name[1];
     secrets[`${SECRET_ENV_PREFIX}FULL_NAME`] = full;
     secrets[`${SECRET_ENV_PREFIX}NAME`] = full;
-    if (name[2] !== undefined) secrets[`${SECRET_ENV_PREFIX}LAST_NAME`] = name[2];
+    if (name[2] !== undefined) {secrets[`${SECRET_ENV_PREFIX}LAST_NAME`] = name[2];}
   }
   const email = EMAIL.exec(persona)?.[0];
   if (email !== undefined)
-    for (const field of EMAIL_FIELDS) secrets[`${SECRET_ENV_PREFIX}${field}`] = email;
+    {for (const field of EMAIL_FIELDS) {secrets[`${SECRET_ENV_PREFIX}${field}`] = email;}}
   const match = PASSWORD.exec(persona);
   const password = match?.slice(1).find((group) => group !== undefined);
-  if (null === match || password === undefined) return { persona, secrets };
-  for (const field of PASSWORD_FIELDS) secrets[`${SECRET_ENV_PREFIX}${field}`] = password;
+  if (null === match || password === undefined) {return { persona, secrets };}
+  for (const field of PASSWORD_FIELDS) {secrets[`${SECRET_ENV_PREFIX}${field}`] = password;}
   const redacted = match[0].replace(password, REDACTED_SECRET);
   return { persona: persona.replace(match[0], redacted), secrets };
 }

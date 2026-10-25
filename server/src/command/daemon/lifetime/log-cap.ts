@@ -48,7 +48,7 @@ export function recoverOversizedLog(
 ): number {
   try {
     const size = deps.size();
-    if (max >= size) return 0;
+    if (max >= size) {return 0;}
     deps.truncate();
     return size;
   } catch {
@@ -109,10 +109,10 @@ export function pruneOldDaemonLogs(home: string, nowMs: number): string[] {
     return pruned; // no ~/.reticle yet → nothing to prune
   }
   for (const file of files) {
-    if (null === /^daemon-\d+\.log(\.1)?$/.exec(file)) continue;
+    if (null === /^daemon-\d+\.log(\.1)?$/.exec(file)) {continue;}
     const path = join(home, file);
     try {
-      if (DAEMON_LOG_RETENTION_MS > nowMs - statSync(path).mtimeMs) continue;
+      if (DAEMON_LOG_RETENTION_MS > nowMs - statSync(path).mtimeMs) {continue;}
       unlinkSync(path);
       pruned.push(file);
     } catch {

@@ -99,7 +99,7 @@ function isRemoteUrl(url: string): boolean {
 }
 
 function markerClause(sdkMarker: boolean | undefined): string {
-  if (sdkMarker === undefined) return '';
+  if (sdkMarker === undefined) {return '';}
   return sdkMarker
     ? ' A Reticle SDK marker WAS found in the page that loaded, so the app does ship the SDK — the ' +
         'question is only why it did not reach this daemon.'
@@ -116,7 +116,7 @@ function markerClause(sdkMarker: boolean | undefined): string {
  * branch outranks every other cause. No answer is correct here; a plausible one is not.
  */
 function dialledPort(url: string | undefined): number | undefined {
-  if (url === undefined) return undefined;
+  if (url === undefined) {return undefined;}
   try {
     const port = new URL(url).port;
     return '' === port ? undefined : Number(port);

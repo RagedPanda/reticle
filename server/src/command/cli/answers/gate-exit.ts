@@ -33,7 +33,7 @@ export function gateExitWith(
   /** The platform the project is linked to refused its credential: the gate fails closed. */
   refused = false,
 ): number {
-  if (regressed !== undefined && 0 < regressed) return GateExit.REGRESSION;
+  if (regressed !== undefined && 0 < regressed) {return GateExit.REGRESSION;}
   return refused && GateExit.PASS === local ? GateExit.FAIL : local;
 }
 
@@ -61,7 +61,7 @@ export const MSG_GATE_NO_FLOWS =
  */
 export function msgGateRegression(broken: readonly unknown[]): string {
   const names = broken.map((entry) => {
-    if ('string' === typeof entry) return entry;
+    if ('string' === typeof entry) {return entry;}
     const record =
       'object' === typeof entry && null !== entry ? (entry as Record<string, unknown>) : {};
     const name = record['flowName'] ?? record['name'];

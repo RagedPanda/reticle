@@ -66,10 +66,10 @@ export const FLOW_MUTATE_TOOL: ToolDef = {
     const flow: FlowFile = loaded.value;
 
     const target = mutationTargetsFor(flow)[0];
-    if (target === undefined) return { flow: name, because: NOTHING_DECLARED };
+    if (target === undefined) {return { flow: name, because: NOTHING_DECLARED };}
 
     const port = await sessionMutationPort(deps.realInput, deps.sessions.resolve(sessionId)?.url);
-    if (port === undefined) return { flow: name, target, because: NEEDS_A_DRIVEN_PAGE };
+    if (port === undefined) {return { flow: name, target, because: NEEDS_A_DRIVEN_PAGE };}
 
     const outcome = await mutationTest(
       {

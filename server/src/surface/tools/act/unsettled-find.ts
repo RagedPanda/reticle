@@ -41,9 +41,9 @@ export interface UnsettledFindSession {
 
 /** How many elements a query result matched, or `undefined` when it is not a query result. */
 function matchedCount(result: unknown): number | undefined {
-  if (null === result || 'object' !== typeof result) return undefined;
+  if (null === result || 'object' !== typeof result) {return undefined;}
   const rec = result as Record<string, unknown>;
-  if ('number' === typeof rec['count']) return rec['count'];
+  if ('number' === typeof rec['count']) {return rec['count'];}
   return Array.isArray(rec['elements']) ? rec['elements'].length : undefined;
 }
 
@@ -57,18 +57,18 @@ export function unsettledFind(
   session: UnsettledFindSession,
   result: unknown,
 ): UnsettledFind | undefined {
-  if (0 !== matchedCount(result)) return undefined;
+  if (0 !== matchedCount(result)) {return undefined;}
   // A test double, or any session that cannot say what its last act was, gets the read as before.
-  if (undefined === (session as Partial<UnsettledFindSession>).lastAct) return undefined;
+  if (undefined === (session as Partial<UnsettledFindSession>).lastAct) {return undefined;}
   const cursor = session.lastAct.cursor();
-  if (cursor === undefined) return undefined;
+  if (cursor === undefined) {return undefined;}
   const window = session.eventsSince(cursor);
   const inFlight = inFlightRequestLabels(window, session.url, session.background);
   let lastDom: number | undefined;
-  for (const e of window) if (DOM_CHANGES.has(e.type)) lastDom = Math.max(lastDom ?? e.t, e.t);
+  for (const e of window) {if (DOM_CHANGES.has(e.type)) {lastDom = Math.max(lastDom ?? e.t, e.t);}}
   const msAgo = lastDom === undefined ? undefined : Math.max(0, session.elapsed() - lastDom);
   const recent = msAgo !== undefined && msAgo < UNSETTLED_DOM_QUIET_MS;
-  if (0 === inFlight.length && !recent) return undefined;
+  if (0 === inFlight.length && !recent) {return undefined;}
   const why =
     0 < inFlight.length
       ? `the last act started ${String(inFlight.length)} request(s) that have not come back`
@@ -83,6 +83,6 @@ export function unsettledFind(
 /** The query result, with `unsettled` added when a zero-match read was taken mid-render. */
 export function withUnsettledFind(session: UnsettledFindSession, result: unknown): unknown {
   const unsettled = unsettledFind(session, result);
-  if (unsettled === undefined || null === result || 'object' !== typeof result) return result;
+  if (unsettled === undefined || null === result || 'object' !== typeof result) {return result;}
   return { ...(result as Record<string, unknown>), unsettled };
 }

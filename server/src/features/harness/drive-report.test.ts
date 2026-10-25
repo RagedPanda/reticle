@@ -161,7 +161,7 @@ describe('the account an agent reads', () => {
       ...Array.from({ length: 15 }, (_, i) => acted(`bad ${String(i)}`, 'no')),
     ];
     const summary = describeDrive(steps, []);
-    for (let i = 0; i < 15; i += 1) expect(summary).toContain(`bad ${String(i)}`);
+    for (let i = 0; i < 15; i += 1) {expect(summary).toContain(`bad ${String(i)}`);}
     expect(summary).toContain('and 20 more, none of them failed');
   });
 

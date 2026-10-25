@@ -49,10 +49,10 @@ const GLOBAL_DIRS = [
 
 /** How the process was launched, from the path of its entry script. Only the bucket leaves. */
 export function launchMethodOf(entry: string | undefined): LaunchMethod {
-  if (entry === undefined) return LaunchMethod.OTHER;
+  if (entry === undefined) {return LaunchMethod.OTHER;}
   const path = entry.replace(/\\/g, '/').toLowerCase();
-  if (path.includes('/_npx/') || path.includes('/dlx-')) return LaunchMethod.NPX;
-  if (GLOBAL_DIRS.some((dir) => path.includes(dir))) return LaunchMethod.GLOBAL;
-  if (path.includes('/node_modules/')) return LaunchMethod.PROJECT;
+  if (path.includes('/_npx/') || path.includes('/dlx-')) {return LaunchMethod.NPX;}
+  if (GLOBAL_DIRS.some((dir) => path.includes(dir))) {return LaunchMethod.GLOBAL;}
+  if (path.includes('/node_modules/')) {return LaunchMethod.PROJECT;}
   return LaunchMethod.OTHER;
 }

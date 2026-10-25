@@ -107,7 +107,7 @@ export class HttpWitness extends Witness {
    */
   #look(window: Window): Promise<{ body: string; status: number; failure?: string }> {
     const cached = this.#looks.get(window.id);
-    if (cached !== undefined) return cached;
+    if (cached !== undefined) {return cached;}
     const pending = (async (): Promise<{ body: string; status: number; failure?: string }> => {
       try {
         const res = await this.#fetch(this.#url);
@@ -123,7 +123,7 @@ export class HttpWitness extends Witness {
 
   async observe(window: Window): Promise<readonly Observation[]> {
     const seen = await this.#look(window);
-    if (seen.failure !== undefined || 0 === seen.body.length) return [];
+    if (seen.failure !== undefined || 0 === seen.body.length) {return [];}
     return [
       {
         id: `${window.id}-0`,

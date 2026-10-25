@@ -48,7 +48,7 @@ const PATTERNS: readonly (readonly [RegExp, ErrorClass])[] = [
 /** Which bucket this message belongs to. Never throws — a classifier must not break a tool path. */
 export function classifyError(message: string): ErrorClass {
   for (const [pattern, cls] of PATTERNS) {
-    if (pattern.test(message)) return cls;
+    if (pattern.test(message)) {return cls;}
   }
   return ErrorClass.OTHER;
 }

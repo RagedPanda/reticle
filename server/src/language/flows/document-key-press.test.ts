@@ -61,7 +61,7 @@ class FakeSession implements FlowReplaySession {
         },
       });
     }
-    if (name === ReticleCommand.ACT) this.acts.push(args);
+    if (name === ReticleCommand.ACT) {this.acts.push(args);}
     if (name === ReticleCommand.ACT_SEQUENCE) {
       this.sequences.push((args['steps'] as Record<string, unknown>[] | undefined) ?? []);
     }

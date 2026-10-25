@@ -142,7 +142,7 @@ describe('runTool — universal session-health invariant', () => {
     expect(overlap).toEqual([]); // a tool may not be in both sets
     for (const tool of TOOLS) {
       const hasSessionId = Object.keys(tool.inputSchema).includes('sessionId');
-      if (!hasSessionId) continue;
+      if (!hasSessionId) {continue;}
       const classified = SESSION_BOUND_TOOLS.has(tool.name) || SESSION_EXEMPT_TOOLS.has(tool.name);
       expect(classified, `${tool.name} carries sessionId but is neither bound nor exempt`).toBe(
         true,
@@ -187,7 +187,7 @@ describe('runTool — universal session-health invariant', () => {
     // omit it, which is the silent half of this class of bug rather than a fix for it.
     const all = new Set([...TOOLS, ...MERGED_TOOLS].map((t) => t.name));
     for (const n of [...SESSION_BOUND_TOOLS, ...SESSION_EXEMPT_TOOLS])
-      expect(all.has(n)).toBe(true);
+      {expect(all.has(n)).toBe(true);}
   });
 
   it('8: touches the AUTO-SELECTED session lease when sessionId is omitted (not the raw undefined arg)', async () => {
@@ -208,7 +208,7 @@ describe('runTool — universal session-health invariant', () => {
     const deps = fakeDeps();
     const tool = (name: string): ToolDef => {
       const t = TOOLS.find((x) => x.name === name);
-      if (t === undefined) throw new Error(`no tool ${name}`);
+      if (t === undefined) {throw new Error(`no tool ${name}`);}
       return t;
     };
     for (const name of ['reticle_network', 'reticle_console', 'reticle_state']) {
@@ -268,7 +268,7 @@ describe('reticle_run carries the same session envelope as a direct call', () =>
     let taken = false;
     const session = throttledSession({
       takeSessionLease: () => {
-        if (taken) return undefined;
+        if (taken) {return undefined;}
         taken = true;
         return LEASE;
       },

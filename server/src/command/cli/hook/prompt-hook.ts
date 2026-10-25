@@ -114,8 +114,8 @@ export function promptFromPayload(
 
 /** What the hook prints. Cursor and Gemini read stdout as JSON; the rest need nothing. */
 export function hookAck(agent: string): string {
-  if (PromptHookAgent.CURSOR === agent) return `${JSON.stringify({ continue: true })}\n`;
-  if (PromptHookAgent.GEMINI === agent) return '{}\n';
+  if (PromptHookAgent.CURSOR === agent) {return `${JSON.stringify({ continue: true })}\n`;}
+  if (PromptHookAgent.GEMINI === agent) {return '{}\n';}
   return '';
 }
 
@@ -127,10 +127,10 @@ export function hookAck(agent: string): string {
  * from the APP's `.reticle`, so a prompt kept only at the root is a prompt no run ever carries.
  */
 export function captureRoots(cwd: string): string[] {
-  if (!existsSync(cwd)) return [];
+  if (!existsSync(cwd)) {return [];}
   const { found } = discoverProjectConfigs(cwd);
   const nearest = found.find((config) => isWithin(config.directory, cwd));
-  if (nearest === undefined) return [];
+  if (nearest === undefined) {return [];}
   const apps = found.filter(
     (config) =>
       config.directory !== nearest.directory &&
@@ -160,10 +160,10 @@ export function capturePrompt(agent: string, raw: string, io: CaptureIo): { writ
       return { written: [] };
     }
     const { prompt, cwd } = promptFromPayload(agent, JSON.parse(raw) as unknown, io.cwd, io.env);
-    if (prompt === undefined || HARNESS_PROMPT.test(prompt.trim())) return { written: [] };
+    if (prompt === undefined || HARNESS_PROMPT.test(prompt.trim())) {return { written: [] };}
     const written: string[] = [];
     for (const root of captureRoots(cwd)) {
-      if (keepIn(root, agent, prompt.trim(), io.now())) written.push(root);
+      if (keepIn(root, agent, prompt.trim(), io.now())) {written.push(root);}
     }
     return { written };
   } catch {
@@ -174,17 +174,17 @@ export function capturePrompt(agent: string, raw: string, io: CaptureIo): { writ
 /** Write one prompt into one `.reticle`. False when the project opted out, or it is a repeat. */
 function keepIn(root: string, agent: string, prompt: string, at: number): boolean {
   const projectDir = dirname(root);
-  if (false === projectSetting(projectDir, 'promptCapture')) return false;
+  if (false === projectSetting(projectDir, 'promptCapture')) {return false;}
   const requestPath = join(root, ReticleDir.REQUEST_FILE);
   const request = redactSecrets(prompt, MAX_REQUEST);
-  if (repeats(requestPath, request, at)) return false;
+  if (repeats(requestPath, request, at)) {return false;}
   const context = promptContextFor(prompt, [], at, sharesRequests(projectDir, root));
   mkdirSync(root, { recursive: true });
   // The hook can run before any daemon has written `.reticle/.gitignore`: write it, or add the
   // prompt files to an older one, before a prompt lands where `git add -A` would take it.
   const ignorePath = join(root, WORKSPACE_GITIGNORE);
   const ignore = workspaceGitignore(readTextOrUndefined(ignorePath));
-  if (ignore !== undefined) writeFileSync(ignorePath, ignore);
+  if (ignore !== undefined) {writeFileSync(ignorePath, ignore);}
   const tmp = `${requestPath}.${String(process.pid)}.tmp`;
   writeFileSync(tmp, `${JSON.stringify(context, null, JSON_INDENT)}\n`);
   renameSync(tmp, requestPath);
@@ -212,7 +212,7 @@ function keepIn(root: string, agent: string, prompt: string, at: number): boolea
 function repeats(requestPath: string, request: string, at: number): boolean {
   try {
     const held = PromptContextSchema.safeParse(JSON.parse(readFileSync(requestPath, 'utf8')));
-    if (!held.success || held.data.at === undefined) return false;
+    if (!held.success || held.data.at === undefined) {return false;}
     return held.data.request === request && at - held.data.at < DUPLICATE_WINDOW_MS;
   } catch {
     return false;

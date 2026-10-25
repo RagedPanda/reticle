@@ -85,7 +85,7 @@ export function confirmedDestructive(toolCalls: readonly ToolOutcome[]): number 
  * the "Refund now" dialog sent the caller looking for a dead control.
  */
 function openedADialog(result: Record<string, unknown>, after: readonly ToolOutcome[]): string[] {
-  if (Verified.NO !== result['verified']) return [];
+  if (Verified.NO !== result['verified']) {return [];}
   const next = after.find((call) => ReticleTool.SNAPSHOT === call.name);
   const dialogs = asRecord(asRecord(next?.result)['status'])['visibleDialogs'];
   return Array.isArray(dialogs) && 0 < dialogs.length
@@ -124,7 +124,7 @@ function evidenceOf(result: Record<string, unknown>): string[] {
     );
   }
   const observed = asString(verdict['observed']);
-  if (false === verdict['pass'] && observed !== undefined) lines.push(`observed: ${observed}`);
+  if (false === verdict['pass'] && observed !== undefined) {lines.push(`observed: ${observed}`);}
   return lines;
 }
 
@@ -157,14 +157,14 @@ const DRIVING_TOOLS = new Set<string>([
  */
 function targetOf(args: Record<string, unknown>, result: Record<string, unknown>): string {
   const described = asString(result['element']) ?? asString(result['name']);
-  if (described !== undefined && 0 < described.length) return described;
+  if (described !== undefined && 0 < described.length) {return described;}
   const target = asRecord(args['target']);
   for (const key of ['testid', 'text', 'label', 'name']) {
     const value = asString(target[key]);
-    if (value !== undefined && 0 < value.length) return `${key}=${value}`;
+    if (value !== undefined && 0 < value.length) {return `${key}=${value}`;}
   }
   const url = asString(args['url']);
-  if (url !== undefined && 0 < url.length) return url;
+  if (url !== undefined && 0 < url.length) {return url;}
   return asString(args['ref']) ?? 'the page';
 }
 
@@ -195,7 +195,7 @@ export function replayedFlows(
 ): { name: string; status: string | undefined }[] {
   const out: { name: string; status: string | undefined }[] = [];
   for (const call of toolCalls) {
-    if (ReticleTool.FLOW_REPLAY !== call.name) continue;
+    if (ReticleTool.FLOW_REPLAY !== call.name) {continue;}
     const name = asString(asRecord(call.args)['flowName']) ?? 'a flow';
     const result = asRecord(call.result);
     const message =
@@ -226,7 +226,7 @@ export function replayedFlows(
 function describeClaim(until: unknown): string | undefined {
   const p = asRecord(until);
   const kind = asString(p['kind']);
-  if (kind === undefined) return undefined;
+  if (kind === undefined) {return undefined;}
   if ('signal' === kind) {
     const name = asString(p['name']);
     return name === undefined ? 'a signal' : `signal ${name}`;
@@ -236,12 +236,12 @@ function describeClaim(until: unknown): string | undefined {
     const url = asString(p['urlContains']);
     return `a ${method ?? ''} request${url === undefined ? '' : ` to ${url}`}`.replace('  ', ' ');
   }
-  if ('route' === kind) return `a route containing ${asString(p['contains']) ?? '?'}`;
+  if ('route' === kind) {return `a route containing ${asString(p['contains']) ?? '?'}`;}
   if ('not' === kind) {
     const inner = describeClaim(p['predicate']);
     return inner === undefined ? 'not something' : `to leave ${inner}`;
   }
-  if ('anyOf' === kind) return 'a request or a signal';
+  if ('anyOf' === kind) {return 'a request or a signal';}
   return kind;
 }
 
@@ -283,7 +283,7 @@ function gradedChecks(toolCalls: readonly ToolOutcome[]): GradedCheck[] {
     const isCheck =
       ReticleTool.ASSERT === call.name ||
       (ReticleTool.ACT_AND_WAIT === call.name && until !== undefined);
-    if (!isCheck || call.isError) return [];
+    if (!isCheck || call.isError) {return [];}
     const predicate = PredicateSchema.safeParse(until);
     const key = predicate.success
       ? `${predicate.data.kind}|${describeWaitTarget(predicate.data)}`
@@ -300,15 +300,15 @@ function gradedChecks(toolCalls: readonly ToolOutcome[]): GradedCheck[] {
   );
   for (const [at, { index, args, result, key }] of checks.entries()) {
     // The driver's own wrong guess about the route checked the driver, not the app.
-    if (routeGuessMissed(args, result)) continue;
+    if (routeGuessMissed(args, result)) {continue;}
     const verified = asString(result['verified']);
     // A passive assert that read too early: see superseded-checks.ts.
-    if (superseded.has(at)) continue;
+    if (superseded.has(at)) {continue;}
     // A second press of a control whose claim already held is the Harness's own extra action.
     const ref = asString(args['ref']);
     const pressed = ref === undefined ? undefined : `${ref}|${key}`;
     const repress = Verified.NO === verified && pressed !== undefined && heldPresses.has(pressed);
-    if (Verified.YES === verified && pressed !== undefined) heldPresses.add(pressed);
+    if (Verified.YES === verified && pressed !== undefined) {heldPresses.add(pressed);}
     const outcome: CheckOutcome =
       Verified.YES === verified
         ? 'held'
@@ -325,7 +325,7 @@ function gradedChecks(toolCalls: readonly ToolOutcome[]): GradedCheck[] {
  * run's name, and a run that navigated between two pages said it made no action against the app.
  */
 function throughRun(call: ToolOutcome): ToolOutcome {
-  if (ReticleTool.RUN !== call.name) return call;
+  if (ReticleTool.RUN !== call.name) {return call;}
   const args = asRecord(call.args);
   const name = asString(args['tool']);
   return name === undefined ? call : { ...call, name, args: asRecord(args['args']) };
@@ -341,12 +341,12 @@ export function drivenSteps(toolCalls: readonly ToolOutcome[]): DrivenStep[] {
   );
   for (const [index, made] of toolCalls.entries()) {
     const call = throughRun(made);
-    if (!DRIVING_TOOLS.has(call.name)) continue;
+    if (!DRIVING_TOOLS.has(call.name)) {continue;}
     const args = asRecord(call.args);
     const result = asRecord(call.result);
     // The gate's refusal never reached the app; listed beside the confirmed retry, it read as "the
     // refund was blocked" to the agent reading this, about a refund that had gone through.
-    if (refusedAsDestructive(call)) continue;
+    if (refusedAsDestructive(call)) {continue;}
     const action =
       ReticleTool.NAVIGATE === call.name ? 'navigate' : (asString(args['action']) ?? 'act');
     const guessMissed = !call.isError && routeGuessMissed(args, result);
@@ -413,11 +413,11 @@ const RETICLE_PARAMS = /[?&]__reticle_[^&#]*/g;
 export function pagesReached(toolCalls: readonly ToolOutcome[]): string[] {
   const pages: string[] = [];
   for (const call of toolCalls) {
-    if (ReticleTool.SNAPSHOT !== call.name || call.isError) continue;
+    if (ReticleTool.SNAPSHOT !== call.name || call.isError) {continue;}
     const raw = asString(asRecord(asRecord(call.result)['status'])['route']);
     // Reticle's own parameters (a leased tab's session and project) are not part of the page.
     const route = raw?.replace(RETICLE_PARAMS, '').replace(/^\/\?(?=#|$)/, '/');
-    if (route !== undefined && !pages.includes(route)) pages.push(route);
+    if (route !== undefined && !pages.includes(route)) {pages.push(route);}
   }
   return pages;
 }
@@ -432,12 +432,12 @@ export function typedValues(toolCalls: readonly ToolOutcome[]): string[] {
       value !== undefined &&
       (ActionType.FILL === act['action'] || ActionType.TYPE === act['action'])
     )
-      out.push(value);
+      {out.push(value);}
   };
   for (const call of toolCalls) {
     const steps = call.args['steps'];
-    if (Array.isArray(steps)) for (const step of steps) read(asRecord(step));
-    else read(call.args);
+    if (Array.isArray(steps)) {for (const step of steps) {read(asRecord(step));}}
+    else {read(call.args);}
   }
   return out;
 }
@@ -454,16 +454,16 @@ export function checkTally(toolCalls: readonly ToolOutcome[]): {
   const seen = new Set<string>();
   const tally = { held: 0, failed: 0, undecided: 0 };
   const count = (key: string, now: CheckOutcome): void => {
-    if (seen.has(`${key}|${now}`)) return;
+    if (seen.has(`${key}|${now}`)) {return;}
     seen.add(`${key}|${now}`);
     tally[now] += 1;
   };
-  for (const check of gradedChecks(toolCalls)) count(check.key, check.outcome);
+  for (const check of gradedChecks(toolCalls)) {count(check.key, check.outcome);}
   // A replayed flow is a check too: its own expects decided it. A passed replay counted as "no
   // check" and its run read NOT PROVED beside a dashboard that said Passed.
   for (const replay of replayedFlows(toolCalls)) {
     const now = REPLAY_CHECK[replay.status ?? ''];
-    if (now === undefined) continue;
+    if (now === undefined) {continue;}
     count(`${ReticleTool.FLOW_REPLAY}|${replay.name}`, now);
   }
   return tally;
@@ -503,25 +503,25 @@ function journeysVerdict(
   journeys: readonly JourneyStatus[],
   counts: string,
 ): RunVerdict | undefined {
-  if (0 === journeys.length) return undefined;
+  if (0 === journeys.length) {return undefined;}
   const of = (status: string): number => journeys.filter((j) => status === j.status).length;
   const total = String(journeys.length);
   const passed = of(ScriptStatus.PASSED);
   if (0 < of(ScriptStatus.FAILED))
-    return {
+    {return {
       verified: Verified.NO,
       line: `NOT PROVED — ${String(of(ScriptStatus.FAILED))} of ${total} journey(s) failed${counts}.`,
-    };
+    };}
   if (0 < passed && journeys.every((j) => SETTLED_JOURNEY.has(j.status)))
-    return {
+    {return {
       verified: Verified.YES,
       line: `PROVED — ${String(passed)} of ${total} journey(s) passed${counts}.`,
-    };
+    };}
   if (0 < passed)
-    return {
+    {return {
       verified: Verified.UNKNOWN,
       line: `NOT PROVED — ${String(passed)} of ${total} journey(s) passed and the rest were not decided${counts}.`,
-    };
+    };}
   return { verified: Verified.UNKNOWN, line: `NOT PROVED — no journey passed${counts}.` };
 }
 
@@ -542,19 +542,19 @@ export function runVerdict(
   const not = (line: string): RunVerdict => ({ verified: Verified.UNKNOWN, line });
   // Journeys that passed are not the run's goal reached: the goals the run was asked decide it too.
   if (Verified.YES === planned?.verified && false === goalMet)
-    return not(
+    {return not(
       `NOT PROVED — ${planned.line.slice('PROVED — '.length).replace(/\.$/, '')}, but the goal was not reached.`,
-    );
-  if (planned !== undefined) return planned;
-  if (0 === total) return not('NOT PROVED: the drive ran no check.');
+    );}
+  if (planned !== undefined) {return planned;}
+  if (0 === total) {return not('NOT PROVED: the drive ran no check.');}
   if (0 < tally.failed)
-    return {
+    {return {
       verified: Verified.NO,
       line: `NOT PROVED — ${counts}. The failures below are findings.`,
-    };
-  if (0 < tally.undecided) return not(`NOT PROVED — ${counts}.`);
+    };}
+  if (0 < tally.undecided) {return not(`NOT PROVED — ${counts}.`);}
   // Checks that held on the way are not the journey done.
-  if (false === goalMet) return not(`NOT PROVED — ${counts}, but the goal was not reached.`);
+  if (false === goalMet) {return not(`NOT PROVED — ${counts}, but the goal was not reached.`);}
   return { verified: Verified.YES, line: `PROVED — ${counts}.` };
 }
 
@@ -609,21 +609,21 @@ export function describeDrive(
               `${0 === missing.length ? '' : `, ${String(missing.length)} not on this computer`}.`,
           ];
           if (0 < missing.length)
-            lines.push(
+            {lines.push(
               `  MISSING: ${missing.map((r) => r.name).join(', ')} — not saved on this computer, or calls a flow that is not, so it never ran. Not a regression: pull or record them here first.`,
-            );
+            );}
           if (0 < failed.length)
-            lines.push(
+            {lines.push(
               `  FAILED: ${failed.map((r) => r.name).join(', ')} — regressions in journeys that used to pass.`,
-            );
+            );}
           if (0 < guarded.length)
-            lines.push(
+            {lines.push(
               `  NOT RUN: ${guarded.map((r) => r.name).join(', ')} — stopped at a step marked destructive. Not a regression: replay with confirmDangerous to run it.`,
-            );
+            );}
           if (0 < drifted.length)
-            lines.push(
+            {lines.push(
               `  DRIFTED: ${drifted.map((r) => r.name).join(', ')} — the app moved under these recordings; the flow needs re-anchoring, not the app fixing.`,
-            );
+            );}
           return lines.join('\n');
         })();
 
@@ -684,7 +684,7 @@ export function describeDrive(
         ? ` (claimed ${step.claimed})`
         : '';
     lines.push(`  ${step.action} ${step.target}: ${verdict}${claimed}${because}`);
-    for (const line of step.evidence) lines.push(`      ${line}`);
+    for (const line of step.evidence) {lines.push(`      ${line}`);}
   }
   if (listed.length < steps.length) {
     const unlistedFailed = Math.max(0, failed.length - MAX_FAILED);
@@ -697,38 +697,38 @@ export function describeDrive(
   }
   const confirmed = confirmedDestructive(toolCalls);
   if (0 < confirmed)
-    lines.push(
+    {lines.push(
       `${String(confirmed)} destructive action(s) were confirmed and REALLY RAN against the app (the drive confirms one only after the gate refuses it; the refusal itself changed nothing).`,
-    );
+    );}
 
   // Counted from the same graded checks as the checks line, never from the raw step verdicts: an
   // answer read "0 failed" beside "1 action(s) FAILED … These are findings" about one re-press.
   const tally = checkTally(toolCalls);
   if (0 < tally.failed)
-    lines.push(
+    {lines.push(
       `${String(tally.failed)} check(s) FAILED — the app did not do what the drive declared it would. These are findings.`,
-    );
+    );}
   if (0 < tally.undecided)
-    lines.push(
+    {lines.push(
       `${String(tally.undecided)} check(s) undecided. That is undecided evidence, not a failure: it calls for a better check, not a code change.`,
-    );
+    );}
   const undeclared = undecided.filter((step) => step.claimed === undefined).length;
   if (0 < undeclared)
-    lines.push(
+    {lines.push(
       `${String(undeclared)} action(s) declared no consequence, so they prove nothing either way: not a check, not a failure.`,
-    );
+    );}
   // A flow with no step that asserts anything replays as "verified nothing": offered as a replay it
   // reads as evidence, so it is named for what it is instead.
   const empty = new Set(unverifiedFlows);
   const replayable = savedFlows.filter((name) => !empty.has(name));
   if (0 < replayable.length)
-    lines.push(
+    {lines.push(
       `Replay any of this without a model: reticle_verify { action: "flows" } — saved ${replayable.join(', ')}.`,
-    );
+    );}
   for (const name of unverifiedFlows)
-    lines.push(
+    {lines.push(
       `Saved ${name}, but ${name} checks nothing: no step asserts a consequence, so its replay will verify nothing. Drive again naming the end state, or add an expect to its last step.`,
-    );
+    );}
 
   return lines.join('\n');
 }

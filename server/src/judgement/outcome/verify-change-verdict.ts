@@ -18,8 +18,8 @@ const FAIL = 'fail';
 
 export function verdictForSuite(status: string, failedCount: number): Verified {
   // A real failure outranks everything: flows ran and some went red.
-  if (failedCount > 0 || status === FAIL) return Verified.NO;
-  if (status === PASS) return Verified.YES;
+  if (failedCount > 0 || status === FAIL) {return Verified.NO;}
+  if (status === PASS) {return Verified.YES;}
   // `unverifiable`, or any status added later. Nothing was proved, so nothing is claimed.
   return Verified.UNKNOWN;
 }

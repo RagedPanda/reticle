@@ -40,14 +40,14 @@ function slowWriteSession(answers = true): Session {
   const push = (type: EventType, data: Record<string, unknown>): void => {
     const event = { t: clock(), type, sessionId: 's1', data } as ReticleEvent;
     events.push(event);
-    for (const listener of listeners) listener(event);
+    for (const listener of listeners) {listener(event);}
   };
   const command = (): Promise<CommandResult> => {
     push(EventType.DOM_TEXT, { text: 'Generating…' });
     push(EventType.NET_PENDING, { id: 'r1', method: 'POST', url: URL });
     push(EventType.SIGNAL, { name: 'generate:started' });
     if (answers)
-      setTimeout(() => {
+      {setTimeout(() => {
         push(EventType.NET_REQUEST, {
           id: 'r1',
           method: 'POST',
@@ -57,7 +57,7 @@ function slowWriteSession(answers = true): Session {
           durationMs: ANSWER_AFTER_MS,
           initiator: 'fetch',
         });
-      }, ANSWER_AFTER_MS);
+      }, ANSWER_AFTER_MS);}
     return Promise.resolve({
       kind: 'command_result',
       id: 'c',
@@ -120,7 +120,7 @@ const sequence = TOOLS.find((t) => t.name === ReticleTool.ACT_SEQUENCE);
 
 describe('a declared step that waited for its answer', () => {
   it('does not report the answered request as still in flight', async () => {
-    if (sequence === undefined) throw new Error('no act_sequence tool');
+    if (sequence === undefined) {throw new Error('no act_sequence tool');}
     const session = slowWriteSession();
     const result = (await sequence.handler(depsFor(session), {
       steps: [
@@ -140,7 +140,7 @@ describe('a declared step that waited for its answer', () => {
   // The fix must not be "stop attaching contradictions": a request that NEVER answers, beside a
   // step whose declared signal held, is still reported in flight.
   it('still reports a request that never answered', async () => {
-    if (sequence === undefined) throw new Error('no act_sequence tool');
+    if (sequence === undefined) {throw new Error('no act_sequence tool');}
     const result = (await sequence.handler(depsFor(slowWriteSession(false)), {
       steps: [{ ref: 'e1', action: 'click', expect: { kind: 'signal', name: 'generate:started' } }],
       timeout_ms: 2000,

@@ -33,8 +33,8 @@ export const ATTACHED_GRACE_MULTIPLIER = 6;
  */
 export function idleGraceMs(baseMs: number, agentAttached: boolean, overrideMs?: number): number {
   // A non-positive base means the watcher is disabled; multiplying must not resurrect it.
-  if (baseMs <= 0) return baseMs;
-  if (!agentAttached) return baseMs;
+  if (baseMs <= 0) {return baseMs;}
+  if (!agentAttached) {return baseMs;}
   return overrideMs !== undefined && overrideMs > 0
     ? overrideMs
     : baseMs * ATTACHED_GRACE_MULTIPLIER;

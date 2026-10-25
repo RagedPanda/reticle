@@ -49,10 +49,10 @@ function netPredicate(net: {
   const clause: Extract<Predicate, { kind: typeof PredicateKind.NET }> = {
     kind: PredicateKind.NET,
   };
-  if (net.method !== undefined) clause.method = net.method;
-  if (net.urlContains !== undefined) clause.urlContains = net.urlContains;
-  if (net.status !== undefined) clause.status = net.status;
-  if (net.count === undefined) return clause;
+  if (net.method !== undefined) {clause.method = net.method;}
+  if (net.urlContains !== undefined) {clause.urlContains = net.urlContains;}
+  if (net.status !== undefined) {clause.status = net.status;}
+  if (net.count === undefined) {return clause;}
   clause.count = net.count;
   // The gate waits on the NETWORK: DOM churn from an animation held a request check open until it
   // timed out, a flaky red on a loaded machine.
@@ -65,33 +65,33 @@ function netPredicate(net: {
 export function compileAnnotation(a: Annotation, stepCount: number): AnnotateOutcome {
   switch (a.kind) {
     case AnnotationKind.ASSERT_SIGNAL: {
-      if (0 === stepCount) return noStep();
+      if (0 === stepCount) {return noStep();}
       const signal: Extract<Predicate, { kind: typeof PredicateKind.SIGNAL }> = {
         kind: PredicateKind.SIGNAL,
         name: a.name,
       };
-      if (a.dataMatches !== undefined) signal.dataMatches = a.dataMatches;
+      if (a.dataMatches !== undefined) {signal.dataMatches = a.dataMatches;}
       return stepPatch(a, stepCount, signal);
     }
     case AnnotationKind.ASSERT_VISIBLE: {
-      if (0 === stepCount) return noStep();
+      if (0 === stepCount) {return noStep();}
       return stepPatch(a, stepCount, {
         kind: PredicateKind.ELEMENT,
         query: { testid: a.testid },
       });
     }
     case AnnotationKind.ASSERT_STATE: {
-      if (0 === stepCount) return noStep();
+      if (0 === stepCount) {return noStep();}
       const state: Extract<Predicate, { kind: typeof PredicateKind.STATE }> = {
         kind: PredicateKind.STATE,
         path: a.statePath,
       };
-      if (a.store !== undefined) state.store = a.store;
-      if (a.equals !== undefined) state.equals = a.equals;
+      if (a.store !== undefined) {state.store = a.store;}
+      if (a.equals !== undefined) {state.equals = a.equals;}
       return stepPatch(a, stepCount, state);
     }
     case AnnotationKind.ASSERT_NET: {
-      if (0 === stepCount) return noStep();
+      if (0 === stepCount) {return noStep();}
       return stepPatch(a, stepCount, netPredicate(a.net));
     }
     case AnnotationKind.MARK_DYNAMIC:
@@ -110,8 +110,8 @@ export function compileAnnotation(a: Annotation, stepCount: number): AnnotateOut
           kind: PredicateKind.STATE,
           path: a.statePath,
         };
-        if (a.store !== undefined) state.store = a.store;
-        if (a.equals !== undefined) state.equals = a.equals;
+        if (a.store !== undefined) {state.store = a.store;}
+        if (a.equals !== undefined) {state.equals = a.equals;}
         // `hold` was a v1 flag meaning "this must STILL be true after the page settles". A predicate
         // says that by composing: the settle gate is a clause, not a boolean on another clause.
         return flowSuccess(
@@ -142,9 +142,9 @@ export function compileAnnotation(a: Annotation, stepCount: number): AnnotateOut
           kind: PredicateKind.TEXT,
           contains: a.text.contains,
         };
-        if (a.text.scope !== undefined) text.scope = a.text.scope;
-        if (a.text.absent !== undefined) text.absent = a.text.absent;
-        if (a.text.visible !== undefined) text.visible = a.text.visible;
+        if (a.text.scope !== undefined) {text.scope = a.text.scope;}
+        if (a.text.absent !== undefined) {text.absent = a.text.absent;}
+        if (a.text.visible !== undefined) {text.visible = a.text.visible;}
         return flowSuccess(a, text);
       }
       return { result: { ok: false, code: AnnotationErrorCode.MISSING_FIELD } };

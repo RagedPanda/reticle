@@ -41,7 +41,7 @@ describe('readAttachResponse', () => {
   it('carries the daemon session id back to the caller', () => {
     const result = readAttachResponse(4400, 'http://localhost:5173', { status: 200, body: ok });
     expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    if (!result.ok) {return;}
     expect(result.session.sessionId).toBe('lease-7');
     expect(result.session.ready).toBe(true);
     expect(result.session.expiresInMs).toBe(300000);
@@ -53,7 +53,7 @@ describe('readAttachResponse', () => {
     });
     const result = readAttachResponse(4400, 'http://localhost:5173', { status: 200, body });
     expect(result.ok).toBe(false);
-    if (result.ok) return;
+    if (result.ok) {return;}
     expect(result.reason).toContain('is the app running there?');
     expect(result.reason).toContain('http://localhost:5173');
   });
@@ -66,7 +66,7 @@ describe('readAttachResponse', () => {
       body: 'not found',
     });
     expect(result.ok).toBe(false);
-    if (result.ok) return;
+    if (result.ok) {return;}
     expect(result.reason).toContain('older');
     expect(result.reason).toContain('reticle stop');
   });
@@ -74,7 +74,7 @@ describe('readAttachResponse', () => {
   it('never answers with an unexplained status code alone', () => {
     const result = readAttachResponse(4400, 'http://localhost:5173', { status: 500, body: 'boom' });
     expect(result.ok).toBe(false);
-    if (result.ok) return;
+    if (result.ok) {return;}
     expect(result.reason).toContain('4400');
     expect(result.reason).toContain('boom');
   });
@@ -110,7 +110,7 @@ describe('requestDriveSession', () => {
       Promise.reject(new DriveRequestTimeout(60_000)),
     );
     expect(result.ok).toBe(false);
-    if (result.ok) return;
+    if (result.ok) {return;}
     expect(result.reason).toBe(
       'the Reticle daemon on :4400 took the drive request but gave no answer within 60s. It is ' +
         'running; a cold browser launch can take this long. Check `reticle status`, then retry.',
@@ -123,7 +123,7 @@ describe('requestDriveSession', () => {
       Promise.reject(new Error('connect ECONNREFUSED 127.0.0.1:4400')),
     );
     expect(result.ok).toBe(false);
-    if (result.ok) return;
+    if (result.ok) {return;}
     expect(result.reason).toContain('shutting down or has just been stopped');
   });
 
@@ -132,7 +132,7 @@ describe('requestDriveSession', () => {
       Promise.reject(new Error('connect ECONNREFUSED 127.0.0.1:4400')),
     );
     expect(result.ok).toBe(false);
-    if (result.ok) return;
+    if (result.ok) {return;}
     expect(result.reason).toContain('4400');
   });
 });

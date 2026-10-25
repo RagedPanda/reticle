@@ -72,7 +72,7 @@ export function openLoopbackAlias(port: number): Promise<LoopbackAlias> {
     const close = (): Promise<void> =>
       new Promise<void>((done) => {
         server.close(() => done());
-        for (const socket of live) socket.destroy();
+        for (const socket of live) {socket.destroy();}
         live.clear();
       });
     server.once('error', () => {

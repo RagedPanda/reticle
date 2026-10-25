@@ -78,14 +78,14 @@ function readTextFile(path: string): string | undefined {
 function pinnedPort(script: string): number | undefined {
   const match = PORT_FLAG.exec(script) ?? PORT_SHORT_FLAG.exec(script) ?? PORT_ENV.exec(script);
   const digits = match?.[1];
-  if (digits === undefined) return undefined;
+  if (digits === undefined) {return undefined;}
   const port = Number.parseInt(digits, 10);
   return Number.isSafeInteger(port) ? port : undefined;
 }
 
 /** The parsed package.json, or undefined for anything unreadable/unparseable. */
 function readManifest(raw: string | undefined): unknown {
-  if (raw === undefined) return undefined;
+  if (raw === undefined) {return undefined;}
   try {
     return JSON.parse(raw);
   } catch {
@@ -95,9 +95,9 @@ function readManifest(raw: string | undefined): unknown {
 
 /** The scripts block of a parsed package.json, or an empty one. */
 function scriptsOf(manifest: unknown): Record<string, unknown> {
-  if (null === manifest || 'object' !== typeof manifest) return {};
+  if (null === manifest || 'object' !== typeof manifest) {return {};}
   const scripts = (manifest as { scripts?: unknown }).scripts;
-  if (null === scripts || 'object' !== typeof scripts) return {};
+  if (null === scripts || 'object' !== typeof scripts) {return {};}
   return scripts as Record<string, unknown>;
 }
 
@@ -122,7 +122,7 @@ function devCommandFor(
   // spawns are the same.
   const desktop = desktopLaunch(manifest);
   if (desktop !== undefined) {
-    if ('command' in desktop) return { command: desktop.command };
+    if ('command' in desktop) {return { command: desktop.command };}
     const command = `${manager} run ${desktop.script}`;
     return {
       command: 0 < desktop.args.length ? `${command} ${desktop.args}` : command,
@@ -131,7 +131,7 @@ function devCommandFor(
   }
   for (const script of DEV_SCRIPTS) {
     const body = scripts[script];
-    if ('string' !== typeof body || 0 === body.trim().length) continue;
+    if ('string' !== typeof body || 0 === body.trim().length) {continue;}
     const port = pinnedPort(body);
     return {
       command: `${manager} run ${script}`,
@@ -182,14 +182,14 @@ export function detectDevCommandInProject(
 ): DevCommand | undefined {
   const manager = packageManager(directory, read);
   const here = devCommandFor(directory, manager, read);
-  if (here !== undefined) return here;
+  if (here !== undefined) {return here;}
   const packages = workspacePackageDirs({
     readFile: (path) => read(join(directory, path)) ?? null,
     listDirs: (path) => listDirs(join(directory, path)),
   });
   for (const sub of packages) {
     const found = devCommandFor(join(directory, sub), manager, read);
-    if (found !== undefined) return { ...found, directory: sub };
+    if (found !== undefined) {return { ...found, directory: sub };}
   }
   return undefined;
 }

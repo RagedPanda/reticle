@@ -66,10 +66,10 @@ export function readDevServers(home: string, io: DevServerIo = nodeIo): DevServe
   for (const file of files) {
     // Strict on the filename BEFORE reading: the daemon's own `daemon-<port>.json` is a sibling, and
     // parsing one as a dev server would report the daemon itself as an instrumented app.
-    if (null === devServerRegistryPort(file)) continue;
+    if (null === devServerRegistryPort(file)) {continue;}
     try {
       const parsed = DevServerEntrySchema.safeParse(JSON.parse(io.readFile(join(home, file))));
-      if (parsed.success) entries.push(parsed.data);
+      if (parsed.success) {entries.push(parsed.data);}
     } catch {
       // Truncated, mid-write, or hand-edited. One bad file is not a reason to report none.
     }

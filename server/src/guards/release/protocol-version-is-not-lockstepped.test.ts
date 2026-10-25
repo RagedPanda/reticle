@@ -36,14 +36,14 @@ function manifestVersion(pkgDir: string): string {
     'object' === typeof parsed && null !== parsed
       ? (parsed as Record<string, unknown>)['version']
       : undefined;
-  if ('string' !== typeof version) throw new Error(`${pkgDir} has no version field`);
+  if ('string' !== typeof version) {throw new Error(`${pkgDir} has no version field`);}
   return version;
 }
 
 /** The leading integer of a dotted version, which is all this rule is about. */
 function major(version: string): string {
   const first = version.split('.')[0];
-  if (undefined === first || '' === first) throw new Error(`no major in "${version}"`);
+  if (undefined === first || '' === first) {throw new Error(`no major in "${version}"`);}
   return first;
 }
 

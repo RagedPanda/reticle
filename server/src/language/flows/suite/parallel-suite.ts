@@ -34,7 +34,7 @@ export async function mapWithConcurrency<I, T>(
       const index = next;
       next += 1;
       const item = items[index];
-      if (index >= items.length || item === undefined) return;
+      if (index >= items.length || item === undefined) {return;}
       try {
         results[index] = { ok: true, value: await fn(item, index) };
       } catch (error) {
@@ -60,6 +60,6 @@ export function resolveConcurrency(
   requested?: number,
 ): number {
   const ceiling = Math.max(1, Math.min(flowCount, poolCapacity));
-  if (requested === undefined || !Number.isFinite(requested) || requested < 1) return ceiling;
+  if (requested === undefined || !Number.isFinite(requested) || requested < 1) {return ceiling;}
   return Math.max(1, Math.min(Math.floor(requested), ceiling));
 }

@@ -18,8 +18,8 @@ import { buildSessionLease } from '@/portal/session/presence/session-lease.js';
 describe('tool profiles', () => {
   const original = process.env[TOOL_PROFILE_ENV];
   afterEach(() => {
-    if (original === undefined) delete process.env[TOOL_PROFILE_ENV];
-    else process.env[TOOL_PROFILE_ENV] = original;
+    if (original === undefined) {delete process.env[TOOL_PROFILE_ENV];}
+    else {process.env[TOOL_PROFILE_ENV] = original;}
   });
   beforeEach(() => {
     delete process.env[TOOL_PROFILE_ENV];
@@ -39,23 +39,23 @@ describe('tool profiles', () => {
     const tools = filterTools(TOOLS, TOOL_SURFACE.ALL);
     const names = new Set(tools.map((t) => t.name));
     expect(tools.length).toBeLessThan(TOOLS.length);
-    for (const name of CORE_TOOL_NAMES) expect(names.has(name), name).toBe(true);
-    for (const name of EXTENDED_TOOL_NAMES) expect(names.has(name), name).toBe(true);
+    for (const name of CORE_TOOL_NAMES) {expect(names.has(name), name).toBe(true);}
+    for (const name of EXTENDED_TOOL_NAMES) {expect(names.has(name), name).toBe(true);}
     expect(tools).toHaveLength(CORE_TOOL_NAMES.size + EXTENDED_TOOL_NAMES.size);
   });
 
   it('3: every EXTENDED_TOOL_NAMES entry actually exists in TOOLS (no dangling name)', () => {
     const all = new Set(TOOLS.map((t) => t.name));
-    for (const name of EXTENDED_TOOL_NAMES) expect(all.has(name), name).toBe(true);
+    for (const name of EXTENDED_TOOL_NAMES) {expect(all.has(name), name).toBe(true);}
   });
 
   it('4: core and extended never overlap, or the count is a lie', () => {
-    for (const name of EXTENDED_TOOL_NAMES) expect(CORE_TOOL_NAMES.has(name), name).toBe(false);
+    for (const name of EXTENDED_TOOL_NAMES) {expect(CORE_TOOL_NAMES.has(name), name).toBe(false);}
   });
 
   it('3: every CORE_TOOL_NAMES entry actually exists in TOOLS (no dangling name)', () => {
     const all = new Set(TOOLS.map((t) => t.name));
-    for (const name of CORE_TOOL_NAMES) expect(all.has(name)).toBe(true);
+    for (const name of CORE_TOOL_NAMES) {expect(all.has(name)).toBe(true);}
   });
 
   it('4: the core set is a strict subset — fewer tools than FULL', () => {
@@ -91,7 +91,7 @@ describe('tool profiles', () => {
   it('4b: server-management ops are NOT on the MCP surface (CLI-only — they restart the daemon)', () => {
     const names = new Set(TOOLS.map((t) => t.name));
     for (const retired of ['reticle_version_info', 'reticle_apply_update', 'reticle_rollback'])
-      expect(names.has(retired)).toBe(false);
+      {expect(names.has(retired)).toBe(false);}
   });
 
   it('5: resolveToolSurface — an explicit value wins over the environment', () => {

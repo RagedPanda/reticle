@@ -19,9 +19,9 @@ export function aliasParam(
   canonical: string,
   aliases: readonly string[],
 ): Record<string, unknown> {
-  if (args[canonical] !== undefined) return args;
+  if (args[canonical] !== undefined) {return args;}
   for (const alias of aliases) {
-    if (args[alias] !== undefined) return { ...args, [canonical]: args[alias] };
+    if (args[alias] !== undefined) {return { ...args, [canonical]: args[alias] };}
   }
   return args;
 }
@@ -35,7 +35,7 @@ export function aliasUsed(
   canonical: string,
   aliases: readonly string[],
 ): string[] {
-  if (args[canonical] !== undefined) return [];
+  if (args[canonical] !== undefined) {return [];}
   const alias = aliases.find((name) => args[name] !== undefined);
   return alias === undefined ? [] : [`${alias} → ${canonical}`];
 }

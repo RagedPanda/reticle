@@ -61,7 +61,7 @@ describe('inbox history', () => {
 
   it('bounds the history, so a long session cannot grow without limit', () => {
     const live = new LiveControl();
-    for (let i = 0; i < 500; i += 1) live.push(`m${String(i)}`, i);
+    for (let i = 0; i < 500; i += 1) {live.push(`m${String(i)}`, i);}
     expect(live.history().length).toBeLessThanOrEqual(200);
     // The most RECENT are what matter to an agent picking up a session.
     expect(live.history().at(-1)?.text).toBe('m499');

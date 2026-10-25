@@ -28,6 +28,6 @@ export function admitHello(
   if (claimsProduction && hello.scope === undefined) {
     return { ok: false, reason: PRODUCTION_HELLO_REFUSED };
   }
-  if (hello.scope === HelloScope.OBSERVE) granted.narrowToObserve();
+  if (hello.scope === HelloScope.OBSERVE) {granted.narrowToObserve();}
   return { ok: true, production: granted };
 }

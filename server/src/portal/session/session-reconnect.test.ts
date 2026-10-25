@@ -35,7 +35,7 @@ describe('waiting for a reloaded page to come back', () => {
     let polls = 0;
     const current = (): object | undefined => {
       polls += 1;
-      if (polls >= 3) live = { id: 'a' };
+      if (polls >= 3) {live = { id: 'a' };}
       return live;
     };
     expect(await waitForReconnect({ current, previous, timeoutMs: 5000, ...time })).toBe(true);

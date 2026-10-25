@@ -62,17 +62,17 @@ const GLOB = /'([^']+)'/g;
  *   definition wherever this runs. Checking those would be wrong rather than merely unhelpful.
  */
 function claimOf(glob: string): { kind: 'dir' | 'file'; path: string } | undefined {
-  if (glob.startsWith('.') || glob.startsWith('*')) return undefined;
-  if (!glob.includes('*')) return glob.includes('/') ? { kind: 'file', path: glob } : undefined;
+  if (glob.startsWith('.') || glob.startsWith('*')) {return undefined;}
+  if (!glob.includes('*')) {return glob.includes('/') ? { kind: 'file', path: glob } : undefined;}
   const base = glob.split('*')[0]?.replace(/\/$/, '');
   return base === undefined || !base.includes('/') ? undefined : { kind: 'dir', path: base };
 }
 
 /** Is this claim still true of the repository? */
 function holds(claim: { kind: 'dir' | 'file'; path: string }): boolean {
-  if ('file' === claim.kind) return TRACKED.has(claim.path);
+  if ('file' === claim.kind) {return TRACKED.has(claim.path);}
   const prefix = `${claim.path}/`;
-  for (const file of TRACKED) if (file.startsWith(prefix)) return true;
+  for (const file of TRACKED) {if (file.startsWith(prefix)) {return true;}}
   return false;
 }
 

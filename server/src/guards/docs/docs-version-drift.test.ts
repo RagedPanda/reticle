@@ -70,11 +70,11 @@ const CURRENT_VERSION_CLAIMS: readonly RegExp[] = [
 /** Read a file this guard claims to check. A missing one is a bug in the list, not a passing check. */
 const readVersionBearing = (file: string): string => {
   if (!existsSync(file))
-    throw new Error(
+    {throw new Error(
       `${file.replace(REPO, '.')} is listed as version-bearing but does not exist. Remove it from ` +
         `VERSION_BEARING, or point it at the file that replaced it — an entry nobody can read is a ` +
         `check that silently does not run.`,
-    );
+    );}
   return readFileSync(file, 'utf8');
 };
 
@@ -86,7 +86,7 @@ const versionClaims = (): { file: string; claimed: string }[] => {
     for (const pattern of CURRENT_VERSION_CLAIMS) {
       for (const match of text.matchAll(pattern)) {
         const claimed = match[1];
-        if (claimed !== undefined) out.push({ file, claimed });
+        if (claimed !== undefined) {out.push({ file, claimed });}
       }
     }
   }
@@ -99,7 +99,7 @@ describe('the docs do not advertise a version the packages do not have', () => {
   });
 
   it('every version-bearing file exists and is readable', () => {
-    for (const file of VERSION_BEARING) expect(() => readVersionBearing(file)).not.toThrow();
+    for (const file of VERSION_BEARING) {expect(() => readVersionBearing(file)).not.toThrow();}
   });
 
   /**

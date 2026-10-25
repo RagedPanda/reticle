@@ -44,14 +44,14 @@ async function settledJournal(session: Session) {
  * which of two driven tabs to release is still a guess.
  */
 function resolveYieldTarget(sessions: SessionManager, requested: string | undefined): Session {
-  if (requested !== undefined) return sessions.resolve(requested);
+  if (requested !== undefined) {return sessions.resolve(requested);}
   try {
     return sessions.resolve();
   } catch (refusal) {
     // In scope only: a tab the project scope refuses to hand over is not this caller's to release.
     const driven = sessions.inScope().filter((s) => s.lastAct.cursor() !== undefined);
     const [only] = driven;
-    if (1 !== driven.length || only === undefined) throw refusal;
+    if (1 !== driven.length || only === undefined) {throw refusal;}
     only.markAgentActivity();
     return only;
   }
@@ -157,7 +157,7 @@ export const LIVE_CONTROL_TOOLS: ToolDef[] = [
       const detach = true === args['disconnect'];
       const claim = claimOf(args['claim']);
       // Named, never auto-picked: detaching the wrong window cuts the agent off from the app.
-      if (detach && requested === undefined) throw new Error(DISCONNECT_NEEDS_SESSION_ID);
+      if (detach && requested === undefined) {throw new Error(DISCONNECT_NEEDS_SESSION_ID);}
       if (endingTurnWithNothingAttached(deps, requested)) {
         return Promise.resolve({ ended: true, note: YIELD_WITHOUT_SESSION_NOTE });
       }
@@ -206,7 +206,7 @@ export const LIVE_CONTROL_TOOLS: ToolDef[] = [
         const panel = [summary, gap[0]].filter((line): line is string => line !== undefined);
         // One PRESENTER push for the transition; the summary and the gap headline ride together.
         session.setState(SessionState.ENDED, 0 === panel.length ? undefined : panel.join('\n'));
-        if (detach) deps.sessions.park(session);
+        if (detach) {deps.sessions.park(session);}
         const answer = {
           ended: true,
           sessionId: session.id,
@@ -221,7 +221,7 @@ export const LIVE_CONTROL_TOOLS: ToolDef[] = [
         // next agent's every id-less call was refused as ambiguous. Released after the answer is
         // folded, because releasing closes the tab. Only this caller's own lease, never another's.
         const pool = deps.pool;
-        if (pool === undefined || !pool.heldBy(session.id, deps.attachId)) return answer;
+        if (pool === undefined || !pool.heldBy(session.id, deps.attachId)) {return answer;}
         await releaseLease(deps, pool, session.id);
         return { ...answer, leaseReleased: true };
       });
@@ -312,7 +312,7 @@ export const LIVE_CONTROL_TOOLS: ToolDef[] = [
     handler: (deps, args) => {
       const session = deps.sessions.resolve(asString(args['sessionId']));
       const messages = session.drainInbox();
-      if (messages.length > 0) return Promise.resolve({ messages });
+      if (messages.length > 0) {return Promise.resolve({ messages });}
       // Nothing NEW is not the same as nothing said. The inbox has two consumers — this poll and the
       // control envelope spliced onto every tool result — and delivery is destructive, so a message
       // handed over inline moments ago left this call reporting an empty queue with a note that read
@@ -405,8 +405,8 @@ export const LIVE_CONTROL_TOOLS: ToolDef[] = [
         marks,
         pendingCount: session.pendingMarkCount(),
       };
-      if (resolved !== undefined) out.resolved = resolved;
-      if (resolvedNote !== undefined) out.resolvedNote = resolvedNote;
+      if (resolved !== undefined) {out.resolved = resolved;}
+      if (resolvedNote !== undefined) {out.resolvedNote = resolvedNote;}
       return Promise.resolve(out);
     },
   },

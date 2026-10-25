@@ -146,7 +146,7 @@ export async function handleMcp(opts: {
     // APPLICATION. That is worse than the disconnect it was reintroduced under the cover of, because
     // a disconnect is visible and this is a false green wearing a valid session.
     const wake = decideWake(presence, daemonProjectAt(port, reticleStateHome()), projectId);
-    if (WakeAction.USE === wake) return;
+    if (WakeAction.USE === wake) {return;}
     if (WakeAction.REFUSE === wake) {
       throw new Error(
         PortPresence.DAEMON === presence

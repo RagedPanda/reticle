@@ -37,7 +37,7 @@ const PLAN = [
 
 const roots: string[] = [];
 afterEach(() => {
-  for (const dir of roots.splice(0)) rmSync(dir, { recursive: true, force: true });
+  for (const dir of roots.splice(0)) {rmSync(dir, { recursive: true, force: true });}
 });
 
 /** Let the watch's port probe finish. One macrotask drains the promise chain; a loop would look like IO. */
@@ -113,7 +113,7 @@ describe("a second project is not the first project's closed tab", () => {
     expect(fromB?.action).not.toBe(NoSessionAction.REOPEN_APP);
     expect(fromB?.command ?? '').not.toContain(APP_A_URL);
 
-    if (sessionsTool === undefined) throw new Error('reticle_session is not on the surface');
+    if (sessionsTool === undefined) {throw new Error('reticle_session is not on the surface');}
     const deps = {
       sessions,
       reticleRoot: join(appA, '.reticle'),
@@ -194,7 +194,7 @@ describe("a second project is not the first project's closed tab", () => {
     expect(fromA?.command).toContain(APP_A_URL);
     expect(fromA?.command ?? '').not.toContain('5174/inbox');
 
-    if (sessionsTool === undefined) throw new Error('reticle_session is not on the surface');
+    if (sessionsTool === undefined) {throw new Error('reticle_session is not on the surface');}
     const deps = { sessions, reticleRoot: join(appA, '.reticle') } as unknown as ToolDeps;
     const listedA = (await runWithClientDirectory(appA, () => sessionsTool.handler(deps, {}))) as {
       lastKnown?: { url: string };
@@ -253,7 +253,7 @@ describe("a second project is not the first project's closed tab", () => {
       probe: () => Promise.resolve([5173]),
       routeStatus: () => Promise.resolve(undefined),
     });
-    if (sessionsTool === undefined) throw new Error('reticle_session is not on the surface');
+    if (sessionsTool === undefined) {throw new Error('reticle_session is not on the surface');}
     const deps = {
       sessions,
       reticleRoot: join(appA, '.reticle'),

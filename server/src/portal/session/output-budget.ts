@@ -138,6 +138,6 @@ export function sizeCost(payload: unknown): SizeCost {
  * Non-object results (e.g. a thrown-error envelope) pass through unchanged.
  */
 export function withSizeCost<T>(result: T): T {
-  if (typeof result !== 'object' || null === result) return result;
+  if (typeof result !== 'object' || null === result) {return result;}
   return { ...(result as Record<string, unknown>), cost: sizeCost(result) } as T;
 }

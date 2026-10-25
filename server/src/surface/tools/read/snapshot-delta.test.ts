@@ -23,7 +23,7 @@ describe('snapshotDelta (pure)', () => {
 
   it('returns only the added/removed lines on a real change', () => {
     const d = snapshotDelta(TREE_A, TREE_B);
-    if (d.mode !== SnapshotDeltaMode.DELTA) throw new Error('expected delta');
+    if (d.mode !== SnapshotDeltaMode.DELTA) {throw new Error('expected delta');}
     // The ref is CARRIED, because a delta without one cannot be acted on and the agent has to take
     // the full snapshot anyway. Identity for the diff is still the ref-stripped line — see the test
     // above, where only the refs change and the answer is still `unchanged`.
@@ -184,7 +184,7 @@ describe('value changes surface as `changed`, not as remove+add of the same elem
     const before = '- textbox "Filter" (ref=e29)\n- button "Submit" (ref=e30)';
     const after = '- textbox "Filter" (ref=e29) [value="billing"]\n- button "Submit" (ref=e30)';
     const d = snapshotDelta(before, after);
-    if (d.mode !== SnapshotDeltaMode.DELTA) throw new Error('expected delta');
+    if (d.mode !== SnapshotDeltaMode.DELTA) {throw new Error('expected delta');}
     expect(d.delta.changed).toEqual(['- textbox "Filter" (ref=e29) [value="billing"]']);
     expect(d.delta.changed).toHaveLength(1);
     expect(d.delta.added).toEqual([]);
@@ -209,7 +209,7 @@ describe('value changes surface as `changed`, not as remove+add of the same elem
       '- button "Submit" (ref=e3)',
     ].join('\n');
     const d = snapshotDelta(before, after);
-    if (d.mode !== SnapshotDeltaMode.DELTA) throw new Error('expected delta');
+    if (d.mode !== SnapshotDeltaMode.DELTA) {throw new Error('expected delta');}
     expect(d.delta.changed).toHaveLength(2);
     expect(d.delta.changed).toContain('- textbox "Name" (ref=e1) [value="Alice"]');
     expect(d.delta.changed).toContain('- textbox "Email" (ref=e2) [value="a@b.c"]');
@@ -221,7 +221,7 @@ describe('value changes surface as `changed`, not as remove+add of the same elem
     const before = '- textbox "Search" (ref=e5)';
     const after = '- textbox "Search" (ref=e5) [value="q"]\n- alert "Results" (ref=e6)';
     const d = snapshotDelta(before, after);
-    if (d.mode !== SnapshotDeltaMode.DELTA) throw new Error('expected delta');
+    if (d.mode !== SnapshotDeltaMode.DELTA) {throw new Error('expected delta');}
     expect(d.delta.changed).toEqual(['- textbox "Search" (ref=e5) [value="q"]']);
     expect(d.delta.added).toEqual(['- alert "Results" (ref=e6)']);
     expect(d.delta.removed).toEqual([]);
@@ -231,7 +231,7 @@ describe('value changes surface as `changed`, not as remove+add of the same elem
     const before = '- button "Delete" (ref=e1)\n- textbox "Name" (ref=e2)';
     const after = '- textbox "Email" (ref=e1)\n- textbox "Name" (ref=e2)';
     const d = snapshotDelta(before, after);
-    if (d.mode !== SnapshotDeltaMode.DELTA) throw new Error('expected delta');
+    if (d.mode !== SnapshotDeltaMode.DELTA) {throw new Error('expected delta');}
     expect(d.delta.changed).toEqual([]);
     expect(d.delta.removed).toEqual(['- button "Delete" (ref=e1)']);
     expect(d.delta.added).toEqual(['- textbox "Email" (ref=e1)']);

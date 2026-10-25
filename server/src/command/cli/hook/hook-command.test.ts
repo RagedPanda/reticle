@@ -18,7 +18,7 @@ let project = '';
 
 beforeEach(() => {
   const home = realpathSync(mkdtempSync(join(tmpdir(), 'reticle-hook-home-')));
-  for (const dir of HOME_AGENTS) mkdirSync(join(home, dir), { recursive: true });
+  for (const dir of HOME_AGENTS) {mkdirSync(join(home, dir), { recursive: true });}
   writeFileSync(join(home, '.gemini', 'settings.json'), '{}');
   process.env['HOME'] = home;
   process.env['USERPROFILE'] = home;
@@ -30,8 +30,8 @@ beforeEach(() => {
 afterEach(() => {
   vi.restoreAllMocks();
   for (const [key, value] of Object.entries(saved)) {
-    if (value === undefined) delete process.env[key];
-    else process.env[key] = value;
+    if (value === undefined) {delete process.env[key];}
+    else {process.env[key] = value;}
   }
 });
 

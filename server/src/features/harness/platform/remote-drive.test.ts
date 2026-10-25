@@ -573,18 +573,18 @@ describe('a tool session over a network that fails', () => {
     const asks: { ask: unknown; results: unknown }[] = [];
     const fetch = (url: string, init: RequestInit): Promise<Response> => {
       if (url.endsWith('/next'))
-        return Promise.resolve(
+        {return Promise.resolve(
           new Response(
             JSON.stringify({ drive: { id: 'ld_r', goal: 'pay', spec: { mode: 'platform' } } }),
           ),
-        );
+        );}
       const body = JSON.parse('string' === typeof init.body ? init.body : '{}') as {
         ask: unknown;
         results: unknown;
       };
       asks.push({ ask: body.ask, results: body.results });
       const status = statuses.shift() ?? 200;
-      if ('drop' === status) return Promise.reject(new Error('socket hang up'));
+      if ('drop' === status) {return Promise.reject(new Error('socket hang up'));}
       return Promise.resolve(
         new Response(JSON.stringify(200 === status ? replies.shift() : {}), { status }),
       );

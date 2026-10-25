@@ -70,9 +70,9 @@ function configDirInMainCheckout(cwd: string): string | undefined {
 function findProjectConfigDir(cwd: string): string | undefined {
   let dir = resolve(cwd);
   for (let depth = 0; depth <= MAX_CONFIG_SEARCH_DEPTH; depth += 1) {
-    if (readConfigAt(dir) !== undefined) return dir;
+    if (readConfigAt(dir) !== undefined) {return dir;}
     const parent = dirname(dir);
-    if (parent === dir) break;
+    if (parent === dir) {break;}
     dir = parent;
   }
   return undefined;
@@ -86,7 +86,7 @@ function findProjectConfigDir(cwd: string): string | undefined {
  */
 export function projectDirOf(cwd: string): string {
   const configDir = findProjectConfigDir(cwd);
-  if (configDir !== undefined) return appPointedAtBy(configDir) ?? configDir;
+  if (configDir !== undefined) {return appPointedAtBy(configDir) ?? configDir;}
   const apps = workspaceAppPorts(cwd);
   const only = 1 === apps.length ? apps[0] : undefined;
   return only === undefined ? resolve(cwd) : join(resolve(cwd), only.app);
@@ -101,7 +101,7 @@ export function projectDirOf(cwd: string): string {
  */
 function appPointedAtBy(dir: string): string | undefined {
   const id = readConfigAt(dir)?.['projectId'];
-  if ('string' !== typeof id || 0 === id.length) return undefined;
+  if ('string' !== typeof id || 0 === id.length) {return undefined;}
   const named = workspaceApps(dir).filter(
     (app) => id === readConfigAt(join(dir, app))?.['projectId'],
   );
@@ -133,7 +133,7 @@ export { DEV_SERVER_PORTS, isLikelyDevServerPort, devServerPortWarning } from '@
 /** A config's `port`, when it is a usable TCP port. */
 function configPort(config: Record<string, unknown> | undefined): number | undefined {
   const p = config?.['port'];
-  if ('number' === typeof p && Number.isInteger(p) && p > 0 && p < 65536) return p;
+  if ('number' === typeof p && Number.isInteger(p) && p > 0 && p < 65536) {return p;}
   return undefined;
 }
 
@@ -149,7 +149,7 @@ function configPort(config: Record<string, unknown> | undefined): number | undef
  */
 export function readProjectPort(cwd: string): number | undefined {
   const config = findProjectConfig(cwd);
-  if (config !== undefined) return configPort(config);
+  if (config !== undefined) {return configPort(config);}
   const ports = new Set(workspaceAppPorts(cwd).map((a) => a.port));
   return 1 === ports.size ? [...ports][0] : undefined;
 }
@@ -160,7 +160,7 @@ function workspaceAppPorts(cwd: string): { app: string; port: number }[] {
   for (const app of workspaceApps(cwd)) {
     // The app's OWN file only — walking up from an unwired sibling would reach the root, or past it.
     const port = configPort(readConfigAt(join(cwd, app)));
-    if (port !== undefined) found.push({ app, port });
+    if (port !== undefined) {found.push({ app, port });}
   }
   return found;
 }
@@ -170,7 +170,7 @@ function workspaceApps(cwd: string): string[] {
   // Only from a directory that is itself a package: a root with no package.json is not a workspace,
   // and scanning, say, a home directory would adopt the port of whichever checkout happened to sit
   // there.
-  if (packageNameAt(cwd) === undefined) return [];
+  if (packageNameAt(cwd) === undefined) {return [];}
   try {
     return findWorkspaceApps(buildNodeIo(cwd, SILENT_HOST));
   } catch {
@@ -185,9 +185,9 @@ function workspaceApps(cwd: string): string[] {
  * which ports exist and how to name the one they meant.
  */
 export function workspacePortConflict(cwd: string): string | undefined {
-  if (findProjectConfig(cwd) !== undefined) return undefined;
+  if (findProjectConfig(cwd) !== undefined) {return undefined;}
   const apps = workspaceAppPorts(cwd);
-  if (new Set(apps.map((a) => a.port)).size < 2) return undefined;
+  if (new Set(apps.map((a) => a.port)).size < 2) {return undefined;}
   const listed = apps.map((a) => `${a.app} (:${String(a.port)})`).join(', ');
   return (
     `This workspace has more than one app wired for Reticle, on different ports: ${listed}. ` +
@@ -205,7 +205,7 @@ export function readProjectId(cwd: string): ProjectId | undefined {
   // MINTED HERE. The other provenance boundary: the `projectId` key of a project's own
   // `.reticle.json`. Like HELLO's field, it is a project's id because of WHERE it was read, not
   // because of what it looks like.
-  if ('string' === typeof id && id.length > 0) return asProjectId(id);
+  if ('string' === typeof id && id.length > 0) {return asProjectId(id);}
   return undefined;
 }
 
@@ -239,9 +239,9 @@ function projectIdFor(dir: string): ProjectId {
  */
 export function projectIdsAt(cwd: string): ProjectId[] {
   const recorded = readProjectId(cwd);
-  if (recorded !== undefined) return [recorded];
+  if (recorded !== undefined) {return [recorded];}
   const ids: ProjectId[] = [];
-  if (packageNameAt(cwd) !== undefined) ids.push(projectIdFor(cwd));
+  if (packageNameAt(cwd) !== undefined) {ids.push(projectIdFor(cwd));}
   try {
     for (const app of findWorkspaceApps(buildNodeIo(cwd, SILENT_HOST))) {
       ids.push(projectIdFor(join(cwd, app)));
@@ -262,7 +262,7 @@ export function projectIdsAt(cwd: string): ProjectId[] {
  */
 export function readProjectFramework(cwd: string): string | undefined {
   const framework = findProjectConfig(cwd)?.['framework'];
-  if ('string' === typeof framework && framework.length > 0) return framework;
+  if ('string' === typeof framework && framework.length > 0) {return framework;}
   return undefined;
 }
 
@@ -290,10 +290,10 @@ export function readProjectIsDesktop(cwd: string): boolean {
 export function readJournalEnabled(cwd: string, env: string | undefined): boolean {
   if (env !== undefined) {
     const v = env.trim().toLowerCase();
-    if ('0' === v || 'false' === v || 'off' === v) return false;
-    if ('1' === v || 'true' === v || 'on' === v) return true;
+    if ('0' === v || 'false' === v || 'off' === v) {return false;}
+    if ('1' === v || 'true' === v || 'on' === v) {return true;}
   }
-  if (false === findProjectConfig(cwd)?.['journal']) return false;
+  if (false === findProjectConfig(cwd)?.['journal']) {return false;}
   return true;
 }
 
@@ -321,8 +321,8 @@ export function diagnosePortMismatch(
   daemonPort: number,
   projectPort: number | undefined,
 ): string | undefined {
-  if (projectPort === undefined) return undefined;
-  if (projectPort === daemonPort) return undefined;
+  if (projectPort === undefined) {return undefined;}
+  if (projectPort === daemonPort) {return undefined;}
   return (
     `.reticle.json says "port": ${String(projectPort)} but this daemon is on :${String(daemonPort)}` +
     ` — the SDK will dial :${String(projectPort)} and never connect. ` +

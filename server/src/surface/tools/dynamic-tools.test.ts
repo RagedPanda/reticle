@@ -122,7 +122,7 @@ describe('buildDynamicTools — the dynamic profile meta-tools', () => {
     expect(out.retired[ReticleTool.REFRESH]).toContain(ReticleTool.NAVIGATE);
     // Tombstones are the names that are NO LONGER tools — a live one must not appear among them.
     expect(out.retired).not.toHaveProperty(ReticleTool.VERIFY);
-    for (const listed of out.tools) expect(out.retired).not.toHaveProperty(listed.name);
+    for (const listed of out.tools) {expect(out.retired).not.toHaveProperty(listed.name);}
   });
 
   /**

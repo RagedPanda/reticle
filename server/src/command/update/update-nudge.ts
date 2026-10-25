@@ -39,7 +39,7 @@ export function isNewerVersion(candidate: string, current: string): boolean {
   for (let i = 0; i < 3; i++) {
     const left = a.parts[i] ?? 0;
     const right = b.parts[i] ?? 0;
-    if (left !== right) return left > right;
+    if (left !== right) {return left > right;}
   }
   // Same numbers: a final release is newer than its own prerelease, and nothing else counts.
   return !a.pre && b.pre;
@@ -127,8 +127,8 @@ export function startUpdateCheck(now: () => number = () => Date.now()): void {
   setTimeout(() => {
     void checkForUpdate(SERVER_VERSION, now)
       .then((manifest) => {
-        if (!manifest.updateAvailable || manifest.latestVersion === undefined) return;
-        if (!isNewerVersion(manifest.latestVersion, SERVER_VERSION)) return;
+        if (!manifest.updateAvailable || manifest.latestVersion === undefined) {return;}
+        if (!isNewerVersion(manifest.latestVersion, SERVER_VERSION)) {return;}
         // WITH the release description. The manifest has carried `changelog` and `breakingChanges`
         // all along; nothing read them.
         pending = buildNudge(manifest.latestVersion, SERVER_VERSION, {
@@ -163,7 +163,7 @@ export function updateTarget(
   currentVersion: string = SERVER_VERSION,
 ): string | undefined {
   const latest = manifest.latestVersion;
-  if (latest === undefined || !isNewerVersion(latest, currentVersion)) return undefined;
+  if (latest === undefined || !isNewerVersion(latest, currentVersion)) {return undefined;}
   return latest;
 }
 
@@ -186,7 +186,7 @@ export function armUpdateNudgeFrom(
   currentVersion: string = SERVER_VERSION,
 ): void {
   const latest = cached?.latestVersion;
-  if (latest === undefined || !isNewerVersion(latest, currentVersion)) return;
+  if (latest === undefined || !isNewerVersion(latest, currentVersion)) {return;}
   // The CACHED path matters more than the live one: it is what the very first tool call carries, and
   // it is the only nudge an offline machine ever sees. Dropping the release description here would
   // have left the fields unread on the commonest path while looking fixed.
@@ -199,7 +199,7 @@ export function armUpdateNudgeFrom(
 
 /** The nudge, once. Returns undefined afterwards so a long session is told exactly one time. */
 export function takeUpdateNudge(): UpdateNudge | undefined {
-  if (delivered || pending === undefined) return undefined;
+  if (delivered || pending === undefined) {return undefined;}
   delivered = true;
   // Leave a mark an `reticle update` in another process can read, so version_changed can say whether
   // this nudge is what caused the upgrade. Best-effort by construction — see nudge-credit.

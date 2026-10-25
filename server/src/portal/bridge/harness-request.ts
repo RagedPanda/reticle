@@ -17,17 +17,17 @@ export function harnessRequest(event: {
   type: string;
   data: Record<string, unknown>;
 }): HarnessRequest | undefined {
-  if (event.type !== EventType.HUMAN_CONTROL) return undefined;
+  if (event.type !== EventType.HUMAN_CONTROL) {return undefined;}
   const kind = event.data['kind'];
   const text = event.data['text'];
   if (HumanControlKind.HARNESS_STOP === kind || HumanControlKind.HARNESS_LINK === kind)
-    return { kind };
+    {return { kind };}
   if (HumanControlKind.HARNESS_RUN === kind) {
     const persona = 'string' === typeof text ? text.trim() : '';
     return 0 < persona.length ? { kind, persona } : { kind };
   }
-  if (HumanControlKind.HARNESS !== kind) return undefined;
-  if ('on' === text) return { kind, enabled: true };
-  if ('off' === text) return { kind, enabled: false };
+  if (HumanControlKind.HARNESS !== kind) {return undefined;}
+  if ('on' === text) {return { kind, enabled: true };}
+  if ('off' === text) {return { kind, enabled: false };}
   return undefined;
 }

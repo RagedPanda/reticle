@@ -62,7 +62,7 @@ describe('connection memory', () => {
   });
 
   it('is idempotent and never grows without bound on repeated connects', () => {
-    for (let i = 0; i < 50; i += 1) rememberConnected(dir, 4400, 'app-abc');
+    for (let i = 0; i < 50; i += 1) {rememberConnected(dir, 4400, 'app-abc');}
     expect(hasAnyAppConnectedBefore(dir, 4400, 'app-abc')).toBe(true);
   });
 

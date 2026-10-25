@@ -102,16 +102,16 @@ describe('recoveryFor — every known error carries an actionable next move', ()
       'Harness is locked. Setup score: 75%. Harness needs 80%. Missing: File and line.',
       'Any wording the platform chooses tomorrow.',
     ])
-      expect(
+      {expect(
         recoveryFor(
           refusalSentence({ code: PlatformRefusalCode.HARNESS_LOCKED, message: words }, 403),
         ),
-      ).toBe(RECOVERY.HARNESS_LOCKED);
+      ).toBe(RECOVERY.HARNESS_LOCKED);}
     // The off switch and a spent card wall the same way: by code.
     for (const code of [PlatformRefusalCode.HARNESS_OFF, PlatformRefusalCode.NEEDS_CARD])
-      expect(recoveryFor(refusalSentence({ code, message: 'whatever it says' }, 402))).toBe(
+      {expect(recoveryFor(refusalSentence({ code, message: 'whatever it says' }, 402))).toBe(
         RECOVERY.HARNESS_OFF,
-      );
+      );}
   });
 
   it('answers an unlinked explore with "link it or drive it yourself", not "your call was invalid"', () => {

@@ -119,7 +119,7 @@ function fakeDeps(fs: FileSystemPort): ToolDeps {
 
 function tool(name: string) {
   const t = TOOLS.find((x) => x.name === name);
-  if (t === undefined) throw new Error(`no tool ${name}`);
+  if (t === undefined) {throw new Error(`no tool ${name}`);}
   return t;
 }
 
@@ -131,7 +131,7 @@ describe('reticle_contract_save / reticle_capabilities fromDisk', () => {
     expect(res.path).toBe(reticleDirPaths(ROOT).contract);
     const r = await readContract(fs, ROOT);
     expect(r.ok).toBe(true);
-    if (!r.ok) throw new Error('expected ok');
+    if (!r.ok) {throw new Error('expected ok');}
     expect(r.capabilities).toEqual(CAPS);
   });
 
@@ -203,7 +203,7 @@ describe('reticle_contract_save / reticle_capabilities fromDisk', () => {
 describe('contract_save refuses to write one project into another', () => {
   const save = (): ToolDef => {
     const t = TOOLS.find((x) => x.name === ReticleTool.CONTRACT_SAVE);
-    if (t === undefined) throw new Error('contract_save is not on the surface');
+    if (t === undefined) {throw new Error('contract_save is not on the surface');}
     return t;
   };
 

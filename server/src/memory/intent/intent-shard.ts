@@ -160,7 +160,7 @@ export const serialise = (value: unknown): string =>
   `${JSON.stringify(value, (_k, v: unknown) => sortKeys(v), JSON_INDENT)}\n`;
 
 const sortKeys = (value: unknown): unknown => {
-  if (Array.isArray(value) || null === value || typeof value !== 'object') return value;
+  if (Array.isArray(value) || null === value || typeof value !== 'object') {return value;}
   return Object.fromEntries(
     Object.entries(value as Record<string, unknown>).sort(([a], [b]) => a.localeCompare(b)),
   );

@@ -33,7 +33,7 @@ describe('HUD use, rolled into the session summary', () => {
     m.record({ view: HudView.EXPANDED, panel: HudPanel.CHAT });
     m.record({ control: 'settings-btn' });
     expect(m.summarize().hudJourney).toEqual(['view:expanded', 'panel:chat', 'settings-btn']);
-    for (let i = 0; i < HUD_JOURNEY_MAX; i++) m.record({ control: 'pause' });
+    for (let i = 0; i < HUD_JOURNEY_MAX; i++) {m.record({ control: 'pause' });}
     expect(m.summarize().hudJourney).toHaveLength(HUD_JOURNEY_MAX);
     expect(m.summarize().hudJourneyCut).toBe(true);
   });

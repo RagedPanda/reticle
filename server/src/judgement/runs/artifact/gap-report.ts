@@ -20,8 +20,8 @@ const plural = (n: number, word: string): string => `${String(n)} ${word}${1 ===
  * counted by name — an `unknown` is never folded into anything, because that fold is the false green.
  */
 export function gapHookLine(gap: GapSummary): string | undefined {
-  if (0 < gap.held) return undefined;
-  if (0 === gap.claims) return NO_CLAIM_HOOK;
+  if (0 < gap.held) {return undefined;}
+  if (0 === gap.claims) {return NO_CLAIM_HOOK;}
   const parts = [
     0 < gap.failed ? `${String(gap.failed)} failed` : undefined,
     0 < gap.undecided ? `${String(gap.undecided)} unknown` : undefined,
@@ -32,7 +32,7 @@ export function gapHookLine(gap: GapSummary): string | undefined {
 
 /** The whole gap: held of claimed first, then each kind of not-held with who can act on it. */
 export function gapReportLines(gap: GapSummary): string[] {
-  if (0 === gap.claims) return [NO_CLAIM_REPORT];
+  if (0 === gap.claims) {return [NO_CLAIM_REPORT];}
   const lines = [`${String(gap.held)} of ${plural(gap.claims, 'claim')} held`];
   if (0 < gap.failed) {
     const caught =
@@ -47,7 +47,7 @@ export function gapReportLines(gap: GapSummary): string[] {
       .join(', ');
     lines.push(`${String(gap.undecided)} unknown${'' === owners ? '' : ` (${owners})`}`);
   }
-  if (0 < gap.nothingToProve) lines.push(`${String(gap.nothingToProve)} proved nothing`);
-  for (const failure of gap.failures) lines.push(`  ✗ ${failure.claim}`);
+  if (0 < gap.nothingToProve) {lines.push(`${String(gap.nothingToProve)} proved nothing`);}
+  for (const failure of gap.failures) {lines.push(`  ✗ ${failure.claim}`);}
   return lines;
 }

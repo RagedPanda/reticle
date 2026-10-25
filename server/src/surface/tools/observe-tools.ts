@@ -115,7 +115,7 @@ const bufferOutputShape = {
  * really do interleave; it is only redundant at this boundary.
  */
 function withoutConstantSessionId(event: unknown): unknown {
-  if (typeof event !== 'object' || null === event) return event;
+  if (typeof event !== 'object' || null === event) {return event;}
   const { sessionId: _sessionId, ...rest } = event as Record<string, unknown>;
   return rest;
 }
@@ -375,7 +375,7 @@ export const OBSERVE_TOOLS: ToolDef[] = [
       // Refused up front rather than waited out: a body clause this session cannot answer would
       // burn the whole timeout to report something knowable now. See #801(C).
       const bodyRefusal = bodyClauseRefusal(predicate, session);
-      if (bodyRefusal !== undefined) throw new Error(bodyRefusal);
+      if (bodyRefusal !== undefined) {throw new Error(bodyRefusal);}
       // Honesty: explicit since wins; else default to the last act's cursor; else the whole buffer.
       const since = asNumber(args['since']) ?? session.lastAct.cursor() ?? 0;
       // See the note on the assert handler below: a wait cut off by a full-document navigation is
@@ -555,7 +555,7 @@ export const OBSERVE_TOOLS: ToolDef[] = [
       // Refused up front rather than waited out: a body clause this session cannot answer would
       // burn the whole timeout to report something knowable now. See #801(C).
       const bodyRefusal = bodyClauseRefusal(predicate, session);
-      if (bodyRefusal !== undefined) throw new Error(bodyRefusal);
+      if (bodyRefusal !== undefined) {throw new Error(bodyRefusal);}
       // Honesty: explicit since wins; else default to the last act's cursor; else the whole buffer.
       let since = asNumber(args['since']) ?? session.lastAct.cursor() ?? 0;
       // Declared BEFORE the verdict, so the undeclared-change read below finds it open and stays
@@ -587,7 +587,7 @@ export const OBSERVE_TOOLS: ToolDef[] = [
         reevaluate: (next, budget) => waitForPredicate(next, predicate, budget, 0),
       });
       // The successor's buffer is its own: the departed session's cursor means nothing there.
-      if (followed.followed) since = 0;
+      if (followed.followed) {since = 0;}
       session = followed.session;
       const verdict = followed.verdict;
       // A GREEN presence-only assertion is the dangerous case (a wrong element can fake it) — nudge

@@ -32,7 +32,7 @@ const saved = (assertion: Predicate): Predicate | undefined => {
     }),
   ) as unknown;
   const parsed = FlowFileSchema.safeParse(onDisk);
-  if (!parsed.success) throw new Error(parsed.error.issues.map((i) => i.message).join('; '));
+  if (!parsed.success) {throw new Error(parsed.error.issues.map((i) => i.message).join('; '));}
   return parsed.data.steps[0]?.expect;
 };
 

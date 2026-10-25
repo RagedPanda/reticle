@@ -84,8 +84,8 @@ export function chromiumPathProblem(
   } catch {
     return ChromiumPathProblem.MISSING;
   }
-  if (!isFile) return ChromiumPathProblem.NOT_A_FILE;
-  if ('win32' === platform) return undefined;
+  if (!isFile) {return ChromiumPathProblem.NOT_A_FILE;}
+  if ('win32' === platform) {return undefined;}
   try {
     accessSync(path, fsConstants.X_OK);
     return undefined;
@@ -110,7 +110,7 @@ export function configuredChromiumProbe(
   pathProblem: (path: string) => ChromiumPathProblem | undefined,
 ): ChromiumProbe | undefined {
   const path = configuredChromiumPath(env);
-  if (path === undefined) return undefined;
+  if (path === undefined) {return undefined;}
   const problem = pathProblem(path);
   return {
     executablePath: path,
@@ -203,9 +203,9 @@ export function parseChromiumRevision(
   executablePath: string,
 ): { revision: string; root: string } | null {
   const match = CHROMIUM_SEGMENT.exec(executablePath);
-  if (null === match) return null;
+  if (null === match) {return null;}
   const revision = match[1];
-  if (revision === undefined) return null;
+  if (revision === undefined) {return null;}
   return { revision, root: executablePath.slice(0, match.index) };
 }
 
@@ -284,7 +284,7 @@ export function bundledPlaywrightVersion(): string | undefined {
     const pkg: unknown = require('playwright/package.json');
     if ('object' === typeof pkg && null !== pkg && 'version' in pkg) {
       const { version } = pkg;
-      if ('string' === typeof version) return version;
+      if ('string' === typeof version) {return version;}
     }
   } catch {
     /* an unreadable package.json is not worth failing a diagnostic over */
@@ -300,7 +300,7 @@ export function bundledPlaywrightVersion(): string | undefined {
  * install, so it says only that and the install fix is never attached.
  */
 export function chromiumPreflightRefusal(probe: ChromiumProbe): string | undefined {
-  if (probe.exists) return undefined;
+  if (probe.exists) {return undefined;}
   if (true === probe.configured && probe.executablePath !== undefined) {
     return configuredChromiumRefusal(
       probe.executablePath,

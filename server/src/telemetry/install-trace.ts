@@ -39,7 +39,7 @@ const MAX_LINES = 32;
  */
 export function drainInstallTrace(stateDir: string): number {
   const path = join(stateDir, TRACE_FILE);
-  if (!existsSync(path)) return 0;
+  if (!existsSync(path)) {return 0;}
   let drained = 0;
   try {
     const lines = readFileSync(path, 'utf8')
@@ -56,7 +56,7 @@ export function drainInstallTrace(stateDir: string): number {
       // deliberate belt-and-braces: this is the one path where the payload is a file a person can
       // edit, and rule 3 is that unvalidated text never reaches the wire.
       const step = OnboardingStepSchema.safeParse(parsed);
-      if (!step.success) continue;
+      if (!step.success) {continue;}
       void reportOnboardingStep(step.data);
       drained += 1;
     }

@@ -105,7 +105,7 @@ export function coveragePercents(reticleRoot: string): Record<string, number> | 
   }
   const out: Record<string, number> = {};
   for (const report of levelsOf(parseLedger(text))) {
-    if (report.pct !== undefined) out[report.level] = report.pct;
+    if (report.pct !== undefined) {out[report.level] = report.pct;}
   }
   return 0 < Object.keys(out).length ? out : undefined;
 }
@@ -134,7 +134,7 @@ export function mergeLedger(into: AppLedger, delta: LedgerDelta): AppLedger {
       merged[key] = { name: fn.name, executed: fn.executed || true === merged[key]?.executed };
     }
     code[file] = merged;
-    if (delta.codeTakenAt !== undefined) codeTaken[file] = delta.codeTakenAt;
+    if (delta.codeTakenAt !== undefined) {codeTaken[file] = delta.codeTakenAt;}
   }
   // Reaching a route discovers it; touching or proving a control means it was seen.
   const reached = union(into.routes.reached, delta.routes?.reached);
@@ -213,7 +213,7 @@ export function levelsOf(ledger: AppLedger): LevelReport[] {
 export function raiseBest(ledger: AppLedger): AppLedger {
   const best = { ...ledger.best };
   for (const l of levelsOf(ledger)) {
-    if (l.pct !== undefined && l.pct > (best[l.level] ?? -1)) best[l.level] = l.pct;
+    if (l.pct !== undefined && l.pct > (best[l.level] ?? -1)) {best[l.level] = l.pct;}
   }
   return { ...ledger, best };
 }
@@ -224,7 +224,7 @@ export function raiseBest(ledger: AppLedger): AppLedger {
  */
 export function acceptCurrent(ledger: AppLedger): AppLedger {
   const best: Record<string, number> = {};
-  for (const l of levelsOf(ledger)) if (l.pct !== undefined) best[l.level] = l.pct;
+  for (const l of levelsOf(ledger)) {if (l.pct !== undefined) {best[l.level] = l.pct;}}
   return { ...ledger, best };
 }
 
@@ -236,7 +236,7 @@ export function regressions(
   for (const l of levelsOf(ledger)) {
     const was = ledger.best[l.level];
     if (l.pct !== undefined && was !== undefined && l.pct < was)
-      out.push({ level: l.level, was, now: l.pct });
+      {out.push({ level: l.level, was, now: l.pct });}
   }
   return out;
 }
@@ -255,7 +255,7 @@ function servedAs(code: CodeCoverage, file: string): string | undefined {
 export function unexecutedChanged(code: CodeCoverage, changed: readonly string[]): string[] {
   return changed.filter((file) => {
     const served = servedAs(code, file);
-    if (served === undefined) return false;
+    if (served === undefined) {return false;}
     const fns = Object.values(code[served] ?? {});
     return fns.length > 0 && fns.every((fn) => !fn.executed);
   });
@@ -275,7 +275,7 @@ export function staleChanged(
   return changed.filter((file) => {
     const served = servedAs(ledger.code, file);
     const modified = modifiedAt(file);
-    if (served === undefined || modified === undefined) return false;
+    if (served === undefined || modified === undefined) {return false;}
     const taken = ledger.codeTaken[served];
     return taken === undefined || modified > taken;
   });
@@ -296,7 +296,7 @@ export class LedgerStore {
     try {
       text = await this.#fs.readFile(this.#path);
     } catch (error) {
-      if (this.#fs.isNotFound(error)) return emptyLedger();
+      if (this.#fs.isNotFound(error)) {return emptyLedger();}
       throw error;
     }
     return parseLedger(text);
@@ -320,7 +320,7 @@ export class LedgerStore {
     return withFileLock(this.#path, async () => {
       const ledger = await this.load();
       const accepted = regressions(ledger);
-      if (accepted.length > 0) await this.#save(acceptCurrent(ledger));
+      if (accepted.length > 0) {await this.#save(acceptCurrent(ledger));}
       return accepted;
     });
   }

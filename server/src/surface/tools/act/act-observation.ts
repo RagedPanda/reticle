@@ -49,16 +49,16 @@ interface FollowedOutcome {
 export async function followLostObservation(input: FollowSuccessor): Promise<FollowedOutcome> {
   const { sessions, session, verdict, timeout, predicateStarted, reevaluate } = input;
   if (true !== verdict.observationLost || 0 >= timeout)
-    return { session, verdict, followed: false };
+    {return { session, verdict, followed: false };}
 
   const remaining = timeout - (session.elapsed() - predicateStarted);
   const next = remaining > 0 ? await awaitDocumentSuccessor(sessions, session, remaining) : null;
-  if (null === next) return { session, verdict, followed: false };
+  if (null === next) {return { session, verdict, followed: false };}
 
   // Computed on the DEPARTED session, before the caller points at the successor: the new session's
   // elapsed() starts at 0 and would silently refund the whole budget the caller had already spent.
   const leftover = timeout - (session.elapsed() - predicateStarted);
-  if (leftover <= 0) return { session: next, verdict, followed: true };
+  if (leftover <= 0) {return { session: next, verdict, followed: true };}
   return { session: next, verdict: await reevaluate(next, leftover), followed: true };
 }
 
@@ -73,7 +73,7 @@ export const DISABLED_TARGET_NOTE =
  * consequence then says nothing about the app, so the verdict is undecided rather than "no".
  */
 export function disabledTargetNote(pass: boolean, actResult: unknown): string | undefined {
-  if (pass) return undefined;
+  if (pass) {return undefined;}
   return false === asRecord(actResult)['enabled'] ? DISABLED_TARGET_NOTE : undefined;
 }
 
@@ -104,8 +104,8 @@ export function unreachableTargetNote(actResult: unknown): string | undefined {
     const by = asString(effect['occluderName']) ?? asString(effect['occludedBy']);
     return UNREACHABLE.covered(by ?? 'another element');
   }
-  if (true === effect['noSize']) return UNREACHABLE.NO_SIZE;
-  if (true === effect['offViewport']) return UNREACHABLE.OFF_VIEWPORT;
+  if (true === effect['noSize']) {return UNREACHABLE.NO_SIZE;}
+  if (true === effect['offViewport']) {return UNREACHABLE.OFF_VIEWPORT;}
   return undefined;
 }
 
@@ -130,11 +130,11 @@ export function checkNet(
   verdict: { pass: boolean; evidence?: unknown },
   events: readonly ReticleEvent[],
 ): { net?: { method: string; url: string; status?: number; body?: string }[] } {
-  if (!verdict.pass) return { net: windowNet(events) };
+  if (!verdict.pass) {return { net: windowNet(events) };}
   const seen = asRecord(verdict.evidence);
   const method = asString(seen['method']);
   const url = asString(seen['url']);
-  if (method === undefined || url === undefined) return {};
+  if (method === undefined || url === undefined) {return {};}
   const status = seen['status'];
   return { net: [{ method, url, ...('number' === typeof status ? { status } : {}) }] };
 }
@@ -144,9 +144,9 @@ export function windowNet(
 ): { method: string; url: string; status?: number; body?: string }[] {
   const out: { method: string; url: string; status?: number; body?: string }[] = [];
   for (const event of events) {
-    if (EventType.NET_REQUEST !== event.type) continue;
+    if (EventType.NET_REQUEST !== event.type) {continue;}
     const url = asString(event.data['url']);
-    if (url === undefined || isDevToolingUrl(url)) continue;
+    if (url === undefined || isDevToolingUrl(url)) {continue;}
     const status = event.data['status'];
     const body = asString(event.data['responseBody']);
     out.push({
@@ -155,7 +155,7 @@ export function windowNet(
       ...('number' === typeof status ? { status } : {}),
       ...(body === undefined ? {} : { body: body.slice(0, MAX_BODY_CHARS) }),
     });
-    if (MAX_NET_CALLS <= out.length) break;
+    if (MAX_NET_CALLS <= out.length) {break;}
   }
   return out;
 }

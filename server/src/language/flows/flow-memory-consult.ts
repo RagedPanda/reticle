@@ -40,7 +40,7 @@ export const MEMORY_CONSULT_LIMIT = 5;
  */
 export function consultSubjectFor(flow: FlowFile): string | undefined {
   const name = flow.name;
-  if ('string' !== typeof name || 0 === name.trim().length) return undefined;
+  if ('string' !== typeof name || 0 === name.trim().length) {return undefined;}
   return name.trim();
 }
 

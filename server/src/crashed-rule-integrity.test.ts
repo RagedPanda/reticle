@@ -40,7 +40,7 @@ function deps(): ToolDeps {
 
 const tool = (name: string): ToolDef => {
   const found = TOOLS.find((t) => t.name === name);
-  if (found === undefined) throw new Error(`${name} is not on the surface`);
+  if (found === undefined) {throw new Error(`${name} is not on the surface`);}
   return found;
 };
 
@@ -87,7 +87,7 @@ describe('a crashed consumer rule reaches the verdict', () => {
 
   it('one rule crashing on every event reports one blind spot, not thousands', () => {
     const undo = registerContradictionFold(brokenRule);
-    for (let i = 0; i < 50; i += 1) findContradictions([], {});
+    for (let i = 0; i < 50; i += 1) {findContradictions([], {});}
     undo();
     expect(crashedRuleNotes()).toHaveLength(1);
   });

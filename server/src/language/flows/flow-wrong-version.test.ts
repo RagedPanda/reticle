@@ -36,14 +36,14 @@ describe('a flow file written by a different Reticle', () => {
   it('reports a wrong version, not a malformed file', () => {
     const out = parseFlowFileText(flowAt(NEWER));
     expect(out.ok).toBe(false);
-    if (out.ok) return;
+    if (out.ok) {return;}
     expect(out.code).toBe(FlowErrorCode.WRONG_VERSION);
   });
 
   it('says which version it found and which it reads', () => {
     const out = parseFlowFileText(flowAt(NEWER));
     expect(out.ok).toBe(false);
-    if (out.ok) return;
+    if (out.ok) {return;}
     expect(out.detail).toContain(String(NEWER));
     expect(out.detail).toContain(String(FLOW_FILE_VERSION));
   });
@@ -51,7 +51,7 @@ describe('a flow file written by a different Reticle', () => {
   it('does not tell the author to regenerate a file that is not damaged', () => {
     const out = parseFlowFileText(flowAt(NEWER));
     expect(out.ok).toBe(false);
-    if (out.ok) return;
+    if (out.ok) {return;}
     expect(out.detail ?? '').not.toContain('malformed');
   });
 
@@ -59,7 +59,7 @@ describe('a flow file written by a different Reticle', () => {
   it('treats an older version the same way', () => {
     const out = parseFlowFileText(flowAt(0));
     expect(out.ok).toBe(false);
-    if (out.ok) return;
+    if (out.ok) {return;}
     expect(out.code).toBe(FlowErrorCode.WRONG_VERSION);
   });
 
@@ -67,7 +67,7 @@ describe('a flow file written by a different Reticle', () => {
   it('still calls a missing version malformed', () => {
     const out = parseFlowFileText(JSON.stringify({ name: 'f', createdAt: 0, steps: [] }));
     expect(out.ok).toBe(false);
-    if (out.ok) return;
+    if (out.ok) {return;}
     expect(out.code).toBe(FlowErrorCode.PARSE_FAILED);
   });
 
@@ -75,7 +75,7 @@ describe('a flow file written by a different Reticle', () => {
   it('still calls a non-numeric version malformed', () => {
     const out = parseFlowFileText(flowAt('two'));
     expect(out.ok).toBe(false);
-    if (out.ok) return;
+    if (out.ok) {return;}
     expect(out.code).toBe(FlowErrorCode.PARSE_FAILED);
   });
 
@@ -87,7 +87,7 @@ describe('a flow file written by a different Reticle', () => {
   it('still reports broken JSON as broken JSON', () => {
     const out = parseFlowFileText('{ not json');
     expect(out.ok).toBe(false);
-    if (out.ok) return;
+    if (out.ok) {return;}
     expect(out.code).toBe(FlowErrorCode.PARSE_FAILED);
   });
 });

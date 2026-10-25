@@ -53,12 +53,41 @@ const HOOK_TIMEOUT_S = 30;
 export const promptHookCommand = (agent: PromptHookAgent): string =>
   `npx -y ${RETICLE_NPM_PACKAGE}@${RETICLE_VERSION}${PROMPT_HOOK_MARKER}${agent}`;
 
+/** The words every version of the post-tool command holds. */
+export const TOOL_HOOK_MARKER = ' hook tool --agent ';
+/**
+ * The post-tool command: keeps one of the agent's own tool calls in `.reticle/episodes/`. Pinned
+ * for the same reason as the prompt command.
+ */
+export const toolHookCommand = (agent: PromptHookAgent): string =>
+  `npx -y ${RETICLE_NPM_PACKAGE}@${RETICLE_VERSION}${TOOL_HOOK_MARKER}${agent}`;
+
+/**
+ * The agent's own tools worth keeping: shell, edits, and the web. Reads and searches of the local
+ * tree are left out: they change nothing, and they are most of the calls.
+ */
+const RECORDED_TOOLS = 'Bash|Edit|Write|MultiEdit|NotebookEdit|WebFetch|WebSearch';
+
+/**
+ * Claude Code's post-tool entry. `async`, documented on 2026-10-18, runs it in the background, so
+ * the `npx` start never slows the agent's next step.
+ */
+const postToolGroup = (command: string): Record<string, unknown> => ({
+  matcher: RECORDED_TOOLS,
+  hooks: [{ type: 'command', command, async: true }],
+});
+
 /** One place in the config that holds a list of hook entries, and the entry we add to it. */
 interface HookSlot {
   /** Keys from the top of the file down to the list. */
   readonly path: readonly string[];
   readonly entry: (command: string) => Record<string, unknown>;
+  /** The command this slot runs, when it is not the prompt command. */
+  readonly command?: (agent: PromptHookAgent) => string;
 }
+
+const slotCommand = (spec: PromptHookSpec, slot: HookSlot): string =>
+  (slot.command ?? promptHookCommand)(spec.id);
 
 export interface PromptHookSpec {
   readonly id: PromptHookAgent;
@@ -88,7 +117,12 @@ export const PROMPT_HOOK_AGENTS: readonly PromptHookSpec[] = [
     label: 'Claude Code',
     paths: ['.claude/settings.json'],
     defaultPath: '.claude/settings.json',
-    slots: [{ path: ['hooks', 'UserPromptSubmit'], entry: group }],
+    slots: [
+      { path: ['hooks', 'UserPromptSubmit'], entry: group },
+      // The agent's own tool calls, after they ran or failed (2026-10-18).
+      { path: ['hooks', 'PostToolUse'], entry: postToolGroup, command: toolHookCommand },
+      { path: ['hooks', 'PostToolUseFailure'], entry: postToolGroup, command: toolHookCommand },
+    ],
     projectMarkers: ['.claude'],
     homeMarkers: ['.claude'],
     docs: 'https://code.claude.com/docs/en/hooks',
@@ -260,7 +294,10 @@ const serialize = (config: Json): string => `${JSON.stringify(config, null, 2)}\
 /** Any version of our entry. */
 const ours = (item: unknown): boolean => {
   const text = JSON.stringify(item);
-  return text.includes(RETICLE_NPM_PACKAGE) && text.includes(PROMPT_HOOK_MARKER);
+  return (
+    text.includes(RETICLE_NPM_PACKAGE) &&
+    (text.includes(PROMPT_HOOK_MARKER) || text.includes(TOOL_HOOK_MARKER))
+  );
 };
 
 /** The list at `path`, or an empty one. */
@@ -293,11 +330,12 @@ export function promptHookPath(spec: PromptHookSpec, exists: (path: string) => b
 /** THIS version's entry is in every slot. An older version's entry is replaced by install. */
 export function promptHookInstalled(spec: PromptHookSpec, text: string | null): boolean {
   const config = parseConfig(text);
-  const command = promptHookCommand(spec.id);
   return (
     config !== undefined &&
     spec.slots.every((slot) =>
-      listAt(config, slot.path).some((item) => JSON.stringify(item).includes(command)),
+      listAt(config, slot.path).some((item) =>
+        JSON.stringify(item).includes(slotCommand(spec, slot)),
+      ),
     )
   );
 }
@@ -312,11 +350,10 @@ export function installPromptHook(
   if (promptHookInstalled(spec, text)) {
     return { status: PromptHookStatus.ALREADY, content: text ?? '' };
   }
-  const command = promptHookCommand(spec.id);
   let next: Json = { ...(spec.header ?? {}), ...config };
   for (const slot of spec.slots) {
     const list = listAt(next, slot.path).filter((item) => !ours(item));
-    next = withList(next, slot.path, [...list, slot.entry(command)]);
+    next = withList(next, slot.path, [...list, slot.entry(slotCommand(spec, slot))]);
   }
   return { status: PromptHookStatus.APPLY, content: serialize(next) };
 }

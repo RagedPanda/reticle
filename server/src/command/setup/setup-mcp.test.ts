@@ -65,11 +65,11 @@ function machine(m: Machine = {}): Recorded {
     runCli: (command, args) => {
       ran.push(`${command} ${args.join(' ')}`);
       if (CODEX === command) {
-        if (true !== m.codexInstalled) return false;
+        if (true !== m.codexInstalled) {return false;}
         return !(true === m.codexAddFails && 'add' === args[1]);
       }
-      if (CLAUDE !== command) return false;
-      if (true !== m.claudeInstalled) return false;
+      if (CLAUDE !== command) {return false;}
+      if (true !== m.claudeInstalled) {return false;}
       return true;
     },
     reportStep: (s) => void steps.push(s),
@@ -136,7 +136,7 @@ describe('the funnel reports what actually happened', () => {
     });
     const write = io.writeFile.bind(io);
     io.writeFile = (path, content) => {
-      if (path.includes('.cursor')) throw new Error('permission denied');
+      if (path.includes('.cursor')) {throw new Error('permission denied');}
       write(path, content);
     };
     const result = setupMcp(io);

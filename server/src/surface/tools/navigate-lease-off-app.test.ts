@@ -18,7 +18,7 @@ describe('navigating a lease whose page has no Reticle SDK', () => {
       now: () => 0,
       sessions: {
         resolve: (id?: string) => {
-          if (!attached) throw new Error(`no connected session with id '${String(id)}'`);
+          if (!attached) {throw new Error(`no connected session with id '${String(id)}'`);}
           return session;
         },
         get: (id: string) => (attached && 'lease-1' === id ? session : undefined),

@@ -21,11 +21,11 @@ export function reportHudUse(
   const tabs = countBucket(signals.tabs);
   try {
     if (signals.viewed !== undefined)
-      void telemetry.emit(TelemetryEventKind.HUD_VIEWED, { hud: { view: signals.viewed, tabs } });
+      {void telemetry.emit(TelemetryEventKind.HUD_VIEWED, { hud: { view: signals.viewed, tabs } });}
     if (signals.prompted !== undefined)
-      void telemetry.emit(TelemetryEventKind.HUD_SIGNIN_PROMPTED, {
+      {void telemetry.emit(TelemetryEventKind.HUD_SIGNIN_PROMPTED, {
         hud: { surface: signals.prompted, tabs },
-      });
+      });}
   } catch {
     /* a metric may never change behaviour */
   }

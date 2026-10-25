@@ -45,7 +45,7 @@ function pathsNamedIn(script: string): string[] {
   // like a miss to anything resolving from cwd. Skipped rather than modelled: symlink semantics
   // are not what this guard is for, and a wrong answer here would be the noise that gets a
   // guard switched off.
-  if (script.includes('ln -s')) return [];
+  if (script.includes('ln -s')) {return [];}
   return script
     .split(/\s+/)
     .filter((token) => token.includes('/'))
@@ -58,7 +58,7 @@ function pathsNamedIn(script: string): string[] {
 function packageDirectory(name: string, all: readonly string[]): string | undefined {
   for (const rel of all) {
     const pkg = JSON.parse(readFileSync(join(REPO, rel), 'utf8')) as { name?: string };
-    if (pkg.name === name) return join(REPO, rel).replace(/package\.json$/, '');
+    if (pkg.name === name) {return join(REPO, rel).replace(/package\.json$/, '');}
   }
   return undefined;
 }
@@ -85,8 +85,8 @@ describe('a path named in a package script still exists', () => {
         for (const path of pathsNamedIn(script)) {
           // Resolved against the manifest's own directory, which is how the script runs, then
           // the filtered package's, then the repo root for a root script naming a package path.
-          if (filteredDir !== undefined && existsSync(join(filteredDir, path))) continue;
-          if (existsSync(join(dir, path)) || existsSync(join(REPO, path))) continue;
+          if (filteredDir !== undefined && existsSync(join(filteredDir, path))) {continue;}
+          if (existsSync(join(dir, path)) || existsSync(join(REPO, path))) {continue;}
           missing.push(`${rel} → ${name} → ${path}`);
         }
       }
@@ -139,7 +139,7 @@ describe('a dist path a loose script requires still exists', () => {
       const text = readFileSync(join(REPO, script), 'utf8');
       for (const m of text.matchAll(/['"](\.\.?\/[^'"]*\/dist\/[^'"]+\.(?:js|cjs|mjs))['"]/g)) {
         const target = join(REPO, dirname(script), m[1] ?? '');
-        if (!existsSync(target)) missing.push(`${script} -> ${m[1] ?? ''}`);
+        if (!existsSync(target)) {missing.push(`${script} -> ${m[1] ?? ''}`);}
       }
     }
     expect(
@@ -205,9 +205,9 @@ const DIRECTORY_ARGUMENT = /^[A-Za-z0-9_@.][A-Za-z0-9_@.-]*(?:\/[A-Za-z0-9_@.-]+
 /** Paths a workflow line names: the script form, plus explicit `dir/` arguments. */
 function workflowPathsIn(line: string): string[] {
   // A YAML comment is prose; it names things rhetorically and none of it is executed.
-  if (line.trim().startsWith('#')) return [];
+  if (line.trim().startsWith('#')) {return [];}
   // Artifact/cache paths are created or restored during the job, not checked-in command inputs.
-  if (/^\s*path:/.test(line)) return [];
+  if (/^\s*path:/.test(line)) {return [];}
   const directories = line.split(/\s+/).filter((token) => DIRECTORY_ARGUMENT.test(token));
   return [...pathsNamedIn(line), ...directories];
 }
@@ -237,8 +237,8 @@ describe('a path named in a CI workflow still exists', () => {
         const filteredDir =
           filtered === undefined ? undefined : packageDirectory(filtered, manifests());
         for (const path of workflowPathsIn(line)) {
-          if (filteredDir !== undefined && existsSync(join(filteredDir, path))) continue;
-          if (existsSync(join(REPO, path))) continue;
+          if (filteredDir !== undefined && existsSync(join(filteredDir, path))) {continue;}
+          if (existsSync(join(REPO, path))) {continue;}
           missing.push(`${rel} → ${path}`);
         }
       }

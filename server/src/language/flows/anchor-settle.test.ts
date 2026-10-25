@@ -46,7 +46,7 @@ function sessionThatMountsAfter(appearAfter: number): {
   return {
     session,
     fire: () => {
-      for (const l of listeners) l({} as ReticleEvent);
+      for (const l of listeners) {l({} as ReticleEvent);}
     },
     queries: () => queries,
   };

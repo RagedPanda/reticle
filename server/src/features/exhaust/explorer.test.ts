@@ -47,7 +47,7 @@ function fakeApp(opts: { failPay?: boolean } = {}) {
   let mocked = false;
   const at = (): Page => {
     const current = PAGES[page];
-    if (current === undefined) throw new Error(`no page ${page}`);
+    if (current === undefined) {throw new Error(`no page ${page}`);}
     return current;
   };
   const tree = (): string => {
@@ -70,20 +70,20 @@ function fakeApp(opts: { failPay?: boolean } = {}) {
     look: () => Promise.resolve({ tree: tree(), route: at().route }),
     act: (ref, action) => {
       const label = refs.get(ref);
-      if (label === undefined) return Promise.resolve({ ok: false, events: [] });
+      if (label === undefined) {return Promise.resolve({ ok: false, events: [] });}
       acted.push(`${action} ${label}`);
       const events: ReticleEvent[] = [];
-      if ('fill' === action) filled = true;
-      else if ('Sign in' === label) page = 'dash';
-      else if ('Cart' === label) page = 'cart';
-      else if ('Rows' === label) page = 'rows';
+      if ('fill' === action) {filled = true;}
+      else if ('Sign in' === label) {page = 'dash';}
+      else if ('Cart' === label) {page = 'cart';}
+      else if ('Rows' === label) {page = 'rows';}
       else if ('Pay' === label && filled) {
         events.push({
           type: 'net.request',
           t: 1,
           data: { method: 'POST', url: 'http://h/api/pay', status: mocked ? 0 : 200 },
         } as unknown as ReticleEvent);
-        if (!mocked || true !== opts.failPay) page = 'receipt';
+        if (!mocked || true !== opts.failPay) {page = 'receipt';}
       }
       return Promise.resolve({ ok: true, events });
     },
@@ -113,8 +113,8 @@ describe('explore — a field that already holds a value is left alone', () => {
               : '- button "Home" (ref=e3)',
         }),
       act: (ref, action, value) => {
-        if ('fill' === action) typed.push(value ?? '');
-        if ('e2' === ref) page = 'home';
+        if ('fill' === action) {typed.push(value ?? '');}
+        if ('e2' === ref) {page = 'home';}
         return Promise.resolve({ ok: true, events: [] });
       },
     };
@@ -265,7 +265,7 @@ function scriptedApp(
     },
     act: (ref, action) => {
       const c = refs.get(ref);
-      if (c === undefined) return Promise.resolve({ ok: false, events: [] });
+      if (c === undefined) {return Promise.resolve({ ok: false, events: [] });}
       acted.push(`${action} ${c.label}`);
       if ('fill' === action) {
         filled = true;
@@ -283,7 +283,7 @@ function scriptedApp(
           data: { method: 'POST', url, status: broken ? 0 : 200 },
         } as unknown as ReticleEvent);
       }
-      if (c.to !== undefined && !broken) page = c.to;
+      if (c.to !== undefined && !broken) {page = c.to;}
       return Promise.resolve({ ok: true, events });
     },
     mock: (next) => {

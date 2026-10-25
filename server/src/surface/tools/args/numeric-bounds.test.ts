@@ -22,7 +22,7 @@ import {
 
 function inputShape(name: string): z.ZodRawShape {
   const tool = RAW_TOOLS.find((t) => t.name === name) ?? TOOLS.find((t) => t.name === name);
-  if (tool === undefined) throw new Error(`missing tool ${name}`);
+  if (tool === undefined) {throw new Error(`missing tool ${name}`);}
   return tool.inputSchema;
 }
 
@@ -32,7 +32,7 @@ function parseField(
   value: unknown,
 ): z.SafeParseReturnType<unknown, unknown> {
   const field = shape[key];
-  if (field === undefined) throw new Error(`missing field ${key}`);
+  if (field === undefined) {throw new Error(`missing field ${key}`);}
   return z.object({ [key]: field }).safeParse({ [key]: value });
 }
 
@@ -47,12 +47,12 @@ function unwrap(schema: ZodTypeAny): ZodTypeAny {
       'ZodNullable' === def.typeName ||
       'ZodDefault' === def.typeName
     ) {
-      if (def.innerType === undefined) break;
+      if (def.innerType === undefined) {break;}
       current = def.innerType;
       continue;
     }
     if ('ZodEffects' === def.typeName) {
-      if (def.schema === undefined) break;
+      if (def.schema === undefined) {break;}
       current = def.schema;
       continue;
     }
@@ -67,11 +67,11 @@ const CURSOR_KEYS = new Set(['since', 'until']);
 function isUnderboundedNumber(schema: ZodTypeAny, key: string): boolean {
   const inner = unwrap(schema);
   const def = inner._def as { typeName?: string; checks?: readonly { kind: string }[] };
-  if ('ZodNumber' !== def.typeName) return false;
+  if ('ZodNumber' !== def.typeName) {return false;}
   const checks = def.checks ?? [];
   const hasMin = checks.some((c) => 'min' === c.kind);
   const hasMax = checks.some((c) => 'max' === c.kind);
-  if (CURSOR_KEYS.has(key)) return !hasMin;
+  if (CURSOR_KEYS.has(key)) {return !hasMin;}
   return !hasMin || !hasMax;
 }
 
@@ -139,10 +139,10 @@ describe('every top-level numeric tool input has a bound', () => {
     const seen = new Set<string>();
     const unbounded: string[] = [];
     for (const tool of [...RAW_TOOLS, ...TOOLS]) {
-      if (seen.has(tool.name)) continue;
+      if (seen.has(tool.name)) {continue;}
       seen.add(tool.name);
       for (const [key, schema] of Object.entries(tool.inputSchema)) {
-        if (isUnderboundedNumber(schema, key)) unbounded.push(`${tool.name}.${key}`);
+        if (isUnderboundedNumber(schema, key)) {unbounded.push(`${tool.name}.${key}`);}
       }
     }
     expect(unbounded, unbounded.join(', ')).toEqual([]);

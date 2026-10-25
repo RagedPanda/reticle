@@ -22,8 +22,8 @@ import { SUCCESS_STEP_TOOL } from '@/language/flows/flow-success.js';
 
 /** OK → PASS; UNVERIFIABLE → SKIPPED; DRIFT/ERROR → FAIL (a healed flow is produced by the heal path, not plain replay). */
 export function runFlowStatusOf(status: ReplayStatus): RunFlowStatus {
-  if (status === ReplayStatus.OK) return RunFlowStatus.PASS;
-  if (status === ReplayStatus.UNVERIFIABLE) return RunFlowStatus.SKIPPED;
+  if (status === ReplayStatus.OK) {return RunFlowStatus.PASS;}
+  if (status === ReplayStatus.UNVERIFIABLE) {return RunFlowStatus.SKIPPED;}
   return RunFlowStatus.FAIL;
 }
 
@@ -62,7 +62,7 @@ function recordingOf(flow: FlowFile): Pick<RunFlowResult, 'recording' | 'recordi
 function firstContradiction(replay: FlowReplayResult): Contradiction | undefined {
   for (const step of replay.steps) {
     const found = step.contradictions?.[0];
-    if (found !== undefined) return found;
+    if (found !== undefined) {return found;}
   }
   return replay.crossStep?.[0];
 }

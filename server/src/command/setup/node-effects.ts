@@ -112,7 +112,7 @@ export class OwnedDevServer {
   }
 
   output(): string {
-    if (undefined === this.log) return '';
+    if (undefined === this.log) {return '';}
     try {
       return readFileSync(this.log, 'utf8');
     } catch {
@@ -128,7 +128,7 @@ export class OwnedDevServer {
   quietForMs(): number {
     let lastOutputAt = this.startedAt;
     try {
-      if (undefined !== this.log) lastOutputAt = Math.max(lastOutputAt, statSync(this.log).mtimeMs);
+      if (undefined !== this.log) {lastOutputAt = Math.max(lastOutputAt, statSync(this.log).mtimeMs);}
     } catch {
       /* not written yet */
     }
@@ -139,7 +139,7 @@ export class OwnedDevServer {
   /** Ports anything in this server's process tree is listening on. */
   listeningPorts(): number[] {
     const pid = this.child?.pid;
-    if (undefined === pid) return [];
+    if (undefined === pid) {return [];}
     if (WINDOWS) {
       const tree = new Set(descendants(windowsProcessPairs(), pid));
       return [
@@ -153,7 +153,7 @@ export class OwnedDevServer {
     const pids = run('sh', ['-c', `ps -o pid= -g ${pid} 2>/dev/null | tr -d ' '`])
       .split('\n')
       .filter(Boolean);
-    if (0 === pids.length) return [];
+    if (0 === pids.length) {return [];}
     return parseLsofPorts(
       run('sh', [
         '-c',
@@ -180,8 +180,8 @@ export class OwnedDevServer {
 
   stop(): void {
     const child = this.child;
-    if (this.handedOver || undefined === child?.pid) return;
-    if (WINDOWS) run('taskkill', ['/PID', String(child.pid), '/T', '/F']);
+    if (this.handedOver || undefined === child?.pid) {return;}
+    if (WINDOWS) {run('taskkill', ['/PID', String(child.pid), '/T', '/F']);}
     else {
       try {
         process.kill(-child.pid, 'SIGTERM');
@@ -211,7 +211,7 @@ export function run(file: string, args: string[], timeoutMs = RUN_TIMEOUT_MS): s
     maxBuffer: 8 * 1024 * 1024,
     timeout: timeoutMs,
   });
-  if (undefined !== r.error) return '';
+  if (undefined !== r.error) {return '';}
   return r.stdout ?? '';
 }
 
@@ -245,7 +245,7 @@ function windowsProcessPairs(): ProcessPair[] {
   const fromWmic = parseWmicProcesses(
     run('wmic', ['process', 'get', 'CreationDate,ParentProcessId,ProcessId']),
   );
-  if (0 < fromWmic.length) return fromWmic;
+  if (0 < fromWmic.length) {return fromWmic;}
   return parseWmicProcesses(
     run('powershell', ['-NoProfile', '-NonInteractive', '-Command', POWERSHELL_PAIRS]),
   );
@@ -285,7 +285,7 @@ export async function probePage(url: string, timeoutMs = PROBE_TIMEOUT_MS): Prom
       if (/certificate|SELF_SIGNED|DEPTH_ZERO|ERR_TLS|unable to verify/i.test(message)) {
         sawTlsRefused = true;
       }
-      if (!isAddressMiss(err)) break;
+      if (!isAddressMiss(err)) {break;}
     }
   }
   return { served: false, sdkInPage: false, ...(sawTlsRefused ? { tlsRefused: true } : {}) };
@@ -306,7 +306,7 @@ export async function listSessions(port: number): Promise<CandidateSession[]> {
 export function flowsSaved(roots: readonly string[]): boolean {
   for (const root of roots) {
     try {
-      if (0 < readdirSync(join(root, '.reticle', 'flows')).length) return true;
+      if (0 < readdirSync(join(root, '.reticle', 'flows')).length) {return true;}
     } catch {
       /* no flows kept there */
     }

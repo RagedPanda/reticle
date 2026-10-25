@@ -42,15 +42,15 @@ const same = (a: unknown, b: unknown): boolean => JSON.stringify(a) === JSON.str
  */
 export function withChangesOnly(raw: unknown, before: unknown, after: unknown): unknown {
   if (Array.isArray(raw) && Array.isArray(before) && Array.isArray(after))
-    return raw.length === before.length && before.length === after.length
+    {return raw.length === before.length && before.length === after.length
       ? raw.map((item, i) => withChangesOnly(item, before[i], after[i]))
-      : after;
-  if (!isPlain(raw) || !isPlain(before) || !isPlain(after)) return after;
+      : after;}
+  if (!isPlain(raw) || !isPlain(before) || !isPlain(after)) {return after;}
   const out: Record<string, unknown> = { ...raw };
   for (const key of Object.keys(after))
-    if (!same(after[key], before[key]))
-      out[key] = key in raw ? withChangesOnly(raw[key], before[key], after[key]) : after[key];
-  for (const key of Object.keys(before)) if (!(key in after)) delete out[key];
+    {if (!same(after[key], before[key]))
+      {out[key] = key in raw ? withChangesOnly(raw[key], before[key], after[key]) : after[key];}}
+  for (const key of Object.keys(before)) {if (!(key in after)) {delete out[key];}}
   return out;
 }
 
@@ -60,12 +60,12 @@ export async function changeInPlace<T>(
   projectId: ProjectId | undefined,
   change: (flow: FlowFile) => { next: FlowFile; value: T },
 ): Promise<FlowResult<T>> {
-  if (!isValidFlowName(name)) return { ok: false, code: FlowErrorCode.INVALID_NAME };
+  if (!isValidFlowName(name)) {return { ok: false, code: FlowErrorCode.INVALID_NAME };}
   const pid = safeProjectId(projectId);
   const loaded = await port.load(name, pid);
-  if (!loaded.ok) return { ok: false, code: loaded.code };
+  if (!loaded.ok) {return { ok: false, code: loaded.code };}
   const path = await port.resolvePath(name, pid);
-  if (null === path) return { ok: false, code: FlowErrorCode.NOT_FOUND };
+  if (null === path) {return { ok: false, code: FlowErrorCode.NOT_FOUND };}
   const { next, value } = change(loaded.value);
   const parsed = FlowFileSchema.safeParse(next);
   if (!parsed.success) {
@@ -77,7 +77,7 @@ export async function changeInPlace<T>(
   }
   // A replay that learned nothing new leaves a committed file alone: every replay used to rewrite
   // it (keys reordered, defaults written in), and `git status` called it modified.
-  if (port.serialize(parsed.data) === port.serialize(loaded.value)) return { ok: true, value };
+  if (port.serialize(parsed.data) === port.serialize(loaded.value)) {return { ok: true, value };}
   let raw: unknown;
   try {
     raw = JSON.parse((await port.readRaw?.(path)) ?? 'null');

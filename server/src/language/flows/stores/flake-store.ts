@@ -32,7 +32,7 @@ export class FlakeStore {
     try {
       text = await this.#fs.readFile(this.#path);
     } catch (error) {
-      if (this.#fs.isNotFound(error)) return {};
+      if (this.#fs.isNotFound(error)) {return {};}
       throw error;
     }
     let parsed: unknown;

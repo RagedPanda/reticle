@@ -31,7 +31,7 @@ function configEchoSession(
       serverIdleEndMs.push(ms);
     },
     command: (name, args = {}) => {
-      if (name === ReticleCommand.SESSION_CONFIG) sent.push(args);
+      if (name === ReticleCommand.SESSION_CONFIG) {sent.push(args);}
       return Promise.resolve({
         kind: 'command_result',
         id: 'c',
@@ -45,7 +45,7 @@ function configEchoSession(
 
 function tool(name: string) {
   const t = TOOLS.find((x) => x.name === name);
-  if (t === undefined) throw new Error(`no tool ${name}`);
+  if (t === undefined) {throw new Error(`no tool ${name}`);}
   return t;
 }
 

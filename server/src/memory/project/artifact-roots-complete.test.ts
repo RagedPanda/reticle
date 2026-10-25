@@ -124,7 +124,7 @@ function sourceFilesOnDisk(dir: string, acc: string[] = []): string[] {
       continue;
     }
     if (entry.endsWith('.ts') && !entry.endsWith('.test.ts') && !entry.endsWith('.test-harness.ts'))
-      acc.push(full);
+      {acc.push(full);}
   }
   return acc;
 }

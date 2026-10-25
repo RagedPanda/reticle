@@ -47,7 +47,7 @@ const INSTALL_FLAGS: Record<PackageManagerName, readonly string[]> = {
 };
 
 function packagesFor(ctx: Partial<SdkFixContext> | undefined): readonly string[] {
-  if (ctx?.packages !== undefined && 0 !== ctx.packages.length) return ctx.packages;
+  if (ctx?.packages !== undefined && 0 !== ctx.packages.length) {return ctx.packages;}
   return [FRAMEWORK_NEUTRAL_SDK];
 }
 
@@ -87,7 +87,7 @@ export function sdkFixContextOf(
   lockfiles: ReadonlySet<string>,
   nodeModulesMarkers: ReadonlySet<string> = new Set(),
 ): SdkFixContext | undefined {
-  if ('object' !== typeof pkgJson || null === pkgJson) return undefined;
+  if ('object' !== typeof pkgJson || null === pkgJson) {return undefined;}
   return {
     packages: reticleDepsOf(pkgJson),
     packageManager: detectPackageManager(lockfiles, nodeModulesMarkers, pkgJson),
@@ -104,7 +104,7 @@ function readTextFile(path: string): string | undefined {
 }
 
 function parseJson(raw: string | undefined): unknown {
-  if (raw === undefined) return undefined;
+  if (raw === undefined) {return undefined;}
   try {
     return JSON.parse(raw);
   } catch {
@@ -120,7 +120,7 @@ function present(
 ): Set<string> {
   const found = new Set<string>();
   for (const name of names) {
-    if (read(join(directory, extra, name)) !== undefined) found.add(name);
+    if (read(join(directory, extra, name)) !== undefined) {found.add(name);}
   }
   return found;
 }

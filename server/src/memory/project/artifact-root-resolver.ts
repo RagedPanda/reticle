@@ -148,13 +148,13 @@ function announcedDevServers(): { projectId?: string | undefined; root: string }
   const servers: { projectId?: string | undefined; root: string }[] = [];
   try {
     for (const name of readdirSync(dir)) {
-      if (null === devServerRegistryPort(name)) continue;
+      if (null === devServerRegistryPort(name)) {continue;}
       try {
         const parsed = DevServerEntrySchema.safeParse(
           JSON.parse(readFileSync(join(dir, name), 'utf8')),
         );
         if (parsed.success)
-          servers.push({ projectId: parsed.data.projectId, root: parsed.data.root });
+          {servers.push({ projectId: parsed.data.projectId, root: parsed.data.root });}
       } catch {
         /* one bad announcement does not hide the others */
       }
@@ -175,7 +175,7 @@ function announcedDevServers(): { projectId?: string | undefined; root: string }
  * own project id.
  */
 export function projectDirectoryFor(projectId: string | undefined): string | undefined {
-  if (projectId === undefined) return undefined;
+  if (projectId === undefined) {return undefined;}
   const directories = new Set(
     knownProjectCandidates()
       .filter((candidate) => candidate.projectId === projectId)
@@ -241,7 +241,7 @@ export function artifactRootResolver(
     // port that moves to another worktree is a new connection whose work must move with it.
     let served: { directory: string | undefined } | undefined;
     const serving = (): string | undefined => {
-      if (origin === undefined) return undefined;
+      if (origin === undefined) {return undefined;}
       served ??= { directory: servingDirectory(origin) };
       return served.directory;
     };
@@ -274,7 +274,7 @@ export function artifactRootResolver(
       const project = dirname(resolved.root);
       const from = origin === undefined ? undefined : checkout(project);
       // Only a repository that HAS worktrees pays for the serving lookup.
-      if (from === undefined || !hasWorktrees(from.commonDir)) return resolved;
+      if (from === undefined || !hasWorktrees(from.commonDir)) {return resolved;}
       const moved = inServingCheckout([project], serving());
       return moved === undefined || moved === project
         ? resolved

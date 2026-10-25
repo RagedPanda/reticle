@@ -11,7 +11,7 @@ export function targetOriginOf(navUrl: string): string | undefined {
 }
 
 export function normalizeCookies(cookies: SeedStorage['cookies'], navUrl: string): PooledCookie[] {
-  if (cookies === undefined) return [];
+  if (cookies === undefined) {return [];}
   let baseUrl: string | undefined;
   try {
     const u = new URL(navUrl);
@@ -27,7 +27,7 @@ export function normalizeCookies(cookies: SeedStorage['cookies'], navUrl: string
         name: c.name,
         value: c.value,
       };
-      if (c.domain !== undefined) cookieObj.domain = c.domain;
+      if (c.domain !== undefined) {cookieObj.domain = c.domain;}
       if (c.path !== undefined) {
         cookieObj.path = c.path;
       } else if (c.domain !== undefined && c.url === undefined) {
@@ -38,10 +38,10 @@ export function normalizeCookies(cookies: SeedStorage['cookies'], navUrl: string
       } else if (c.domain === undefined && baseUrl !== undefined) {
         cookieObj.url = baseUrl;
       }
-      if (c.httpOnly !== undefined) cookieObj.httpOnly = c.httpOnly;
-      if (c.secure !== undefined) cookieObj.secure = c.secure;
-      if (c.sameSite !== undefined) cookieObj.sameSite = c.sameSite;
-      if (c.expires !== undefined) cookieObj.expires = c.expires;
+      if (c.httpOnly !== undefined) {cookieObj.httpOnly = c.httpOnly;}
+      if (c.secure !== undefined) {cookieObj.secure = c.secure;}
+      if (c.sameSite !== undefined) {cookieObj.sameSite = c.sameSite;}
+      if (c.expires !== undefined) {cookieObj.expires = c.expires;}
       out.push(cookieObj);
     }
   } else if ('object' === typeof cookies && null !== cookies) {
@@ -153,10 +153,10 @@ export async function seedStorageInto(
         };
 
         // Only seed the top-level document frame
-        if (win.top !== win) return;
+        if (win.top !== win) {return;}
 
         // Only seed when the page is at the intended target origin
-        if (undefined !== targetOrigin && win.location?.origin !== targetOrigin) return;
+        if (undefined !== targetOrigin && win.location?.origin !== targetOrigin) {return;}
 
         let seedError: string | undefined;
 

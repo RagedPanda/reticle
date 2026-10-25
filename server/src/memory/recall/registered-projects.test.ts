@@ -72,7 +72,7 @@ describe('projects this machine has paired before', () => {
     ['a registry that is not JSON', 'not json {'],
     ['a registry whose shape is wrong', '{"version":99,"projects":"nope"}'],
   ])('fails soft to empty on %s — a diagnosis must never throw', (_label, raw) => {
-    if (raw !== undefined) writeRegistry({}, raw);
+    if (raw !== undefined) {writeRegistry({}, raw);}
     expect(registeredProjects(home)).toEqual([]);
   });
 });

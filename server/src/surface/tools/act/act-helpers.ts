@@ -13,9 +13,9 @@ import { asNumber, asRecord, asString } from '@reticlehq/core';
 
 /** The strongest consequence grade a set of expected links proves (signal > net > state > presence). */
 export function gradeOf(links: readonly ExpectedLink[]): HonestyGrade {
-  if (links.some((l) => ConsequenceKind.SIGNAL === l.kind)) return HonestyGrade.SIGNAL;
-  if (links.some((l) => ConsequenceKind.NET === l.kind)) return HonestyGrade.NET;
-  if (links.some((l) => ConsequenceKind.STATE === l.kind)) return HonestyGrade.STATE;
+  if (links.some((l) => ConsequenceKind.SIGNAL === l.kind)) {return HonestyGrade.SIGNAL;}
+  if (links.some((l) => ConsequenceKind.NET === l.kind)) {return HonestyGrade.NET;}
+  if (links.some((l) => ConsequenceKind.STATE === l.kind)) {return HonestyGrade.STATE;}
   return HonestyGrade.PRESENCE;
 }
 
@@ -26,14 +26,14 @@ export function asBox(value: unknown): ElementBox | undefined {
   const y = asNumber(b['y']);
   const w = asNumber(b['width']);
   const h = asNumber(b['height']);
-  if (x === undefined || y === undefined || w === undefined || h === undefined) return undefined;
-  if (w <= 0 || h <= 0) return undefined; // zero-area (display:none) ⇒ native click would miss
+  if (x === undefined || y === undefined || w === undefined || h === undefined) {return undefined;}
+  if (w <= 0 || h <= 0) {return undefined;} // zero-area (display:none) ⇒ native click would miss
   return { x, y, width: w, height: h };
 }
 
 /** Outcome of a real-input attempt — real success (result set) or synthetic with a reason. */
 export function asActionType(value: unknown): ActionType | undefined {
   const raw = asString(value);
-  if (raw === undefined) return undefined;
+  if (raw === undefined) {return undefined;}
   return (Object.values(ActionType) as string[]).includes(raw) ? (raw as ActionType) : undefined;
 }

@@ -76,7 +76,7 @@ describe('FlowStore.saveFlow — temp-dir fs', () => {
     });
     const loaded = await store.load('checkout');
     expect(loaded.ok).toBe(true);
-    if (!loaded.ok) throw new Error('expected ok');
+    if (!loaded.ok) {throw new Error('expected ok');}
     expect(loaded.value.steps).toHaveLength(2);
     expect(loaded.value.steps[0]?.anchor).toEqual({ kind: AnchorKind.TESTID, value: 'pay' });
   });
@@ -123,7 +123,7 @@ describe('FlowStore.saveFlow — temp-dir fs', () => {
     // codemod once 'fixed' this literal into a valid one and left the refusal proving nothing.
     const saved = await store.saveFlow(malformed as unknown as FlowFile);
     expect(saved.ok).toBe(false);
-    if (saved.ok) return;
+    if (saved.ok) {return;}
     expect(saved.code).toBe(FlowErrorCode.PARSE_FAILED);
     expect(saved.detail ?? '').toContain('signl');
     expect(await store.list()).toEqual([]);
@@ -164,7 +164,7 @@ function fakeDeps(store: FlowStore, events: ReticleEvent[], projectId?: ProjectI
 
 function recordedTool() {
   const t = FLOW_TOOLS.find((x) => x.name === ReticleTool.FLOW_SAVE_RECORDED);
-  if (t === undefined) throw new Error('no reticle_flow_save_recorded tool');
+  if (t === undefined) {throw new Error('no reticle_flow_save_recorded tool');}
   return t;
 }
 

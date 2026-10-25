@@ -37,13 +37,13 @@ export interface RecommendationInputs {
  * failure mode (events landing on a page that never advances) is the one worth warning about.
  */
 export function buildSessionRecommendation(inputs: RecommendationInputs): string | undefined {
-  if (!inputs.hidden && !inputs.throttled) return undefined;
+  if (!inputs.hidden && !inputs.throttled) {return undefined;}
   // A desktop window gets the one answer it can act on. Checked BEFORE hidden/throttled are told
   // apart, because the distinction between them is about browser tab lifecycle and neither of its
   // two answers exists for an app whose window is the client. See DESKTOP_WINDOW_BACKGROUNDED.
   if (realmOf(inputs.runtime).isDesktopShell) {
     return DESKTOP_WINDOW_BACKGROUNDED;
   }
-  if (inputs.hidden) return HIDDEN_TAB_RECOMMENDATION;
+  if (inputs.hidden) {return HIDDEN_TAB_RECOMMENDATION;}
   return THROTTLED_TAB_RECOMMENDATION;
 }

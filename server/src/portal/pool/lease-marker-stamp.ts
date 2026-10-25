@@ -25,10 +25,10 @@ interface W {
  */
 export function stampLeaseMarker(arg: LeaseMarkerArg): void {
   const win = (globalThis as unknown as { window?: W }).window;
-  if (win === undefined || win.top !== win || win.location.origin !== arg.targetOrigin) return;
+  if (win === undefined || win.top !== win || win.location.origin !== arg.targetOrigin) {return;}
   try {
     const url = new URL(win.location.href);
-    if (url.searchParams.has(arg.sessionParam)) return;
+    if (url.searchParams.has(arg.sessionParam)) {return;}
     url.searchParams.set(arg.sessionParam, arg.session);
     if (arg.project !== undefined && !url.searchParams.has(arg.projectParam)) {
       url.searchParams.set(arg.projectParam, arg.project);
@@ -45,7 +45,7 @@ export async function installLeaseMarker(
   targetOrigin: string | undefined,
   project: string | undefined,
 ): Promise<void> {
-  if (page.addInitScript === undefined || targetOrigin === undefined) return;
+  if (page.addInitScript === undefined || targetOrigin === undefined) {return;}
   await page.addInitScript(stampLeaseMarker, {
     session: leaseId,
     project,

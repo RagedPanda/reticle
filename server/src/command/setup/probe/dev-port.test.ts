@@ -61,14 +61,14 @@ describe('loneLoopbackOnDevPort', () => {
 
   it('finds a server that holds only ::1, the case that looked like a flaky connect', async () => {
     const port = await listen('::1');
-    if (port === undefined) return; // no IPv6 loopback on this machine
+    if (port === undefined) {return;} // no IPv6 loopback on this machine
     expect(await loneLoopbackOnDevPort(port)).toBe('::1');
   });
 
   it('says nothing about a port busy on both loopbacks: the dev server sees it and moves', async () => {
     const port = await listen('127.0.0.1');
     expect(port).toBeDefined();
-    if (undefined === (await listen('::1', port))) return; // no IPv6 loopback on this machine
+    if (undefined === (await listen('::1', port))) {return;} // no IPv6 loopback on this machine
     expect(await loneLoopbackOnDevPort(port ?? 0)).toBeUndefined();
   });
 

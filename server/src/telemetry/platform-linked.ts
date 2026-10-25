@@ -16,7 +16,7 @@ export function reportPlatformLinked(
   link: PlatformLinked,
   telemetry: Pick<Telemetry, 'emit'> = getTelemetry(),
 ): void {
-  if (link.priorProjectId === link.projectId) return;
+  if (link.priorProjectId === link.projectId) {return;}
   try {
     void telemetry.emit(TelemetryEventKind.PLATFORM_LINKED, {
       link: { via: link.via },

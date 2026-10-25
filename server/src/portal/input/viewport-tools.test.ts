@@ -13,7 +13,7 @@ import { MERGE_PLANS, MERGED_TOOLS, TOOLS, type ToolDeps } from '@/surface/tools
 
 function tool() {
   const t = VIEWPORT_TOOLS.find((x) => x.name === ReticleTool.VIEWPORT);
-  if (t === undefined) throw new Error('no reticle_viewport tool');
+  if (t === undefined) {throw new Error('no reticle_viewport tool');}
   return t;
 }
 

@@ -28,7 +28,7 @@ function tempHome(session?: Record<string, unknown>): string {
   return dir;
 }
 afterEach(() => {
-  for (const dir of homes.splice(0)) rmSync(dir, { recursive: true, force: true });
+  for (const dir of homes.splice(0)) {rmSync(dir, { recursive: true, force: true });}
 });
 
 const SESSION = {

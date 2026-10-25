@@ -28,7 +28,7 @@ function sessions(appearsAfter: number): ResolvableSessions<typeof SESSION> & { 
     count: () => (state.calls >= appearsAfter ? 1 : 0),
     resolve: () => {
       state.calls += 1;
-      if (state.calls > appearsAfter) return SESSION;
+      if (state.calls > appearsAfter) {return SESSION;}
       throw new Error(NO_SESSION);
     },
   };

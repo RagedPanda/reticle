@@ -19,7 +19,7 @@ const ROOT = '/repo/.reticle';
 
 const tool = () => {
   const found = CONTEXT_TOOLS.find((t) => ReticleTool.CONTEXT === t.name);
-  if (undefined === found) throw new Error('reticle_context must be in CONTEXT_TOOLS');
+  if (undefined === found) {throw new Error('reticle_context must be in CONTEXT_TOOLS');}
   return found;
 };
 
@@ -57,7 +57,7 @@ function deps(fs: FileSystemPort, fake: Fake = {}): ToolDeps {
   return {
     sessions: {
       resolve: () => {
-        if (false === fake.connected) throw new Error('no session is connected');
+        if (false === fake.connected) {throw new Error('no session is connected');}
         return session;
       },
     },

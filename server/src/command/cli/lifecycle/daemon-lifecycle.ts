@@ -178,10 +178,10 @@ export function handleStop(port: number, quiet: boolean): void {
     // port, and `kill` finds the listener and confirms it is Reticle's before signalling it.
     void fetchStatus(port).then(async (status) => {
       if (status !== undefined) {
-        if (!(await runKill(port, false))) process.exit(1);
+        if (!(await runKill(port, false))) {process.exit(1);}
         return;
       }
-      if (!quiet) log('reticle_daemon_not_running', { port });
+      if (!quiet) {log('reticle_daemon_not_running', { port });}
     });
     return;
   }
@@ -192,7 +192,7 @@ export function handleStop(port: number, quiet: boolean): void {
     if (!isAlive(pid)) {
       clearInterval(poll);
       removePid(port);
-      if (!quiet) log('reticle_daemon_stopped', { port, pid, ...(escalated ? { escalated } : {}) });
+      if (!quiet) {log('reticle_daemon_stopped', { port, pid, ...(escalated ? { escalated } : {}) });}
       return;
     }
     const waited = Date.now() - started;
@@ -212,7 +212,7 @@ export function handleStop(port: number, quiet: boolean): void {
       clearInterval(poll);
       // Surviving SIGKILL means the pid is not ours to kill (permissions) or is an unkillable
       // zombie. Neither is retryable, and both need the pid named so a human can act on it.
-      if (!quiet) log('reticle_daemon_stop_timeout', { port, pid, escalated });
+      if (!quiet) {log('reticle_daemon_stop_timeout', { port, pid, escalated });}
       process.exit(1);
     }
   }, 100);
@@ -227,7 +227,7 @@ export function handleStop(port: number, quiet: boolean): void {
  */
 export async function handleRestart(port: number, force: boolean): Promise<void> {
   const stranded = strandedClientsNote(await fetchStatus(port));
-  if (stranded !== undefined) process.stderr.write(`${stranded}\n`);
+  if (stranded !== undefined) {process.stderr.write(`${stranded}\n`);}
   const freed = await runKill(port, force);
   if (!freed) {
     log('reticle_restart_aborted', {

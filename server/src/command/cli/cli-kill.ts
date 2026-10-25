@@ -70,7 +70,7 @@ export function planKill(input: {
     // rather than that the port is free, so the recorded pid is the best target we have — and the
     // report says which of the two it is rather than implying a lookup we never made.
     if (null === recordedPid)
-      return { action: KillAction.NOTHING, forced: false, identifiedListener: false };
+      {return { action: KillAction.NOTHING, forced: false, identifiedListener: false };}
     return { action: KillAction.KILL, pid: recordedPid, forced: false, identifiedListener: false };
   }
   const ours = answersStatus || listener.pid === recordedPid;
@@ -123,14 +123,14 @@ async function terminate(pid: number): Promise<{ gone: boolean; escalated: boole
   let escalated = false;
   for (;;) {
     await new Promise((resolve) => setTimeout(resolve, KILL_POLL_MS));
-    if (!isAlive(pid)) return { gone: true, escalated };
+    if (!isAlive(pid)) {return { gone: true, escalated };}
     const waited = Date.now() - started;
     if (!escalated && waited > GRACEFUL_KILL_MS) {
       escalated = true;
       signal('SIGKILL');
       continue;
     }
-    if (waited > GRACEFUL_KILL_MS + FORCED_KILL_MS) return { gone: false, escalated };
+    if (waited > GRACEFUL_KILL_MS + FORCED_KILL_MS) {return { gone: false, escalated };}
   }
 }
 
@@ -173,7 +173,7 @@ export async function runKill(port: number, force: boolean): Promise<boolean> {
     return true;
   }
   const { gone, escalated } = await terminate(pid);
-  if (gone) removePid(port);
+  if (gone) {removePid(port);}
   log(gone ? 'reticle_killed' : 'reticle_kill_survived', {
     port,
     pid,

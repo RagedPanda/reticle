@@ -73,10 +73,10 @@ type ProjectMemoryResult =
 
 /** Defensive: the wire is somebody else's server, so every field is checked before it is trusted. */
 const asKnown = (raw: unknown): KnownThing | null => {
-  if (null === raw || typeof raw !== 'object') return null;
+  if (null === raw || typeof raw !== 'object') {return null;}
   const r = raw as Record<string, unknown>;
   const statement = r['statement'];
-  if (typeof statement !== 'string' || 0 === statement.length) return null;
+  if (typeof statement !== 'string' || 0 === statement.length) {return null;}
   return {
     statement,
     status: 'string' === typeof r['status'] ? r['status'] : 'unknown',
@@ -118,7 +118,7 @@ const liveAndDistinct = (things: readonly KnownThing[]): KnownThing[] => {
   const seen = new Set<string>();
   return rankKnown(things.filter((t) => SET_ASIDE !== t.status)).filter((t) => {
     const key = t.statement.trim();
-    if (seen.has(key)) return false;
+    if (seen.has(key)) {return false;}
     seen.add(key);
     return true;
   });
@@ -132,8 +132,8 @@ export async function readProjectMemory(
   opts: { subject?: string | undefined; limit: number },
 ): Promise<ProjectMemoryResult> {
   const cloud = await resolveProjectCloud(fs, root, home, env);
-  if (null === cloud.config) return { ok: false, reason: MemoryUnavailable.NOT_LINKED };
-  if (!cloud.policy.memory) return { ok: false, reason: MemoryUnavailable.DISABLED };
+  if (null === cloud.config) {return { ok: false, reason: MemoryUnavailable.NOT_LINKED };}
+  if (!cloud.policy.memory) {return { ok: false, reason: MemoryUnavailable.DISABLED };}
   const config = cloud.config;
 
   // Scoped to the LINKED project, not to whatever the key happens to cover. A workspace can hold
@@ -157,7 +157,7 @@ export async function readProjectMemory(
         return 200 === res.status ? await res.json() : undefined;
       },
     );
-    if (body === undefined) return { ok: false, reason: MemoryUnavailable.UNREACHABLE };
+    if (body === undefined) {return { ok: false, reason: MemoryUnavailable.UNREACHABLE };}
     // The envelope first, and it decides everything. The platform names the project on the response
     // and NOT on each entry, so an entry-level filter alone keeps a whole sibling workspace while
     // looking like it did something — see `memory-scope.ts`. A response that names another project,

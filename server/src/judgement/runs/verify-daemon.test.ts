@@ -18,7 +18,7 @@ describe('reticle serve --http (daemon wiring)', () => {
   afterEach(async () => {
     await server?.close();
     server = undefined;
-    if (root !== undefined) await removeTempDir(join(root, '..'));
+    if (root !== undefined) {await removeTempDir(join(root, '..'));}
     root = undefined;
   });
 

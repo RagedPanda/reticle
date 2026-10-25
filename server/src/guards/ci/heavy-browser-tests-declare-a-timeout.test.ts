@@ -109,7 +109,7 @@ function hasAwaitInsideLoop(text: string): boolean {
   LOOP_HEAD.lastIndex = 0;
   for (let head = LOOP_HEAD.exec(scanned); head !== null; head = LOOP_HEAD.exec(scanned)) {
     const body = loopBody(scanned, scanned.indexOf('(', head.index));
-    if (body !== null && /\bawait\b/.test(body)) return true;
+    if (body !== null && /\bawait\b/.test(body)) {return true;}
   }
   return false;
 }
@@ -136,7 +136,7 @@ function withoutHookBodies(text: string): string {
     const open = text.indexOf('(', hook.index);
     let depth = 0;
     for (let close = open; close < text.length; close += 1) {
-      if ('(' === text[close]) depth += 1;
+      if ('(' === text[close]) {depth += 1;}
       else if (')' === text[close]) {
         depth -= 1;
         if (0 === depth) {
@@ -160,18 +160,18 @@ function withoutHookBodies(text: string): string {
  * header can contain anything.
  */
 function loopBody(text: string, headOpen: number): string | null {
-  if (-1 === headOpen) return null;
+  if (-1 === headOpen) {return null;}
   let parens = 0;
   let cursor = headOpen;
   for (; cursor < text.length; cursor += 1) {
-    if ('(' === text[cursor]) parens += 1;
+    if ('(' === text[cursor]) {parens += 1;}
     else if (')' === text[cursor]) {
       parens -= 1;
-      if (0 === parens) break;
+      if (0 === parens) {break;}
     }
   }
   const start = text.slice(cursor + 1).search(/\S/);
-  if (-1 === start) return null;
+  if (-1 === start) {return null;}
   const open = cursor + 1 + start;
   if (text[open] !== '{') {
     const end = text.indexOf(';', open);
@@ -179,10 +179,10 @@ function loopBody(text: string, headOpen: number): string | null {
   }
   let depth = 0;
   for (let close = open; close < text.length; close += 1) {
-    if ('{' === text[close]) depth += 1;
+    if ('{' === text[close]) {depth += 1;}
     else if ('}' === text[close]) {
       depth -= 1;
-      if (0 === depth) return text.slice(open, close);
+      if (0 === depth) {return text.slice(open, close);}
     }
   }
   return text.slice(open);
@@ -252,8 +252,8 @@ function testFiles(dir: string): string[] {
   const out: string[] = [];
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const full = join(dir, entry.name);
-    if (entry.isDirectory()) out.push(...testFiles(full));
-    else if (entry.name.endsWith('.test.ts')) out.push(full);
+    if (entry.isDirectory()) {out.push(...testFiles(full));}
+    else if (entry.name.endsWith('.test.ts')) {out.push(full);}
   }
   return out;
 }

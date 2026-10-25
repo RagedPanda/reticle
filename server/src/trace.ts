@@ -115,7 +115,7 @@ export function bindSpanContext<A extends unknown[]>(
   fn: (...args: A) => void,
 ): (...args: A) => void {
   const captured = context.getStore();
-  if (captured === undefined) return fn;
+  if (captured === undefined) {return fn;}
   return (...args: A): void => {
     context.run(captured, () => fn(...args));
   };
@@ -136,7 +136,7 @@ export async function span<T>(
   fields: Record<string, unknown>,
   fn: () => Promise<T> | T,
 ): Promise<T> {
-  if (!traceEnabled()) return fn();
+  if (!traceEnabled()) {return fn();}
   const { child, emit } = openSpan(name, fields);
   try {
     const value = await context.run(child, async () => fn());
@@ -158,7 +158,7 @@ export async function span<T>(
  * exactly that flow untraceable.
  */
 export function spanSync<T>(name: string, fields: Record<string, unknown>, fn: () => T): T {
-  if (!traceEnabled()) return fn();
+  if (!traceEnabled()) {return fn();}
   const { child, emit } = openSpan(name, fields);
   try {
     const value = context.run(child, fn);

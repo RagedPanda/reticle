@@ -29,7 +29,7 @@ export function buildFlowChips(
 ): FlowChip[] {
   const chips: FlowChip[] = [];
   for (const flow of flows) {
-    if (!flowInProjectScope(flow.projectId, sessionProjectId)) continue;
+    if (!flowInProjectScope(flow.projectId, sessionProjectId)) {continue;}
     const first = flow.steps[0];
     const start =
       first !== undefined && first.anchor.kind === AnchorKind.TESTID

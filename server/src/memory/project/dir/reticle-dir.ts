@@ -175,7 +175,7 @@ export function visualDir(root: string, runtime?: string): string {
  * like every other path built from one.
  */
 export function stepShotDir(root: string, runId: string): string {
-  if (!isValidRunId(runId)) throw new Error(`invalid run id: ${JSON.stringify(runId)}`);
+  if (!isValidRunId(runId)) {throw new Error(`invalid run id: ${JSON.stringify(runId)}`);}
   return join(root, ReticleDir.VISUAL_SUBDIR, STEP_SCREENSHOT.RUNS_DIR, runId);
 }
 
@@ -312,7 +312,7 @@ export type ReadContractResult =
 /** Never throws. Missing → MISSING. Bad JSON / failed schema → MALFORMED. */
 export async function readContract(fs: FileSystemPort, root: string): Promise<ReadContractResult> {
   const path = reticleDirPaths(root).contract;
-  if (!(await fs.exists(path))) return { ok: false, reason: ContractReadError.MISSING };
+  if (!(await fs.exists(path))) {return { ok: false, reason: ContractReadError.MISSING };}
 
   let text: string;
   try {
@@ -333,6 +333,6 @@ export async function readContract(fs: FileSystemPort, root: string): Promise<Re
   }
 
   const result = ContractFileSchema.safeParse(parsed);
-  if (!result.success) return { ok: false, reason: ContractReadError.MALFORMED };
+  if (!result.success) {return { ok: false, reason: ContractReadError.MALFORMED };}
   return { ok: true, capabilities: result.data.capabilities, generatedAt: result.data.generatedAt };
 }

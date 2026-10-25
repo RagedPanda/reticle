@@ -149,21 +149,21 @@ const PAGE_CAPABILITIES: readonly Capability[] = [
 
 /** Why an action's settle wait ended, when the page said. */
 function readSettleReason(result: unknown): string | undefined {
-  if ('object' !== typeof result || null === result) return undefined;
+  if ('object' !== typeof result || null === result) {return undefined;}
   const reason = (result as { settleReason?: unknown }).settleReason;
   return 'string' === typeof reason ? reason : undefined;
 }
 
 /** A network event's correlation id, if it carries one. Events are `unknown` at this boundary. */
 function readRequestId(data: unknown): string | undefined {
-  if ('object' !== typeof data || null === data) return undefined;
+  if ('object' !== typeof data || null === data) {return undefined;}
   const id = (data as { id?: unknown }).id;
   return 'string' === typeof id ? id : undefined;
 }
 
 /** What the request was pointed at, for a blind spot a person has to read. */
 function readUrl(data: unknown): string | undefined {
-  if ('object' !== typeof data || null === data) return undefined;
+  if ('object' !== typeof data || null === data) {return undefined;}
   const url = (data as { url?: unknown }).url;
   return 'string' === typeof url ? url : undefined;
 }
@@ -366,7 +366,7 @@ export class WebRealm extends Realm {
     super();
     this.#deps = deps;
     const breaker = deps.mutations;
-    if (breaker !== undefined) this.mutate = (mutation) => breaker.mutate(mutation);
+    if (breaker !== undefined) {this.mutate = (mutation) => breaker.mutate(mutation);}
     const port = deps.fixtures;
     if (port !== undefined) {
       this.captureFixture = async (): Promise<FixtureRef> => ({
@@ -459,7 +459,7 @@ export class WebRealm extends Realm {
     // rule `HandshakeFacts` states for every field it carries. Such a page gets the full list,
     // which is the behaviour it had before anyone could ask.
     const served = this.#deps.session.commands;
-    if (served === undefined) return PAGE_CAPABILITIES;
+    if (served === undefined) {return PAGE_CAPABILITIES;}
     const offered = new Set(served);
     return PAGE_CAPABILITIES.filter((c) => offered.has(c.name));
   }
@@ -545,7 +545,7 @@ export class WebRealm extends Realm {
       const channel = CHANNEL_OF_PREFIX[String(event.type).split('.')[0] ?? ''];
       // Unrecognised prefix: reported on no channel rather than guessed onto one. An observation
       // attributed to a source that did not produce it is worse than an observation nobody has.
-      if (channel === undefined) continue;
+      if (channel === undefined) {continue;}
       out.push({
         id: `${window.id}-${String(index)}`,
         window: window.id,
@@ -672,9 +672,9 @@ export class WebRealm extends Realm {
     const opened = new Map<string, string>();
     for (const event of this.#deps.session.eventsSince(window.openedAt)) {
       const id = readRequestId(event.data);
-      if (id === undefined) continue;
-      if (event.type === EventType.NET_PENDING) opened.set(id, readUrl(event.data) ?? id);
-      else if (event.type === EventType.NET_REQUEST) opened.delete(id);
+      if (id === undefined) {continue;}
+      if (event.type === EventType.NET_PENDING) {opened.set(id, readUrl(event.data) ?? id);}
+      else if (event.type === EventType.NET_REQUEST) {opened.delete(id);}
     }
     return [...opened.values()].map((where) => ({
       kind: BlindSpotKind.STILL_IN_FLIGHT,
@@ -754,14 +754,14 @@ export class WebRealm extends Realm {
   override async locate(query: unknown): Promise<readonly Handle[]> {
     const args = 'object' === typeof query && null !== query ? { ...query } : {};
     const result = await this.#deps.session.command(ReticleCommand.QUERY, args);
-    if (true !== result.ok) return [];
+    if (true !== result.ok) {return [];}
     const elements = (result.result as { elements?: unknown } | undefined)?.elements;
-    if (!Array.isArray(elements)) return [];
+    if (!Array.isArray(elements)) {return [];}
     const found: Handle[] = [];
     for (const element of elements) {
-      if ('object' !== typeof element || null === element) continue;
+      if ('object' !== typeof element || null === element) {continue;}
       const ref = (element as { ref?: unknown }).ref;
-      if ('string' !== typeof ref) continue;
+      if ('string' !== typeof ref) {continue;}
       const name = (element as { name?: unknown; text?: unknown }).name;
       const text = (element as { text?: unknown }).text;
       found.push({

@@ -15,7 +15,7 @@ export function flowAuthor(
   const agent = mcpClientIdentity().name;
   const account = readAccountState(home, env);
   const person = account.signedIn ? account.email : undefined;
-  if (agent === undefined && person === undefined) return undefined;
+  if (agent === undefined && person === undefined) {return undefined;}
   return {
     ...(agent === undefined ? {} : { agent }),
     ...(person === undefined ? {} : { person }),

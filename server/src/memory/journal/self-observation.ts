@@ -66,7 +66,7 @@ function pathOf(url: string): string {
 
 /** True when this event is the page fetching Reticle's own code rather than doing anything. */
 export function isSelfObservation(event: ReticleEvent): boolean {
-  if (!NET_TYPES.has(event.type)) return false;
+  if (!NET_TYPES.has(event.type)) {return false;}
   const path = pathOf(urlForMatch(event.data));
   return path.includes(SCOPE_PATH) || path.includes(SCOPE_FLATTENED);
 }

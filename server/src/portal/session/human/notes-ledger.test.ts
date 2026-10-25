@@ -48,7 +48,7 @@ describe('the notes ledger', () => {
   it('keeps the newest five hundred, dropping the oldest', () => {
     const root = mkdtempSync(join(tmpdir(), 'reticle-notes-'));
     const store = new ReviewStore((marks) => recordNotes(root, marks));
-    for (let i = 0; i < 502; i++) store.add(data(`note ${String(i)}`), i);
+    for (let i = 0; i < 502; i++) {store.add(data(`note ${String(i)}`), i);}
     const { notes } = readNotes(root);
     expect(Object.keys(notes)).toHaveLength(500);
     expect(notes[noteKey(data('note 0'))]).toBeUndefined();

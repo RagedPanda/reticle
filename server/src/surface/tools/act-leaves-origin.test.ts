@@ -61,7 +61,7 @@ describe('reticle_assert { action: "wait" }', () => {
 function fakeApp(): { deps: ToolDeps; depart: () => boolean } {
   let departed = false;
   const command = (name: string): Promise<CommandResult> => {
-    if (ReticleCommand.ACT === name) departed = true;
+    if (ReticleCommand.ACT === name) {departed = true;}
     return Promise.resolve({
       kind: 'command_result',
       id: 'c',
@@ -94,7 +94,7 @@ function fakeApp(): { deps: ToolDeps; depart: () => boolean } {
   } as unknown as Session;
   const sessions = {
     resolve: (id?: string) => {
-      if (departed && id !== undefined) throw new Error(`no connected session with id '${id}'`);
+      if (departed && id !== undefined) {throw new Error(`no connected session with id '${id}'`);}
       return session;
     },
     get: () => undefined,

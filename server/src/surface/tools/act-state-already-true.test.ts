@@ -159,7 +159,7 @@ function createStateSession(options: StateSessionOptions = {}) {
 
 function tool(name: string) {
   const found = TOOLS.find((t) => t.name === name);
-  if (found === undefined) throw new Error(`no ${name} tool`);
+  if (found === undefined) {throw new Error(`no ${name} tool`);}
   return found;
 }
 

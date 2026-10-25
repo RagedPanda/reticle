@@ -37,10 +37,10 @@ function page(showsEnd: () => boolean, verdict: string): HarnessToolset {
     tools: [],
     invoke: (name) => {
       if (ReticleTool.SNAPSHOT === name)
-        return Promise.resolve({
+        {return Promise.resolve({
           tree: showsEnd() ? `- text "${END}: notes"` : '- button "Generate"',
-        });
-      if (ReticleTool.SCROLL_TO === name) return Promise.resolve({ found: showsEnd() });
+        });}
+      if (ReticleTool.SCROLL_TO === name) {return Promise.resolve({ found: showsEnd() });}
       return Promise.resolve({ verified: verdict });
     },
   };

@@ -38,7 +38,7 @@ function ownManifest(): PackageJson {
     if (existsSync(candidate)) {
       return JSON.parse(readFileSync(candidate, 'utf8')) as PackageJson;
     }
-    if (dir === root) break;
+    if (dir === root) {break;}
     dir = dirname(dir);
   }
   // Loud rather than quiet. A missing manifest used to surface as an undefined version reported to

@@ -32,7 +32,7 @@ export function linkDirectoryFor(cwd: string, discovery: ConfigDiscovery): strin
     .map((found) => found.directory)
     .filter((directory) => within(here, directory))
     .sort((a, b) => b.length - a.length)[0];
-  if (enclosing !== undefined) return enclosing;
+  if (enclosing !== undefined) {return enclosing;}
   const below = discovery.found.filter((found) => within(found.directory, here));
   const only = 1 === below.length ? below[0] : undefined;
   return only === undefined ? here : only.directory;

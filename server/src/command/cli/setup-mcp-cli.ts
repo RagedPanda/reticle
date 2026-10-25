@@ -75,8 +75,8 @@ export function handleSetupMcp(reportStep: StepReporter, standalone = true): num
     );
     return 0;
   }
-  for (const id of result.registered) io.print(`  ✓ ${id}`);
-  for (const id of result.alreadyThere) io.print(`  ✓ ${id} (already set up)`);
+  for (const id of result.registered) {io.print(`  ✓ ${id}`);}
+  for (const id of result.alreadyThere) {io.print(`  ✓ ${id} (already set up)`);}
   for (const id of result.failed) {
     io.print(`  ⚠ ${id}: Reticle registration failed; this agent may not have the tools.`);
     io.print(
@@ -85,13 +85,13 @@ export function handleSetupMcp(reportStep: StepReporter, standalone = true): num
         : '    Check your agent config file permissions, then retry: reticle setup mcp',
     );
   }
-  if (result.failed.length > 0) process.exitCode = 1;
+  if (result.failed.length > 0) {process.exitCode = 1;}
   // Said, not skipped. These are the clients whose format we will not rewrite, and they used to be
   // counted as registered: the line below is the difference between a user who adds four lines to
   // one file and a user who believes they are set up and has no tools.
   for (const client of result.manual) {
     io.print(`  ⚠ ${client.id}: add the reticle entry to ${client.configPath} by hand`);
-    if (client.docs !== undefined) io.print(`    see ${client.docs}`);
+    if (client.docs !== undefined) {io.print(`    see ${client.docs}`);}
   }
   /*
    * The OTHER agents, which `init` already reaches and this did not.
@@ -162,6 +162,6 @@ export function handleSetupInstall(
   // No closing here: the installer prints the next step and the agent prompt itself, right after
   // this returns, so what this prints is progress and nothing else. Those two blocks are what the
   // ONBOARD steps below now stand for: what Reticle is for, shown before anything is asked of anyone.
-  for (const step of tutorialShownSteps()) reportStep(step);
+  for (const step of tutorialShownSteps()) {reportStep(step);}
   process.stdout.write(`${installResultLine(agents, process.cwd())}\n`);
 }

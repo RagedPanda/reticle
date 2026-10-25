@@ -122,12 +122,12 @@ const nameOf = async (
   try {
     const name = (JSON.parse(await fs.readFile(join(dir, 'package.json'))) as { name?: unknown })
       .name;
-    if ('string' === typeof name && 0 < name.length) return name;
+    if ('string' === typeof name && 0 < name.length) {return name;}
   } catch {
     // No package, or not JSON: the folder names it.
   }
   // Not mapped to a checkout (the daemon's shared `unmatched` directory): the id the SDK stamped.
-  if (undefined !== projectId) return nameFromProjectId(projectId);
+  if (undefined !== projectId) {return nameFromProjectId(projectId);}
   return basename(dir) || dir;
 };
 
@@ -153,7 +153,7 @@ function devServerScan(
   let last: { at: number; ports: number[] } | undefined;
   return async () => {
     if (last === undefined || now() - last.at >= DEV_SERVER_SCAN_EVERY_MS)
-      last = { at: now(), ports: await probeDevServers() };
+      {last = { at: now(), ports: await probeDevServers() };}
     const connected = new Set(
       connectedUrls().map((url) => {
         try {
@@ -201,7 +201,7 @@ export function startChatDrives(
         sessions.list().map((tab) => tab.url),
       )
     )
-      throw new Error(NOT_AN_APP_ADDRESS);
+      {throw new Error(NOT_AN_APP_ADDRESS);}
   };
   /**
    * The `.reticle` each reported app writes into, learned from its tabs. A tab the chat opens for an
@@ -221,7 +221,7 @@ export function startChatDrives(
   /** Lease the app a credential's project was last open at, for a drive no tab of it can take. */
   const reopenFor = async (key: string): Promise<string | undefined> => {
     const last = lastUrlByKey.get(key);
-    if (last === undefined) return undefined;
+    if (last === undefined) {return undefined;}
     openable(last.url);
     const id = asRecord(await runTool(LEASE_ACQUIRE_TOOL, deps, { ...last }))['sessionId'];
     return 'string' === typeof id ? id : undefined;
@@ -267,7 +267,7 @@ export function startChatDrives(
             }),
           );
           const id = lease['sessionId'];
-          if ('string' !== typeof id) throw new Error(`could not open ${url}`);
+          if ('string' !== typeof id) {throw new Error(`could not open ${url}`);}
           return id;
         },
         tuneHud: async (sessionId, hud) => {
@@ -279,7 +279,7 @@ export function startChatDrives(
     // naming another tab still lands on this one; with no tab picked, nothing runs at all.
     session: (sessionId) => {
       if (sessionId === undefined)
-        return { invoke: () => Promise.reject(new Error(NO_DRIVEN_TAB)) };
+        {return { invoke: () => Promise.reject(new Error(NO_DRIVEN_TAB)) };}
       const tools = reticleToolset(deps, { sessionId, locked: true });
       return { tools: tools.tools, invoke: (tool, args) => tools.invoke(tool, args) };
     },
@@ -358,7 +358,7 @@ export function startChatDrives(
           rootByApp.set(appKeyOf(machine.id, dir, tab.projectId), stamp);
           const platform = await sessionCloud(tab.sessionId);
           if (undefined !== platform)
-            lastUrlByKey.set(platform.apiKey, { url: withoutMarks(tab.url), ...stamp });
+            {lastUrlByKey.set(platform.apiKey, { url: withoutMarks(tab.url), ...stamp });}
           return {
             dir,
             name: await nameOf(fs, dir, tab.projectId),
@@ -390,7 +390,7 @@ export function startChatDrives(
       void (async () => {
         for (const tab of sessions.list()) {
           const key = await sessionKey(tab.sessionId).catch(() => undefined);
-          if (key === platform.apiKey) sessions.get(tab.sessionId)?.pushNarration(line);
+          if (key === platform.apiKey) {sessions.get(tab.sessionId)?.pushNarration(line);}
         }
       })();
     },
@@ -447,7 +447,7 @@ export async function hudDrive(
   grant: (platform: { url: string; apiKey: string }) => Promise<FreeDrive> = (platform) =>
     requestFreeDrive(platform, FreeDriveKind.EXPLORE),
 ): Promise<void> {
-  if (HumanControlKind.HARNESS === request.kind) return applySwitch(request.enabled);
+  if (HumanControlKind.HARNESS === request.kind) {return applySwitch(request.enabled);}
   // What the panel's Run and Stop answer belongs in the Harness log, and in the Agent Log as a summary.
   const said: string[] = [];
   const say = (text: string): void => {
@@ -456,7 +456,7 @@ export async function hudDrive(
   };
   if (HumanControlKind.HARNESS_STOP === request.kind) {
     const running = runningDrive(sessionId);
-    if (running === undefined || !stopDrive(running.harnessRun)) say(MSG_NOTHING_DRIVING);
+    if (running === undefined || !stopDrive(running.harnessRun)) {say(MSG_NOTHING_DRIVING);}
     return;
   }
   // Whatever stops a run before it drives is said on the Run row too, not only in the log: with the
@@ -466,7 +466,7 @@ export async function hudDrive(
   } catch (error) {
     say(error instanceof Error ? error.message : String(error));
   } finally {
-    if (0 < said.length) noteHarnessWord(sessionId, said.join(' '));
+    if (0 < said.length) {noteHarnessWord(sessionId, said.join(' '));}
   }
 }
 
@@ -481,20 +481,20 @@ async function startHudRun(
   // Before the grant: a drive refused for version skew must not take one.
   const env = await withLinkedCredential(deps, process.env, { sessionId });
   const locked = await harnessStartRefusal(deps, sessionId);
-  if (locked !== undefined) return say(locked.text.split('\n')[0] ?? locked.text);
+  if (locked !== undefined) {return say(locked.text.split('\n')[0] ?? locked.text);}
   const platform = serverOptionsFromEnv(env);
   // The person's sentence: the agent's (`MSG_NO_HARNESS_KEY`) names tools they never call.
-  if (platform === undefined) return say(HARNESS_NOT_LINKED_HUMAN);
+  if (platform === undefined) {return say(HARNESS_NOT_LINKED_HUMAN);}
   const granted = await grant(platform);
   if (!granted.granted) {
     say(granted.message);
     // At the console's origin (the tab's link names it), never the API's, which 404s when split.
     if (granted.needsCard)
-      say(msgStartTrial(planUrl(dashboardOf(deps, sessionId) ?? platform.url)));
+      {say(msgStartTrial(planUrl(dashboardOf(deps, sessionId) ?? platform.url)));}
     return;
   }
   const explore = EXPLORE_TOOLS.find((tool) => ReticleTool.VERIFY_EXPLORE === tool.name);
-  if (explore === undefined) return;
+  if (explore === undefined) {return;}
   await runTool(explore, deps, {
     sessionId,
     driveId: granted.driveId,
@@ -555,8 +555,8 @@ export function attachHudHarness(
         say(text);
         daemon.repaint();
       };
-      if (link === undefined) return refuse(MSG_LINK_UNAVAILABLE);
-      if (isUnmatchedRoot(root)) return refuse(MSG_LINK_NEEDS_PROJECT);
+      if (link === undefined) {return refuse(MSG_LINK_UNAVAILABLE);}
+      if (isUnmatchedRoot(root)) {return refuse(MSG_LINK_NEEDS_PROJECT);}
       void link(root)
         .then((code) => say(0 === code ? MSG_LINKED : MSG_LINK_FAILED))
         .catch(() => say(MSG_LINK_FAILED))
@@ -583,7 +583,7 @@ export function unsyncedReport(
   unsynced: readonly LinkUnsyncedRoot[] | undefined,
   home: string,
 ): { unsynced?: LinkUnsyncedRoot[] } {
-  if (unsynced === undefined) return {};
+  if (unsynced === undefined) {return {};}
   return {
     // A folder no project claimed cannot be connected, so no board should tell anyone to.
     unsynced: unsynced

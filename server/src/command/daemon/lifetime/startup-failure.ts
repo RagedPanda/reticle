@@ -22,7 +22,7 @@ export function readDaemonStartupCause(path: string, sinceMs: number): string | 
   const lines = contents.split('\n');
   for (let index = lines.length - 1; index >= 0; index -= 1) {
     const line = lines[index]?.trim();
-    if (undefined === line || 0 === line.length) continue;
+    if (undefined === line || 0 === line.length) {continue;}
 
     let record: unknown;
     try {
@@ -30,15 +30,15 @@ export function readDaemonStartupCause(path: string, sinceMs: number): string | 
     } catch {
       continue;
     }
-    if (typeof record !== 'object' || null === record) continue;
+    if (typeof record !== 'object' || null === record) {continue;}
 
     const candidate = record as { event?: unknown; error?: unknown; t?: unknown };
-    if (candidate.event !== DAEMON_START_FAILED_EVENT) continue;
-    if (typeof candidate.t !== 'string' || typeof candidate.error !== 'string') continue;
+    if (candidate.event !== DAEMON_START_FAILED_EVENT) {continue;}
+    if (typeof candidate.t !== 'string' || typeof candidate.error !== 'string') {continue;}
 
     const recordedAt = Date.parse(candidate.t);
     const error = candidate.error.trim();
-    if (!Number.isFinite(recordedAt) || recordedAt < sinceMs || 0 === error.length) continue;
+    if (!Number.isFinite(recordedAt) || recordedAt < sinceMs || 0 === error.length) {continue;}
     return error;
   }
   return undefined;

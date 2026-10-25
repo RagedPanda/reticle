@@ -77,7 +77,7 @@ export interface GapSummary {
  * attribution nobody recorded.
  */
 function knownReason(reason: string | undefined): VerifiedReason | undefined {
-  if (reason === undefined) return undefined;
+  if (reason === undefined) {return undefined;}
   const known: readonly string[] = Object.values(VerifiedReason);
   return known.includes(reason) ? (reason as VerifiedReason) : undefined;
 }
@@ -111,7 +111,7 @@ export function gapSummary(actions: readonly JournalAction[]): GapSummary {
     })),
   );
   for (const [at, verdict] of verdicts.entries()) {
-    if (superseded.has(at)) continue;
+    if (superseded.has(at)) {continue;}
     summary.claims += 1;
     switch (verdict.verified) {
       case Verified.YES:
@@ -119,7 +119,7 @@ export function gapSummary(actions: readonly JournalAction[]): GapSummary {
         break;
       case Verified.NO: {
         summary.failed += 1;
-        if (VerifiedReason.CONTRADICTED === verdict.reason) summary.falseGreensCaught += 1;
+        if (VerifiedReason.CONTRADICTED === verdict.reason) {summary.falseGreensCaught += 1;}
         const reason = knownReason(verdict.reason);
         summary.failures.push(
           reason === undefined ? { claim: verdict.claim } : { claim: verdict.claim, reason },

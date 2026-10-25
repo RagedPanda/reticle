@@ -200,7 +200,7 @@ async function openConnection(ports: VerifyPorts): Promise<VerifyConnection | un
 /** Orchestration: boot → wait for a session → replay flows → verdict → exit code. Browser-free. */
 export async function runVerify(args: VerifyArgs, outer: VerifyPorts): Promise<void> {
   const conn = await openConnection(outer);
-  if (conn === undefined) return;
+  if (conn === undefined) {return;}
   /*
    * The exit is held until the connection has closed. The live exit is process.exit, and close()
    * runs the last cloud sync cycle that sends this run's flows and screenshots: exiting first skipped
@@ -247,7 +247,7 @@ export async function runVerify(args: VerifyArgs, outer: VerifyPorts): Promise<v
      */
     if (0 === names.length && (true === args.explore || args.persona !== undefined)) {
       const explored = await explore(conn, args, ports);
-      if (!explored) return;
+      if (!explored) {return;}
       names = await conn.listFlows();
     }
     if (0 === names.length) {
@@ -310,7 +310,7 @@ export async function runVerify(args: VerifyArgs, outer: VerifyPorts): Promise<v
   } finally {
     await conn.close().catch(() => undefined);
     // In the finally, so the early refusals that `return` from the try exit too.
-    if (exitCode !== undefined) outer.exit(exitCode);
+    if (exitCode !== undefined) {outer.exit(exitCode);}
   }
 }
 
@@ -412,7 +412,7 @@ async function waitForSession(
 ): Promise<boolean> {
   const deadline = now() + timeoutMs;
   while (now() < deadline) {
-    if (sessions.count() > 0) return true;
+    if (sessions.count() > 0) {return true;}
     await delay(SESSION_POLL_MS);
   }
   return sessions.count() > 0;
@@ -445,7 +445,7 @@ export function buildVerifyDeps(
     // RETICLE_API_KEY was told to run `reticle connect` when asking the Harness to drive.
     linkedCloud: linkedCloudPort(fs, reticleRoot, homedir(), process.env),
   };
-  if (running.realInput !== undefined) deps.realInput = running.realInput;
+  if (running.realInput !== undefined) {deps.realInput = running.realInput;}
   return deps;
 }
 
@@ -708,7 +708,7 @@ export function routeVerify(args: {
       ? { route: VerifyRoute.ADHOC }
       : { route: VerifyRoute.REFUSE, message: expectNeedsDaemonMessage(args.port, args.presence) };
   }
-  if (args.presence !== PortPresence.DAEMON) return { route: VerifyRoute.FLOWS };
+  if (args.presence !== PortPresence.DAEMON) {return { route: VerifyRoute.FLOWS };}
   if (true === args.explore && true !== args.wantsOwnBrowser && true !== args.hasSavedFlows) {
     return { route: VerifyRoute.ADHOC_EXPLORE };
   }
@@ -806,7 +806,7 @@ export function handleVerify(parsed: {
     const keyNote = (
       await resolveProjectCloud(createNodeFileSystem(), reticleRoot, homedir(), process.env)
     ).note;
-    if (keyNote !== undefined) process.stderr.write(`${keyNote}\n`);
+    if (keyNote !== undefined) {process.stderr.write(`${keyNote}\n`);}
     const port = parsed.port ?? RETICLE_DEFAULT_PORT;
     // A lease opened for this verdict writes its runs into this folder's project, not `unmatched/`.
     const root = callerArtifactRoot(process.cwd());
@@ -852,7 +852,7 @@ export function handleVerify(parsed: {
             readOrCreatePairingTokenSync(defaultPairingTokenDir()),
           ),
         });
-        for (const line of verdict.lines) ports.out(line);
+        for (const line of verdict.lines) {ports.out(line);}
         ports.exit(verdict.code);
         return;
       }
@@ -871,7 +871,7 @@ export function handleVerify(parsed: {
             readOrCreatePairingTokenSync(defaultPairingTokenDir()),
           ),
         });
-        for (const line of suite.lines) ports.out(line);
+        for (const line of suite.lines) {ports.out(line);}
         ports.exit(suite.code);
         return;
       }
@@ -888,13 +888,13 @@ export function handleVerify(parsed: {
             readOrCreatePairingTokenSync(defaultPairingTokenDir()),
           ),
         });
-        for (const line of explored.lines) ports.out(line);
+        for (const line of explored.lines) {ports.out(line);}
         // The drive runs INSIDE the daemon, so the key has to be in ITS environment. A reader who
         // exported it in this shell and was told to link has been told to do the thing they just
         // did; say where the key is actually missing.
         if (0 !== explored.code && harnessAvailable(process.env)) {
           const refusedForKey = explored.lines.some((line) => line.includes(MSG_NO_HARNESS_KEY));
-          if (refusedForKey) ports.fail(daemonLacksKeyMessage(port));
+          if (refusedForKey) {ports.fail(daemonLacksKeyMessage(port));}
         }
         ports.exit(explored.code);
         return;

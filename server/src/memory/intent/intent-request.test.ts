@@ -137,7 +137,7 @@ describe('who the request is shared with', () => {
     mkdirSync(root);
     writeFileSync(join(root, 'cloud.json'), '{"projectId":"p"}');
     if (projectConfig !== undefined)
-      writeFileSync(join(dir, '.reticle.json'), JSON.stringify(projectConfig));
+      {writeFileSync(join(dir, '.reticle.json'), JSON.stringify(projectConfig));}
     const { d, fs } = deps(1_000);
     (d as { reticleRoot: string }).reticleRoot = root;
     await intentTool?.handler(d, { action: 'declare', request: 'Refund a payment' });

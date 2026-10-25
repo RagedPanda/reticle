@@ -50,9 +50,9 @@ export function settledWordsIn(entries: readonly unknown[]): SettledWords[] {
     const decisions = entry['decisions'];
     const status = settledStatus(entry['status']);
     const file = str(entry['sourceFile']);
-    if (kept === undefined) return [];
+    if (kept === undefined) {return [];}
     const settled = status === undefined ? [] : [{ kept, status }];
-    if (!Array.isArray(decisions)) return settled;
+    if (!Array.isArray(decisions)) {return settled;}
     return decisions
       .flatMap((d: unknown): SettledWords[] => {
         const setAside = str(asRecord(asRecord(d)['setAside'])['statement']);
@@ -81,7 +81,7 @@ export async function applySettledWords(
   store: IntentShardStore,
   settled: readonly SettledWords[],
 ): Promise<number> {
-  if (0 === settled.length) return 0;
+  if (0 === settled.length) {return 0;}
   let changed = 0;
   for (const record of await store.all()) {
     // The team settled these very words: the record takes that status, so this machine never
@@ -94,11 +94,11 @@ export async function applySettledWords(
         status,
         source: decidedBy(undefined),
       });
-      if (raised?.status === status) changed += 1;
+      if (raised?.status === status) {changed += 1;}
       continue;
     }
     const decision = settled.find((s) => s.setAside === record.statement);
-    if (decision === undefined) continue;
+    if (decision === undefined) {continue;}
     // The status the team settled on the kept words comes with them, in this same read: the next
     // read of an unchanged memory is a 304, which would leave the record proposed.
     const keptStatus = settled.find(
@@ -126,7 +126,7 @@ export async function applySettledWords(
           : {}),
       },
     );
-    if (next?.statement === decision.kept) changed += 1;
+    if (next?.statement === decision.kept) {changed += 1;}
   }
   return changed;
 }
@@ -149,7 +149,7 @@ export async function keptWordsInRequest(
   const decided = settled.filter(
     (s): s is SettledWords & { setAside: string } => s.setAside !== undefined,
   );
-  if (0 === decided.length) return;
+  if (0 === decided.length) {return;}
   try {
     const raw = JSON.parse(await readFile(path, 'utf8')) as Record<string, unknown>;
     const statements = Array.isArray(raw['statements']) ? raw['statements'] : [];
@@ -157,12 +157,12 @@ export async function keptWordsInRequest(
     const next = statements.map((s: unknown) => {
       const statement = asRecord(s);
       const kept = decided.find((d) => d.setAside === statement['text'])?.kept;
-      if (kept === undefined) return s;
+      if (kept === undefined) {return s;}
       changed = true;
       return { ...statement, text: kept };
     });
     if (changed)
-      await writeFile(path, `${JSON.stringify({ ...raw, statements: next }, null, 2)}\n`);
+      {await writeFile(path, `${JSON.stringify({ ...raw, statements: next }, null, 2)}\n`);}
   } catch {
     // No request recorded, or one this cannot read: nothing to correct.
   }

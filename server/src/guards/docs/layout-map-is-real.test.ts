@@ -156,8 +156,8 @@ describe('the map at the top of AGENTS.md', () => {
     const missing: string[] = [];
     for (const manifest of trackedManifests()) {
       const dir = manifest.replace('/package.json', '');
-      if (dir.startsWith('apps/')) continue;
-      if (!mapped.has(dir)) missing.push(dir);
+      if (dir.startsWith('apps/')) {continue;}
+      if (!mapped.has(dir)) {missing.push(dir);}
     }
     expect(
       missing.sort(),

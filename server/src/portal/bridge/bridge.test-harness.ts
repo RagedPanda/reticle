@@ -127,7 +127,7 @@ export class FakeBrowser {
   }
 
   #onMessage(msg: Record<string, unknown>): void {
-    if (msg['kind'] !== MessageKind.COMMAND) return;
+    if (msg['kind'] !== MessageKind.COMMAND) {return;}
     const id = msg['id'] as string;
     const name = msg['name'] as string;
     const args = (msg['args'] ?? {}) as Record<string, unknown>;
@@ -228,8 +228,8 @@ export function waitUntil(cond: () => boolean, timeoutMs = 15_000): Promise<void
   return new Promise((resolve, reject) => {
     const start = Date.now();
     const tick = (): void => {
-      if (cond()) return resolve();
-      if (Date.now() - start > timeoutMs) return reject(new Error('waitUntil timed out'));
+      if (cond()) {return resolve();}
+      if (Date.now() - start > timeoutMs) {return reject(new Error('waitUntil timed out'));}
       setTimeout(tick, 10);
     };
     tick();
@@ -242,7 +242,7 @@ export const callTool = (
   args: Record<string, unknown> = {},
 ): Promise<unknown> => {
   const tool = TOOLS.find((t) => t.name === name);
-  if (tool === undefined) throw new Error(`no tool ${name}`);
+  if (tool === undefined) {throw new Error(`no tool ${name}`);}
   return tool.handler(deps, args);
 };
 

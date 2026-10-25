@@ -17,7 +17,7 @@ const APP = 'http://localhost:3000/settings';
 
 function acquire(deps: ToolDeps, args: Record<string, unknown>): Promise<unknown> {
   const def = LEASE_TOOLS.find((t) => t.name === ReticleTool.LEASE_ACQUIRE);
-  if (def === undefined) throw new Error('no acquire tool');
+  if (def === undefined) {throw new Error('no acquire tool');}
   return def.handler(deps, args);
 }
 
@@ -38,7 +38,7 @@ function fakePool(opts: { reading?: string; acquireError?: Error } = {}): Record
       url: string,
       o: { sessionId?: string; permissions?: readonly string[] } = {},
     ): Promise<Lease> {
-      if (opts.acquireError !== undefined) return Promise.reject(opts.acquireError);
+      if (opts.acquireError !== undefined) {return Promise.reject(opts.acquireError);}
       acquired.push({ url, permissions: o.permissions });
       const sessionId = o.sessionId ?? 'gen';
       granted.set(sessionId, o.permissions ?? []);

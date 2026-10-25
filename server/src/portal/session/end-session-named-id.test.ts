@@ -18,7 +18,7 @@ const SUCCESSOR = 's08e37e5c';
 
 function endTool() {
   const tool = LIVE_CONTROL_TOOLS.find((t) => t.name === ReticleTool.END_SESSION);
-  if (tool === undefined) throw new Error('reticle_end_session is not defined');
+  if (tool === undefined) {throw new Error('reticle_end_session is not defined');}
   return tool;
 }
 
@@ -29,7 +29,7 @@ function depsWithSuccessor(): { deps: unknown; ended: string[] } {
     id: SUCCESSOR,
     url: 'http://localhost:5173/app',
     setState: (state: SessionState) => {
-      if (SessionState.ENDED === state) ended.push(SUCCESSOR);
+      if (SessionState.ENDED === state) {ended.push(SUCCESSOR);}
     },
     // Ending a session reports what it proved, read from its journal.
     readJournalActions: () => Promise.resolve([]),

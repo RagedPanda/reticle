@@ -47,7 +47,7 @@ const LSOF_CALL = /lsof[^\n;]*?-[a-zA-Z]*i[a-zA-Z]*\s*["']?(?:tcp|TCP):[^\n;]*/g
 function filesUnder(dir: string): string[] {
   const root = join(REPO, dir);
   try {
-    if (!statSync(root).isDirectory()) return [];
+    if (!statSync(root).isDirectory()) {return [];}
   } catch {
     return [];
   }
@@ -56,7 +56,7 @@ function filesUnder(dir: string): string[] {
     for (const entry of readdirSync(d, { withFileTypes: true })) {
       const full = join(d, entry.name);
       if (entry.isDirectory()) {
-        if ('node_modules' !== entry.name && !entry.name.startsWith('.')) walk(full);
+        if ('node_modules' !== entry.name && !entry.name.startsWith('.')) {walk(full);}
       } else if (EXTENSIONS.some((e) => entry.name.endsWith(e))) {
         out.push(full);
       }
@@ -83,13 +83,13 @@ describe('a harness kills only the process serving a port', () => {
       // that quote the unsafe form precisely in order to warn about it were reported as offenders.
       // Those comments are the rule being taught; flagging them would delete the explanation.
       for (const line of readFileSync(file, 'utf8').split('\n')) {
-        if (/^\s*(?:\/\/|\*|#)/.test(line)) continue;
+        if (/^\s*(?:\/\/|\*|#)/.test(line)) {continue;}
         // The dangerous idiom is specifically "enumerate the port, pipe it into a kill". Requiring
         // the kill on the same line is what keeps two legitimate neighbours out of the report: the
         // deliberate list-every-holder query that `portHolders` uses to NAME survivors without
         // touching them, and an error string that spells the safe recipe out across concatenated
         // lines. Both were flagged by a broader rule, and both are code we want to keep exactly.
-        if (!/\||xargs|kill/.test(line)) continue;
+        if (!/\||xargs|kill/.test(line)) {continue;}
         for (const call of line.match(LSOF_CALL) ?? []) {
           if (!call.includes('-sTCP:LISTEN')) {
             offenders.push(`${file.slice(REPO.length + 1)}: ${call.trim().slice(0, 90)}`);

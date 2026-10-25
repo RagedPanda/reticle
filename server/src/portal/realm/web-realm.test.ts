@@ -201,7 +201,7 @@ describe('it reaches a verdict through the same rules as a realm with no screen'
     const window = { ...r.openWindow(8_000), closedAt: 50, closedBy: CloseCondition.QUIESCENCE };
     const observations = await r.observe(window);
     const net = observations.find((o) => ProtocolChannel.NET === o.channel);
-    if (net === undefined) throw new Error('the net observation this case is about was not made');
+    if (net === undefined) {throw new Error('the net observation this case is about was not made');}
     const result = adjudicate({
       claim: {
         id: 'c1',

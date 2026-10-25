@@ -41,8 +41,8 @@ function openSse(port: number): Promise<{
           let event = 'message';
           const data: string[] = [];
           for (const line of part.split('\n')) {
-            if (line.startsWith('event:')) event = line.slice('event:'.length).trim();
-            else if (line.startsWith('data:')) data.push(line.slice('data:'.length).trim());
+            if (line.startsWith('event:')) {event = line.slice('event:'.length).trim();}
+            else if (line.startsWith('data:')) {data.push(line.slice('data:'.length).trim());}
           }
           const frame: SseFrame = { event, data: data.join('\n') };
           frames.push(frame);
@@ -124,10 +124,10 @@ describe('the initialize instructions when a session is live but durable memory 
   afterEach(async () => {
     await server?.close();
     server = undefined;
-    if (dir !== undefined) await removeTempDir(dir);
+    if (dir !== undefined) {await removeTempDir(dir);}
     dir = undefined;
-    if (savedStateDir === undefined) delete process.env[ReticleEnv.STATE_DIR];
-    else process.env[ReticleEnv.STATE_DIR] = savedStateDir;
+    if (savedStateDir === undefined) {delete process.env[ReticleEnv.STATE_DIR];}
+    else {process.env[ReticleEnv.STATE_DIR] = savedStateDir;}
     savedStateDir = undefined;
   });
 

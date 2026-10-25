@@ -54,7 +54,7 @@ const BY_OLD_NAME = ((): ReadonlyMap<string, MergedNameRedirect> => {
   }
   for (const name of RETIRED_FROM_SURFACE) {
     const known = RETIRED_NOTE[name];
-    if (known !== undefined) map.set(name, known);
+    if (known !== undefined) {map.set(name, known);}
   }
   // The one merge no plan can describe. `reticle_act` absorbs `reticle_act_sequence` by the SHAPE of
   // the call — a `steps` array — rather than by an `action`, because `act` already owns that
@@ -91,7 +91,7 @@ export function retiredToolNames(): Readonly<Record<string, string>> {
   for (const [old, redirect] of BY_OLD_NAME) {
     // A bare call that redirects to an action on the SAME tool (`reticle_assert` → `{ action: "now" }`)
     // is a live tool, not a retired one. Listing it here told every reader not to use it.
-    if (old === redirect.tool) continue;
+    if (old === redirect.tool) {continue;}
     tombstones[old] =
       redirect.action === undefined
         ? `retired; ${redirect.note ?? `use ${redirect.tool}`}`
@@ -119,7 +119,7 @@ export function mergedNameMessage(
     return `${name} no longer exists — ${redirect.note ?? `use ${redirect.tool}`}.`;
   }
   const call = `Call ${redirect.tool} { action: "${redirect.action}", ... }`;
-  if (true === targetAdvertised) return `${name} was merged into ${redirect.tool}. ${call}.`;
+  if (true === targetAdvertised) {return `${name} was merged into ${redirect.tool}. ${call}.`;}
   return (
     `${name} was merged into ${redirect.tool}. ${call} — ` +
     `through reticle_run if it is not advertised under this profile.`

@@ -58,7 +58,7 @@ function listed(payload: unknown): RunScreenshot[] {
     'object' === typeof payload && null !== payload
       ? (payload as Record<string, unknown>)['screenshots']
       : undefined;
-  if (!Array.isArray(raw)) return [];
+  if (!Array.isArray(raw)) {return [];}
   return raw.flatMap((entry) => {
     const parsed = RunScreenshotSchema.safeParse(entry);
     return parsed.success ? [parsed.data] : [];
@@ -88,8 +88,8 @@ export async function syncScreenshots(deps: ScreenshotSyncDeps): Promise<Screens
   const onDisk = new Set(deps.runs.map((run) => run.runId));
   const sent: Record<string, string[]> = {};
   for (const [runId, keys] of Object.entries(deps.state.sentScreenshots ?? {}))
-    if (onDisk.has(runId) && Array.isArray(keys))
-      sent[runId] = keys.filter((k) => 'string' === typeof k);
+    {if (onDisk.has(runId) && Array.isArray(keys))
+      {sent[runId] = keys.filter((k) => 'string' === typeof k);}}
   const heldLocal = new Set((deps.state.screenshotsHeldLocal ?? []).filter((id) => onDisk.has(id)));
   const finish = (count: number, error?: string): ScreenshotSyncResult => ({
     sent: count,
@@ -99,14 +99,14 @@ export async function syncScreenshots(deps: ScreenshotSyncDeps): Promise<Screens
   let count = 0;
   try {
     for (const run of deps.runs) {
-      if (heldLocal.has(run.runId) || !deps.accepted(run.runId)) continue;
+      if (heldLocal.has(run.runId) || !deps.accepted(run.runId)) {continue;}
       const done = new Set(sent[run.runId] ?? []);
       for (const shot of listed(run.payload)) {
-        if (done.has(keyOf(shot))) continue;
+        if (done.has(keyOf(shot))) {continue;}
         const image = deps.readImage(run.runId, shot.file);
         // Gone (retention took it) or changed under its name: nothing true is left to send.
         if (image === undefined || createHash('sha256').update(image).digest('hex') !== shot.sha256)
-          continue;
+          {continue;}
         const markDone = (): void => {
           done.add(keyOf(shot));
           sent[run.runId] = [...done];
@@ -128,8 +128,8 @@ export async function syncScreenshots(deps: ScreenshotSyncDeps): Promise<Screens
             count,
             `screenshots ${String(res.status)}: this platform does not take screenshots yet, so run ${run.runId}'s stay on this machine`,
           );
-        } else if (REFUSED_FOR_GOOD.has(res.status)) markDone();
-        else return finish(count, `screenshots ${String(res.status)}: ${res.text.slice(0, 200)}`);
+        } else if (REFUSED_FOR_GOOD.has(res.status)) {markDone();}
+        else {return finish(count, `screenshots ${String(res.status)}: ${res.text.slice(0, 200)}`);}
       }
     }
   } catch (error) {

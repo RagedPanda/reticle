@@ -60,7 +60,7 @@ export const flags = (argv: readonly string[]): Record<string, string> => {
     const a = argv[i];
     if (a !== undefined && a.startsWith('--') && i + 1 < argv.length) {
       const v = argv[i + 1];
-      if (v !== undefined) f[a.slice(2)] = v;
+      if (v !== undefined) {f[a.slice(2)] = v;}
       i += 1;
     }
   }
@@ -90,10 +90,10 @@ export const readSessionFor = async (url: string): Promise<Session | null> =>
 export const baseUrl = (session: { url: string } | null, explicit?: string): string => {
   // `--url` wins over the environment: it is typed for THIS command, it is visible in shell history,
   // and it cannot leak into a sibling process the way an exported variable does.
-  if (explicit !== undefined && explicit.length > 0) return normalizeUrl(explicit);
+  if (explicit !== undefined && explicit.length > 0) {return normalizeUrl(explicit);}
   const env = cloudUrlFrom(process.env);
-  if (env !== undefined && env.length > 0) return env.replace(/\/+$/, '');
-  if (null !== session && session.url.length > 0) return session.url;
+  if (env !== undefined && env.length > 0) {return env.replace(/\/+$/, '');}
+  if (null !== session && session.url.length > 0) {return session.url;}
   // No hint here any more. This used to warn that it was falling back to localhost, which was worth
   // saying because that default was wrong for everyone except us. The default is now the hosted
   // service, so the fallback IS the intended path — and a warning printed on the correct path is
@@ -147,13 +147,13 @@ export const api = async (
   body?: unknown,
 ): Promise<unknown> => {
   const headers: Record<string, string> = {};
-  if (token !== null) headers['authorization'] = `Bearer ${token}`;
-  if (body !== undefined) headers['content-type'] = 'application/json';
+  if (token !== null) {headers['authorization'] = `Bearer ${token}`;}
+  if (body !== undefined) {headers['content-type'] = 'application/json';}
   const init: { method: string; headers: Record<string, string>; body?: string } = {
     method,
     headers,
   };
-  if (body !== undefined) init.body = JSON.stringify(body);
+  if (body !== undefined) {init.body = JSON.stringify(body);}
   const res = await cloudFetch(url, init);
   const text = await res.text();
   let json: unknown = null;

@@ -36,7 +36,7 @@ export const STATE_DIR_ENV = ReticleEnv.STATE_DIR;
  */
 export function reticleStateHome(): string {
   const override = process.env[STATE_DIR_ENV];
-  if (override !== undefined && override.length > 0) return override;
+  if (override !== undefined && override.length > 0) {return override;}
   return join(homedir(), '.reticle');
 }
 
@@ -63,7 +63,7 @@ export function rotateDaemonLog(
   max: number = MAX_DAEMON_LOG_BYTES,
 ): boolean {
   try {
-    if (max >= deps.fileSize(path)) return false;
+    if (max >= deps.fileSize(path)) {return false;}
     deps.renameFile(path, `${path}.1`);
     return true;
   } catch {
@@ -73,7 +73,7 @@ export function rotateDaemonLog(
 
 export function readPid(port: number, home: string = reticleStateHome()): number | null {
   const path = pidPath(port, home);
-  if (!existsSync(path)) return null;
+  if (!existsSync(path)) {return null;}
   const n = parseInt(readFileSync(path, 'utf8').trim(), 10);
   return isNaN(n) ? null : n;
 }
@@ -109,7 +109,7 @@ export function removePid(port: number, expectedPid = process.pid): void {
   const path = pidPath(port);
   if (existsSync(path)) {
     const owner = readPid(port);
-    if (shouldRemovePid(owner, expectedPid, owner !== null && isAlive(owner))) unlinkSync(path);
+    if (shouldRemovePid(owner, expectedPid, owner !== null && isAlive(owner))) {unlinkSync(path);}
   }
   // The discovery registry entry shares this daemon's lifetime — clean both so a dead daemon never
   // lingers in discovery. Keyed by port, so this is safe from the parent (stop) or the child (shutdown).
@@ -143,7 +143,7 @@ export function writeDaemonRegistry(
 function removeDaemonRegistry(port: number): void {
   const path = registryPath(port);
   try {
-    if (existsSync(path)) unlinkSync(path);
+    if (existsSync(path)) {unlinkSync(path);}
   } catch {
     // racing another cleaner — already gone
   }
@@ -165,9 +165,9 @@ export function discoverDaemonPort(): number | null {
   try {
     for (const file of readdirSync(reticleStateHome())) {
       const m = /^daemon-(\d+)\.pid$/.exec(file);
-      if (null === m) continue;
+      if (null === m) {continue;}
       const port = Number(m[1]);
-      if (isRunning(port) && (null === found || port < found)) found = port;
+      if (isRunning(port) && (null === found || port < found)) {found = port;}
     }
   } catch {
     // no ~/.reticle yet → nothing running
@@ -194,12 +194,12 @@ export function reclaimStaleDaemons(
   }
   for (const file of files) {
     const match = /^daemon-(\d+)\.pid$/.exec(file);
-    if (null === match) continue;
+    if (null === match) {continue;}
     const path = join(home, file);
     let pid: number | null = null;
     try {
       pid = parseInt(readFileSync(path, 'utf8').trim(), 10);
-      if (isNaN(pid)) pid = null;
+      if (isNaN(pid)) {pid = null;}
     } catch {
       pid = null; // unreadable pidfile counts as stale
     }
@@ -292,7 +292,7 @@ export function spawnDaemon(
     lockFd = deps.openFile(pidFilePath, 'wx');
   } catch {
     const existing = readPid(port, deps.home);
-    if (existing !== null && deps.pidAlive(existing)) return false;
+    if (existing !== null && deps.pidAlive(existing)) {return false;}
     // This branch IS the crash detection — its own comment has always said so ("a stale pidfile from
     // a crashed daemon is reclaimed"), it just never said it out loud. Captured before the unlink,
     // because after it there is no trace left that the previous daemon died at all.

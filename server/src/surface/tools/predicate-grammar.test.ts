@@ -41,7 +41,7 @@ const fakeTools: ToolDef[] = [
 
 const discover = (): ToolDef => {
   const found = buildDynamicTools(fakeTools).find((tool) => tool.name === ReticleTool.TOOLS);
-  if (undefined === found) throw new Error('reticle_tools must exist');
+  if (undefined === found) {throw new Error('reticle_tools must exist');}
   return found;
 };
 

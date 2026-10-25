@@ -54,19 +54,19 @@ export async function prepareDrive(
   if (DriveTarget.TAB !== target) {
     url = spec.url ?? fallbackUrl;
     if (url === undefined)
-      return {
+      {return {
         sessionId: null,
         applied: { target, mode },
         ignored,
         refusal: NO_ADDRESS_TO_OPEN,
-      };
+      };}
     try {
       sessionId = await ports.open(url, DriveTarget.HEADED === target, spec.hud);
     } catch (error) {
       const detail = error instanceof Error ? error.message : String(error);
       // A window that cannot open falls back to a browser with none: the drive still runs.
       if (DriveTarget.HEADED !== target)
-        return { sessionId: null, applied: { target, mode, url }, ignored, refusal: detail };
+        {return { sessionId: null, applied: { target, mode, url }, ignored, refusal: detail };}
       ignored.push({ field: 'target', reason: SpecIgnoredReason.UNAVAILABLE, detail });
       target = DriveTarget.HEADLESS;
       try {
@@ -87,8 +87,8 @@ export async function prepareDrive(
   };
   if (spec.hud !== undefined && 'string' === typeof sessionId) {
     const taken = await tune(ports, sessionId, spec.hud);
-    if (taken === undefined) applied.hud = spec.hud;
-    else ignored.push({ field: 'hud', reason: SpecIgnoredReason.UNAVAILABLE, detail: taken });
+    if (taken === undefined) {applied.hud = spec.hud;}
+    else {ignored.push({ field: 'hud', reason: SpecIgnoredReason.UNAVAILABLE, detail: taken });}
   }
   return { sessionId, applied, ignored };
 }
@@ -106,7 +106,7 @@ async function tune(
       return undefined;
     } catch (error) {
       why = error instanceof Error ? error.message : String(error);
-      if (attempt < HUD_ATTEMPTS) await ports.sleep(HUD_RETRY_MS);
+      if (attempt < HUD_ATTEMPTS) {await ports.sleep(HUD_RETRY_MS);}
     }
   }
   return why;

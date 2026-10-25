@@ -50,9 +50,9 @@ export function creditNudge(version: string, dir: string = DEFAULT_DIR, now = Da
 export function wasNudged(version: string, dir: string = DEFAULT_DIR, now = Date.now()): boolean {
   try {
     const parsed: unknown = JSON.parse(readFileSync(join(dir, FILE), 'utf8'));
-    if (typeof parsed !== 'object' || null === parsed) return false;
+    if (typeof parsed !== 'object' || null === parsed) {return false;}
     const record = parsed as Partial<NudgeRecord>;
-    if (record.offered !== version || typeof record.at !== 'number') return false;
+    if (record.offered !== version || typeof record.at !== 'number') {return false;}
     return now - record.at <= CREDIT_WINDOW_MS;
   } catch {
     return false;

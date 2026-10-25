@@ -90,7 +90,7 @@ export async function resolveSuiteSelection(
    * for `@smoek` and, without it, a suite of zero flows reports a clean pass.
    */
   const unknown = unknownFlowRefusal(wantedNames, names);
-  if (unknown !== undefined) throw unknown;
+  if (unknown !== undefined) {throw unknown;}
   /*
    * Ordered AFTER selection, so a prerequisite filtered out by a label is reported rather than
    * silently pulled back in. A flow whose `login` was excluded does not run: failing it here would
@@ -142,7 +142,7 @@ export function unknownFlowRefusal(
   known: readonly string[],
 ): Error | undefined {
   const missing = wanted.filter((name) => !known.includes(name));
-  if (0 === missing.length) return undefined;
+  if (0 === missing.length) {return undefined;}
   const asked = missing.map((name) => `"${name}"`).join(', ');
   const more = known.length - KNOWN_SHOWN;
   const saved =

@@ -50,7 +50,7 @@ function harness(): {
   const run = buildDynamicTools([...VIEWPORT_TOOLS, ...INTENT_TOOLS]).find(
     (tool) => tool.name === ReticleTool.RUN,
   );
-  if (run === undefined) throw new Error('no reticle_run');
+  if (run === undefined) {throw new Error('no reticle_run');}
   return {
     run: async (tool, args) => (await run.handler(deps, { tool, args })) as RunAnswer,
     resized,

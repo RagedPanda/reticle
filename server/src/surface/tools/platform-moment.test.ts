@@ -10,7 +10,7 @@ const YES = { verified: 'yes' };
 function project(runs: number): string {
   const root = join(mkdtempSync(join(tmpdir(), 'moment-')), '.reticle');
   mkdirSync(join(root, 'runs'), { recursive: true });
-  for (let i = 0; i < runs; i += 1) writeFileSync(join(root, 'runs', `r${String(i)}.json`), '{}');
+  for (let i = 0; i < runs; i += 1) {writeFileSync(join(root, 'runs', `r${String(i)}.json`), '{}');}
   return root;
 }
 const linkedTo = (linked: boolean) => ({

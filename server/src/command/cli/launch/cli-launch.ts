@@ -19,7 +19,7 @@ export { summarizeStatus } from '@/command/daemon/binding/daemon-status-probe.js
 
 /** A string field off the /status body, or undefined on a daemon too old to report it. */
 function statusField(payload: unknown, key: string): string | undefined {
-  if (typeof payload !== 'object' || null === payload) return undefined;
+  if (typeof payload !== 'object' || null === payload) {return undefined;}
   const value = (payload as Record<string, unknown>)[key];
   return 'string' === typeof value && value.length > 0 ? value : undefined;
 }
@@ -31,9 +31,9 @@ function statusField(payload: unknown, key: string): string | undefined {
  * A non-string entry is a page that did not report a version, and that page does not match.
  */
 function pageSdkVersionsOf(payload: unknown): readonly (string | undefined)[] {
-  if (typeof payload !== 'object' || null === payload) return [];
+  if (typeof payload !== 'object' || null === payload) {return [];}
   const raw = (payload as Record<string, unknown>)['pageSdkVersions'];
-  if (!Array.isArray(raw)) return [];
+  if (!Array.isArray(raw)) {return [];}
   return raw.map((value) => ('string' === typeof value && 0 < value.length ? value : undefined));
 }
 
@@ -46,7 +46,7 @@ function pageSdkVersionsOf(payload: unknown): readonly (string | undefined)[] {
  */
 export async function warnOnDaemonSkew(port: number): Promise<void> {
   const skew = daemonSkew(await fetchStatus(port));
-  if (skew !== undefined) log('reticle_daemon_skew', { port, warning: skew });
+  if (skew !== undefined) {log('reticle_daemon_skew', { port, warning: skew });}
 }
 
 /**
@@ -82,7 +82,7 @@ function sameOrigin(a: string, b: string): boolean {
     const origin = new URL(a).origin;
     // Two opaque origins (desktop webviews, file:// docs) BOTH stringify to "null", so comparing them
     // would call every desktop app the same app and reuse the wrong session. Never match on opaque.
-    if (isOpaqueOrigin(origin)) return false;
+    if (isOpaqueOrigin(origin)) {return false;}
     return origin === new URL(b).origin;
   } catch {
     return false;
@@ -139,7 +139,7 @@ export function decideOpen(
   );
   if (url === undefined) {
     const first = sessions[0];
-    if (first !== undefined) return { action: 'reuse', url: first.url };
+    if (first !== undefined) {return { action: 'reuse', url: first.url };}
     // Nothing visible to hand back, but a hidden tab still knows the url the caller would have
     // typed. Opening it is the whole request; `need-url` would ask for something already in hand.
     const backgrounded = all.find((s) => true === s.hidden);
@@ -148,7 +148,7 @@ export function decideOpen(
       : { action: 'need-url' };
   }
   const exact = sessions.find((s) => s.url === url);
-  if (exact !== undefined) return { action: 'reuse', url: exact.url };
+  if (exact !== undefined) {return { action: 'reuse', url: exact.url };}
   const onOrigin = sessions.find((s) => sameOrigin(s.url, url));
   return onOrigin !== undefined
     ? {
@@ -175,7 +175,7 @@ export function openCommand(
   url: string,
   platform: NodeJS.Platform,
 ): { cmd: string; args: string[] } {
-  if (NodePlatform.MACOS === platform) return { cmd: 'open', args: [url] };
+  if (NodePlatform.MACOS === platform) {return { cmd: 'open', args: [url] };}
   if (NodePlatform.WINDOWS === platform) {
     return { cmd: 'cmd', args: ['/c', 'start', '', encodeForWindowsStart(url)] };
   }
@@ -206,11 +206,11 @@ export async function openInBrowser(
  * by spawning a real launcher on a developer machine.
  */
 export function launcherFailure(code: number | null, signal: NodeJS.Signals | null): string | null {
-  if (null !== signal) return `the browser launcher was killed by ${signal}`;
+  if (null !== signal) {return `the browser launcher was killed by ${signal}`;}
   // null code with no signal: it never reported an outcome in the window we waited. Some desktop
   // launchers stay attached rather than handing off, and inventing a failure there would be worse
   // than the silence — it would send someone to fix a browser that opened.
-  if (null === code || 0 === code) return null;
+  if (null === code || 0 === code) {return null;}
   return (
     `the browser launcher exited ${String(code)} — on a machine with no browser (CI, a container, ` +
     'an SSH session, WSL with no host browser) it starts fine and then has nothing to open'
@@ -226,7 +226,7 @@ function defaultRun(cmd: string, args: string[]): Promise<string | null> {
     const child = spawn(cmd, args, { detached: true, stdio: 'ignore' });
     let settled = false;
     const finish = (value: string | null): void => {
-      if (settled) return;
+      if (settled) {return;}
       settled = true;
       resolve(value);
     };

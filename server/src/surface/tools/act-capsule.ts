@@ -52,7 +52,7 @@ interface CapsuleSaveInputs {
 export function describeExpected(predicate: unknown): string | undefined {
   const p = asRecord(predicate);
   const kind = asString(p['kind']);
-  if (kind === undefined) return undefined;
+  if (kind === undefined) {return undefined;}
   const all = (key: string, joiner: string): string | undefined => {
     const parts = (Array.isArray(p[key]) ? (p[key] as unknown[]) : [])
       .map(describeExpected)
@@ -93,7 +93,7 @@ export async function saveFailedAssertCapsule(
   inputs: CapsuleSaveInputs,
 ): Promise<string | undefined> {
   const { deps, verdict, capsule, links, args, actResult, actedSource, root: given } = inputs;
-  if (verdict.pass || capsule === undefined) return undefined;
+  if (verdict.pass || capsule === undefined) {return undefined;}
 
   const expectedText = links
     .map((l) => ('name' in l ? `${l.kind} ${String(l.name)}` : l.kind))
@@ -106,7 +106,7 @@ export async function saveFailedAssertCapsule(
   // No directory this capsule could honestly belong to, so it is not filed. The two things this
   // must not do are write it somewhere arbitrary and throw: the assertion has already failed, the
   // verdict is already built, and losing the capsule must never also lose the verdict.
-  if (root === undefined) return undefined;
+  if (root === undefined) {return undefined;}
   // Built BEFORE the id, because the id carries the fingerprint of this body — that is what lets a
   // retry of the same broken step fold into the capsule already on disk instead of adding a file.
   /*

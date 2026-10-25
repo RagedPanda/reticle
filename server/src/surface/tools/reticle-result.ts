@@ -99,10 +99,10 @@ export const seconds = (ms: number): string =>
 function headline(f: ResultFacts): string {
   const total = f.yes + f.no + f.undecided;
   if (0 < f.no)
-    return `${HEAD}${ResultWord.FAILED}**${SEP}${String(f.no)} of ${plural(total, 'check')} did not hold`;
-  if (0 === total) return `${HEAD}${ResultWord.NOT_PROVED}**${SEP}${Said.NOTHING_CHECKED}`;
+    {return `${HEAD}${ResultWord.FAILED}**${SEP}${String(f.no)} of ${plural(total, 'check')} did not hold`;}
+  if (0 === total) {return `${HEAD}${ResultWord.NOT_PROVED}**${SEP}${Said.NOTHING_CHECKED}`;}
   if (0 < f.undecided)
-    return `${HEAD}${ResultWord.NOT_PROVED}**${SEP}${String(f.undecided)} of ${plural(total, 'check')} undecided`;
+    {return `${HEAD}${ResultWord.NOT_PROVED}**${SEP}${String(f.undecided)} of ${plural(total, 'check')} undecided`;}
   return `${HEAD}${ResultWord.PROVED}**${SEP}${String(f.yes)} of ${plural(total, 'check')} held`;
 }
 
@@ -112,11 +112,11 @@ function headline(f: ResultFacts): string {
  * already lists each step's own path.
  */
 function evidenceLine(shots: readonly string[]): string[] {
-  if (0 === shots.length) return [];
+  if (0 === shots.length) {return [];}
   const dirs = new Set(shots.map((s) => dirname(s)));
   const [dir] = dirs;
   if (1 < shots.length && 1 === dirs.size && dir !== undefined)
-    return [`- ${Said.EVIDENCE}: ${plural(shots.length, 'screenshot')} in ${dir}`];
+    {return [`- ${Said.EVIDENCE}: ${plural(shots.length, 'screenshot')} in ${dir}`];}
   const more = shots.length - EVIDENCE_SHOWN;
   return [
     `- ${Said.EVIDENCE}: ${shots.slice(0, EVIDENCE_SHOWN).join(', ')}${0 < more ? ` (+${String(more)} more)` : ''}`,
@@ -195,14 +195,14 @@ export function platformLine(
 ): string {
   // Before any link: a run the platform will refuse is not "saved" and not "on the dashboard".
   const refusal = keyRefusalAtLastSync(root);
-  if (refusal !== undefined) return `- ${keyRefusedLine(refusal)}`;
+  if (refusal !== undefined) {return `- ${keyRefusedLine(refusal)}`;}
   const dashboard = readDashboardUrl(root);
   if (dashboard !== undefined)
-    return runId === undefined
+    {return runId === undefined
       ? `- ${Said.DASHBOARD}: ${dashboard}`
-      : `- ${Said.RUN_LINK}: ${dashboardRunUrl(dashboard, runId)}`;
+      : `- ${Said.RUN_LINK}: ${dashboardRunUrl(dashboard, runId)}`;}
   if (existsSync(join(root, ReticleDir.CLOUD_LINK_FILE)) || apiKeyFrom(env) !== undefined)
-    return `- ${Said.SYNCED}.`;
+    {return `- ${Said.SYNCED}.`;}
   return `- ${Said.PITCH} (${TRIAL_OFFER}): ${CONNECT}.`;
 }
 
@@ -244,10 +244,10 @@ export function suiteResult(
  * and moved to the top level: a nested block saying "proved" under an outer `no` is a false green.
  */
 export function changeResult(root: string, out: unknown): unknown {
-  if (null === out || 'object' !== typeof out) return out;
+  if (null === out || 'object' !== typeof out) {return out;}
   const answer = out as Record<string, unknown>;
   const verified = answer['verified'];
-  if (!Object.values(Verified).includes(verified as Verified)) return out;
+  if (!Object.values(Verified).includes(verified as Verified)) {return out;}
   const suite = answer['suite'];
   const inner =
     null !== suite && 'object' === typeof suite
@@ -469,7 +469,7 @@ const inFlight = new Set<Promise<unknown>>();
  * first ("proved · 1 of 1"), a PASS on the dashboard, and the failure landed in the next run.
  */
 export function trackVerdict<T>(tool: string, call: Promise<T>): Promise<T> {
-  if (!SESSION_VERDICT_TOOLS.has(tool)) return call;
+  if (!SESSION_VERDICT_TOOLS.has(tool)) {return call;}
   const settled = call.then(
     () => undefined,
     () => undefined,

@@ -22,7 +22,7 @@ export function sdkSyncCommand(
   packages: readonly string[],
   version: string,
 ): { command: string; args: string[] } | null {
-  if (0 === packages.length) return null;
+  if (0 === packages.length) {return null;}
   const { command, args } = installCommandParts(
     pm,
     packages.map((p) => `${p}@${version}`),

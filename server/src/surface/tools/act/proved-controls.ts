@@ -11,5 +11,5 @@ export function noteProved(
   verified: string,
   actPayload: unknown,
 ): void {
-  if (Verified.YES === verified) session.recordProvedFrom?.(actPayload);
+  if (Verified.YES === verified) {session.recordProvedFrom?.(actPayload);}
 }

@@ -96,7 +96,7 @@ export async function runAdhocSuite(options: AdhocSuiteOptions): Promise<AdhocVe
     const url = options.url !== undefined && 0 < options.url.length ? options.url : undefined;
     if (url !== undefined && options.sessionId === undefined && options.sessions !== undefined) {
       const opened = await leaseIfNoTab(caller, url, options.sessions, options.root);
-      if ('failed' in opened) return { code: 1, lines: ['status: unverifiable', ...opened.failed] };
+      if ('failed' in opened) {return { code: 1, lines: ['status: unverifiable', ...opened.failed] };}
       leased = opened.leased;
     }
     return await replaySuite(caller, {
@@ -111,7 +111,7 @@ export async function runAdhocSuite(options: AdhocSuiteOptions): Promise<AdhocVe
       ],
     };
   } finally {
-    if (leased !== undefined) await releaseLease(caller, leased);
+    if (leased !== undefined) {await releaseLease(caller, leased);}
     await caller.close().catch(() => undefined);
   }
 }
@@ -153,7 +153,7 @@ async function replaySuite(
     SUITE_TIMEOUT_MS,
   );
   const refusal = refusalText(result);
-  if (refusal !== undefined) return { code: 1, lines: ['status: unverifiable', refusal] };
+  if (refusal !== undefined) {return { code: 1, lines: ['status: unverifiable', refusal] };}
   const report = verdictOf(result, 'status');
   const status = 'string' === typeof report?.['status'] ? report['status'] : 'unverifiable';
   const summary = 'string' === typeof report?.['summary'] ? report['summary'] : undefined;
@@ -212,7 +212,7 @@ export async function runAdhocExplore(options: AdhocExploreOptions): Promise<Adh
   let leased: string | undefined;
   try {
     const opened = await leaseIfNoTab(caller, options.url, options.sessions, options.root);
-    if ('failed' in opened) return { code: 1, lines: ['status: unverifiable', ...opened.failed] };
+    if ('failed' in opened) {return { code: 1, lines: ['status: unverifiable', ...opened.failed] };}
     leased = opened.leased;
     const pin = leased === undefined ? {} : { sessionId: leased };
     const drove = await exploreToEnd(
@@ -224,7 +224,7 @@ export async function runAdhocExplore(options: AdhocExploreOptions): Promise<Adh
       SUITE_TIMEOUT_MS,
     );
     const refusal = refusalText(drove);
-    if (refusal !== undefined) return { code: 1, lines: ['status: unverifiable', refusal] };
+    if (refusal !== undefined) {return { code: 1, lines: ['status: unverifiable', refusal] };}
     const report = verdictOf(drove, 'savedFlows');
     const recorded = [report?.['savedFlows'], report?.['rewroteFlows']].flatMap((list) =>
       Array.isArray(list) ? list.filter((name): name is string => 'string' === typeof name) : [],
@@ -236,9 +236,9 @@ export async function runAdhocExplore(options: AdhocExploreOptions): Promise<Adh
       ...(note === undefined ? [] : [note]),
     ];
     const cut = cutOffReason(report ?? {});
-    if (cut !== undefined) return { code: 1, lines: ['status: unverifiable', ...drive, cut] };
+    if (cut !== undefined) {return { code: 1, lines: ['status: unverifiable', ...drive, cut] };}
     // A drive that left nothing to replay proved nothing, however long it ran.
-    if (0 === recorded.length) return { code: 1, lines: ['status: unverifiable', ...drive] };
+    if (0 === recorded.length) {return { code: 1, lines: ['status: unverifiable', ...drive] };}
     const suite = await replaySuite(caller, pin);
     return { code: suite.code, lines: [...drive, ...suite.lines] };
   } catch (error) {
@@ -249,7 +249,7 @@ export async function runAdhocExplore(options: AdhocExploreOptions): Promise<Adh
       ],
     };
   } finally {
-    if (leased !== undefined) await releaseLease(caller, leased);
+    if (leased !== undefined) {await releaseLease(caller, leased);}
     await caller.close().catch(() => undefined);
   }
 }

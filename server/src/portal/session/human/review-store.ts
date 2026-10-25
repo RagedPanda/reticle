@@ -83,9 +83,9 @@ export class ReviewStore {
       at,
       status: MarkStatus.PENDING,
     };
-    if (data.label !== undefined) mark.label = data.label;
-    if (data.source !== undefined) mark.source = data.source;
-    if (data.route !== undefined) mark.route = data.route;
+    if (data.label !== undefined) {mark.label = data.label;}
+    if (data.source !== undefined) {mark.source = data.source;}
+    if (data.route !== undefined) {mark.route = data.route;}
     this.#marks.push(mark);
     this.#onChange?.(this.all());
     return mark;
@@ -125,7 +125,7 @@ export class ReviewStore {
    */
   resolveDetail(id: string): ResolveOutcome {
     const mark = this.#marks.find((m) => m.id === id);
-    if (mark === undefined || mark.status === MarkStatus.RESOLVED) return { resolved: false, id };
+    if (mark === undefined || mark.status === MarkStatus.RESOLVED) {return { resolved: false, id };}
     mark.status = MarkStatus.RESOLVED;
     this.#onChange?.(this.all());
     return { resolved: true, id, note: mark.note };

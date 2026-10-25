@@ -67,7 +67,7 @@ function expandAlternations(pattern: string): string[] {
   while (variants.some((variant) => innermost.test(variant))) {
     variants = variants.flatMap((variant) => {
       const match = innermost.exec(variant);
-      if (null === match) return [variant];
+      if (null === match) {return [variant];}
       const [whole, alternatives = ''] = match;
       return alternatives.split('|').map((choice) => variant.replace(whole, choice));
     });
@@ -81,8 +81,8 @@ function topLevelAlternatives(pattern: string): string[] {
   let depth = 0;
   let current = '';
   for (const ch of pattern) {
-    if ('(' === ch) depth += 1;
-    if (')' === ch) depth -= 1;
+    if ('(' === ch) {depth += 1;}
+    if (')' === ch) {depth -= 1;}
     if ('|' === ch && 0 === depth) {
       alts.push(current);
       current = '';
@@ -101,13 +101,13 @@ function routedPaths(source: string): string[] {
     const fromGrep = /grep -qE '\^\((.+)\)'/.exec(line)?.[1];
     const fromDump = /^[a-z]+=(.+)$/.exec(line)?.[1];
     const pattern = fromGrep ?? fromDump;
-    if (pattern === undefined) continue;
+    if (pattern === undefined) {continue;}
     for (const alt of topLevelAlternatives(pattern)) {
       const wrapped = alt.startsWith('^') || alt.startsWith('(') ? alt : `(${alt})`;
       for (const variant of expandAlternations(wrapped)) {
         const cleaned = variant.replace(/\\\./g, '.').replace(/[$^]/g, '').trim();
         // A bare word with no separator is not a path; a trailing slash is a directory prefix.
-        if (0 === cleaned.length || (!cleaned.includes('/') && !cleaned.includes('.'))) continue;
+        if (0 === cleaned.length || (!cleaned.includes('/') && !cleaned.includes('.'))) {continue;}
         found.add(cleaned.replace(/\/$/, ''));
       }
     }
@@ -163,8 +163,8 @@ describe('the CI router only names paths that exist', () => {
         .filter((line) => !line.trimStart().startsWith('#'))
         .join('\n');
       for (const path of routedPaths(live)) {
-        if (DECLARED_ABSENT[path] !== undefined) continue;
-        if (!matchesSomething(path)) stale.push(`${relative}: ${path}`);
+        if (DECLARED_ABSENT[path] !== undefined) {continue;}
+        if (!matchesSomething(path)) {stale.push(`${relative}: ${path}`);}
       }
     }
     expect(
@@ -213,7 +213,7 @@ describe('CI routing decisions', () => {
       for (const line of readFileSync(outputPath, 'utf8').trim().split('\n')) {
         const [key, value] = line.split('=');
         if (key === undefined || value === undefined)
-          throw new Error(`invalid routing output: ${line}`);
+          {throw new Error(`invalid routing output: ${line}`);}
         flags[key] = value;
       }
       return flags;

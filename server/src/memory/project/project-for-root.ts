@@ -22,7 +22,7 @@ import type { FileSystemPort } from './fs/fs-port.js';
 import type { ToolDeps } from '@/surface/tools/tool-kit.js';
 
 export function projectForRoot(deps: ToolDeps, root: string): ProjectStore {
-  if (root === deps.reticleRoot) return deps.project;
+  if (root === deps.reticleRoot) {return deps.project;}
   return new ProjectStore(deps.fs, root, { now: deps.now });
 }
 

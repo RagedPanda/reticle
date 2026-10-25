@@ -82,7 +82,7 @@ const MAX_SKELETON_INPUT = 1024;
 /** Variable parts blanked, whitespace collapsed, length bounded. The GROUPING basis; never sent. */
 function redactedShape(message: string): string {
   let skeleton = message.slice(0, MAX_SKELETON_INPUT);
-  for (const pattern of VARIABLE_PARTS) skeleton = skeleton.replace(pattern, '*');
+  for (const pattern of VARIABLE_PARTS) {skeleton = skeleton.replace(pattern, '*');}
   return skeleton.replace(/\s+/g, ' ').trim().slice(0, 200);
 }
 
@@ -133,7 +133,7 @@ const BUILTIN_ERROR_CLASS =
  */
 export function errorSkeleton(message: string): string {
   const head = message.slice(0, MAX_SKELETON_INPUT).trim();
-  for (const { match, label } of RETICLE_MESSAGES) if (match.test(head)) return label;
+  for (const { match, label } of RETICLE_MESSAGES) {if (match.test(head)) {return label;}}
   const fingerprint = `#${fingerprintError(message)}`;
   const code = BUILTIN_ERROR_CLASS.exec(head)?.[0] ?? NODE_ERROR_CODE.exec(head)?.[0];
   return code === undefined ? fingerprint : `${code} ${fingerprint}`;
@@ -156,9 +156,9 @@ export function fingerprintError(message: string): string {
 export function reticleFrames(stack: string): string[] {
   const frames: string[] = [];
   for (const line of stack.split('\n')) {
-    if (!/@reticlehq[/\\]|[/\\]reticle[/\\]dist[/\\]/.test(line)) continue;
+    if (!/@reticlehq[/\\]|[/\\]reticle[/\\]dist[/\\]/.test(line)) {continue;}
     const location = line.match(/([\w.-]+\.(?:js|mjs|cjs|ts)):(\d+)/);
-    if (null === location) continue;
+    if (null === location) {continue;}
     // `at Object.runTool (/path/to/invoke-tool.js:88:3)` → `runTool`. The function name is half the
     // value of a frame in an RCA — "it died in act-tools.js" narrows to a file, "it died in
     // resolveAnchor" names the thing that broke. Anonymous frames just report the location.
@@ -190,6 +190,6 @@ export function fingerprintCrash(errorType: string, stack: string, message: stri
 
 /** The error's constructor name (`TypeError`), or `Unknown` for a thrown non-Error. */
 export function errorTypeOf(error: unknown): string {
-  if (error instanceof Error) return error.constructor.name.slice(0, 64);
+  if (error instanceof Error) {return error.constructor.name.slice(0, 64);}
   return 'Unknown';
 }

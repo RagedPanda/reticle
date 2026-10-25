@@ -47,7 +47,7 @@ describe('a route assertion round-trips through a saved flow', () => {
       ],
     });
     expect(parsed.success).toBe(true);
-    if (!parsed.success) return;
+    if (!parsed.success) {return;}
     expect(parsed.data.steps[0]?.expect).toEqual(predicate);
   });
 

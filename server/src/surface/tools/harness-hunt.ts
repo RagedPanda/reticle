@@ -91,11 +91,11 @@ export async function siteMapFor(
     MIN_MAPPED_PAGES <= kept.pages.length &&
     deps.now() - kept.surveyedAt < MAP_FRESH_MS
   )
-    return kept;
+    {return kept;}
   const surveyed = await surveyApp(invoke, deps.now);
-  if (surveyed === undefined) return kept;
+  if (surveyed === undefined) {return kept;}
   const map = kept === undefined ? surveyed : mergePages(kept, surveyed.pages, surveyed.surveyedAt);
-  if (path !== undefined) await writeMap(deps, path, map);
+  if (path !== undefined) {await writeMap(deps, path, map);}
   return map;
 }
 
@@ -107,9 +107,9 @@ export async function refreshMap(
   calls: readonly ToolOutcome[],
 ): Promise<void> {
   const path = mapPath(deps, sessionId);
-  if (path === undefined || map === undefined) return;
+  if (path === undefined || map === undefined) {return;}
   const read = pagesReadIn(calls, deps.now());
-  if (0 < read.length) await writeMap(deps, path, mergePages(map, read));
+  if (0 < read.length) {await writeMap(deps, path, mergePages(map, read));}
 }
 
 /**
@@ -138,7 +138,7 @@ async function agentVerdicts(deps: ToolDeps, sessionId: string | undefined) {
 /** A journal's lines as actions; a line that does not parse is left out, as the journal reader does. */
 function actionsIn(text: string): JournalAction[] {
   return text.split('\n').flatMap((line) => {
-    if (0 === line.trim().length) return [];
+    if (0 === line.trim().length) {return [];}
     try {
       const parsed = JournalActionSchema.safeParse(JSON.parse(line));
       return parsed.success ? [parsed.data] : [];
@@ -189,7 +189,7 @@ function keepingMoves(invoke: Invoke, moved: ToolOutcome[]): Invoke {
   return async (name, args) => {
     const result = await invoke(name, args);
     if (HUNT_MOVES.has(name))
-      moved.push({ id: `hunt-${String(moved.length + 1)}`, name, args, result, isError: false });
+      {moved.push({ id: `hunt-${String(moved.length + 1)}`, name, args, result, isError: false });}
     return result;
   };
 }
@@ -264,8 +264,8 @@ export async function huntAndGrade(
   // The end not found anywhere: the tab is left where an earlier goal is, so that one is graded
   // where it shows rather than where the hunt gave up.
   if (search !== undefined && !search.found)
-    for (const earlier of goals.filter((g) => g !== end && true !== g.absent).reverse())
-      if ((await hunt(earlier.text)).found) break;
+    {for (const earlier of goals.filter((g) => g !== end && true !== g.absent).reverse())
+      {if ((await hunt(earlier.text)).found) {break;}}}
   const checks = (await checkGoals(invoke, goals, ask.opening, own)).map((c) =>
     end !== undefined &&
     c.text === end.text &&

@@ -38,7 +38,7 @@ export class EnvelopeStore {
     try {
       text = await this.#fs.readFile(this.#path);
     } catch (error) {
-      if (this.#fs.isNotFound(error)) return new Map();
+      if (this.#fs.isNotFound(error)) {return new Map();}
       throw error;
     }
     let parsed: unknown;
@@ -48,14 +48,14 @@ export class EnvelopeStore {
       return new Map();
     }
     const result = EnvelopeFileSchema.safeParse(parsed);
-    if (!result.success) return new Map();
+    if (!result.success) {return new Map();}
     return new Map(Object.entries(result.data.routes));
   }
 
   async save(envelopes: ReadonlyMap<string, RouteEnvelope>): Promise<void> {
     await this.#fs.mkdir(dirname(this.#path));
     const routes: Record<string, RouteEnvelope> = {};
-    for (const [route, envelope] of envelopes) routes[route] = envelope;
+    for (const [route, envelope] of envelopes) {routes[route] = envelope;}
     const body = `${JSON.stringify({ version: ENVELOPE_FILE_VERSION, routes }, null, 2)}\n`;
     // Atomic publish: write a temp sibling then rename, so a crash never leaves a half-written baseline.
     await writeFileAtomic(this.#fs, this.#path, body);

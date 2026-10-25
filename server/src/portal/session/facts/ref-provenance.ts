@@ -62,11 +62,11 @@ interface RefRouting {
  * refusal that already exists is the honest answer for it.
  */
 export function wrongTabRefusal(routing: RefRouting): string | undefined {
-  if (routing.ref === undefined || routing.explicitSessionId !== undefined) return undefined;
+  if (routing.ref === undefined || routing.explicitSessionId !== undefined) {return undefined;}
   const source = mintedIn;
-  if (source === undefined || source === routing.chosenSessionId) return undefined;
+  if (source === undefined || source === routing.chosenSessionId) {return undefined;}
   const connected = routing.connected();
-  if (!connected.some((s) => s.sessionId === source)) return undefined;
+  if (!connected.some((s) => s.sessionId === source)) {return undefined;}
   const listed = connected.map((s) => `'${s.sessionId}' (${s.url})`).join(', ');
   return (
     `ref '${routing.ref}' was handed out by session '${source}', and this call named no sessionId so ` +

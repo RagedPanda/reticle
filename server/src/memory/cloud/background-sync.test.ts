@@ -64,15 +64,15 @@ function platform() {
       url,
       ...(init.body === undefined ? {} : { body: init.body }),
     });
-    if ('down' === answer) return Promise.reject(new Error('connect ECONNREFUSED'));
-    if ('refused' === answer) return Promise.resolve({ status: 401, text: 'bad key' });
+    if ('down' === answer) {return Promise.reject(new Error('connect ECONNREFUSED'));}
+    if ('refused' === answer) {return Promise.resolve({ status: 401, text: 'bad key' });}
     if (url.endsWith('/v1/sync/status')) {
       const status = { knownRunIds: [...held], stateHashes: {}, accepts: { derived: [] } };
       return Promise.resolve({ status: 200, text: JSON.stringify(status) });
     }
     if ('POST' === init.method) {
       const runs = (JSON.parse(init.body ?? '{}') as { runs?: { runId: string }[] }).runs ?? [];
-      for (const run of runs) held.add(run.runId);
+      for (const run of runs) {held.add(run.runId);}
       const result = { runs: { accepted: runs.length, rejected: [] } };
       return Promise.resolve({ status: 200, text: JSON.stringify(result) });
     }

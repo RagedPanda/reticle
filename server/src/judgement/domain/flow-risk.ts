@@ -40,17 +40,17 @@ export interface FlowRisk {
 export function latestRun(name: string, runs: readonly RunRecord[]): RunRecord | undefined {
   let best: RunRecord | undefined;
   for (const run of runs) {
-    if (run.name === name && (best === undefined || run.at > best.at)) best = run;
+    if (run.name === name && (best === undefined || run.at > best.at)) {best = run;}
   }
   return best;
 }
 
 function runRisk(run: RunRecord | undefined): { level: RiskLevel; reason: string } {
-  if (run === undefined) return { level: RiskLevel.UNKNOWN, reason: 'never run' };
+  if (run === undefined) {return { level: RiskLevel.UNKNOWN, reason: 'never run' };}
   if (run.status === RunStatus.ERROR || run.status === RunStatus.FAIL) {
     return { level: RiskLevel.HIGH, reason: 'last run failed' };
   }
-  if (run.status === RunStatus.DRIFT) return { level: RiskLevel.HIGH, reason: 'last run drifted' };
+  if (run.status === RunStatus.DRIFT) {return { level: RiskLevel.HIGH, reason: 'last run drifted' };}
   const errors = (run.evidence?.consoleErrors ?? 0) + (run.evidence?.networkErrors ?? 0);
   if (errors > 0) {
     return {

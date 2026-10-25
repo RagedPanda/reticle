@@ -158,7 +158,7 @@ describe('the buffering reporter', () => {
   it('keeps the newest events rather than growing forever', async () => {
     const { fetchImpl, sent } = recorder();
     const r = createProgressReporter('s1', CONFIG, fetchImpl, 10_000);
-    for (let i = 0; i < 260; i += 1) r.onProgress(event(VerifyPhase.FLOW_STARTED, i));
+    for (let i = 0; i < 260; i += 1) {r.onProgress(event(VerifyPhase.FLOW_STARTED, i));}
     r.stop();
     await r.flush();
     const body = JSON.parse(String(sent[0]?.init.body)) as { events: Array<{ at: number }> };

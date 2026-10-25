@@ -51,7 +51,7 @@ export class BoundedLog {
         this.#rotate();
       }
       const fd = this.#fd;
-      if (fd === undefined) return;
+      if (fd === undefined) {return;}
       // A single chunk bigger than the cap is kept only in its tail: it is still bounded.
       const kept =
         chunk.length > this.capBytes ? chunk.subarray(chunk.length - this.capBytes) : chunk;
@@ -65,7 +65,7 @@ export class BoundedLog {
   close(): void {
     const fd = this.#fd;
     this.#fd = undefined;
-    if (fd === undefined) return;
+    if (fd === undefined) {return;}
     try {
       closeSync(fd);
     } catch {
@@ -95,10 +95,10 @@ export class BoundedLog {
 /** Arguments are `<log path> <cap bytes> <shell command>`, the way `OwnedDevServer` spawns this. */
 function main(argv: readonly string[]): void {
   const [logPath, cap, command] = argv;
-  if (undefined === logPath || undefined === command) process.exit(2);
+  if (undefined === logPath || undefined === command) {process.exit(2);}
   const log = new BoundedLog(logPath, Number(cap) || DEV_SERVER_LOG_CAP_BYTES);
   // Stopping the group signals both of us. The server decides when it is done; this outlives it.
-  for (const signal of ['SIGTERM', 'SIGINT', 'SIGHUP'] as const) process.on(signal, () => {});
+  for (const signal of ['SIGTERM', 'SIGINT', 'SIGHUP'] as const) {process.on(signal, () => {});}
   const child = spawn(command, {
     shell: true,
     stdio: ['ignore', 'pipe', 'pipe'],

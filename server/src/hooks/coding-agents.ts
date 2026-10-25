@@ -45,7 +45,7 @@ export function agentLabel(name: string): string {
 
 /** The closed telemetry value for a client name: never the name itself, which is the client's text. */
 export function agentClientOf(name: string | undefined): AgentClient | undefined {
-  if (name === undefined || 0 === name.trim().length) return undefined;
+  if (name === undefined || 0 === name.trim().length) {return undefined;}
   return knownAgent(name)?.[2] ?? AgentClient.OTHER;
 }
 
@@ -62,7 +62,7 @@ export function agentNameOf(attachId: string | undefined): string | undefined {
 
 /** That connection closed. */
 export function noteAgentDetached(attachId: string): void {
-  if (byAttach.delete(attachId)) changed();
+  if (byAttach.delete(attachId)) {changed();}
 }
 
 /** The friendly names of the agents attached now, each once. */
@@ -112,7 +112,7 @@ export function callerClientName(): string | undefined {
 export function callingClientName(): string | undefined {
   const own = calling.getStore();
   const name = own === undefined ? undefined : byAttach.get(own);
-  if (name !== undefined) return name;
+  if (name !== undefined) {return name;}
   const all = [...new Set(byAttach.values())];
   return 1 === all.length ? all[0] : undefined;
 }

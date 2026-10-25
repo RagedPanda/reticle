@@ -154,7 +154,7 @@ export const CONTEXT_TOOLS: ToolDef[] = [
       const sessionId = asString(args['sessionId']);
       const evidence = await evidenceFor(deps, sessionId);
       if (true === args['compact'])
-        return { resume: (await resumeFor(deps, sessionId, evidence.actions)).join('\n') };
+        {return { resume: (await resumeFor(deps, sessionId, evidence.actions)).join('\n') };}
       const context = runContextFor({
         ...evidence,
         intents: await openSessionIntents(deps, sessionId),

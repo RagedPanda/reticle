@@ -105,11 +105,11 @@ export function selectOverBudget(
   // only excluded from the eviction list, so a session over budget on its own is left alone rather
   // than deleted under its own writer.
   let total = evidence.reduce((sum, entry) => sum + entry.sizeBytes, 0);
-  if (total <= budgetBytes) return [];
+  if (total <= budgetBytes) {return [];}
   const doomed: string[] = [];
   for (const entry of [...evidence].sort((a, b) => a.mtimeMs - b.mtimeMs)) {
-    if (isOpenSession(entry, live)) continue;
-    if (total <= budgetBytes) break;
+    if (isOpenSession(entry, live)) {continue;}
+    if (total <= budgetBytes) {break;}
     doomed.push(entry.path);
     total -= entry.sizeBytes;
   }
@@ -126,7 +126,7 @@ interface DatedDir {
  * remain. Oldest-first. Exported for testing (no IO).
  */
 export function selectPrunable(dirs: readonly DatedDir[], retention: number): string[] {
-  if (dirs.length <= retention) return [];
+  if (dirs.length <= retention) {return [];}
   return [...dirs]
     .sort((a, b) => a.mtimeMs - b.mtimeMs)
     .slice(0, dirs.length - retention)
@@ -158,7 +158,7 @@ async function pruneByRecency(
   }
   const dated: DatedDir[] = [];
   for (const name of names) {
-    if (!keep(name)) continue;
+    if (!keep(name)) {continue;}
     try {
       const { mtimeMs } = await fs.stat(join(dir, name));
       dated.push({ name, mtimeMs });
@@ -260,7 +260,7 @@ async function visualDirs(fs: FileSystemPort, root: string): Promise<string[]> {
     for (const entry of await fs.readdir(top)) {
       // `runs/` holds step screenshots, not baselines, and is bounded on its own.
       if (!entry.endsWith(PNG_SUFFIX) && STEP_SCREENSHOT.RUNS_DIR !== entry)
-        dirs.push(join(top, entry));
+        {dirs.push(join(top, entry));}
     }
   } catch {
     return [];
@@ -290,7 +290,7 @@ async function sizeOf(fs: FileSystemPort, path: string): Promise<number> {
     }
   }
   let total = 0;
-  for (const name of names) total += await sizeOf(fs, join(path, name));
+  for (const name of names) {total += await sizeOf(fs, join(path, name));}
   return total;
 }
 
@@ -328,7 +328,7 @@ async function collectEvidence(fs: FileSystemPort, root: string): Promise<TierEn
         continue; // nothing written here yet
       }
       for (const name of names) {
-        if (isVisual && !isDiff(name)) continue;
+        if (isVisual && !isDiff(name)) {continue;}
         const path = join(dir, name);
         try {
           const { mtimeMs } = await fs.stat(path);

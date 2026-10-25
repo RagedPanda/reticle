@@ -59,7 +59,7 @@ function page(before: Paragraph[], after: Paragraph[], effect: Record<string, un
         result: { matched: ps.length > 0, count: ps.length, elements: described(ps) },
       });
     }
-    if (ReticleCommand.ACT === name) acted = true;
+    if (ReticleCommand.ACT === name) {acted = true;}
     return Promise.resolve({
       kind: 'command_result',
       id: 'c',
@@ -114,7 +114,7 @@ async function call(
   args: Record<string, unknown>,
 ): Promise<Record<string, unknown>> {
   const found = TOOLS.find((t) => t.name === tool);
-  if (found === undefined) throw new Error(`${tool} is not on the surface`);
+  if (found === undefined) {throw new Error(`${tool} is not on the surface`);}
   return (await found.handler(deps, args)) as Record<string, unknown>;
 }
 

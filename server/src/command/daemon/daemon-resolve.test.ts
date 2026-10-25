@@ -34,7 +34,7 @@ const dead = (): boolean => false;
 describe('resolveDaemonForProject', () => {
   const dirs: string[] = [];
   afterEach(() => {
-    for (const d of dirs.splice(0)) rmSync(d, { recursive: true, force: true });
+    for (const d of dirs.splice(0)) {rmSync(d, { recursive: true, force: true });}
   });
 
   function home(entries: readonly Record<string, unknown>[]): string {
@@ -120,7 +120,7 @@ describe('adoptable', () => {
 describe('resolveMcpPort', () => {
   const dirs: string[] = [];
   afterEach(() => {
-    for (const d of dirs.splice(0)) rmSync(d, { recursive: true, force: true });
+    for (const d of dirs.splice(0)) {rmSync(d, { recursive: true, force: true });}
   });
   function home(entries: readonly Record<string, unknown>[]): string {
     const dir = mkdtempSync(join(tmpdir(), 'reticle-mcp-'));
@@ -275,7 +275,7 @@ describe('resolveMcpPort', () => {
 describe('daemonsServingProjectElsewhere', () => {
   const dirs: string[] = [];
   afterEach(() => {
-    for (const d of dirs.splice(0)) rmSync(d, { recursive: true, force: true });
+    for (const d of dirs.splice(0)) {rmSync(d, { recursive: true, force: true });}
   });
 
   function home(entries: readonly Record<string, unknown>[]): string {
@@ -367,13 +367,13 @@ describe('splitBrainNote', () => {
 describe('relocationReason', () => {
   const dirs: string[] = [];
   afterEach(() => {
-    for (const d of dirs.splice(0)) rmSync(d, { recursive: true, force: true });
+    for (const d of dirs.splice(0)) {rmSync(d, { recursive: true, force: true });}
   });
   function home(entries: readonly Record<string, unknown>[]): string {
     const dir = mkdtempSync(join(tmpdir(), 'reticle-reloc-'));
     dirs.push(dir);
     for (const e of entries)
-      writeFileSync(join(dir, `daemon-${String(e['port'])}.json`), JSON.stringify(e));
+      {writeFileSync(join(dir, `daemon-${String(e['port'])}.json`), JSON.stringify(e));}
     return dir;
   }
 

@@ -413,8 +413,8 @@ function flatCounts(): Map<string, number> {
   const counts = new Map<string, number>();
   for (const path of tracked) {
     // apps/ are local fixtures, plan/ is gitignored design notes, bench/ is the harness.
-    if (/^(apps|plan|bench)\//.test(path)) continue;
-    if (/\.(test|spec|bench)\.tsx?$/.test(path)) continue;
+    if (/^(apps|plan|bench)\//.test(path)) {continue;}
+    if (/\.(test|spec|bench)\.tsx?$/.test(path)) {continue;}
     const dir = dirname(path);
     counts.set(dir, (counts.get(dir) ?? 0) + 1);
   }
@@ -433,7 +433,7 @@ describe('how much sits loose in one directory', () => {
   it(`records every directory holding more than ${String(FLAT_FILE_LIMIT)} source files`, () => {
     const found: Record<string, number> = {};
     for (const [dir, count] of [...flatCounts()].sort()) {
-      if (count > FLAT_FILE_LIMIT) found[dir] = count;
+      if (count > FLAT_FILE_LIMIT) {found[dir] = count;}
     }
     expect(
       found,

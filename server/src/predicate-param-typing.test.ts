@@ -33,7 +33,7 @@ describe('the lean profile does not retype a numeric parameter as a predicate', 
   const advertised = advertisedTools(TOOL_SURFACE.DEFAULT);
   const describedAs = (toolName: string, param: string): string => {
     const tool = advertised.find((t) => t.name === toolName);
-    if (tool === undefined) return '';
+    if (tool === undefined) {return '';}
     const shape = advertisedConfig(tool, advertised, TOOL_SURFACE.DEFAULT).inputSchema;
     return shape[param]?.description ?? '';
   };
@@ -79,11 +79,11 @@ describe('the lean profile retypes predicates and nothing else', () => {
     for (const tool of hybrid) {
       const lean = advertisedConfig(tool, hybrid, TOOL_SURFACE.DEFAULT).inputSchema;
       const original = fullShapes.get(tool.name);
-      if (original === undefined) continue;
+      if (original === undefined) {continue;}
       for (const [key, schema] of Object.entries(lean)) {
         const before = original[key];
-        if (before === undefined) continue;
-        if (kindOf(schema) !== kindOf(before)) out.push(`${tool.name}.${key}`);
+        if (before === undefined) {continue;}
+        if (kindOf(schema) !== kindOf(before)) {out.push(`${tool.name}.${key}`);}
       }
     }
     return out;

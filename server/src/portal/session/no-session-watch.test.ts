@@ -22,13 +22,13 @@ import type { SessionManager } from './session-manager.js';
 
 const dirs: string[] = [];
 afterEach(() => {
-  for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true });
+  for (const dir of dirs.splice(0)) {rmSync(dir, { recursive: true, force: true });}
 });
 
 function projectDir(config: string | undefined): string {
   const dir = mkdtempSync(join(tmpdir(), 'reticle-watch-'));
   dirs.push(dir);
-  if (config !== undefined) writeFileSync(join(dir, '.reticle.json'), config, 'utf8');
+  if (config !== undefined) {writeFileSync(join(dir, '.reticle.json'), config, 'utf8');}
   return dir;
 }
 

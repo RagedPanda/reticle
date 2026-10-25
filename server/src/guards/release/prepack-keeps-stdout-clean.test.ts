@@ -43,15 +43,15 @@ function prepackScripts(): Invoked[] {
       private?: boolean;
       scripts?: Record<string, string>;
     };
-    if (true === parsed.private) continue;
+    if (true === parsed.private) {continue;}
     const prepack = parsed.scripts?.['prepack'];
-    if (undefined === prepack) continue;
+    if (undefined === prepack) {continue;}
     const pkgDir = dirname(manifest);
     for (const match of prepack.matchAll(/node\s+([\w./-]+\.mjs)/g)) {
       const rel = match[1];
-      if (undefined === rel) continue;
+      if (undefined === rel) {continue;}
       const abs = resolve(REPO_ROOT, pkgDir, rel);
-      if (existsSync(abs)) found.push({ pkg: pkgDir, script: abs.slice(REPO_ROOT.length + 1) });
+      if (existsSync(abs)) {found.push({ pkg: pkgDir, script: abs.slice(REPO_ROOT.length + 1) });}
     }
   }
   return found;

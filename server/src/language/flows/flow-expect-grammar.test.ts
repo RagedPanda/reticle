@@ -123,7 +123,7 @@ describe('parseFlowFileText', () => {
   it("loads the reporter's three-channel expect instead of calling it malformed", () => {
     const parsed = parseFlowFileText(JSON.stringify(flowDoc(REPORTER_EXPECT)));
     expect(parsed.ok).toBe(true);
-    if (!parsed.ok) throw new Error('expected ok');
+    if (!parsed.ok) {throw new Error('expected ok');}
     // Lifted from v1 on read: the file said `{ net, signal, state }` and the value is the predicate
     // tree that means the same thing.
     expect(parsed.value.steps[0]?.expect).toEqual(LIFTED_REPORTER);
@@ -132,7 +132,7 @@ describe('parseFlowFileText', () => {
   it('loads an allOf expect exactly as it was written', () => {
     const parsed = parseFlowFileText(JSON.stringify(flowDoc(ALLOF_EXPECT)));
     expect(parsed.ok).toBe(true);
-    if (!parsed.ok) throw new Error('expected ok');
+    if (!parsed.ok) {throw new Error('expected ok');}
     expect(parsed.value.steps[0]?.expect).toEqual(ALLOF_EXPECT);
   });
 
@@ -141,7 +141,7 @@ describe('parseFlowFileText', () => {
       JSON.stringify(flowDoc({ kind: 'text', contains: 'Error', absent: true, scope: 'e12' })),
     );
     expect(parsed.ok).toBe(false);
-    if (parsed.ok) throw new Error('expected a refusal');
+    if (parsed.ok) {throw new Error('expected a refusal');}
     expect(parsed.detail).toContain('step 0');
     expect(parsed.detail).toContain('text.scope "e12"');
   });
@@ -160,7 +160,7 @@ describe('parseFlowFileText', () => {
       JSON.stringify(flowDoc({ signal: { count: 1 }, net: { method: 'POST' } })),
     );
     expect(parsed.ok).toBe(false);
-    if (parsed.ok) throw new Error('expected parse failure');
+    if (parsed.ok) {throw new Error('expected parse failure');}
     expect(parsed.code).toBe(FlowErrorCode.PARSE_FAILED);
     expect(parsed.detail).toContain(FlowParseNote.UNSUPPORTED_SHAPE);
     expect(parsed.detail).toContain('step 0');
@@ -176,7 +176,7 @@ describe('describeFlowZodFailure', () => {
       flowDoc({ signal: { count: 1 }, net: { method: 'POST' } }),
     );
     expect(result.success).toBe(false);
-    if (result.success) throw new Error('expected schema failure');
+    if (result.success) {throw new Error('expected schema failure');}
     const detail = describeFlowZodFailure(result.error);
     expect(detail).toContain(FlowParseNote.UNSUPPORTED_SHAPE);
     expect(detail).toContain('step 0');
@@ -191,7 +191,7 @@ describe('coerceFlowFileExpects', () => {
       success: { kind: 'signal', name: 'scan:complete' },
     });
     expect(coerced.ok).toBe(true);
-    if (!coerced.ok) throw new Error('expected ok');
+    if (!coerced.ok) {throw new Error('expected ok');}
     const file = coerced.value as { steps: { expect: unknown }[]; success: unknown };
     // Both pass through as written. The coercion's remaining job is the v1 flattening, not a
     // conversion: a predicate is already the shape the file stores.

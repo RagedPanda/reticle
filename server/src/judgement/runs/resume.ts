@@ -57,7 +57,7 @@ function cap(text: string): string {
 }
 
 function listed(label: string, items: readonly string[]): string[] {
-  if (0 === items.length) return [];
+  if (0 === items.length) {return [];}
   const shown = items.slice(-SHOWN).map((item) => `  - ${cap(item)}`);
   const more = items.length - Math.min(items.length, SHOWN);
   return [
@@ -74,7 +74,7 @@ export function latestVerdicts(
   const latest = new Map<string, { claim: string; verified: string; observed?: string }>();
   for (const action of actions) {
     const parsed = JournalVerdictEffectSchema.safeParse(action.effect);
-    if (!parsed.success) continue;
+    if (!parsed.success) {continue;}
     const { claim, verified, observed } = parsed.data;
     latest.set(claim, { claim, verified, ...(observed === undefined ? {} : { observed }) });
   }
@@ -116,13 +116,13 @@ const REQUEST_FRESH_MS = 6 * 60 * 60 * 1000;
 /** The session whose action ledger was written most recently, if any. */
 export function newestSessionId(root: string): string | undefined {
   const dir = join(root, ReticleDir.SESSIONS_SUBDIR);
-  if (!existsSync(dir)) return undefined;
+  if (!existsSync(dir)) {return undefined;}
   let newest: { id: string; at: number } | undefined;
   for (const id of readdirSync(dir)) {
     const ledger = join(dir, id, ReticleDir.JOURNAL_ACTIONS_FILE);
-    if (!existsSync(ledger)) continue;
+    if (!existsSync(ledger)) {continue;}
     const at = statSync(ledger).mtimeMs;
-    if (newest === undefined || at > newest.at) newest = { id, at };
+    if (newest === undefined || at > newest.at) {newest = { id, at };}
   }
   return newest?.id;
 }
@@ -133,7 +133,7 @@ export function recentRequest(root: string, now: number): string | undefined {
     const parsed = PromptContextSchema.safeParse(
       JSON.parse(readFileSync(join(root, ReticleDir.REQUEST_FILE), 'utf8')),
     );
-    if (!parsed.success || parsed.data.request === undefined) return undefined;
+    if (!parsed.success || parsed.data.request === undefined) {return undefined;}
     const at = parsed.data.at;
     return at !== undefined && now - at <= REQUEST_FRESH_MS ? parsed.data.request : undefined;
   } catch {

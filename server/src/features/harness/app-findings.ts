@@ -16,12 +16,12 @@ export function appFindings(toolCalls: readonly ToolOutcome[]): string[] {
   const seen = new Set<string>();
   const lines: string[] = [];
   const add = (key: string, line: string): void => {
-    if (seen.has(key) || MAX_FINDINGS <= lines.length) return;
+    if (seen.has(key) || MAX_FINDINGS <= lines.length) {return;}
     seen.add(key);
     lines.push(line);
   };
   for (const call of toolCalls) {
-    if (call.isError) continue;
+    if (call.isError) {continue;}
     const result = asRecord(call.result);
     if (ReticleTool.RECONCILE === call.name) {
       const mismatches = result['mismatches'];

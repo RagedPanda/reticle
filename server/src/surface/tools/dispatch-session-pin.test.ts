@@ -58,7 +58,7 @@ function tab(id: string, driven: string[], lastSeenMs = 0): Session {
   return createFakeSession(
     {
       command: (name: string): Promise<CommandResult> => {
-        if (ReticleCommand.ACT === name) driven.push(id);
+        if (ReticleCommand.ACT === name) {driven.push(id);}
         return Promise.resolve({
           kind: 'command_result',
           id: 'c',
@@ -96,7 +96,7 @@ function twoTabs(): TwoTabs {
       asked.push(id);
       if (id !== undefined) {
         const found = [first, newer].find((s) => s.id === id);
-        if (found === undefined) throw new Error(`no connected session with id '${id}'`);
+        if (found === undefined) {throw new Error(`no connected session with id '${id}'`);}
         return found;
       }
       omitted += 1;
@@ -128,7 +128,7 @@ function twoTabs(): TwoTabs {
 
 function toolNamed(name: string): ToolDef {
   const found = TOOLS.find((t) => t.name === name);
-  if (found === undefined) throw new Error(`no ${name} tool`);
+  if (found === undefined) {throw new Error(`no ${name} tool`);}
   return found;
 }
 

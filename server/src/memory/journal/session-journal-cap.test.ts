@@ -98,7 +98,7 @@ async function fill(
   for (let batch = 0; batch < batches; batch += 1) {
     const start = from + batch * size;
     const events: ReticleEvent[] = [];
-    for (let i = 0; i < size; i += 1) events.push(evt(start + i));
+    for (let i = 0; i < size; i += 1) {events.push(evt(start + i));}
     await journal.appendEvents(events);
   }
 }
@@ -173,7 +173,7 @@ describe('SessionJournal — the event ledger is bounded on disk', () => {
       const text = await readFile(journalEventsPath(root, asSessionId('demo')), 'utf8');
       expect(text.endsWith('\n')).toBe(true);
       for (const line of text.split('\n')) {
-        if (0 === line.length) continue;
+        if (0 === line.length) {continue;}
         expect(() => {
           JSON.parse(line);
         }, line).not.toThrow();
@@ -297,7 +297,7 @@ describe('SessionJournal — a closed ledger stays closed across reconnects', ()
     const first = reopen('roomy');
     await first.appendEvents([evt(0)]);
     const bulk: ReticleEvent[] = [];
-    for (let i = 0; i < 200; i += 1) bulk.push(evt(100 + i));
+    for (let i = 0; i < 200; i += 1) {bulk.push(evt(100 + i));}
     await first.appendEvents(bulk);
     const closed = (await fs.stat(events)).size;
     expect(closed).toBeLessThan(CAP_BYTES); // there IS room left — that is the trap
@@ -318,7 +318,7 @@ describe('SessionJournal — a closed ledger stays closed across reconnects', ()
     const events = journalEventsPath(root, asSessionId('legacy'));
     await mkdir(sessionDirPath(root, asSessionId('legacy')), { recursive: true });
     const lines: string[] = [];
-    for (let i = 0; i < 300; i += 1) lines.push(JSON.stringify(evt(i)));
+    for (let i = 0; i < 300; i += 1) {lines.push(JSON.stringify(evt(i)));}
     const legacy = `${lines.join('\n')}\n`;
     await writeFile(events, legacy, 'utf8');
     expect(legacy.length).toBeGreaterThan(CAP_BYTES); // genuinely over the ceiling already
@@ -457,7 +457,7 @@ describe('SessionJournal — an unreadable ledger is not an empty one', () => {
 
     // stat works again: the budget must be re-read from disk, not remembered as empty.
     const bulk: ReticleEvent[] = [];
-    for (let i = 0; i < 200; i += 1) bulk.push(evt(600 + i));
+    for (let i = 0; i < 200; i += 1) {bulk.push(evt(600 + i));}
     await journal.appendEvents(bulk);
     expect((await fs.stat(events)).size).toBeLessThanOrEqual(CAP_BYTES + MARKER_ALLOWANCE_BYTES);
   });
@@ -508,7 +508,7 @@ describe('SessionJournal — the injected cap is validated, and the batch is not
         },
       });
     const batch: ReticleEvent[] = [];
-    for (let i = 0; i < 500; i += 1) batch.push(probe(i));
+    for (let i = 0; i < 500; i += 1) {batch.push(probe(i));}
 
     const journal = new SessionJournal(fs, root, 'probed', { eventBytesCap: 512 });
     await journal.appendEvents(batch);
@@ -522,7 +522,7 @@ describe('SessionJournal — the injected cap is validated, and the batch is not
     // the ceiling is written whole.
     const journal = new SessionJournal(fs, root, 'whole', { eventBytesCap: CAP_BYTES });
     const batch: ReticleEvent[] = [];
-    for (let i = 0; i < 10; i += 1) batch.push(evt(i));
+    for (let i = 0; i < 10; i += 1) {batch.push(evt(i));}
     await journal.appendEvents(batch);
     expect((await journal.readEvents()).map((event) => event.seq)).toEqual([
       0, 1, 2, 3, 4, 5, 6, 7, 8, 9,

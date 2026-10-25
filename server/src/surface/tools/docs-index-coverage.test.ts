@@ -61,11 +61,11 @@ const markdownPages = (dir = DOCS, prefix = ''): string[] => {
     const rel = `${prefix}${entry.name}`;
     if (entry.isDirectory()) {
       if (!NON_PAGE_DIRS.has(entry.name))
-        out.push(...markdownPages(join(dir, entry.name), `${rel}/`));
+        {out.push(...markdownPages(join(dir, entry.name), `${rel}/`));}
       continue;
     }
-    if (!entry.name.endsWith('.md') && !entry.name.endsWith('.mdx')) continue;
-    if (rel === INDEX || rel === HOME || rel === SKILL) continue;
+    if (!entry.name.endsWith('.md') && !entry.name.endsWith('.mdx')) {continue;}
+    if (rel === INDEX || rel === HOME || rel === SKILL) {continue;}
     out.push(rel);
   }
   return out;
@@ -87,7 +87,7 @@ const pageDirs = () => [
 const pageFile = (slug: string): string | null => {
   for (const ext of ['.md', '.mdx']) {
     const path = join(DOCS, `${slug}${ext}`);
-    if (existsSync(path)) return path;
+    if (existsSync(path)) {return path;}
   }
   return null;
 };
@@ -101,12 +101,12 @@ const publishedSlugs = (): string[] => {
       node.forEach(walk);
       return;
     }
-    if (null === node || 'object' !== typeof node) return;
+    if (null === node || 'object' !== typeof node) {return;}
     const record = node as Record<string, unknown>;
     if (Array.isArray(record.pages)) {
       for (const page of record.pages) {
-        if ('string' === typeof page) slugs.push(page);
-        else walk(page);
+        if ('string' === typeof page) {slugs.push(page);}
+        else {walk(page);}
       }
     }
     Object.values(record).forEach(walk);
@@ -188,16 +188,16 @@ describe('docs/docs.json publishes every doc', () => {
       for (let i = open; i < text.length; i++) {
         const ch = text[i] ?? '';
         if (inString) {
-          if (escaped) escaped = false;
-          else if ('\\' === ch) escaped = true;
-          else if ('"' === ch) inString = false;
+          if (escaped) {escaped = false;}
+          else if ('\\' === ch) {escaped = true;}
+          else if ('"' === ch) {inString = false;}
           continue;
         }
-        if ('"' === ch) inString = true;
-        else if ('{' === ch) depth++;
+        if ('"' === ch) {inString = true;}
+        else if ('{' === ch) {depth++;}
         else if ('}' === ch) {
           depth--;
-          if (0 === depth) return i - open + 1;
+          if (0 === depth) {return i - open + 1;}
         }
       }
       return text.length - open;
@@ -213,22 +213,22 @@ describe('docs/docs.json publishes every doc', () => {
       for (let i = open; i < text.length; i++) {
         const ch = text[i] ?? '';
         if (inString) {
-          if (escaped) escaped = false;
-          else if ('\\' === ch) escaped = true;
+          if (escaped) {escaped = false;}
+          else if ('\\' === ch) {escaped = true;}
           else if ('"' === ch) {
             inString = false;
-          } else if (1 === depth) current += ch;
+          } else if (1 === depth) {current += ch;}
           continue;
         }
         if ('"' === ch) {
           inString = true;
-          if (1 === depth) current = '';
+          if (1 === depth) {current = '';}
           continue;
         }
-        if ('{' === ch || '[' === ch) depth++;
+        if ('{' === ch || '[' === ch) {depth++;}
         else if ('}' === ch || ']' === ch) {
           depth--;
-          if (0 === depth) break;
+          if (0 === depth) {break;}
         } else if (':' === ch && 1 === depth && '' !== current) {
           keys.push(current);
           current = '';
@@ -243,14 +243,14 @@ describe('docs/docs.json publishes every doc', () => {
       for (const match of text.matchAll(/"tool"\s*:\s*"(reticle_[a-z0-9_]+)"/g)) {
         const tool = match[1] ?? '';
         const names = allowed.get(tool);
-        if (undefined === names) continue; // meta-tools and non-tools are covered by another check
+        if (undefined === names) {continue;} // meta-tools and non-tools are covered by another check
         // Bound the search to the object that CONTAINS this "tool" key. Scanning forward without
         // that bound picks up the next example's args and blames them on this tool.
         const start = match.index ?? 0;
         let objectStart = -1;
         for (let i = start, depth = 0; i >= 0; i--) {
           const ch = text[i] ?? '';
-          if ('}' === ch) depth++;
+          if ('}' === ch) {depth++;}
           else if ('{' === ch) {
             if (0 === depth) {
               objectStart = i;
@@ -259,10 +259,10 @@ describe('docs/docs.json publishes every doc', () => {
             depth--;
           }
         }
-        if (0 > objectStart) continue;
+        if (0 > objectStart) {continue;}
         const object = text.slice(objectStart, objectStart + objectLength(text, objectStart));
         const argsAt = object.search(/"args"\s*:\s*\{/);
-        if (0 > argsAt) continue; // this call takes no args
+        if (0 > argsAt) {continue;} // this call takes no args
         const rest = object;
         const open = object.indexOf('{', argsAt + 6);
         for (const key of topLevelKeys(rest, open)) {
@@ -297,16 +297,16 @@ describe('docs/docs.json publishes every doc', () => {
     const problems: string[] = [];
     let checked = 0;
     for (const file of markdownPages()) {
-      if (!file.startsWith('tools/') || !file.endsWith('.mdx')) continue;
+      if (!file.startsWith('tools/') || !file.endsWith('.mdx')) {continue;}
       const text = readFileSync(join(DOCS, file), 'utf8');
 
       // The tool this page documents, taken from its frontmatter title.
       const title = /^title:\s*(.+)$/m.exec(text)?.[1] ?? '';
       const named = [...title.matchAll(/reticle_[a-z0-9_]+/g)].map((m) => m[0]);
       // Pages covering more than one tool (or none) have no single subject to validate against.
-      if (1 !== named.length) continue;
+      if (1 !== named.length) {continue;}
       const names = allowed.get(named[0] ?? '');
-      if (undefined === names) continue;
+      if (undefined === names) {continue;}
 
       const block = /```json\n([\s\S]*?)```/.exec(text)?.[1] ?? '';
       let parsed: unknown;
@@ -315,7 +315,7 @@ describe('docs/docs.json publishes every doc', () => {
       } catch {
         continue; // multi-call or elided blocks are not a single request to check
       }
-      if (null === parsed || 'object' !== typeof parsed || Array.isArray(parsed)) continue;
+      if (null === parsed || 'object' !== typeof parsed || Array.isArray(parsed)) {continue;}
 
       checked += 1;
       for (const key of Object.keys(parsed)) {
@@ -373,15 +373,15 @@ describe('docs/docs.json publishes every doc', () => {
       ['logo', assets.logo],
       ['favicon', assets.favicon],
     ] as const) {
-      if (undefined === pair) continue;
+      if (undefined === pair) {continue;}
       for (const [mode, expectation] of [
         ['light', 'dark ink for a light background'],
         ['dark', 'light ink for a dark background'],
       ] as const) {
         const file = pair[mode];
-        if (undefined === file) continue;
+        if (undefined === file) {continue;}
         const brightness = inkBrightness(file);
-        if (null === brightness) continue; // no explicit fills to judge
+        if (null === brightness) {continue;} // no explicit fills to judge
         const tooLight = 'light' === mode && brightness > 128;
         const tooDark = 'dark' === mode && brightness < 128;
         if (tooLight || tooDark) {
@@ -427,7 +427,7 @@ describe('docs/docs.json publishes every doc', () => {
       const prose = source.replace(/```[\s\S]*?```/g, '').replace(/`[^`\n]*`/g, '');
       for (const line of prose.split('\n')) {
         for (const { pattern, what } of HAZARDS) {
-          if (pattern.test(line)) problems.push(`${file}: ${what} — ${line.trim().slice(0, 70)}`);
+          if (pattern.test(line)) {problems.push(`${file}: ${what} — ${line.trim().slice(0, 70)}`);}
         }
       }
     }
@@ -452,10 +452,10 @@ describe('docs/docs.json publishes every doc', () => {
     for (const file of markdownPages()) {
       const lines = readFileSync(join(DOCS, file), 'utf8').split('\n');
       lines.forEach((line, i) => {
-        if (!BARE.test(line)) return;
-        if (/"?kind"?\s*:\s*"(?:allOf|anyOf)"[\s\S]*?"?predicates"?\s*:/.test(line)) return;
+        if (!BARE.test(line)) {return;}
+        if (/"?kind"?\s*:\s*"(?:allOf|anyOf)"[\s\S]*?"?predicates"?\s*:/.test(line)) {return;}
         const context = lines.slice(Math.max(0, i - 4), i + 2).join('\n');
-        if (DISCLAIMER.test(context)) return;
+        if (DISCLAIMER.test(context)) {return;}
         offenders.push(`${file}:${String(i + 1)}`);
       });
     }
@@ -479,9 +479,9 @@ describe('docs/docs.json publishes every doc', () => {
     const walk = (dir: string): void => {
       for (const entry of readdirSync(dir, { withFileTypes: true })) {
         const full = join(dir, entry.name);
-        if (entry.isDirectory()) walk(full);
+        if (entry.isDirectory()) {walk(full);}
         else if (entry.name.endsWith('.ts')) {
-          for (const name of readFileSync(full, 'utf8').match(TOOL) ?? []) sourceNames.add(name);
+          for (const name of readFileSync(full, 'utf8').match(TOOL) ?? []) {sourceNames.add(name);}
         }
       }
     };
@@ -497,7 +497,7 @@ describe('docs/docs.json publishes every doc', () => {
     for (const file of markdownPages()) {
       const mentioned = new Set(readFileSync(join(DOCS, file), 'utf8').match(TOOL) ?? []);
       for (const name of mentioned) {
-        if (!sourceNames.has(name)) unknown.push(`${file} -> ${name}`);
+        if (!sourceNames.has(name)) {unknown.push(`${file} -> ${name}`);}
       }
     }
 
@@ -536,18 +536,18 @@ describe('docs/docs.json publishes every doc', () => {
     const offenders: string[] = [];
     for (const file of markdownPages()) {
       const text = readFileSync(join(DOCS, file), 'utf8');
-      if (!text.startsWith('---\n')) continue;
+      if (!text.startsWith('---\n')) {continue;}
       const end = text.indexOf('\n---', 4);
-      if (-1 === end) continue;
+      if (-1 === end) {continue;}
       for (const line of text.slice(4, end).split('\n')) {
         const match = /^([A-Za-z][\w-]*):\s+(.*)$/.exec(line);
-        if (null === match) continue;
+        if (null === match) {continue;}
         const key = match[1];
         const value = match[2];
-        if (undefined === value || '' === value) continue;
+        if (undefined === value || '' === value) {continue;}
         // Already a quoted, flow or block scalar: YAML handles the colon fine.
-        if ('\'"[{|>'.includes(value.slice(0, 1))) continue;
-        if (value.includes(': ')) offenders.push(`${file}: ${key}`);
+        if ('\'"[{|>'.includes(value.slice(0, 1))) {continue;}
+        if (value.includes(': ')) {offenders.push(`${file}: ${key}`);}
       }
     }
 
@@ -606,11 +606,11 @@ describe('docs/docs.json publishes every doc', () => {
 
       for (const link of new Set(links)) {
         if (link.startsWith('/images/')) {
-          if (!existsSync(join(DOCS, link))) broken.push(`${file} -> ${link} (missing image)`);
+          if (!existsSync(join(DOCS, link))) {broken.push(`${file} -> ${link} (missing image)`);}
           continue;
         }
         const slug = link.replace(/^\/|\/$/g, '');
-        if ('' !== slug && !slugs.has(slug)) broken.push(`${file} -> ${link} (no such page)`);
+        if ('' !== slug && !slugs.has(slug)) {broken.push(`${file} -> ${link} (no such page)`);}
       }
     }
 
@@ -630,13 +630,13 @@ describe('docs/docs.json publishes every doc', () => {
         // below miss and reports all 24 pages as unfrontmattered. Normalise before parsing.
         const source = readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
         const [, frontmatter = '', body = ''] = source.split(/^---$/m);
-        if (!source.startsWith('---\n')) return `${slug}: no frontmatter block`;
-        if (!/^title:\s*\S/m.test(frontmatter)) return `${slug}: frontmatter has no title`;
+        if (!source.startsWith('---\n')) {return `${slug}: no frontmatter block`;}
+        if (!/^title:\s*\S/m.test(frontmatter)) {return `${slug}: frontmatter has no title`;}
         if (!/^description:\s*\S/m.test(frontmatter))
-          return `${slug}: frontmatter has no description`;
+          {return `${slug}: frontmatter has no description`;}
         // A `# ` inside a fenced block is a shell comment, not a heading.
         const prose = body.replace(/^```[\s\S]*?^```/gm, '');
-        if (/^# /m.test(prose)) return `${slug}: body still has an H1, which renders twice`;
+        if (/^# /m.test(prose)) {return `${slug}: body still has an H1, which renders twice`;}
         return null;
       })
       .filter((problem): problem is string => null !== problem);

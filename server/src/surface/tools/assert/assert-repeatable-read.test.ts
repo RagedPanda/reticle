@@ -22,8 +22,8 @@ const bridges: Bridge[] = [];
 const sockets: WebSocket[] = [];
 
 afterEach(async () => {
-  for (const s of sockets.splice(0)) s.close();
-  for (const b of bridges.splice(0)) await b.close();
+  for (const s of sockets.splice(0)) {s.close();}
+  for (const b of bridges.splice(0)) {await b.close();}
 });
 
 const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
@@ -51,7 +51,7 @@ async function readTwice(): Promise<Bridge> {
     adapters: [],
     hasCapabilities: false,
   });
-  for (let i = 0; i < 100 && 0 === bridge.sessions.count(); i += 1) await sleep(10);
+  for (let i = 0; i < 100 && 0 === bridge.sessions.count(); i += 1) {await sleep(10);}
   for (const [t, id] of [
     [10, 'r1'],
     [50, 'r2'],
@@ -78,7 +78,7 @@ async function readTwice(): Promise<Bridge> {
     event: { t: 60, type: 'dom.added', sessionId: 'reads', data: { path: 'main > ul' } },
   });
   for (let i = 0; i < 100; i += 1) {
-    if (2 <= (bridge.sessions.get('reads')?.eventsSince(0).length ?? 0)) break;
+    if (2 <= (bridge.sessions.get('reads')?.eventsSince(0).length ?? 0)) {break;}
     await sleep(10);
   }
   await sleep(50);
@@ -98,7 +98,7 @@ async function assertNet(
     now: () => 0,
   } as unknown as ToolDeps;
   const tool = TOOLS.find((t) => t.name === ReticleTool.ASSERT);
-  if (tool === undefined) throw new Error('no assert tool');
+  if (tool === undefined) {throw new Error('no assert tool');}
   return (await tool.handler(deps, {
     predicate,
     since: 0,

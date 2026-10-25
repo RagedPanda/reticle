@@ -136,7 +136,7 @@ function replaySteps(domain: DomainModel): PlanStep[] {
   const steps: PlanStep[] = [];
   for (const name of ranked) {
     const flow = byName.get(name);
-    if (flow === undefined) continue;
+    if (flow === undefined) {continue;}
     steps.push({
       kind: PlanStepKind.REPLAY,
       target: name,
@@ -199,7 +199,7 @@ export function buildHarnessPlan(domain: DomainModel): HarnessPlan {
  * so it can prefer finishing the cheap deterministic half before spending itself on the rest.
  */
 export function planAsText(plan: HarnessPlan): string {
-  if (0 === plan.steps.length) return 'PLAN: none — nothing recorded, nothing declared.';
+  if (0 === plan.steps.length) {return 'PLAN: none — nothing recorded, nothing declared.';}
   const lines = plan.steps.map(
     (step, index) => ` ${String(index + 1)}. [${step.kind}] ${step.target} — ${step.why}`,
   );
@@ -244,7 +244,7 @@ export async function aboutTheApp(
     const snap = await invoke(ReticleTool.SNAPSHOT, { mode: 'interactive' });
     const tree =
       'object' === typeof snap && null !== snap ? (snap as { tree?: unknown }).tree : undefined;
-    if ('string' !== typeof tree || 0 === tree.length) return `${planText}${seen}`;
+    if ('string' !== typeof tree || 0 === tree.length) {return `${planText}${seen}`;}
     return `${planText}\n\nTHE APP AS IT IS ON SCREEN NOW (its own controls, in its own words):\n${tree.slice(0, MAX_ABOUT_SNAPSHOT)}${seen}`;
   } catch {
     return `${planText}${seen}`;

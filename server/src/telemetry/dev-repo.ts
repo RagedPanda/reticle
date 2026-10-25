@@ -28,14 +28,14 @@ export function isReticleSourceCheckout(cwd: string): boolean {
           'object' === typeof parsed && parsed !== null
             ? (parsed as { name?: unknown }).name
             : undefined;
-        if (name === MONOREPO_NAME) return true;
+        if (name === MONOREPO_NAME) {return true;}
       } catch {
         /* an unreadable/!JSON package.json simply is not the marker */
       }
     }
-    if (dir === root) return false;
+    if (dir === root) {return false;}
     const next = dirname(dir);
-    if (next === dir) return false;
+    if (next === dir) {return false;}
     dir = next;
   }
 }
@@ -60,18 +60,18 @@ export function loadDotEnv(dir: string, env: NodeJS.ProcessEnv = process.env): v
   const file = join(dir, '.env');
   let text: string;
   try {
-    if (!existsSync(file)) return;
+    if (!existsSync(file)) {return;}
     text = readFileSync(file, 'utf8');
   } catch {
     return;
   }
   for (const raw of text.split('\n')) {
     const line = raw.trim();
-    if (0 === line.length || line.startsWith('#')) continue;
+    if (0 === line.length || line.startsWith('#')) {continue;}
     const eq = line.indexOf('=');
-    if (eq <= 0) continue; // not a KEY=value pair — skip rather than fail the whole file
+    if (eq <= 0) {continue;} // not a KEY=value pair — skip rather than fail the whole file
     const key = line.slice(0, eq).trim();
-    if (0 === key.length || env[key] !== undefined) continue;
+    if (0 === key.length || env[key] !== undefined) {continue;}
     env[key] = unquote(line.slice(eq + 1).trim());
   }
 }

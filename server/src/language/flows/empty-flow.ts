@@ -18,7 +18,7 @@ interface EmptyFlowRefusal {
 }
 
 export function emptyFlowRefusal(stepCount: number, name: string): EmptyFlowRefusal | undefined {
-  if (stepCount > 0) return undefined;
+  if (stepCount > 0) {return undefined;}
   return {
     error: `'${name}' has no steps, so there is nothing to save — a flow with no steps can never pass or fail, and would sit in the suite reporting "unverifiable" forever`,
     recovery:

@@ -63,7 +63,7 @@ function fileFor(root: string, rawUrl: string): string | null {
     return null;
   }
   const target = resolve(root, `.${path}`);
-  if (target !== root && !target.startsWith(`${root}${sep}`)) return null;
+  if (target !== root && !target.startsWith(`${root}${sep}`)) {return null;}
   const file = path.endsWith('/') ? join(target, STATIC_PAGE_INDEX) : target;
   try {
     return statSync(file).isFile() ? file : null;
@@ -137,7 +137,7 @@ export async function startStaticPageServer(opts: {
     url: `http://${ANNOUNCED_HOST}:${String(bound)}/`,
     close: async () => {
       await closeServer(v4);
-      if (hasV6) await closeServer(v6);
+      if (hasV6) {await closeServer(v6);}
     },
   };
 }
@@ -150,7 +150,7 @@ export function staticPageDevCommand(opts: {
   appDir: string;
   isStaticPage: boolean;
 }): string | undefined {
-  if (!opts.isStaticPage || !existsSync(join(opts.appDir, STATIC_PAGE_INDEX))) return undefined;
+  if (!opts.isStaticPage || !existsSync(join(opts.appDir, STATIC_PAGE_INDEX))) {return undefined;}
   const script = fileURLToPath(import.meta.url).replace(/\.ts$/, '.js');
   return `"${process.execPath}" "${script}" ${DIR_FLAG} "${opts.appDir}"`;
 }

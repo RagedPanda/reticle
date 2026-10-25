@@ -43,7 +43,7 @@ function walk(predicate: Predicate, negated = false): PredicateKinds {
   // nudge warns that a healed or wrong locator can satisfy the predicate, and for an ABSENCE claim a
   // wrong locator satisfies it trivially: "the error message is gone" is true of a selector that
   // never matched anything in the first place. Negation makes a presence check weaker, not stronger.
-  if (PredicateKind.NOT === predicate.kind) return walk(predicate.predicate, true);
+  if (PredicateKind.NOT === predicate.kind) {return walk(predicate.predicate, true);}
   // A comparison grades as what its sides read: with a net/signal/state side it relates the page to
   // the app's own record, which a wrong locator cannot fake; text against text is two readings of
   // the same DOM. Its text side is always a content check, so it never counts as bare presence
@@ -74,7 +74,7 @@ function walk(predicate: Predicate, negated = false): PredicateKinds {
  * is the direction that costs something: it argues for replacing an assertion that is already sound.
  */
 function assertsElementContent(predicate: Predicate): boolean {
-  if (predicate.kind !== PredicateKind.ELEMENT) return false;
+  if (predicate.kind !== PredicateKind.ELEMENT) {return false;}
   return (
     predicate.query?.value !== undefined ||
     predicate.query?.text !== undefined ||
@@ -110,8 +110,8 @@ export function assertsDerivedIpcStatus(predicate: Predicate): boolean {
   if (PredicateKind.ALL_OF === predicate.kind || PredicateKind.ANY_OF === predicate.kind) {
     return predicate.predicates.some(assertsDerivedIpcStatus);
   }
-  if (PredicateKind.NOT === predicate.kind) return assertsDerivedIpcStatus(predicate.predicate);
-  if (predicate.kind !== PredicateKind.NET) return false;
+  if (PredicateKind.NOT === predicate.kind) {return assertsDerivedIpcStatus(predicate.predicate);}
+  if (predicate.kind !== PredicateKind.NET) {return false;}
   return (
     predicate.status !== undefined &&
     predicate.ok === undefined &&
@@ -175,6 +175,6 @@ function combine(
 ): HonestyGrade {
   const grades = branches.map(gradeOfPredicate);
   const first = grades[0];
-  if (first === undefined) return HonestyGrade.NONE;
+  if (first === undefined) {return HonestyGrade.NONE;}
   return grades.reduce(pick, first);
 }

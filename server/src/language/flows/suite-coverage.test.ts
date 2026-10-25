@@ -31,7 +31,7 @@ const step = (declares: boolean): FlowStep => {
     action: ActionType.CLICK,
     args: {},
   };
-  if (declares) s.expect = { kind: PredicateKind.SIGNAL, name: 'saved' };
+  if (declares) {s.expect = { kind: PredicateKind.SIGNAL, name: 'saved' };}
   return s;
 };
 

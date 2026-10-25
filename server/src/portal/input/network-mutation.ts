@@ -50,8 +50,8 @@ export async function mutationPortFor(
   provider: RealInputProvider,
   sessionUrl: string,
 ): Promise<NetworkMutationPort | undefined> {
-  if (provider.setMocks === undefined) return undefined;
-  if (!(await provider.isAvailableFor(sessionUrl))) return undefined;
+  if (provider.setMocks === undefined) {return undefined;}
+  if (!(await provider.isAvailableFor(sessionUrl))) {return undefined;}
   const setMocks = (rules: MockRule[]): Promise<boolean> =>
     provider.setMocks?.(sessionUrl, rules) ?? Promise.resolve(false);
   return {

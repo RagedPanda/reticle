@@ -65,9 +65,9 @@ function moved(events: readonly { type: string }[]): boolean {
 export function awaitsReaction(
   events: readonly { type: string; data: Record<string, unknown> }[],
 ): boolean {
-  if (moved(events)) return false;
+  if (moved(events)) {return false;}
   return events.some((e) => {
-    if (e.type !== EventType.NET_REQUEST) return false;
+    if (e.type !== EventType.NET_REQUEST) {return false;}
     const method = 'string' === typeof e.data['method'] ? e.data['method'].toUpperCase() : '';
     const ok = e.data['ok'];
     return MUTATING_METHODS.includes(method) && true === ok;
@@ -88,14 +88,14 @@ export async function waitForReaction(
   budgetMs: number,
   opts: { sleep(ms: number): Promise<void> },
 ): Promise<boolean> {
-  if (!awaitsReaction(session.eventsSince(since))) return true;
+  if (!awaitsReaction(session.eventsSince(since))) {return true;}
   const window = Math.min(REACTION_GRACE_MS, budgetMs);
-  if (window <= 0) return false;
+  if (window <= 0) {return false;}
 
   const deadline = session.elapsed() + window;
   while (session.elapsed() < deadline) {
     await opts.sleep(Math.min(POLL_MS, deadline - session.elapsed()));
-    if (moved(session.eventsSince(since))) return true;
+    if (moved(session.eventsSince(since))) {return true;}
   }
   return false;
 }

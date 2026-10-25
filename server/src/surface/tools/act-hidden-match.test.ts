@@ -61,7 +61,7 @@ function page(before: Paragraph[], after: Paragraph[], events: ReticleEvent[] = 
         result: { matched: ps.length > 0, count: ps.length, elements: described(ps) },
       });
     }
-    if (ReticleCommand.ACT === name) acted = true;
+    if (ReticleCommand.ACT === name) {acted = true;}
     return Promise.resolve({
       kind: 'command_result',
       id: 'c',
@@ -126,7 +126,7 @@ const SUBMITTED = {
 
 async function actAndWait(deps: ToolDeps, until: unknown): Promise<Record<string, unknown>> {
   const found = TOOLS.find((t) => t.name === ReticleTool.ACT_AND_WAIT);
-  if (found === undefined) throw new Error('act_and_wait is not on the surface');
+  if (found === undefined) {throw new Error('act_and_wait is not on the surface');}
   return (await found.handler(deps, { ref: 'e1', action: 'click', until })) as Record<
     string,
     unknown

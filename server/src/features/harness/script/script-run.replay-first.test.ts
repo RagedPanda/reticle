@@ -21,7 +21,7 @@ function ports(replays: Record<string, string>, refused?: string) {
       tools: [],
       invoke(name, args) {
         if (ReticleTool.FLOW_REPLAY === name)
-          return Promise.resolve({ status: replays[String(args['flowName'])] });
+          {return Promise.resolve({ status: replays[String(args['flowName'])] });}
         return Promise.resolve({ verified: Verified.YES, pass: true });
       },
     }),
@@ -136,7 +136,7 @@ describe('replay first', () => {
     fake.ports.toolset = () => ({
       tools: [],
       invoke(name, args) {
-        if (ReticleTool.FLOW_REPLAY === name) calls.push(args);
+        if (ReticleTool.FLOW_REPLAY === name) {calls.push(args);}
         return inner.invoke(name, args);
       },
     });
@@ -178,16 +178,16 @@ describe('the end-already-shown guard and replays', () => {
         invoke(name, args) {
           onCall(name);
           if (ReticleTool.FLOW_REPLAY === name)
-            return Promise.resolve({ status: replays[String(args['flowName'])] });
+            {return Promise.resolve({ status: replays[String(args['flowName'])] });}
           if (ReticleTool.NAVIGATE === name) {
             navigated.push(args['url']);
             return Promise.resolve({ ok: true });
           }
           if (ReticleTool.SNAPSHOT === name)
-            return Promise.resolve({
+            {return Promise.resolve({
               tree: onPage() ? `- heading "${END}"` : '- button "Sign in" (ref=e1)',
               status: { route: onPage() ? '/saved' : '/login' },
-            });
+            });}
           return Promise.resolve({ pass: onPage(), verified: Verified.YES });
         },
       }),
@@ -241,8 +241,8 @@ describe('the end-already-shown guard and replays', () => {
       () => page,
       { saved: ReplayStatus.DRIFT },
       (name) => {
-        if (ReticleTool.FLOW_REPLAY === name) page = true;
-        if (ReticleTool.NAVIGATE === name) page = false;
+        if (ReticleTool.FLOW_REPLAY === name) {page = true;}
+        if (ReticleTool.NAVIGATE === name) {page = false;}
       },
     );
     await runScript(served(['saved']), fake.port);
@@ -275,7 +275,7 @@ describe('the end-already-shown guard and replays', () => {
       () => page,
       { saved: ReplayStatus.UNVERIFIABLE },
       (name) => {
-        if (ReticleTool.FLOW_REPLAY === name) page = true;
+        if (ReticleTool.FLOW_REPLAY === name) {page = true;}
       },
     );
     const run = await runScript(quoting, fake.port);

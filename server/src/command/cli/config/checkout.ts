@@ -61,7 +61,7 @@ function linkedWorktreeRoots(commonDir: string): string[] {
  */
 export function worktreeTwins(directory: string): string[] {
   const from = checkoutAt(directory);
-  if (from === undefined) return [];
+  if (from === undefined) {return [];}
   const rel = relative(from.root, directory);
   const roots = new Set([from.mainRoot, ...linkedWorktreeRoots(from.commonDir)]);
   const self = longForm(from.root);

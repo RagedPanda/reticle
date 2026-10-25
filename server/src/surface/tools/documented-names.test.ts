@@ -78,7 +78,7 @@ function shippedNames(): Set<string> {
         walk(path);
         continue;
       }
-      if (!entry.name.endsWith('.ts')) continue;
+      if (!entry.name.endsWith('.ts')) {continue;}
       for (const m of readFileSync(path, 'utf8').matchAll(/['"`](reticle_[a-z0-9_]+)['"`]/g)) {
         names.add(m[1] as string);
       }
@@ -132,10 +132,10 @@ describe('agent-facing docs name only things that exist', () => {
       const bare: string[] = [];
       text.split('\n').forEach((line, i) => {
         // A `reticle_run({ tool: "x" })` on the line IS the supported shape, so the line is fine.
-        if (/reticle_run\s*\(/.test(line)) return;
+        if (/reticle_run\s*\(/.test(line)) {return;}
         for (const m of line.matchAll(/(?<!["'`\w])(reticle_[a-z0-9_]+)\s*\(/g)) {
           const name = m[1] as string;
-          if (!ADVERTISED.has(name)) bare.push(`${doc}:${i + 1} ${name}`);
+          if (!ADVERTISED.has(name)) {bare.push(`${doc}:${i + 1} ${name}`);}
         }
       });
       expect(

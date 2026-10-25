@@ -145,14 +145,14 @@ describe('cloud-cli verb contracts (#555)', () => {
     process.stdout.write = origStdout;
     process.stderr.write = origStderr;
     process.chdir(origCwd);
-    if (origHomeEnv === undefined) delete process.env['HOME'];
-    else process.env['HOME'] = origHomeEnv;
-    if (origUserProfileEnv === undefined) delete process.env['USERPROFILE'];
-    else process.env['USERPROFILE'] = origUserProfileEnv;
-    if (origUrlEnv === undefined) delete process.env['RETICLE_CLOUD_URL'];
-    else process.env['RETICLE_CLOUD_URL'] = origUrlEnv;
-    if (origKeyEnv === undefined) delete process.env['RETICLE_CLOUD_KEY'];
-    else process.env['RETICLE_CLOUD_KEY'] = origKeyEnv;
+    if (origHomeEnv === undefined) {delete process.env['HOME'];}
+    else {process.env['HOME'] = origHomeEnv;}
+    if (origUserProfileEnv === undefined) {delete process.env['USERPROFILE'];}
+    else {process.env['USERPROFILE'] = origUserProfileEnv;}
+    if (origUrlEnv === undefined) {delete process.env['RETICLE_CLOUD_URL'];}
+    else {process.env['RETICLE_CLOUD_URL'] = origUrlEnv;}
+    if (origKeyEnv === undefined) {delete process.env['RETICLE_CLOUD_KEY'];}
+    else {process.env['RETICLE_CLOUD_KEY'] = origKeyEnv;}
     vi.unstubAllEnvs();
     await rm(home, { recursive: true, force: true });
     await rm(cwd, { recursive: true, force: true });
@@ -199,9 +199,9 @@ describe('cloud-cli verb contracts (#555)', () => {
     it('links when .reticle.json is present, which is what init writes', async () => {
       process.env['RETICLE_CLOUD_URL'] = TEST_URL;
       responder = (url) => {
-        if (url.includes('/v1/auth/device/')) return loginResponder(url);
+        if (url.includes('/v1/auth/device/')) {return loginResponder(url);}
         if (url.endsWith('/v1/keys'))
-          return { body: { projectId: 'p1', projectName: 'P1', key: 'rk_live_minted0000' } };
+          {return { body: { projectId: 'p1', projectName: 'P1', key: 'rk_live_minted0000' } };}
         // The responder cannot see the METHOD, and /v1/projects is both listed and created against.
         // A superset body satisfies whichever schema the CLI parses it with.
         return { body: { projects: [], projectId: 'p1', name: 'P1' } };
@@ -295,11 +295,11 @@ describe('cloud-cli verb contracts (#555)', () => {
     );
     responder = (url) => {
       if (url.endsWith('/v1/projects'))
-        return { body: { projects: [], projectId: 'proj_1', name: 'My App' } };
+        {return { body: { projects: [], projectId: 'proj_1', name: 'My App' } };}
       if (url.endsWith('/v1/keys'))
-        return { body: { projectId: 'proj_1', projectName: 'My App', key: TEST_KEY } };
+        {return { body: { projectId: 'proj_1', projectName: 'My App', key: TEST_KEY } };}
       if (url.endsWith('/v1/cloud/whoami'))
-        return { body: { projectId: 'proj_1', projectName: 'My App', orgId: 'org_acme' } };
+        {return { body: { projectId: 'proj_1', projectName: 'My App', orgId: 'org_acme' } };}
       return { body: { knownRunIds: [], stateHashes: {}, triage: [], cursor: '0:' } };
     };
 
@@ -330,17 +330,17 @@ describe('cloud-cli verb contracts (#555)', () => {
     const own = { orgId: 'org_noah', name: "Noah's workspace", role: 'owner', connected: true };
     const stub = (activated: string[]) => (url: string) => {
       if (url.endsWith('/v1/me/workspaces'))
-        return { body: { active: 'org_noah', memberships: [own, team], invites: [] } };
+        {return { body: { active: 'org_noah', memberships: [own, team], invites: [] } };}
       if (url.endsWith('/v1/me/workspaces/org_team/activate')) {
         activated.push('org_team');
         return { body: { token: 'team-token', org: { id: 'org_team', name: 'Acme QA' } } };
       }
       if (url.endsWith('/v1/projects'))
-        return { body: { projects: [], projectId: 'proj_1', name: 'noah-notes' } };
+        {return { body: { projects: [], projectId: 'proj_1', name: 'noah-notes' } };}
       if (url.endsWith('/v1/keys'))
-        return { body: { projectId: 'proj_1', projectName: 'noah-notes', key: TEST_KEY } };
+        {return { body: { projectId: 'proj_1', projectName: 'noah-notes', key: TEST_KEY } };}
       if (url.endsWith('/v1/cloud/whoami'))
-        return { body: { projectId: 'proj_1', projectName: 'noah-notes', orgId: 'org_team' } };
+        {return { body: { projectId: 'proj_1', projectName: 'noah-notes', orgId: 'org_team' } };}
       return { body: { knownRunIds: [], stateHashes: {}, triage: [], cursor: '0:' } };
     };
     const signedIn = async (): Promise<void> => {
@@ -696,7 +696,7 @@ describe('cloud-cli verb contracts (#555)', () => {
     await writeHomeFile([SESSION_FILE], `{"token":"tok","orgName":"Acme","url":"${TEST_URL}"}`);
     responder = (url) => {
       if (true === url.endsWith('/v1/projects'))
-        return { body: { projects: [{ projectId: 'proj_1', name: 'Storefront' }] } };
+        {return { body: { projects: [{ projectId: 'proj_1', name: 'Storefront' }] } };}
       return {
         body: { projectId: 'proj_1', projectName: 'Storefront', key: 'rk_live_abcd1234ef' },
       };
@@ -717,7 +717,7 @@ describe('cloud-cli verb contracts (#555)', () => {
     await writeHomeFile([SESSION_FILE], `{"token":"tok","orgName":"Acme","url":"${TEST_URL}"}`);
     responder = (url) => {
       if (true === url.endsWith('/v1/projects'))
-        return { body: { projects: [{ projectId: 'proj_1', name: 'Storefront' }] } };
+        {return { body: { projects: [{ projectId: 'proj_1', name: 'Storefront' }] } };}
       return {
         body: { projectId: 'proj_1', projectName: 'Storefront', key: 'rk_live_abcd1234ef' },
       };
@@ -753,11 +753,11 @@ describe('cloud-cli verb contracts (#555)', () => {
     await writeHomeFile([CREDENTIALS_FILE], JSON.stringify({ proj_1: 'rk_live_theirs000' }));
     responder = (url) => {
       if (true === url.endsWith('/v1/projects'))
-        return { body: { projects: [{ projectId: 'proj_1', name: 'Storefront' }] } };
+        {return { body: { projects: [{ projectId: 'proj_1', name: 'Storefront' }] } };}
       if (true === url.endsWith('/v1/keys'))
-        return {
+        {return {
           body: { projectId: 'proj_1', projectName: 'Storefront', key: 'rk_live_mine00000' },
-        };
+        };}
       return { body: { projectId: 'proj_1', projectName: 'Storefront', orgId: 'org_theirs' } };
     };
 
@@ -790,11 +790,11 @@ describe('cloud-cli verb contracts (#555)', () => {
     await writeHomeFile([CREDENTIALS_FILE], JSON.stringify({ proj_1: 'rk_live_unknown00' }));
     responder = (url) => {
       if (true === url.endsWith('/v1/projects'))
-        return { body: { projects: [{ projectId: 'proj_1', name: 'Storefront' }] } };
+        {return { body: { projects: [{ projectId: 'proj_1', name: 'Storefront' }] } };}
       if (true === url.endsWith('/v1/keys'))
-        return {
+        {return {
           body: { projectId: 'proj_1', projectName: 'Storefront', key: 'rk_live_mine00000' },
-        };
+        };}
       return { body: { projectId: 'proj_1', projectName: 'Storefront' } };
     };
 
@@ -818,7 +818,7 @@ describe('cloud-cli verb contracts (#555)', () => {
     await writeHomeFile([CREDENTIALS_FILE], JSON.stringify({ proj_1: 'rk_live_existing00' }));
     responder = (url) => {
       if (true === url.endsWith('/v1/projects'))
-        return { body: { projects: [{ projectId: 'proj_1', name: 'Storefront' }] } };
+        {return { body: { projects: [{ projectId: 'proj_1', name: 'Storefront' }] } };}
       // whoami names the tenant, which is what lets a stored key be recognised as OURS. Reuse now
       // requires that proof — see the foreign-org test below for why.
       return { body: { projectId: 'proj_1', projectName: 'Storefront', orgId: 'org_acme' } };
@@ -850,9 +850,9 @@ describe('cloud-cli verb contracts (#555)', () => {
     await writeHomeFile([CREDENTIALS_FILE], JSON.stringify({ proj_1: 'rk_live_revoked000' }));
     responder = (url) => {
       if (true === url.endsWith('/v1/projects'))
-        return { body: { projects: [{ projectId: 'proj_1', name: 'Storefront' }] } };
+        {return { body: { projects: [{ projectId: 'proj_1', name: 'Storefront' }] } };}
       if (true === url.endsWith('/v1/cloud/whoami'))
-        return { status: 401, body: { error: { message: 'revoked' } } };
+        {return { status: 401, body: { error: { message: 'revoked' } } };}
       return {
         body: { projectId: 'proj_1', projectName: 'Storefront', key: 'rk_live_fresh00000' },
       };
@@ -967,8 +967,8 @@ describe('cloud-cli verb contracts (#555)', () => {
 
     /** Answer the three sync doors; the push door refuses every run it is offered. */
     const refusingCloud = (url: string): StubResponse => {
-      if (url.includes('/v1/sync/status')) return { body: { knownRunIds: [], stateHashes: {} } };
-      if (url.includes('/v1/sync/pull')) return { body: { triage: [], cursor: '0:' } };
+      if (url.includes('/v1/sync/status')) {return { body: { knownRunIds: [], stateHashes: {} } };}
+      if (url.includes('/v1/sync/pull')) {return { body: { triage: [], cursor: '0:' } };}
       return { body: { runs: { accepted: 0, rejected: [{ index: 0, reason: REFUSAL }] } } };
     };
 
@@ -1033,8 +1033,8 @@ describe('cloud-cli verb contracts (#555)', () => {
       // worse bug than the one being fixed.
       await writeCurrentRunArtifact('run_accepted');
       responder = (url) => {
-        if (url.includes('/v1/sync/status')) return { body: { knownRunIds: [], stateHashes: {} } };
-        if (url.includes('/v1/sync/pull')) return { body: { triage: [], cursor: '0:' } };
+        if (url.includes('/v1/sync/status')) {return { body: { knownRunIds: [], stateHashes: {} } };}
+        if (url.includes('/v1/sync/pull')) {return { body: { triage: [], cursor: '0:' } };}
         return { body: { runs: { accepted: 1, rejected: [] } } };
       };
 

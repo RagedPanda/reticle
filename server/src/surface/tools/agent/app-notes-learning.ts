@@ -71,7 +71,7 @@ export function learnFromVerdict(
   args: Record<string, unknown>,
   result: unknown,
 ): string | undefined {
-  if (session === undefined || 'object' !== typeof result || null === result) return undefined;
+  if (session === undefined || 'object' !== typeof result || null === result) {return undefined;}
   const r = result as Record<string, unknown>;
   if (Verified.NO === r['verified']) {
     const found = candidatesIn(r);
@@ -81,12 +81,12 @@ export function learnFromVerdict(
     }
     return undefined;
   }
-  if (Verified.YES !== r['verified']) return undefined;
+  if (Verified.YES !== r['verified']) {return undefined;}
   const pending = pendingBySession.get(session);
-  if (pending === undefined || 0 === pending.length) return undefined;
+  if (pending === undefined || 0 === pending.length) {return undefined;}
   const written = JSON.stringify(args);
   const used = pending.find((c) => c.usedWhen.some((needle) => written.includes(needle)));
-  if (used === undefined) return undefined;
+  if (used === undefined) {return undefined;}
   pendingBySession.set(
     session,
     pending.filter((c) => c !== used),

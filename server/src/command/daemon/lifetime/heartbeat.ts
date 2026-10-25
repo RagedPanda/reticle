@@ -49,9 +49,9 @@ const MISSED_BEATS_TOLERATED = 2;
  * rather than throwing, and 0 or negative is not a legal cadence — it would spin.
  */
 export function resolveHeartbeatMs(raw: string | undefined): number {
-  if (raw === undefined || '' === raw.trim()) return DAEMON_HEARTBEAT_MS;
+  if (raw === undefined || '' === raw.trim()) {return DAEMON_HEARTBEAT_MS;}
   const n = Number(raw);
-  if (!Number.isFinite(n) || n <= 0) return DAEMON_HEARTBEAT_MS;
+  if (!Number.isFinite(n) || n <= 0) {return DAEMON_HEARTBEAT_MS;}
   return Math.floor(n);
 }
 
@@ -113,7 +113,7 @@ export class DaemonHeartbeat {
     // days with nothing checking the size, which is how a log reaches its cap with no mechanism left
     // that would ever trim it. The beat is itself one of those writes.
     const reclaimed = guardDaemonLog(this.#logGuard);
-    if (0 < reclaimed) this.#log(DAEMON_LOG_TRUNCATED_EVENT, { reclaimedBytes: reclaimed });
+    if (0 < reclaimed) {this.#log(DAEMON_LOG_TRUNCATED_EVENT, { reclaimedBytes: reclaimed });}
     const facts = this.#facts();
     this.#log(DAEMON_HEARTBEAT_EVENT, {
       uptimeMs: this.#clock() - this.#startedAt,
@@ -126,14 +126,14 @@ export class DaemonHeartbeat {
   }
 
   start(): void {
-    if (this.#timer !== undefined) return;
+    if (this.#timer !== undefined) {return;}
     this.#timer = setInterval(() => this.beat(), this.#intervalMs);
     // Never the reason a process stays alive — this is a diagnostic, not a workload.
     this.#timer.unref();
   }
 
   stop(): void {
-    if (this.#timer === undefined) return;
+    if (this.#timer === undefined) {return;}
     clearInterval(this.#timer);
     this.#timer = undefined;
   }
@@ -200,7 +200,7 @@ export function classifyDaemonLife(lines: readonly LogLine[], nowMs: number): Da
   }
 
   const last = beats.at(-1);
-  if (last === undefined) return { end: DaemonEnd.UNKNOWN };
+  if (last === undefined) {return { end: DaemonEnd.UNKNOWN };}
 
   const everyMs = 'number' === typeof last.everyMs ? last.everyMs : DAEMON_HEARTBEAT_MS;
   const silentForMs = nowMs - last.t;

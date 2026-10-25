@@ -49,7 +49,7 @@ export function navigateResult(
     ...('string' === typeof result.reason ? { reason: result.reason } : {}),
   };
   // A refusal is conclusive: the page never moved, so there is nothing unconfirmed to report.
-  if (!ok) return base;
+  if (!ok) {return base;}
   if (arrival !== null) {
     const redirected = 'string' === typeof arrival.landedOn;
 

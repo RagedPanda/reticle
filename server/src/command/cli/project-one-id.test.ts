@@ -14,7 +14,7 @@ vi.mock('./cloud-kit.js', async (load) => ({
   hint: () => undefined,
   api: (method: string, url: string, _token: string, body?: Record<string, unknown>) => {
     calls.push({ method, url, ...(body === undefined ? {} : { body }) });
-    if ('GET' === method) return Promise.resolve({ projects });
+    if ('GET' === method) {return Promise.resolve({ projects });}
     const wanted = body?.['projectId'];
     return Promise.resolve({
       projectId: 'string' === typeof wanted ? wanted : 'nina-app',

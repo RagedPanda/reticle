@@ -44,7 +44,7 @@ const { FLOW_TOOLS } = await import('./flow-tools.js');
  */
 describe('parallel flow_verify persists a verification run artifact', () => {
   const verify = FLOW_TOOLS.find((t) => t.name === ReticleTool.FLOW_VERIFY);
-  if (verify === undefined) throw new Error('flow_verify not found in FLOW_TOOLS');
+  if (verify === undefined) {throw new Error('flow_verify not found in FLOW_TOOLS');}
 
   let deps: ToolDeps;
 

@@ -20,7 +20,7 @@ export function bridgeOccupied(
 ): string | undefined {
   // DAEMON is the ordinary case — that is the daemon init is about to use. FREE is fine too: one
   // gets started. Only a stranger is fatal.
-  if (PortPresence.FOREIGN !== presence) return undefined;
+  if (PortPresence.FOREIGN !== presence) {return undefined;}
   return (
     `port ${String(port)} is held by something that is not a Reticle daemon. That is the bridge — ` +
     'the channel between the daemon and the SDK in your page — so no session can ever appear while ' +
@@ -38,7 +38,7 @@ export async function freePortAfter(
   isOpen: (port: number) => Promise<boolean>,
 ): Promise<number | undefined> {
   for (let candidate = port + 1; candidate <= port + FREE_PORT_SCAN; candidate++) {
-    if (!(await isOpen(candidate))) return candidate;
+    if (!(await isOpen(candidate))) {return candidate;}
   }
   return undefined;
 }

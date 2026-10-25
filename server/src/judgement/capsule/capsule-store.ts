@@ -71,7 +71,7 @@ export class CapsuleStore {
 
   /** Persist a capsule. Best-effort by design: capturing evidence must never fail the run that found it. */
   async save(capsule: Capsule): Promise<boolean> {
-    if (!isValidCapsuleId(capsule.id)) return false;
+    if (!isValidCapsuleId(capsule.id)) {return false;}
     try {
       await this.#fs.mkdir(this.#dir);
       /*
@@ -108,7 +108,7 @@ export class CapsuleStore {
   /** Capsule ids on disk, newest-first by id (ids are time-prefixed). Never throws. */
   async list(): Promise<string[]> {
     try {
-      if (!(await this.#fs.exists(this.#dir))) return [];
+      if (!(await this.#fs.exists(this.#dir))) {return [];}
       const entries = await this.#fs.readdir(this.#dir);
       return entries
         .filter((e) => e.endsWith('.json'))
@@ -122,7 +122,7 @@ export class CapsuleStore {
 
   /** Read one capsule; undefined when missing or malformed (never throws). */
   async read(id: string): Promise<Capsule | undefined> {
-    if (!isValidCapsuleId(id)) return undefined;
+    if (!isValidCapsuleId(id)) {return undefined;}
     try {
       const parsed: unknown = JSON.parse(await this.#fs.readFile(this.#pathFor(id)));
       const result = CapsuleSchema.safeParse(parsed);
@@ -137,7 +137,7 @@ export class CapsuleStore {
     const out: Capsule[] = [];
     for (const id of await this.list()) {
       const capsule = await this.read(id);
-      if (capsule !== undefined) out.push(capsule);
+      if (capsule !== undefined) {out.push(capsule);}
     }
     return out;
   }
@@ -177,6 +177,6 @@ export function capsuleId(now: number, label: string, fingerprint: string): stri
 
 /** The minimal reproduction: the steps up to and including the one that failed (prefix trim). */
 export function minimalSteps(steps: readonly FlowStep[], failedIndex: number): FlowStep[] {
-  if (failedIndex < 0) return [...steps];
+  if (failedIndex < 0) {return [...steps];}
   return steps.slice(0, failedIndex + 1);
 }

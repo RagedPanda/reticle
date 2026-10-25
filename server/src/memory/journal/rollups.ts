@@ -98,36 +98,36 @@ export function computeSegments(events: readonly ReticleEvent[]): SegmentRollup[
 
   for (const event of events) {
     if (event.type === EventType.ROUTE_CHANGE) {
-      if (acc !== undefined) segments.push(finalize(acc));
+      if (acc !== undefined) {segments.push(finalize(acc));}
       const pathname = event.data['pathname'];
       acc = open('string' === typeof pathname ? pathname : undefined, event.t);
       continue;
     }
-    if (acc === undefined) acc = open(undefined, event.t);
+    if (acc === undefined) {acc = open(undefined, event.t);}
     acc.to = event.t;
-    if ('string' === typeof event.actionId) acc.actionIds.add(event.actionId);
+    if ('string' === typeof event.actionId) {acc.actionIds.add(event.actionId);}
     if (event.type === EventType.NET_REQUEST) {
       acc.netTotal += 1;
-      if (isNetError(event)) acc.netErrors += 1;
+      if (isNetError(event)) {acc.netErrors += 1;}
     }
     if (event.type === EventType.CONSOLE_ERROR || event.type === EventType.ERROR_UNCAUGHT) {
       acc.consoleErrors += 1;
     }
     if (event.type === EventType.STATE_CHANGE) {
       const name = event.data['name'];
-      if ('string' === typeof name && !acc.statePaths.includes(name)) acc.statePaths.push(name);
+      if ('string' === typeof name && !acc.statePaths.includes(name)) {acc.statePaths.push(name);}
     }
     if (event.type === EventType.NET_STREAM) {
       acc.streams.frames += 1;
       const direction = event.data['direction'];
-      if (StreamDirection.OPEN === direction) acc.streams.opened += 1;
-      else if (StreamDirection.IN === direction) acc.streams.in += 1;
-      else if (StreamDirection.OUT === direction) acc.streams.out += 1;
+      if (StreamDirection.OPEN === direction) {acc.streams.opened += 1;}
+      else if (StreamDirection.IN === direction) {acc.streams.in += 1;}
+      else if (StreamDirection.OUT === direction) {acc.streams.out += 1;}
     }
     if (event.type === EventType.TRUNCATED || event.type === EventType.TRANSPORT_OVERFLOW) {
       acc.truncated = true;
     }
   }
-  if (acc !== undefined) segments.push(finalize(acc));
+  if (acc !== undefined) {segments.push(finalize(acc));}
   return segments;
 }

@@ -67,13 +67,13 @@ function readOrUndefined(path: string): string | undefined {
 function readPortless(): DevProxy | undefined {
   const dir = process.env[PORTLESS_STATE_DIR_ENV] ?? join(homedir(), PORTLESS_STATE_DIR);
   const port = Number(readOrUndefined(join(dir, PORTLESS_PORT_FILE))?.trim());
-  if (!Number.isInteger(port)) return undefined;
+  if (!Number.isInteger(port)) {return undefined;}
   let routes: DevProxy['routes'] = [];
   try {
     const parsed = PortlessRoutesSchema.safeParse(
       JSON.parse(readOrUndefined(join(dir, PORTLESS_ROUTES_FILE)) ?? '[]'),
     );
-    if (parsed.success) routes = parsed.data;
+    if (parsed.success) {routes = parsed.data;}
   } catch {
     // A table being rewritten reads as empty: the page stays unplaced, never placed wrong.
   }
@@ -105,20 +105,20 @@ export function servingDirectoryOf(
   } catch {
     return undefined;
   }
-  if (!isLoopbackHostname(url.hostname) && !isLocalhostSubdomain(url.hostname)) return undefined;
+  if (!isLoopbackHostname(url.hostname) && !isLocalhostSubdomain(url.hostname)) {return undefined;}
   // Exact first: a dev proxy serves every worktree on one port, under the name it announced.
   const byUrl = io.devServers().find((entry) => originOf(entry.url) === url.origin);
-  if (byUrl !== undefined) return byUrl.root;
+  if (byUrl !== undefined) {return byUrl.root;}
   const pagePort = '' === url.port ? DEFAULT_PORT[url.protocol] : Number(url.port);
-  if (pagePort === undefined) return undefined;
+  if (pagePort === undefined) {return undefined;}
   // Behind a dev proxy the page's port is the proxy's, and `lsof` on it names the proxy's folder.
   // The proxy's route table names the dev server's own port.
   const proxy = isLocalhostSubdomain(url.hostname) ? io.devProxy?.() : undefined;
   const route = proxy?.routes.find((r) => r.hostname === url.hostname.toLowerCase());
-  if (route === undefined && true === proxy?.ports.includes(pagePort)) return undefined;
+  if (route === undefined && true === proxy?.ports.includes(pagePort)) {return undefined;}
   const port = route?.port ?? pagePort;
   const announced = io.devServers().find((entry) => entry.port === port);
-  if (announced !== undefined) return announced.root;
+  if (announced !== undefined) {return announced.root;}
   return io.listenerCwd(port) ?? undefined;
 }
 
@@ -151,7 +151,7 @@ export function liveCheckoutSource(
         : undefined;
     },
     ofTab: (tab) => {
-      if (placed.has(tab)) return placed.get(tab);
+      if (placed.has(tab)) {return placed.get(tab);}
       const origin = originOf(tab.url);
       const checkout = origin === undefined ? undefined : placeOrigin(origin);
       placed.set(tab, checkout);

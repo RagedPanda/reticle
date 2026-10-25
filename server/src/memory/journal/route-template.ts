@@ -39,7 +39,7 @@ function isIdSegment(segment: string): boolean {
 }
 
 export function routeTemplate(pathname: string): string {
-  if (0 === pathname.length) return pathname;
+  if (0 === pathname.length) {return pathname;}
   return pathname
     .split('/')
     .map((segment) => (isIdSegment(segment) ? ID : segment))

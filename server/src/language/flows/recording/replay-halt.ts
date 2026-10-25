@@ -31,13 +31,13 @@ export function haltedFrom(
   total: number,
 ): ReplayHalt | undefined {
   const last = results[results.length - 1];
-  if (last === undefined) return undefined;
-  if (last.ok && last.drift === undefined) return undefined;
+  if (last === undefined) {return undefined;}
+  if (last.ok && last.drift === undefined) {return undefined;}
   // From the step's own index, not the count of results: a resumed replay does not report its setup
   // prefix, so the results array no longer starts at step 0.
   const notAttempted = total - (last.step + 1);
   // A failure on the FINAL step is not a halt: nothing was left to attempt, and `notAttempted: 0`
   // would send a reader looking for steps that do not exist.
-  if (notAttempted <= 0) return undefined;
+  if (notAttempted <= 0) {return undefined;}
   return { atStep: last.step, notAttempted };
 }

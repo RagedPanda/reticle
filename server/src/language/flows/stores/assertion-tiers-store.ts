@@ -65,7 +65,7 @@ export class AssertionTiersStore {
     try {
       text = await this.#fs.readFile(this.#path);
     } catch (error) {
-      if (this.#fs.isNotFound(error)) return {};
+      if (this.#fs.isNotFound(error)) {return {};}
       throw error;
     }
     let parsed: unknown;
@@ -75,7 +75,7 @@ export class AssertionTiersStore {
       return {};
     }
     const result = AssertionTiersFileSchema.safeParse(parsed);
-    if (!result.success) return {};
+    if (!result.success) {return {};}
     const out: FlowTiers = {};
     for (const [name, entry] of Object.entries(result.data.flows)) {
       out[name] = {

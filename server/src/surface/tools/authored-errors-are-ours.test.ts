@@ -117,7 +117,7 @@ describe('it does not swallow genuine failures', () => {
 describe('every refusal resolveTargetRef writes is recognized as ours', () => {
   const messageFor = (candidates: readonly unknown[]): string => {
     const resolution = resolveTargetRef(candidates);
-    if ('error' !== resolution.kind) throw new Error('expected a refusal, got a ref');
+    if ('error' !== resolution.kind) {throw new Error('expected a refusal, got a ref');}
     return resolution.message;
   };
 

@@ -66,7 +66,7 @@ function directCalls(file: string): number {
     if (trimmed.startsWith('*') || trimmed.startsWith('//') || trimmed.startsWith('/*')) {
       return false;
     }
-    if (trimmed.startsWith('import') || trimmed.startsWith('export {')) return false;
+    if (trimmed.startsWith('import') || trimmed.startsWith('export {')) {return false;}
     return /\breplayNamedFlow\s*\(/.test(line);
   }).length;
 }

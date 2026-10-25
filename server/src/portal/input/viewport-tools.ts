@@ -64,7 +64,7 @@ export function mediaOf(raw: {
 
 /** A lease's `emulate` argument, read; a value it does not know is refused by name. */
 export function leaseEmulationOf(raw: unknown): LeaseEmulation | undefined {
-  if (raw === undefined) return undefined;
+  if (raw === undefined) {return undefined;}
   const parsed = EmulateSchema.safeParse(raw);
   if (!parsed.success) {
     const field = parsed.error.issues[0]?.path.join('.') ?? 'emulate';
@@ -76,7 +76,7 @@ export function leaseEmulationOf(raw: unknown): LeaseEmulation | undefined {
     width === undefined && height === undefined
       ? undefined
       : { width: width ?? DEFAULT_WIDTH, height: height ?? DEFAULT_HEIGHT };
-  if (media === undefined && viewport === undefined) return undefined;
+  if (media === undefined && viewport === undefined) {return undefined;}
   return { ...media, ...(viewport === undefined ? {} : { viewport }) };
 }
 
@@ -138,8 +138,8 @@ export const VIEWPORT_TOOLS: ToolDef[] = [
       if (provider !== undefined) {
         const applied = await provider.setViewport(session.url, { width, height });
         // The driven page takes the size; its media stay as the person's browser has them.
-        if (applied && media === undefined) return { applied: true, width, height };
-        if (applied) return { applied: true, width, height, recommendation: MEDIA_NEEDS_A_LEASE };
+        if (applied && media === undefined) {return { applied: true, width, height };}
+        if (applied) {return { applied: true, width, height, recommendation: MEDIA_NEEDS_A_LEASE };}
       }
       // A lease is a Playwright-owned page, so the resize was always possible — this tool just had
       // no route to it. Tried after the driven provider, on the same rule reticle_network_mock
@@ -150,8 +150,8 @@ export const VIEWPORT_TOOLS: ToolDef[] = [
       // only mounts under a breakpoint — could not be driven at a desktop viewport at all, and the
       // recommendation printed alongside the refusal asked the reader to install a second browser.
       const leased = await deps.pool?.setViewportLease(session.id, { width, height });
-      if (true !== leased) return refused();
-      if (media === undefined) return { applied: true, width, height };
+      if (true !== leased) {return refused();}
+      if (media === undefined) {return { applied: true, width, height };}
       if (true === (await deps.pool?.emulateLease(session.id, media))) {
         return { applied: true, width, height, ...media };
       }
@@ -190,7 +190,7 @@ function refused(): {
  * snapshot, click and screenshot on that page read as broken (#1118).
  */
 function clampDim(key: string, value: unknown): number {
-  if (value === undefined) return MIN_DIM;
+  if (value === undefined) {return MIN_DIM;}
   if ('number' !== typeof value || !Number.isFinite(value)) {
     throw new Error(
       `${ReticleTool.VIEWPORT}: \`${key}\` must be a number of CSS px, got ${JSON.stringify(value)} — NOT applied`,

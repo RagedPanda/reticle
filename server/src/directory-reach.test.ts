@@ -491,7 +491,9 @@ const REACHES_FOR: Record<string, readonly string[]> = {
    * `.reticle/.gitignore` with the daemon's own rule (`on-disk`, reading the old file through `fs`),
    * because the hook can run before any daemon has, and a prompt must never land unignored.
    */
-  hook: ['config', 'fs', 'intent', 'on-disk'],
+  // `journal` for the episode log's record version: the post-tool hook writes into the same files.
+  // `journal` imports nothing from `hook`, so this adds no mutual pair.
+  hook: ['config', 'fs', 'intent', 'journal', 'on-disk'],
   // What a run artifact is FOR once it exists -- stored, compared, and read back as established
   // fact -- as against the rest of `runs`, which produces one. Named `artifact`, singular, and it
   // must stay singular: `core/src/artifacts` is a different package and a different node, and
@@ -913,7 +915,7 @@ describe('the directories in this package know only what they are allowed to kno
     const added: string[] = [];
     for (const [one, targets] of found) {
       for (const other of targets) {
-        if (!(REACHES_FOR[one] ?? []).includes(other)) added.push(`${one} -> ${other}`);
+        if (!(REACHES_FOR[one] ?? []).includes(other)) {added.push(`${one} -> ${other}`);}
       }
     }
     expect(
@@ -932,7 +934,7 @@ describe('the directories in this package know only what they are allowed to kno
     const stale: string[] = [];
     for (const [one, targets] of Object.entries(REACHES_FOR)) {
       for (const other of targets) {
-        if (true !== found.get(one)?.has(other)) stale.push(`${one} -> ${other}`);
+        if (true !== found.get(one)?.has(other)) {stale.push(`${one} -> ${other}`);}
       }
     }
     expect(

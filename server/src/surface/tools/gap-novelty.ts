@@ -48,13 +48,13 @@ export function withGapNovelty<T extends GapLike>(
   /** When the verdict was taken: stamps the gaps recorded for the app's coverage. */
   now: number = Date.now(),
 ): T[] {
-  if (0 === gaps.length) return [];
+  if (0 === gaps.length) {return [];}
   // Before the trim, while each gap still carries its remedy: the app's coverage and the platform
   // report read the full gap, and this is the one place every verdict's gaps pass through.
-  if (sessionId !== undefined) recordGaps(sessionId, gaps, now);
+  if (sessionId !== undefined) {recordGaps(sessionId, gaps, now);}
   // No session id means no memory to check against, so nothing can be a repeat. Sending the full
   // text is the safe direction: a reader who has seen it skims, a reader who has not is stuck.
-  if (sessionId === undefined) return [...gaps];
+  if (sessionId === undefined) {return [...gaps];}
   let told = toldBySession.get(sessionId);
   if (told === undefined) {
     told = new Set<string>();
@@ -62,7 +62,7 @@ export function withGapNovelty<T extends GapLike>(
   }
   return gaps.map((gap) => {
     const kind = 'string' === typeof gap.kind ? gap.kind : undefined;
-    if (kind === undefined) return gap;
+    if (kind === undefined) {return gap;}
     if (!told.has(kind)) {
       told.add(kind);
       return gap;
@@ -70,7 +70,7 @@ export function withGapNovelty<T extends GapLike>(
     const source = gap as unknown as Record<string, unknown>;
     const compact: Record<string, unknown> = { repeat: true };
     for (const key of FACT_KEYS) {
-      if (source[key] !== undefined) compact[key] = source[key];
+      if (source[key] !== undefined) {compact[key] = source[key];}
     }
     return compact as unknown as T;
   });

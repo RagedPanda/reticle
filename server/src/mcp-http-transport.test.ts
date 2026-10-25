@@ -90,8 +90,8 @@ function openSse(port: number, path: string = MCP_SSE_PATH): Promise<SseSession>
           let event = 'message';
           const data: string[] = [];
           for (const line of part.split('\n')) {
-            if (line.startsWith('event:')) event = line.slice('event:'.length).trim();
-            else if (line.startsWith('data:')) data.push(line.slice('data:'.length).trim());
+            if (line.startsWith('event:')) {event = line.slice('event:'.length).trim();}
+            else if (line.startsWith('data:')) {data.push(line.slice('data:'.length).trim());}
           }
           const frame: SseFrame = { event, data: data.join('\n') };
           frames.push(frame);

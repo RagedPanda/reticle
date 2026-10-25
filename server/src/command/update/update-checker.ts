@@ -60,7 +60,7 @@ function validateNpmInfo(info: NpmPackageInfo): NpmPackageInfo {
 }
 
 export function loadManifest(): UpdateManifest | null {
-  if (!fs.existsSync(MANIFEST_PATH)) return null;
+  if (!fs.existsSync(MANIFEST_PATH)) {return null;}
   try {
     const raw = fs.readFileSync(MANIFEST_PATH, 'utf8');
     return JSON.parse(raw) as UpdateManifest;
@@ -148,7 +148,7 @@ export async function checkForUpdate(
     log('reticle_update_check_failed', {
       error: err instanceof Error ? err.message : String(err),
     });
-    if (cached !== null) return { ...cached, currentVersion };
+    if (cached !== null) {return { ...cached, currentVersion };}
     return {
       currentVersion,
       updateAvailable: false,
