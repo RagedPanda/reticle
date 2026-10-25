@@ -2,11 +2,13 @@ name: Win32 job probe
 
 # Evidence probe, not a gate. It runs apps/e2e/win32-job-kill.mjs, which checks whether a child
 # started like spawnDaemon (detached: true) dies when the Job Object of its parent closes with
-# KILL_ON_JOB_CLOSE, and which start methods escape the job. Manual dispatch only: it never runs
-# on push or on a pull request.
+# KILL_ON_JOB_CLOSE, and which start methods escape the job. It runs on manual dispatch, and on a
+# push to its own probe branch only (a dispatch needs the file on main first). Never on a pull request.
 
 on:
   workflow_dispatch:
+  push:
+    branches: [test/win32-daemon-job-kill]
 
 permissions:
   contents: read
