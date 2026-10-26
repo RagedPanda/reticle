@@ -1,3 +1,0 @@
-### Fixed
-
-- **`@reticlehq/browser`, `@reticlehq/server`: `click` ignored `args.modifiers` and `args.button`.** A Shift+click or a right-click was sent as a plain left click, and nothing said so. A `click` or `dblclick` now carries the `shiftKey`, `ctrlKey`, `metaKey` and `altKey` flags on every pointer, mouse and click event. A `click` with `button: "right"` sends `button: 2`, a `contextmenu` and an `auxclick`. A `click` with `button: "middle"` sends `button: 1` and an `auxclick`. The native path (`native: true`) holds the modifiers down around the click and passes the button to the driver. An unknown modifier or button, and a `dblclick` with a button other than left, is refused before any event runs. Closes [#1885](https://github.com/reticlehq/reticle/issues/1899)

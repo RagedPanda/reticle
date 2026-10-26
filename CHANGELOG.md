@@ -4,6 +4,20 @@ All notable changes to the **`@reticlehq/*`** packages are documented here (each
 
 ## [Unreleased]
 
+## [3.8.2] — 2026-10-27
+
+**Upgrade note:** 3.8.1 could not record a verdict. Update the CLI and the SDK in your app.
+
+### Added
+
+- **`@reticlehq/react` — `install()` accepts `{ discoverStores: false }` to opt out of provider-store auto-discovery.** An app with more than one context provider had no way to stop `install()` from registering every store it found in the fiber tree. The only escape was to skip `install()` and call `registerAdapter` by hand, which also dropped the render meter. `install({ discoverStores: false })` now skips `autoRegisterStores` entirely while keeping commit counting and the `__reticle_renders` store intact. Explicit `registerStore('safe', myStore)` calls continue to work. `install()` and `install({})` are unchanged. Closes [#1700](https://github.com/reticlehq/reticle/issues/1700).
+
+### Fixed
+
+- **`@reticlehq/browser`: `select` on a Radix or Headless UI combobox named no way forward.** The refusal was `cannot select on a <button>`. For an element with `role="combobox"` or `aria-haspopup="listbox"`, the refusal now says to click the combobox, then click the option with `{ role: "option", name: "<label>" }`. Closes [#1895](https://github.com/reticlehq/reticle/issues/1895).
+- **`@reticlehq/browser`, `@reticlehq/server`: `click` ignored `args.modifiers` and `args.button`.** A Shift+click or a right-click was sent as a plain left click, and nothing said so. A `click` or `dblclick` now carries the `shiftKey`, `ctrlKey`, `metaKey` and `altKey` flags on every pointer, mouse and click event. A `click` with `button: "right"` sends `button: 2`, a `contextmenu` and an `auxclick`. A `click` with `button: "middle"` sends `button: 1` and an `auxclick`. The native path (`native: true`) holds the modifiers down around the click and passes the button to the driver. An unknown modifier or button, and a `dblclick` with a button other than left, is refused before any event runs. Closes [#1885](https://github.com/reticlehq/reticle/issues/1899)
+- **`@reticlehq/core`, `@reticlehq/engine`, `@reticlehq/server` — 3.8.1 could not record a verdict.** Every run 3.8.1 built or read failed with `Invalid element at key "subject": expected a Zod schema`. `open-verification` moved to zod 4 in the repository but kept its version, 1.0.0, so the release skipped it and core 3.8.1 pinned the zod 3 build already on npm. `open-verification` is now 1.1.0, and the publish refuses any package whose dependencies changed under a version already on npm (`scripts/check-unbumped-packages.mjs`).
+
 ## [3.8.1] — 2026-10-26
 
 **Upgrade note:** update the SDK in your app as well as the CLI. The Next.js badge fix runs in the page SDK. Run `npx @reticlehq/server@latest init` in the app, or update `@reticlehq/browser` and your build plugin.
