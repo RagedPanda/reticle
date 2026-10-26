@@ -105,6 +105,11 @@ jobs:
       # tarball would reach npm with an empty key and no step having failed. Without the secret the
       # publish still succeeds and ships an eval-mode build, so a release that must activate enterprise
       # keys needs this set. The public key can only verify licenses, never mint them.
+      # `pnpm -r publish` skips a version already on npm, so a package whose content changed under an
+      # unchanged version is silently left at its old build. 3.8.1 shipped broken that way: see
+      # scripts/check-unbumped-packages.mjs.
+      - name: Refuse a package that changed under a published version
+        run: node scripts/check-unbumped-packages.mjs
       - name: Publish public packages
         run: pnpm -r publish --access public --no-git-checks
         env:
