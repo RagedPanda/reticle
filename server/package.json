@@ -1,6 +1,6 @@
 {
   "name": "@reticlehq/server",
-  "version": "3.8.2",
+  "version": "3.8.3",
   "mcpName": "io.github.reticlehq/reticle",
   "description": "Reticle CLI, bridge and MCP server: a coding agent drives your running web app from the inside and gets a verdict with evidence, for change verification, access control, accessibility, performance and SEO checks.",
   "type": "module",
@@ -74,7 +74,7 @@
     "cli"
   ],
   "reticle": {
-    "changelog": "3.8.1 could not record a verdict: every run it built or read failed with an Invalid element at key subject error. 3.8.2 fixes it. Update the CLI and the SDK in your app.",
+    "changelog": "A zero-install lease now keeps its session when the app loads a new page, for example after a login. On Windows, a running daemon is no longer taken for dead and started a second time. A lease on a hosted preview can now connect, and a text check reads the whole text. Also fixed: run reports from other agents, target: { ref }, reticle_viewport with only media, smooth scrolling, and 3D-flipped cards.",
     "breakingChanges": []
   },
   "publishConfig": {
