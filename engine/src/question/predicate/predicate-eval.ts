@@ -15,6 +15,7 @@ import { isReticleVoice } from '../../state-bookkeeping.js';
 import { describeObserved } from './observed-in-window.js';
 import { netEvidence } from './net-evidence.js';
 import { mergeNetworkDetail } from '@/window/network-detail-merge.js';
+import { departedInWindow } from '@/window/event-filters.js';
 import {
   checkRequestBody,
   REMEDY_BODY_CAPTURE,
@@ -145,7 +146,10 @@ function nativeDownloadMiss(
   events: ReticleEvent[],
   p: Extract<Predicate, { kind: typeof PredicateKind.NET }>,
 ): EvalResult | undefined {
-  if (!targetsNativeDownload(p.urlContains)) {
+  if (
+    !targetsNativeDownload(p.urlContains) &&
+    !departedInWindow(events, p.since ?? 0, p.method, p.urlContains)
+  ) {
     return undefined;
   }
   const reason = nativeDownloadReason(describeNetFilter(p));
