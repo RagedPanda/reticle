@@ -1,6 +1,6 @@
 {
   "name": "@reticlehq/server",
-  "version": "3.8.2",
+  "version": "3.8.3",
   "mcpName": "io.github.reticlehq/reticle",
   "description": "Reticle CLI, bridge and MCP server: a coding agent drives your running web app from the inside and gets a verdict with evidence, for change verification, access control, accessibility, performance and SEO checks.",
   "type": "module",
@@ -74,7 +74,7 @@
     "cli"
   ],
   "reticle": {
-    "changelog": "3.8.1 could not record a verdict: every run it built or read failed with an Invalid element at key subject error. 3.8.2 fixes it. Update the CLI and the SDK in your app.",
+    "changelog": "On some Windows machines the daemon died as soon as it started, so Reticle never came up. 3.8.3 starts it the 3.8.0 way when that happens. A lease on a hosted preview or another page that is not on localhost can now connect. Also fixed: target: { ref } in reticle_act, reticle_viewport with only media answering 0x0, and an element read as off screen during smooth scrolling.",
     "breakingChanges": []
   },
   "publishConfig": {
