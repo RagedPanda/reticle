@@ -22,6 +22,7 @@ import {
 } from '@reticlehq/core';
 import { log } from '@/log.js';
 import { uncleanPredecessor } from './lifetime/unclean-predecessor.js';
+import { deathCauseFromLog, readLogTail, type DeathCause } from './lifetime/death-cause.js';
 import { reportDaemonDiedUnclean } from '@/telemetry/proxy-telemetry.js';
 import { MAX_DAEMON_LOG_BYTES, pruneOldDaemonLogs } from './lifetime/log-cap.js';
 import { escapeJobViaWmi, type EscapeRequest, type EscapeResult } from './win32-escape.js';
@@ -255,10 +256,11 @@ export interface SpawnDaemonDeps {
   /** Block for `ms`. Optional so a test does not wait; the default blocks the thread. */
   readonly sleep?: (ms: number) => void;
   /**
-   * A predecessor died without a clean stop; `ageMs` is how long it had run. Optional so a test that
-   * does not care reports nothing. The default sends `daemon_died_unclean`.
+   * A predecessor died without a clean stop; `ageMs` is how long it had run, and `cause` is what its
+   * own log says about how it ended. Optional so a test that does not care reports nothing. The
+   * default sends `daemon_died_unclean`.
    */
-  onUncleanDeath?(ageMs: number): void;
+  onUncleanDeath?(ageMs: number, cause?: DeathCause): void;
 }
 
 function defaultSpawnDaemonDeps(): SpawnDaemonDeps {
@@ -278,7 +280,7 @@ function defaultSpawnDaemonDeps(): SpawnDaemonDeps {
     platform: process.platform,
     escapeJob: escapeJobViaWmi,
     sleep: (ms) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms),
-    onUncleanDeath: (ageMs) => void reportDaemonDiedUnclean(ageMs),
+    onUncleanDeath: (ageMs, cause) => void reportDaemonDiedUnclean(ageMs, cause),
   };
 }
 
@@ -286,10 +288,15 @@ function defaultSpawnDaemonDeps(): SpawnDaemonDeps {
  * Report a dead predecessor, aged from its pidfile: the parent writes that file at spawn time.
  * Read before the unlink, because after it nothing is left to age. A report must never stop a start.
  */
-function reportUncleanAge(pidFilePath: string, deps: SpawnDaemonDeps): void {
+function reportUncleanAge(pidFilePath: string, logFilePath: string, deps: SpawnDaemonDeps): void {
   try {
     // The clock is read at this I/O boundary, the same as the log timestamps in this file.
-    deps.onUncleanDeath?.(Math.max(0, Date.now() - statSync(pidFilePath).mtimeMs));
+    const now = Date.now();
+    const startedMs = statSync(pidFilePath).mtimeMs;
+    // Read before `rotateDaemonLog`, which renames the file this daemon wrote.
+    const tail = readLogTail(logFilePath);
+    const cause = tail === undefined ? undefined : deathCauseFromLog(tail, startedMs, now);
+    deps.onUncleanDeath?.(Math.max(0, now - startedMs), cause);
   } catch {
     // An unreadable pidfile has no age to report.
   }
@@ -381,7 +388,7 @@ export function spawnDaemon(
     // because after it there is no trace left that the previous daemon died at all.
     orphanPid = uncleanPredecessor(existing, false, process.pid);
     if (null !== orphanPid) {
-      reportUncleanAge(pidFilePath, deps);
+      reportUncleanAge(pidFilePath, logFilePath, deps);
     }
     try {
       unlinkSync(pidFilePath);
