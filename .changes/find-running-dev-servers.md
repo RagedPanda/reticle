@@ -1,0 +1,3 @@
+### Added
+
+- **`@reticlehq/server` — bare `reticle` finds the app that already runs.** A global install is often run outside the app folder. Outside a wired project, `reticle` with no arguments now looks for dev servers on localhost and lists up to five, for example `http://localhost:3000 (Next.js)`. The framework name comes only from what the server answers; otherwise it says "a web server". In a terminal, it asks which one to verify and runs `reticle verify <url>` for it. Without a terminal, it prints the `reticle verify` command for each one. `reticle --json` prints the same list as JSON. When nothing runs, or you press Enter, `reticle` starts the daemon as before.

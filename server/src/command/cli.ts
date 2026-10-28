@@ -70,6 +70,12 @@ import { NAVIGATE_NO_SESSION_ID, navigateLeftTab, openCandidates } from './cli/o
 import { fetchStatus } from './daemon/binding/daemon-status-probe.js';
 import { handleDrive } from './cli/drive/drive-command.js';
 import { handleVerify } from './cli/cli-verify.js';
+import {
+  askInTerminal,
+  findRunningDevServers,
+  nodeDevServerScan,
+  offerRunningDevServers,
+} from './cli/running-dev-servers.js';
 import { runKill } from './cli/cli-kill.js';
 import { runInit, buildNodeIo, InitFailure, type InitResult } from '@reticlehq/init';
 import { continueAfterInit } from './setup/init/init-runtime.js';
@@ -95,6 +101,7 @@ import {
   versionToMatch,
 } from './cli/launch/sdk-version-match.js';
 import type { StartOptions } from '@/index.js';
+import type { CliResult } from './cli/cli-parse.js';
 
 import {
   DAEMON_INNER_COMMAND,
@@ -238,6 +245,30 @@ import { handleServe, handleStop, handleRestart } from './cli/lifecycle/daemon-l
  * Bare on stdout so `V=$(reticle version)` works. It also wrote a JSON event to stderr, which a
  * terminal shows: the first thing a new user typed after installing answered with a log line.
  */
+/**
+ * Bare `reticle` outside a wired project: offer the dev servers that run now. A chosen one runs
+ * `reticle verify <url>`. Otherwise, and when nothing runs, it serves as before.
+ */
+async function offerThenServe(
+  parsed: Extract<CliResult, { kind: 'serve' }>,
+  json: boolean,
+): Promise<void> {
+  const servers = await findRunningDevServers(nodeDevServerScan);
+  const url = await offerRunningDevServers(servers, {
+    interactive: true === process.stdin.isTTY && true === process.stdout.isTTY,
+    json,
+    write: (text) => process.stdout.write(text),
+    ask: askInTerminal,
+  });
+  const verify =
+    url === undefined ? undefined : parseCliArgs(['verify', url], parsed.port, parsed.headless);
+  if ('verify' === verify?.kind) {
+    handleVerify(verify);
+    return;
+  }
+  handleServe(parsed);
+}
+
 function handleVersion(): void {
   process.stdout.write(`${SERVER_VERSION}\n`);
 }
@@ -744,7 +775,15 @@ export function main(): void {
       void handleInit(parsed);
       break;
     case 'serve':
-      handleServe(parsed);
+      // A wired project's own folder keeps plain `serve`: the person is in the right place.
+      if (
+        parsed.offerDevServers === undefined ||
+        (!parsed.offerDevServers.json && myProjectId !== undefined)
+      ) {
+        handleServe(parsed);
+      } else {
+        void offerThenServe(parsed, parsed.offerDevServers.json);
+      }
       break;
     case 'stop':
       handleStop(parsed.port, parsed.quiet);

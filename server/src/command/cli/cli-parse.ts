@@ -284,6 +284,8 @@ export type CliResult =
       http: boolean;
       httpPort?: number;
       httpToken?: string;
+      /** Bare `reticle` (or `reticle --json`): offer the dev servers that run now, then serve. */
+      offerDevServers?: { json: boolean };
     }
   | { kind: 'stop'; port: number; quiet: boolean }
   | { kind: 'kill'; port: number; force: boolean }
@@ -626,9 +628,17 @@ export function parseCliArgs(
   defaultPort: number,
   defaultHeadless = false,
 ): CliResult {
-  // Bare `reticle` is `serve`.
-  if (0 === argv.length) {
-    return { kind: 'serve', port: defaultPort, headless: defaultHeadless, http: false };
+  // Bare `reticle` is `serve`. It first offers the dev servers that already run, because a global
+  // install is often run outside the app folder. `--json` alone asks for that list as JSON.
+  const bareJson = 1 === argv.length && JSON_FLAG === argv[0];
+  if (0 === argv.length || bareJson) {
+    return {
+      kind: 'serve',
+      port: defaultPort,
+      headless: defaultHeadless,
+      http: false,
+      offerDevServers: { json: bareJson },
+    };
   }
 
   const [cmd, ...rest] = argv;

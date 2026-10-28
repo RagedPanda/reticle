@@ -89,13 +89,28 @@ const INIT_DEFAULTS = {
 };
 
 describe('parseCliArgs', () => {
-  it('no args defaults to serve on the default port', () => {
+  it('no args defaults to serve on the default port, and offers running dev servers first', () => {
     expect(parseCliArgs([], PORT)).toEqual({
       kind: 'serve',
       port: PORT,
       headless: false,
       http: false,
+      offerDevServers: { json: false },
     });
+  });
+
+  it('bare `--json` lists the running dev servers as JSON, then serves as bare does', () => {
+    expect(parseCliArgs(['--json'], PORT)).toEqual({
+      kind: 'serve',
+      port: PORT,
+      headless: false,
+      http: false,
+      offerDevServers: { json: true },
+    });
+  });
+
+  it('`serve` itself offers nothing', () => {
+    expect(parseCliArgs(['serve'], PORT)).not.toHaveProperty('offerDevServers');
   });
 
   // The agent half of the feedback channel: usable when `reticle_feedback` does not exist yet, which
