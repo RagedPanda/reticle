@@ -13,6 +13,7 @@ import {
   CodedRefusalSchema,
   PRODUCTION_REFUSAL_PREFIX,
   RefusalCode,
+  RefusalDetail,
   RefusalReason,
   ReticleEnv,
   TRANSPORT_LIMITS,
@@ -54,7 +55,9 @@ const ELISION = '… [elided] …';
  */
 function capMessage(message: string): string {
   const max = TRANSPORT_LIMITS.MAX_ERROR_LENGTH;
-  if (max >= message.length) return message;
+  if (max >= message.length) {
+    return message;
+  }
   const keep = Math.floor((max - ELISION.length) / 2);
   return `${message.slice(0, keep)}${ELISION}${message.slice(message.length - keep)}`;
 }
@@ -108,7 +111,9 @@ function isUnissuedRefRefusal(message: string): boolean {
 
 /** A message that already carries its own concrete next action, so nothing should be appended. */
 function isSelfRecovering(message: string): boolean {
-  if (message.includes(SELF_RECOVERING_MARKER)) return true;
+  if (message.includes(SELF_RECOVERING_MARKER)) {
+    return true;
+  }
   return SELF_RECOVERING.some((rule) => rule.match.test(message));
 }
 
@@ -377,6 +382,48 @@ const REASON_OF: Record<keyof typeof RECOVERY, RefusalReason> = {
   HARNESS_LOCKED: RefusalReason.UNSUPPORTED,
 };
 
+/**
+ * Which CAUSE each recovery names, for `tool_refused`. A `Record` for the same reason as `REASON_OF`:
+ * a recovery added without a detail does not compile. A rule can name a narrower detail than its
+ * recovery (`NO_POOL` covers three causes with one hint).
+ */
+const DETAIL_OF: Record<keyof typeof RECOVERY, RefusalDetail> = {
+  NO_SESSION: RefusalDetail.NO_SESSION,
+  MULTIPLE_SESSIONS: RefusalDetail.MULTIPLE_SESSIONS,
+  UNKNOWN_SESSION: RefusalDetail.UNKNOWN_SESSION,
+  SCOPE_MISMATCH: RefusalDetail.SCOPE_MISMATCH,
+  SESSION_GONE: RefusalDetail.SESSION_GONE,
+  THROTTLED: RefusalDetail.THROTTLED,
+  COMMAND_TIMEOUT: RefusalDetail.COMMAND_TIMEOUT,
+  NO_POOL: RefusalDetail.POOL_UNAVAILABLE,
+  CHROMIUM_PATH: RefusalDetail.CHROMIUM_PATH,
+  TOKEN_REQUIRED: RefusalDetail.TOKEN_REQUIRED,
+  MISSING_BASELINE: RefusalDetail.MISSING_BASELINE,
+  MISSING_RECORDING: RefusalDetail.MISSING_RECORDING,
+  STALE_REF: RefusalDetail.STALE_REF,
+  STALE_REF_AFTER_EDIT: RefusalDetail.STALE_REF_AFTER_EDIT,
+  UNISSUED_REF: RefusalDetail.UNISSUED_REF,
+  NO_SUCH_OPTION: RefusalDetail.NO_SUCH_OPTION,
+  TARGET_MISSED: RefusalDetail.TARGET_MISSED,
+  AMBIGUOUS_TARGET: RefusalDetail.AMBIGUOUS_TARGET,
+  FLOW_STEP_MISSING: RefusalDetail.FLOW_STEP_MISSING,
+  UNSUPPORTED_SURFACE: RefusalDetail.UNSUPPORTED_SURFACE,
+  HOVER_NEEDS_POINTER: RefusalDetail.HOVER_NEEDS_POINTER,
+  NOT_EDITABLE: RefusalDetail.NOT_EDITABLE,
+  CONFIRM_DANGEROUS: RefusalDetail.CONFIRM_DANGEROUS,
+  WRONG_TARGET: RefusalDetail.WRONG_TARGET,
+  PRODUCTION_POLICY: RefusalDetail.PRODUCTION_POLICY,
+  BAD_ARGUMENTS: RefusalDetail.BAD_ARGUMENTS,
+  INVALID_NAME: RefusalDetail.INVALID_NAME,
+  HARNESS_OFF: RefusalDetail.HARNESS_OFF,
+  HARNESS_LOCKED: RefusalDetail.HARNESS_LOCKED,
+};
+
+/** Hint text back to its detail, as `REASON_BY_HINT` does for the reason. */
+const DETAIL_BY_HINT: ReadonlyMap<string, RefusalDetail> = new Map(
+  Object.entries(RECOVERY).map(([key, hint]) => [hint, DETAIL_OF[key as keyof typeof RECOVERY]]),
+);
+
 /** Hint text back to its reason. The hints are distinct strings, so this inverts cleanly. */
 const REASON_BY_HINT: ReadonlyMap<string, RefusalReason> = new Map(
   Object.entries(RECOVERY).map(([key, hint]) => [hint, REASON_OF[key as keyof typeof RECOVERY]]),
@@ -388,7 +435,14 @@ const escapeRegExp = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/
 const startsWithAny = (sentences: readonly string[]): RegExp =>
   new RegExp(`^(?:${sentences.map((s) => escapeRegExp(s.split('. ')[0] ?? s)).join('|')})`);
 
-const RULES: readonly { readonly match: RegExp; readonly hint: string }[] = [
+interface RecoveryRule {
+  readonly match: RegExp;
+  readonly hint: string;
+  /** A narrower cause than the hint's own `DETAIL_OF` entry, where one hint covers several. */
+  readonly detail?: RefusalDetail;
+}
+
+const RULES: readonly RecoveryRule[] = [
   // First, because the message carries a path the user chose, and a path can hold any word a later
   // rule keys on. Without it the variable's name read as a `reticle_*` tool and the agent was told
   // its call failed the schema. Not anchored, so a launch error that wraps it is still caught. The
@@ -433,9 +487,17 @@ const RULES: readonly { readonly match: RegExp; readonly hint: string }[] = [
   { match: /^command '[^']*' timed out after/i, hint: RECOVERY.COMMAND_TIMEOUT },
   // Flow replay: the recorded anchor is gone. Ordinary drift, and the tool that fixes it exists.
   { match: /did not resolve in current page/i, hint: RECOVERY.FLOW_STEP_MISSING },
+  // One hint for three causes: the agent's next step is the same, the fix for the user is not.
+  { match: /browser pool unavailable/i, hint: RECOVERY.NO_POOL },
   {
-    match: /browser pool (?:unavailable|is shut down)|Chromium is not installed/i,
+    match: /browser pool is shut down/i,
     hint: RECOVERY.NO_POOL,
+    detail: RefusalDetail.POOL_SHUT_DOWN,
+  },
+  {
+    match: /Chromium is not installed/i,
+    hint: RECOVERY.NO_POOL,
+    detail: RefusalDetail.CHROMIUM_MISSING,
   },
   // The commonest post-action condition there is. Unmatched, it fell through to FEEDBACK_ASK and
   // told the agent a successful click's aftermath might be a bug in Reticle.
@@ -526,12 +588,24 @@ const RULES: readonly { readonly match: RegExp; readonly hint: string }[] = [
  * saying a server is running and the recovery saying to go start one.
  */
 export function recoveryFor(message: string): string | undefined {
-  if (isUnissuedRefRefusal(message)) return RECOVERY.UNISSUED_REF;
-  if (isSelfRecovering(message)) return undefined;
-  for (const rule of RULES) {
-    if (rule.match.test(message)) return rule.hint;
+  if (isUnissuedRefRefusal(message)) {
+    return RECOVERY.UNISSUED_REF;
   }
-  return undefined;
+  if (isSelfRecovering(message)) {
+    return undefined;
+  }
+  return firstRule(message)?.hint;
+}
+
+/** The first rule that matches the message. The order of `RULES` decides. */
+function firstRule(message: string): RecoveryRule | undefined {
+  return RULES.find((rule) => rule.match.test(message));
+}
+
+/** A refusal's bucket, and the cause inside it when the recovery table can tell. */
+export interface RefusalClass {
+  readonly reason: RefusalReason;
+  readonly detail?: RefusalDetail;
 }
 
 /**
@@ -543,21 +617,47 @@ export function recoveryFor(message: string): string | undefined {
  * this table rather than about anybody's app.
  */
 export function refusalReasonFor(rawMessage: string, coded?: CodedRefusal): RefusalReason {
-  if (coded !== undefined) return REASON_OF_CODE[coded.code];
+  return classifyRefusal(rawMessage, coded).reason;
+}
+
+/**
+ * The bucket and, when the recovery table names one, the cause inside it. The cause comes from the
+ * same rule that chose the agent's advice, so the two cannot disagree. No detail means no rule
+ * matched, or the message diagnosed itself (`noSessionReason` carries that cause).
+ */
+export function classifyRefusal(rawMessage: string, coded?: CodedRefusal): RefusalClass {
+  if (coded !== undefined) {
+    return { reason: REASON_OF_CODE[coded.code] };
+  }
   const message = zodArrayAsSentence(rawMessage);
-  if (isUnissuedRefRefusal(message)) return RefusalReason.BAD_ARGS;
+  if (isUnissuedRefRefusal(message)) {
+    return { reason: RefusalReason.BAD_ARGS, detail: RefusalDetail.UNISSUED_REF };
+  }
   // The no-session diagnosis inspected the machine and named the cause itself, so it never reaches
   // the recovery table. It is the single largest refusal there is; missing it would gut the metric.
-  if (message.includes(SELF_RECOVERING_MARKER)) return RefusalReason.NO_SESSION;
+  if (message.includes(SELF_RECOVERING_MARKER)) {
+    return { reason: RefusalReason.NO_SESSION };
+  }
   for (const rule of SELF_RECOVERING) {
-    if (rule.match.test(message)) return rule.reason;
+    if (rule.match.test(message)) {
+      return { reason: rule.reason };
+    }
   }
   // Same order as buildErrorPayload: a schema rejection is the agent's own call, whatever else in
   // the message might also match.
-  if (ARGUMENT_REJECTION.test(message)) return RefusalReason.BAD_ARGS;
-  if (INVALID_NAME_REJECTION.test(message)) return RefusalReason.BAD_ARGS;
-  const hint = recoveryFor(message);
-  return (hint === undefined ? undefined : REASON_BY_HINT.get(hint)) ?? RefusalReason.OTHER;
+  if (ARGUMENT_REJECTION.test(message)) {
+    return { reason: RefusalReason.BAD_ARGS };
+  }
+  if (INVALID_NAME_REJECTION.test(message)) {
+    return { reason: RefusalReason.BAD_ARGS, detail: RefusalDetail.INVALID_NAME };
+  }
+  const rule = firstRule(message);
+  if (rule === undefined) {
+    return { reason: RefusalReason.OTHER };
+  }
+  const reason = REASON_BY_HINT.get(rule.hint) ?? RefusalReason.OTHER;
+  const detail = rule.detail ?? DETAIL_BY_HINT.get(rule.hint);
+  return detail === undefined ? { reason } : { reason, detail };
 }
 
 /**
@@ -584,7 +684,9 @@ interface ZodIssueShape {
 }
 
 function isZodIssue(value: unknown): value is ZodIssueShape {
-  if (typeof value !== 'object' || null === value) return false;
+  if (typeof value !== 'object' || null === value) {
+    return false;
+  }
   const v = value as Record<string, unknown>;
   return 'string' === typeof v['code'] && 'string' === typeof v['message'];
 }
@@ -613,14 +715,18 @@ function issueClause(issue: ZodIssueShape): string {
  */
 function zodArrayAsSentence(message: string): string {
   const text = message.trim();
-  if (!text.startsWith('[')) return message;
+  if (!text.startsWith('[')) {
+    return message;
+  }
   let parsed: unknown;
   try {
     parsed = JSON.parse(text);
   } catch {
     return message; // not JSON at all — e.g. prose that happens to open with a bracket
   }
-  if (!Array.isArray(parsed) || 0 === parsed.length || !parsed.every(isZodIssue)) return message;
+  if (!Array.isArray(parsed) || 0 === parsed.length || !parsed.every(isZodIssue)) {
+    return message;
+  }
   const shown = parsed.slice(0, MAX_RENDERED_ISSUES).map(issueClause).join('; ');
   const rest = parsed.length - MAX_RENDERED_ISSUES;
   return rest > 0 ? `${shown} (and ${String(rest)} more)` : shown;
@@ -694,7 +800,9 @@ const REASON_OF_CODE: Record<CodedRefusal['code'], RefusalReason> = {
  * its sentence: the not-linked refusal was matched by its prose, and the prose was rewritten.
  */
 export function codedRefusalOf(error: unknown): CodedRefusal | undefined {
-  if (!(error instanceof Error)) return undefined;
+  if (!(error instanceof Error)) {
+    return undefined;
+  }
   const parsed = CodedRefusalSchema.safeParse({
     code: 'code' in error ? error.code : undefined,
     next: 'next' in error ? error.next : undefined,
@@ -712,20 +820,29 @@ export function buildErrorPayload(rawMessage: string, coded?: CodedRefusal): Err
   // leave an unparseable fragment as the agent's error text — the worst of both shapes.
   const message = capMessage(zodArrayAsSentence(rawMessage));
   // A coded refusal says who does what next itself: no hint beside it, and no bug-report ask.
-  if (coded !== undefined) return { error: message, code: coded.code, next: coded.next };
-  if (isUnissuedRefRefusal(message)) return { error: message, recovery: RECOVERY.UNISSUED_REF };
+  if (coded !== undefined) {
+    return { error: message, code: coded.code, next: coded.next };
+  }
+  if (isUnissuedRefRefusal(message)) {
+    return { error: message, recovery: RECOVERY.UNISSUED_REF };
+  }
   // A self-diagnosing message gets NEITHER a generic recovery nor the feedback ask. It already
   // inspected the machine and named the cause; a second, contradictory hint is noise, and inviting a
   // bug report about a condition Reticle diagnosed itself is exactly backwards.
-  if (isSelfRecovering(message)) return { error: message };
+  if (isSelfRecovering(message)) {
+    return { error: message };
+  }
   // An argument rejection is the agent's to fix, not a Reticle defect. Reported from the field: a
   // clean `unrecognized_keys: ["value"]` came back wrapped in "may be a defect in Reticle", which
   // spends the agent's turn and fills the feedback channel with reports about malformed calls.
-  if (ARGUMENT_REJECTION.test(message)) return { error: message, recovery: ARGUMENT_RECOVERY };
+  if (ARGUMENT_REJECTION.test(message)) {
+    return { error: message, recovery: ARGUMENT_RECOVERY };
+  }
   // Reticle's own name validators rejecting a caller's value: an argument rejection that the schema
   // cannot express (the shape is a runtime pattern, not a type), so it needs its own arm.
-  if (INVALID_NAME_REJECTION.test(message))
+  if (INVALID_NAME_REJECTION.test(message)) {
     return { error: message, recovery: RECOVERY.INVALID_NAME };
+  }
   const recovery = recoveryFor(message);
   return recovery !== undefined
     ? { error: message, recovery }

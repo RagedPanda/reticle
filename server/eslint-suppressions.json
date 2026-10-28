@@ -3613,11 +3613,6 @@
       "count": 2
     }
   },
-  "src/surface/tools/error-recovery.ts": {
-    "curly": {
-      "count": 20
-    }
-  },
   "src/surface/tools/every-retired-name-redirects.test.ts": {
     "curly": {
       "count": 1
@@ -4305,16 +4300,6 @@
     },
     "no-nested-ternary": {
       "count": 2
-    }
-  },
-  "src/telemetry/tool-refused.test.ts": {
-    "curly": {
-      "count": 1
-    }
-  },
-  "src/telemetry/tool-refused.ts": {
-    "curly": {
-      "count": 1
     }
   },
   "src/telemetry/verification-of.ts": {
