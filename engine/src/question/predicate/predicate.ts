@@ -397,12 +397,15 @@ async function evaluatePredicateRaw(
       );
     }
     case PredicateKind.NET: {
-      const result = evalNet(events, predicate);
+      const result = evalNet(events, predicate, session.sdkVersion);
       if (result.pass || keepsAnswers || result.inconclusive !== undefined) return result;
       // No floor, so a replaced page's answers were left out. If one would have satisfied the
       // predicate, nothing here can say whether it was this action's: unknown, never a plain no.
       const withAnswers = raw.filter((e) => onScreen(e) || isServerAnswer(e));
-      if (withAnswers.length === events.length || !evalNet(withAnswers, predicate).pass) {
+      if (
+        withAnswers.length === events.length ||
+        !evalNet(withAnswers, predicate, session.sdkVersion).pass
+      ) {
         return result;
       }
       return {

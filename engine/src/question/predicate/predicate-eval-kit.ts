@@ -378,3 +378,24 @@ export function describeNetFilter(
   const { kind: _kind, count: _count, since: _since, ...filter } = p;
   return JSON.stringify(filter);
 }
+
+/** Leading `major.minor.patch` as numbers; a pre-release of a version counts as that version. */
+function versionParts(version: string): [number, number, number] | undefined {
+  const m = /^(\d+)\.(\d+)\.(\d+)/.exec(version);
+  return null === m ? undefined : [Number(m[1]), Number(m[2]), Number(m[3])];
+}
+
+/** Whether the page's SDK is older than `since`. An unknown or unreadable version is not. */
+export function sdkPredates(sdk: string | undefined, since: string): boolean {
+  const have = sdk === undefined ? undefined : versionParts(sdk);
+  const need = versionParts(since);
+  if (have === undefined || need === undefined) {
+    return false;
+  }
+  for (let i = 0; i < 3; i += 1) {
+    if (have[i] !== need[i]) {
+      return (have[i] ?? 0) < (need[i] ?? 0);
+    }
+  }
+  return false;
+}

@@ -199,7 +199,9 @@ const OVER_THE_LINE: Readonly<Record<string, number>> = {
   // explains, and a filename here is published API (see public-subpaths-are-pinned.test.ts).
   // 23 with `net-blind-spots.ts`: what the net channel cannot see, split from `predicate-eval.ts` at
   // its line cap, and free of the core contract so the coupling ceiling does not move.
-  'engine/src/question/predicate': 23,
+  // 24 with `truncated-body-advice.ts`: what to do about a truncated body, which now depends on the
+  // page's SDK version (#2031), split from `predicate-eval.ts` at its line cap for the same reason.
+  'engine/src/question/predicate': 24,
   /*
    * Crossed ten when the fast-drive budget and a portable byte counter landed. The guard asks for
    * grouping rather than recording at this moment, and grouping is the wrong move HERE specifically:

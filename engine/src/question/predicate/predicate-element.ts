@@ -30,7 +30,7 @@ import {
 // runtime. `PredicateSession` is the predicate layer's interface to a session and belongs with the
 // evaluator that defines it.
 import type { PredicateSession } from './predicate-session.js';
-import { clipBody } from './predicate-eval-kit.js';
+import { clipBody, sdkPredates } from './predicate-eval-kit.js';
 import { describeTestidMiss } from './testid-near-miss.js';
 import { describeCaseMiss, describeSplitTextMiss } from './split-text-miss.js';
 import { satisfiesProperty, type Baseline, type PropertyAssertion } from './property.js';
@@ -268,27 +268,6 @@ const ELEMENT_STATE_SINCE: Readonly<Partial<Record<ElementState, string>>> = {
   // The key is checked against ElementState by the Record type, so a misspelt state cannot compile.
   pressed: '3.4.0',
 };
-
-/** Leading `major.minor.patch` as numbers; a pre-release of a version counts as that version. */
-function versionParts(version: string): [number, number, number] | undefined {
-  const m = /^(\d+)\.(\d+)\.(\d+)/.exec(version);
-  return null === m ? undefined : [Number(m[1]), Number(m[2]), Number(m[3])];
-}
-
-/** Whether the page's SDK is older than `since`. An unknown or unreadable version is not. */
-function sdkPredates(sdk: string | undefined, since: string): boolean {
-  const have = sdk === undefined ? undefined : versionParts(sdk);
-  const need = versionParts(since);
-  if (have === undefined || need === undefined) {
-    return false;
-  }
-  for (let i = 0; i < 3; i += 1) {
-    if (have[i] !== need[i]) {
-      return (have[i] ?? 0) < (need[i] ?? 0);
-    }
-  }
-  return false;
-}
 
 /** The state, when the page's SDK is older than the first release that answers it. */
 function stateTheSdkPredates(

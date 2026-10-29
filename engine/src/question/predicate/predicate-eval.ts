@@ -14,6 +14,7 @@ import {
 import { isReticleVoice } from '../../state-bookkeeping.js';
 import { describeObserved } from './observed-in-window.js';
 import { netEvidence } from './net-evidence.js';
+import { truncatedBodyAdvice } from './truncated-body-advice.js';
 import { mergeNetworkDetail } from '@/window/network-detail-merge.js';
 import { departedInWindow } from '@/window/event-filters.js';
 import {
@@ -62,17 +63,6 @@ const NetBodyAssertion = {
   MATCHES: 'net.bodyMatches',
 } as const;
 type NetBodyClause = (typeof NetBodyAssertion)[keyof typeof NetBodyAssertion];
-
-/** A truncated body missed a `bodyContains`: the kept prefix can still answer a substring. */
-const TRUNCATED_PREFIX_REMEDY =
-  "Raise it past this response's size and re-run, or assert on something inside the recorded prefix";
-
-/**
- * A truncated body missed a `bodyMatches`. That clause parses the whole body and a JSON prefix never
- * parses, so "assert inside the prefix" changes nothing for it (#1417): name what can work instead.
- */
-const TRUNCATED_MATCHES_REMEDY =
-  "Raise it past this response's size and re-run. `bodyMatches` parses the whole body, and a JSON prefix never parses, so it cannot be judged on the kept part: to assert on what was kept, use `bodyContains` with a substring from it";
 
 // The predicate SHAPE — the discriminated union, its aliases and its zod schema — lives in
 // predicate-schema.ts, and is re-exported here: the two halves are ONE public surface.
@@ -264,6 +254,7 @@ function unrecordedBodyReason(
 export function evalNet(
   events: ReticleEvent[],
   p: Extract<Predicate, { kind: typeof PredicateKind.NET }>,
+  sdkVersion?: string,
 ): EvalResult {
   // SSE headers close the request immediately. A later detail supplies its captured body without another call.
   if (p.bodyContains !== undefined || p.bodyMatches !== undefined) {
@@ -449,10 +440,9 @@ export function evalNet(
     // stays inconclusive either way: a partial parse must not decide it, since a later duplicate key
     // could overturn whatever the prefix seemed to say.
     const missedMatch = NetBodyAssertion.MATCHES === truncatedClause;
-    const remedy = missedMatch ? TRUNCATED_MATCHES_REMEDY : TRUNCATED_PREFIX_REMEDY;
     return {
       pass: false,
-      inconclusive: `a call matching ${describeNetFilter(p)} was answered with a body that was TRUNCATED before it was recorded, and ${wantedBody(p)} is not in the part that was kept — so this is undecidable, not a failure. The cap is per-body and set where the app calls connect(): \`reticle.connect({ captureNetworkBodies: true, networkBodyMaxChars: 65536 })\`, or for the Vite plugin \`reticle({ networkBodyMaxChars: 65536 })\` / VITE_RETICLE_BODY_MAX_CHARS=65536 (default 8192, max 262144). An SDK older than this daemon ignores the option; a version skew on the session says so. ${remedy}`,
+      inconclusive: `a call matching ${describeNetFilter(p)} was answered with a body that was TRUNCATED before it was recorded, and ${wantedBody(p)} is not in the part that was kept — so this is undecidable, not a failure. ${truncatedBodyAdvice(sdkVersion, missedMatch)}`,
       observed: `the first ${String(truncatedBody.length)} characters of a truncated response body ${JSON.stringify(clipBody(truncatedBody))}`,
       expected: `a response body carrying ${wantedBody(p)}`,
       assertion: truncatedClause ?? NetBodyAssertion.CONTAINS,
